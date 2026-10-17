@@ -1,0 +1,52 @@
+name: Backend foundation
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Generate disposable configuration
+        run: |
+          python3 - <<'PY'
+          import base64, re, secrets
+          from pathlib import Path
+          config = Path('src/.env.example').read_text()
+          for key in ['DB_PASSWORD', 'MIGRATION_DB_PASSWORD', 'POSTGRES_PASSWORD']:
+              config = re.sub(r'^' + key + r'=$', key + '=' + secrets.token_hex(24), config, flags=re.MULTILINE)
+          config = config.replace('APP_KEY=\n', 'APP_KEY=base64:' + base64.b64encode(secrets.token_bytes(32)).decode() + '\n')
+          Path('src/.env').write_text(config)
+          PY
+      - name: Build backend and start private dependencies
+        run: |
+          docker compose --env-file src/.env build --pull app migrate
+          docker compose --env-file src/.env up -d --wait postgres redis
+      - name: Validate dependencies and PHP style
+        run: |
+          docker compose --env-file src/.env run --rm -T --no-deps app composer validate --strict
+          docker compose --env-file src/.env run --rm -T --no-deps app vendor/bin/pint --test
+      - name: Run identity tests
+        run: docker compose --env-file src/.env run --rm -T app php artisan test --compact
+      - name: Migrate and grant restricted runtime access
+        run: |
+          docker compose --env-file src/.env run --rm -T migrate
+          docker compose --env-file src/.env run --rm -T migrate php scripts/grant-runtime.php
+      - name: Verify PostgreSQL role and row policies
+        run: |
+          docker compose --env-file src/.env exec -T postgres psql -U postgres -d weavdash -v ON_ERROR_STOP=1 < src/tests/Integration/rls-fixtures.sql
+          docker compose --env-file src/.env exec -T postgres psql -U postgres -d weavdash -v ON_ERROR_STOP=1 < src/tests/Integration/rls.sql
+      - name: Run PostgreSQL workspace and worker middleware tests
+        run: docker compose --env-file src/.env run --rm -T app vendor/bin/phpunit -c phpunit.pgsql.xml
+      - name: Smoke test backend container
+        run: |
+          docker compose --env-file src/.env up -d --wait app
+          curl --fail --retry 5 --retry-connrefused http://127.0.0.1:8000/up
+      - name: Shut down disposable services
+        if: always()
+        run: docker compose --env-file src/.env down --volumes
