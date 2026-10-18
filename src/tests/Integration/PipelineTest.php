@@ -118,6 +118,7 @@ class PipelineTest extends TestCase
         $this->assertEmpty(array_intersect(array_column($first->json('entries'), 'id'), array_column($second->json('entries'), 'id')));
         $this->getJson('/pipeline')->assertJsonCount(2, 'totals');
         $this->getJson('/pipeline?q=%25')->assertJsonCount(0, 'entries');
+        $this->getJson('/pipeline?q=0')->assertJsonCount(3, 'entries');
         $this->getJson('/pipeline?stage=unknown')->assertUnprocessable();
         $this->postJson('/pipeline', $this->lead(['value_minor' => '9007199254740993']))->assertCreated();
         foreach (['1.5', '-1', '1000000000000000000', '1e3'] as $bad) {

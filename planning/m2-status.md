@@ -17,7 +17,7 @@ Implemented, with verification in progress:
 
 ## Verification
 
-Local verification: 23 identity tests (200 assertions), 12 PostgreSQL integration tests (224 assertions), and 15 acceptance tests (341 assertions) passed. The pipeline contributes six integration tests (115 assertions) and one five-role/revocation acceptance test (29 assertions). Strict TypeScript checks, 16 Vue tests, the application build, PHP style, the standalone DDL check, and source secret scanning passed.
+Local verification: 23 identity tests (200 assertions), 12 PostgreSQL integration tests (224 assertions), and 15 acceptance tests (341 assertions) passed. The pipeline contributes six integration tests (115 assertions) and one five-role/revocation acceptance test (29 assertions). A final literal-zero search regression check passed all six pipeline tests with 116 assertions. Strict TypeScript checks, 16 Vue tests, the application build, PHP style, the standalone DDL check, and source secret scanning passed.
 
 A separate fresh synthetic database passed full migrations, rollback/reapply of the new migration, runtime grants, and all six pipeline integration tests; that database was removed. Four Chromium pipeline browser tests passed across desktop/mobile, including two-tab conflicts and future snoozing; two axe scans reported zero violations. Captures were visually reviewed and overflow checks passed. See [retained evidence](evidence/m2/README.md). Full remote Chromium/WebKit and clean-setup verification is pending. The initial stale-tab journey exposed loss of unsaved fields; the corrected page preserves state, freezes the loaded version, and blocks saving until explicit reload.
 

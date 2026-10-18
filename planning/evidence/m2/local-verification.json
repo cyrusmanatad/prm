@@ -144,5 +144,11 @@
     "Reusable contact management",
     "Dedicated reminders/completion",
     "Manual outreach templates"
-  ]
+  ],
+  "review_regression_recheck": {
+    "pipeline_integration_tests": 6,
+    "assertions": 116,
+    "php_style": "passed",
+    "fix": "Literal brand search 0 is applied rather than treated as an empty string."
+  }
 }

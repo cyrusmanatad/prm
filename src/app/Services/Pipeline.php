@@ -31,7 +31,7 @@ class Pipeline
     public function listing(string $orgId, array $filters): array
     {
         $query = $this->entries($orgId);
-        if (! empty($filters['q'])) {
+        if (isset($filters['q']) && $filters['q'] !== '') {
             // Literal substring search; user '%'/'_' are not SQL wildcards.
             $query->whereRaw('strpos(lower(brand_name), lower(?)) > 0', [$filters['q']]);
         }
