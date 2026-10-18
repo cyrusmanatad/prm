@@ -1,6 +1,6 @@
 # M1 Foundation Status
 
-Status: **in progress; not accepted**. No M2 features or production deployment are included.
+Status: **manual acceptance pending**. Automated foundation gates and external mail trial passed. **Confirmed (D19):** continue M2 development with screen-reader, full browser zoom, and native Safari reviews carried forward. This does not establish M1 manual acceptance or production readiness.
 
 ## Implemented foundation slices
 
@@ -48,7 +48,7 @@ The default SQLite tests cover identity only. Standalone PostgreSQL grants impli
 
 The sandbox still restricts external package hosts and Docker daemon access, but approved commands outside it now provide working package network access and Docker. The previous environment blocker is resolved for container and package work. The official Inertia adapter/client, Tailwind, shadcn-vue baseline, and Chromium are installed. No custom router or session client replaces Inertia.
 
-Continue with manual screen-reader/full zoom and native Safari review. External mail delivery and link opening passed with user confirmation. Production MFA policy is confirmed (D18); enforcement is not implemented. The `origin` remote is now configured at `cyrusmanatad/prm`; baseline and expanded remote CI results passed and are retained below. Do not mark this milestone complete or begin CRM implementation until all acceptance gates pass.
+Continue with manual screen-reader/full zoom and native Safari review. External mail delivery and link opening passed with user confirmation. Production MFA policy is confirmed (D18); enforcement is not implemented. The `origin` remote is now configured at `cyrusmanatad/prm`; baseline and expanded remote CI results passed and are retained below. Do not mark manual acceptance complete until these reviews pass. The user explicitly authorized M2 development with these checks pending (D19).
 
 Pending human and provider checks are listed in [M1 manual acceptance](m1-manual-acceptance.md).
 

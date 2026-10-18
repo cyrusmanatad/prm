@@ -1,6 +1,6 @@
 # WeavDash Planning
 
-Status: milestone-by-milestone implementation is authorized by the user. Development may proceed before pilot recruitment; pilot validation remains required before commercial launch. Detailed business and operating decisions remain under review. M1 implementation is in progress; see [M1 status](m1-status.md) for delivered backend work and remaining acceptance gates. See [M0 delivery backlog](m0-backlog.md) for readiness and unresolved gates.
+Status: milestone-by-milestone implementation is authorized by the user. Development may proceed before pilot recruitment; pilot validation remains required before commercial launch. Detailed business and operating decisions remain under review. M1 automated gates passed; manual reviews remain pending and the user authorized M2 development (D19). See [M1 status](m1-status.md) for evidence and [M2 status](m2-status.md) for the next implementation slice. See [M0 delivery backlog](m0-backlog.md) for readiness and unresolved gates.
 
 ## Reading order
 

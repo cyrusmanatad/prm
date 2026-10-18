@@ -37,6 +37,8 @@
 
 **D18 — Confirmed (2026-10-18):** require MFA for platform operators and workspace owners before production. This records the user-approved policy; MFA enrollment, challenge/recovery flows, and enforcement are not yet implemented or tested.
 
+**D19 — Confirmed (2026-10-18):** the user authorized moving on to M2 while manual screen-reader, full browser zoom, and native Safari reviews remain pending. This permits continued development; it does not claim M1 manual acceptance, waive those release checks, or authorize production deployment. Carry the pending reviews across milestones.
+
 Unanswered product recommendations remain proposals. Provider selection, sensitive-data collection, real invoice issuance, and external automation must be resolved before dependent features. See [M0 delivery backlog](m0-backlog.md).
 
 ## Remaining inspection work

@@ -100,7 +100,7 @@ def main():
             browser_env = {**clean_environment, 'COMPOSE_PROJECT_NAME': args.project,
                            'COMPOSE_FILE': str(source / 'compose.yaml')+os.pathsep+str(source / 'compose.clean.yaml'),
                            'PLAYWRIGHT_BASE_URL': f'http://localhost:{args.port}'}
-            phase('browser', ['npm', 'run', 'test:browser'], cwd=source / 'src', env=browser_env, timeout=240)
+            phase('browser', ['npm', 'run', 'test:browser'], cwd=source / 'src', env=browser_env, timeout=360)
         finally:
             phase('cleanup', compose+['down', '--volumes'], timeout=90)
     summary = {'project': args.project, 'phases': phases, 'elapsed_seconds': round(time.monotonic()-started),

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\RevokeSessionsController;
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\PipelineController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Middleware\WorkspaceContext;
 use Illuminate\Http\Request;
@@ -43,6 +44,15 @@ Route::middleware('auth')->group(function (): void {
         'user' => $request->user()->only(['id', 'name', 'email', 'email_verified_at']),
     ]));
     Route::middleware('verified')->group(function (): void {
+        Route::middleware(WorkspaceContext::class)->group(function (): void {
+            Route::get('/pipeline', [PipelineController::class, 'index']);
+            Route::post('/pipeline', [PipelineController::class, 'store']);
+            Route::patch('/pipeline/{entry}', [PipelineController::class, 'update'])->whereUuid('entry');
+            Route::delete('/pipeline/{entry}', [PipelineController::class, 'destroy'])->whereUuid('entry');
+            Route::post('/pipeline/{entry}/stage', [PipelineController::class, 'stage'])->whereUuid('entry');
+            Route::post('/pipeline/{entry}/snooze', [PipelineController::class, 'snooze'])->whereUuid('entry');
+            Route::post('/pipeline/{entry}/activities', [PipelineController::class, 'activity'])->whereUuid('entry');
+        });
         Route::get('/workspaces', [WorkspaceController::class, 'index']);
         Route::post('/workspaces', [WorkspaceController::class, 'store'])->middleware('throttle:5,1,workspace-create:');
         Route::post('/workspace/select', [WorkspaceController::class, 'select']);

@@ -50,3 +50,5 @@ Use Laravel session authentication and CSRF protection for Inertia routes. Polic
 ## Future resource APIs
 
 Campaigns/deliverables; tracking links/codes/orders/attributions; commission approval/settlement; payout attempts; PRM claims, tiers and incentives; AI insights/feedback. Public API keys must be tenant-bound, hashed, scoped, expiring/revocable, and auditable. Do not expose these before the relevant business module is approved.
+
+The first M2 slice implements session-protected `/pipeline` web actions and selected JSON compatibility. Its exact inputs, projections, paging, role defaults, and conflict behavior are documented in the [M2 pipeline contract](m2-pipeline-contract.md). The proposed `/api/v1` resource families above are not parallel implemented APIs.

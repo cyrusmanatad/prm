@@ -28,6 +28,7 @@ INSERT INTO users(email_verified_at) VALUES (now()), (now());
 """
     sql = setup + (root / 'database/sql/foundation.sql').read_text()
     sql += (root / 'database/sql/lock-membership.sql').read_text()
+    sql += (root / 'database/sql/pipeline.sql').read_text()
     sql += (root / 'database/sql/runtime-grants.sql').read_text()
     sql += """
 RESET ROLE;
@@ -37,6 +38,14 @@ DO $$ BEGIN
     END IF;
     IF (SELECT count(*) FROM pg_policy WHERE polrelid IN ('organizations'::regclass, 'memberships'::regclass, 'audit_logs'::regclass)) <> 5 THEN
         RAISE EXCEPTION 'missing policies';
+    END IF;
+END $$;
+DO $$ BEGIN
+    IF (SELECT count(*) FROM pg_class WHERE relname IN ('pipeline_entries','pipeline_activities') AND relrowsecurity AND relforcerowsecurity) <> 2 THEN
+        RAISE EXCEPTION 'missing pipeline forced RLS';
+    END IF;
+    IF (SELECT count(*) FROM pg_policy WHERE polrelid IN ('pipeline_entries'::regclass, 'pipeline_activities'::regclass)) <> 6 THEN
+        RAISE EXCEPTION 'missing pipeline policies';
     END IF;
 END $$;
 SELECT 'SCHEMA_CHECKS_PASSED';
