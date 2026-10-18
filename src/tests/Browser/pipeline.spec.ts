@@ -40,6 +40,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await stale.getByRole('button', { name: 'Reload latest lead', exact: true }).click();
     await expect(stale.getByLabel('Brand name', { exact: true })).toHaveValue('Latest studio');
     await stale.close();
+    await page.getByLabel('Private notes (optional)').fill('Draft kept across next-action and activity updates.');
     await page.getByLabel('Snooze until (your local time)').fill('2035-06-10T09:30');
     await page.getByRole('button', { name: 'Snooze next action', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('Next action snoozed.');
@@ -47,6 +48,10 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.getByRole('button', { name: 'Record activity', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('Activity recorded.');
     await expect(page.getByText('Discussed the next collaboration.', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Private notes (optional)')).toHaveValue('Draft kept across next-action and activity updates.');
+    await page.getByRole('button', { name: 'Save lead', exact: true }).click();
+    await expect(page.getByRole('status')).toContainText('Lead saved.');
+    await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeEnabled();
     await page.reload();
     await expect(page.getByLabel('Next action (optional, your local time)')).toHaveValue('2035-06-10T09:30');
     const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze();

@@ -66,7 +66,12 @@ function visit(method: 'post' | 'patch' | 'delete', path: string, data: Record<s
     if (busy.value || errors.value.version) return;
     formErrors.value = {};
     router.visit(path, { method, data, preserveScroll: true, preserveState: true,
-        onStart: () => { busy.value = true; }, onFinish: () => { busy.value = false; }, onSuccess: () => { loadedVersion.value = props.selected?.version ?? 0; refreshEdit(); done?.(); },
+        onStart: () => { busy.value = true; }, onFinish: () => { busy.value = false; }, onSuccess: () => {
+            loadedVersion.value = props.selected?.version ?? 0;
+            if (formAction.value === 'create' || formAction.value === 'update') refreshEdit();
+            if (formAction.value === 'snooze') editForm.value.next_action_due = localInput(props.selected?.next_action_due ?? null);
+            done?.();
+        },
     });
 }
 function details(form: LeadForm): Record<string, string | null> | null {
