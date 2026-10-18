@@ -48,4 +48,8 @@ The default SQLite tests cover identity only. Standalone PostgreSQL grants impli
 
 The sandbox still restricts external package hosts and Docker daemon access, but approved commands outside it now provide working package network access and Docker. The previous environment blocker is resolved for container and package work. The official Inertia adapter/client, Tailwind, shadcn-vue baseline, and Chromium are installed. No custom router or session client replaces Inertia.
 
-Continue with remote CI delivery validation, manual screen-reader/full zoom and Safari/WebKit review, external mail validation, and the production MFA policy. Remote CI requires a configured repository remote; none is present in this checkout. Do not mark this milestone complete or begin CRM implementation until all acceptance gates pass.
+Continue with remote CI delivery validation, manual screen-reader/full zoom and Safari/WebKit review, external mail validation, and the production MFA policy. The `origin` remote is now configured at `cyrusmanatad/prm`; remote CI results are being validated. Do not mark this milestone complete or begin CRM implementation until all acceptance gates pass.
+
+## Remote delivery follow-up
+
+The remote is now configured. Frontend run [39090148586](https://github.com/cyrusmanatad/prm/actions/runs/39090148586) passed for `66c85e1`; backend/clean-setup run [39090148605](https://github.com/cyrusmanatad/prm/actions/runs/39090148605) is under review. The browser configuration now includes Chromium and WebKit desktop/mobile projects, and CI/clean setup provision both engines. Local WebKit installation downloaded the engine but cannot run until missing system libraries are installed; the installer requires an unavailable sudo password. This is not passing WebKit evidence. Native Safari, manual assistive-technology/full zoom review, external mail delivery, and production MFA policy remain acceptance work.

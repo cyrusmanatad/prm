@@ -27,7 +27,7 @@ test('all five roles enforce server permissions and revoked pages drop stale wor
 });
 
 test('session fixation, CSRF failure, logout replay, and reset of two live sessions', async ({ page, browser }, info) => {
-    test.skip(info.project.name === 'mobile', 'Viewport-independent session attacks run once; mobile recovery/revocation remains covered by foundation journeys.');
+    test.skip(info.project.name === 'mobile' || info.project.name === 'webkit-mobile', 'Viewport-independent session attacks run once; mobile recovery/revocation remains covered by foundation journeys.');
     test.setTimeout(60_000);
     const email = `m1-browser-replay-${Date.now()}@example.test`;
     fixture('seed', email);
