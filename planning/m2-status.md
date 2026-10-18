@@ -4,7 +4,7 @@ Status: **in progress; not accepted**. **Confirmed (D19):** M2 development may c
 
 ## First slice: private creator pipeline
 
-Implemented, with verification in progress:
+Implemented and verified for this first slice:
 
 - Workspace-private lead capture, embedded primary contact name/email, private notes, exact money values, and next-action dates.
 - Seven **PDF** stages: Lead, Pitched, Negotiating, Onboarded, Active, Repeat Client, Lost. Accessible stage menus persist changes and append a private activity event.
@@ -19,7 +19,7 @@ Implemented, with verification in progress:
 
 Local verification: 23 identity tests (200 assertions), 12 PostgreSQL integration tests (224 assertions), and 15 acceptance tests (341 assertions) passed. The pipeline contributes six integration tests (115 assertions) and one five-role/revocation acceptance test (29 assertions). A final literal-zero search regression check passed all six pipeline tests with 116 assertions. Strict TypeScript checks, 16 Vue tests, the application build, PHP style, the standalone DDL check, and source secret scanning passed.
 
-A separate fresh synthetic database passed full migrations, rollback/reapply of the new migration, runtime grants, and all six pipeline integration tests; that database was removed. Four Chromium pipeline browser tests passed across desktop/mobile, including two-tab conflicts and future snoozing; two axe scans reported zero violations. Captures were visually reviewed and overflow checks passed. See [retained evidence](evidence/m2/README.md). Full remote Chromium/WebKit and clean-setup verification is pending. The initial stale-tab journey exposed loss of unsaved fields; the corrected page preserves state, freezes the loaded version, and blocks saving until explicit reload.
+A separate fresh synthetic database passed full migrations, rollback/reapply of the new migration, runtime grants, and all six pipeline integration tests; that database was removed. Four Chromium pipeline browser tests passed across desktop/mobile, including two-tab conflicts and future snoozing; two axe scans reported zero violations. Captures were visually reviewed and overflow checks passed. See [retained evidence](evidence/m2/README.md). Final remote verification passed on `c0e8627`: [backend/clean-setup](https://github.com/cyrusmanatad/prm/actions/runs/39094106344) and [frontend](https://github.com/cyrusmanatad/prm/actions/runs/39094106339). The final suite includes 12 PostgreSQL tests (225 assertions), 15 acceptance tests (341 assertions), 16 Vue tests, and 30 Chromium/WebKit browser tests with two intentional mobile duplicates skipped. All 44 axe scans reported zero violations; fresh setup completed in 364 seconds. [Remote evidence](evidence/m2/remote-ci.json) retains results and scope. Unsaved notes also survive successful snooze/activity commands and can subsequently be saved. The initial stale-tab journey exposed loss of unsaved fields; the corrected page preserves state, freezes the loaded version, and blocks saving until explicit reload.
 
 ## Remaining M2 scope
 

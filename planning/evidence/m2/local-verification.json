@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-18T03:23:04.316204+00:00",
+  "checked_at": "2026-10-18T03:36:24.356988+00:00",
   "scope": "M2 first private-pipeline slice on disposable PostgreSQL/Redis with restricted runtime role",
   "identity": {
     "tests": 23,
@@ -29,8 +29,8 @@
   "fresh_database_migration_rollback_reapply_grants_and_pipeline_tests": "passed; synthetic database removed",
   "source_secret_scan": "passed (191 reviewable files)",
   "pipeline_chromium_browser_stats": {
-    "startTime": "2026-10-18T03:21:55.304Z",
-    "duration": 40826.271,
+    "startTime": "2026-10-18T03:34:49.716Z",
+    "duration": 74581.512,
     "expected": 4,
     "skipped": 0,
     "unexpected": 0,
@@ -138,7 +138,7 @@
       ]
     }
   ],
-  "remote_ci": "pending",
+  "remote_ci": "Passed on c0e8627; see remote-ci.json for separate final remote evidence.",
   "manual_screen_reader_zoom_native_safari": "pending per D19",
   "remaining_m2": [
     "Reusable contact management",
@@ -150,5 +150,6 @@
     "assertions": 116,
     "php_style": "passed",
     "fix": "Literal brand search 0 is applied rather than treated as an empty string."
-  }
+  },
+  "draft_command_regression": "passed on desktop/mobile: unsaved notes survive snooze/activity and can then be saved"
 }

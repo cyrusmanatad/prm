@@ -1,0 +1,281 @@
+{
+  "url": "https://github.com/cyrusmanatad/prm/actions/runs/39094106344",
+  "commit": "c0e8627b2c1da2707e49d77a708f1430e3f9cd02",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "clean-setup",
+      "conclusion": "success"
+    },
+    {
+      "name": "backend",
+      "conclusion": "success"
+    }
+  ],
+  "frontend": {
+    "url": "https://github.com/cyrusmanatad/prm/actions/runs/39094106339",
+    "conclusion": "success"
+  },
+  "browser_stats": {
+    "startTime": "2026-10-18T03:38:25.440Z",
+    "duration": 176700.528,
+    "expected": 30,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "accessibility_scans": [
+    {
+      "project": "desktop",
+      "state": "/login",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "/register",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "/forgot-password",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "/missing-page",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "verification",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "denied-verification",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "workspace-security",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "security-error",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "large-text",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "/login",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "/register",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "/forgot-password",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "/missing-page",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "verification",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "denied-verification",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "workspace-security",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "security-error",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "large-text",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "/login",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "/register",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "/forgot-password",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "/missing-page",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "verification",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "denied-verification",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "workspace-security",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "security-error",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "large-text",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "/login",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "/register",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "/forgot-password",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "/missing-page",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "verification",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "denied-verification",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "workspace-security",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "security-error",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "large-text",
+      "violations": 0
+    },
+    {
+      "project": "desktop",
+      "state": "pipeline",
+      "violations": 0
+    },
+    {
+      "project": "mobile",
+      "state": "pipeline",
+      "violations": 0
+    },
+    {
+      "project": "webkit-desktop",
+      "state": "pipeline",
+      "violations": 0
+    },
+    {
+      "project": "webkit-mobile",
+      "state": "pipeline",
+      "violations": 0
+    }
+  ],
+  "clean_setup": {
+    "project": "weavdash-m1-clean-ci",
+    "phases": [
+      "build",
+      "dependencies",
+      "migrate",
+      "grants",
+      "rls-fixtures",
+      "rls",
+      "identity",
+      "integration",
+      "acceptance",
+      "app",
+      "npm-ci",
+      "frontend-types",
+      "frontend-tests",
+      "frontend-build",
+      "browsers",
+      "browser",
+      "cleanup"
+    ],
+    "elapsed_seconds": 364,
+    "host_dependencies_copied": false,
+    "reused_local_credentials": false,
+    "build_cache_may_be_reused": true,
+    "remote_ci_executed": true
+  },
+  "limitations": [
+    "M2 first pipeline slice only; reusable contacts, dedicated reminders/completion, and manual templates remain.",
+    "Manual screen-reader, actual browser zoom, and native macOS/iOS Safari reviews remain pending under D19.",
+    "Automated WebKit on Linux does not certify native Safari or accessibility."
+  ]
+}
