@@ -1,0 +1,5 @@
+# Explicit opt-in for an external SMTP delivery trial; default Compose stays in memory.
+services:
+  app:
+    environment:
+      MAIL_MAILER: smtp

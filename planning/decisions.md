@@ -18,7 +18,7 @@
 | D06 | What is paid at launch, and have 20–30 committed pilots been recruited? | Start with useful free/pilot entitlements; validate creator pricing before self-serve billing. Define “10 active brands,” grace/downgrade, and trial policy. |
 | D07 | Must MVP issue real tax invoices/e-sign contracts, or track records/drafts? | Draft/manual records first; accountant-reviewed invoice issuance and integrated signatures later. This narrows PDF Phase 1 and needs explicit approval. |
 | D08 | Is AI pitch drafting a release requirement, and what provider/budget is acceptable? | Optional consent-based pilot behind a flag; template/manual workflow remains usable. Mockup Claude choice is unapproved. |
-| D09 | Final login UX, MFA policy, and later enterprise federation provider? | Native Laravel sessions/Fortify are the initial proposal for the approved Vue/Inertia application. Confirm password versus magic-link UX and MFA; select SAML/OIDC integration/provider only when enterprise needs justify it. |
+| D09 | MFA enrollment/recovery, admin coverage, and later enterprise federation provider? | Password/session login is confirmed (D15); require MFA for platform operators and workspace owners before production (D18). Enforcement implementation remains pending. Select federation only when enterprise needs justify it. |
 | D10 | Which actions may run without approval? | No automatic external pitches/contracts/financial actions initially; explicit user commands may send an invite. Start with named reminder templates, not rule builder. |
 | D11 | What sensitive onboarding data is truly needed and for how long? | Minimize TIN/permits/shipping collection; confirm purpose, document sharing, retention/deletion exceptions, and jurisdiction with qualified advisers. |
 | D12 | Later payout funds flow, provider permissions, fees, and attribution rules? | No custody in MVP. Before Phase 2/3 define merchant/payee ownership, payout approvals, unknown outcomes, return windows, link-vs-code precedence, and dispute process. No provider capability/approval is assumed. |
@@ -34,6 +34,8 @@
 **D16 — Confirmed:** keep the complete Laravel application and its dependencies, tests, build tools, and environment files in `src/`. Documentation/reference directories remain outside `src/`. Repository-level orchestration and GitHub workflow configuration remain at the root. This layout change does not expand M1 scope.
 
 **D17 — Confirmed:** Docker targets stable PHP 8.5 using `php:8.5-cli-bookworm`. Builds pull current base images; the Redis extension is pinned to 6.3.0. The Composer minimum remains PHP 8.3 for local compatibility; this includes PHP 8.5. Container build/runtime verification remains required before M1 acceptance.
+
+**D18 — Confirmed (2026-10-18):** require MFA for platform operators and workspace owners before production. This records the user-approved policy; MFA enrollment, challenge/recovery flows, and enforcement are not yet implemented or tested.
 
 Unanswered product recommendations remain proposals. Provider selection, sensitive-data collection, real invoice issuance, and external automation must be resolved before dependent features. See [M0 delivery backlog](m0-backlog.md).
 

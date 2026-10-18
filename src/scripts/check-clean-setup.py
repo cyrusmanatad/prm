@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify a fresh source/configuration/database setup without local dependencies.
 
-Requires Docker Compose, Python 3, Node 24/npm, and Chromium system libraries.
+Requires Docker Compose, Python 3, Node 24/npm, and Chromium and WebKit system libraries.
 Creates and removes only a new, explicitly named synthetic Compose project.
 Build caches may be reused; host vendor/node_modules and local .env are excluded.
 """
@@ -96,7 +96,7 @@ def main():
             phase('frontend-types', ['npm', 'run', 'typecheck'], cwd=source / 'src')
             phase('frontend-tests', ['npm', 'test'], cwd=source / 'src')
             phase('frontend-build', ['npm', 'run', 'build'], cwd=source / 'src')
-            phase('chromium', ['npx', 'playwright', 'install', 'chromium'], cwd=source / 'src')
+            phase('browsers', ['npx', 'playwright', 'install', 'chromium', 'webkit'], cwd=source / 'src')
             browser_env = {**clean_environment, 'COMPOSE_PROJECT_NAME': args.project,
                            'COMPOSE_FILE': str(source / 'compose.yaml')+os.pathsep+str(source / 'compose.clean.yaml'),
                            'PLAYWRIGHT_BASE_URL': f'http://localhost:{args.port}'}
@@ -105,7 +105,8 @@ def main():
             phase('cleanup', compose+['down', '--volumes'], timeout=90)
     summary = {'project': args.project, 'phases': phases, 'elapsed_seconds': round(time.monotonic()-started),
                'host_dependencies_copied': False, 'reused_local_credentials': False,
-               'build_cache_may_be_reused': True, 'remote_ci_executed': False}
+               'build_cache_may_be_reused': True,
+               'remote_ci_executed': os.environ.get('GITHUB_ACTIONS') == 'true'}
     (logs / 'summary.json').write_text(json.dumps(summary, indent=2)+'\n')
     print(f'Clean setup passed. Evidence: {logs}', flush=True)
 

@@ -25,6 +25,7 @@ test('auth, reset, verification, and generic error pages have no automated acces
     await page.getByLabel('Password', { exact: true }).fill('browser-password-123');
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL(/\/verify-email$/);
+    await expect(page.getByRole('button', { name: 'Resend verification email' })).toBeEnabled();
     await audit(page, info, 'verification');
     const link = fixture('verify', email).url;
     await page.goto(link.replace(/signature=[^&]+/, 'signature=invalid'));

@@ -60,7 +60,7 @@ docker compose --env-file src/.env run --rm app vendor/bin/phpunit -c phpunit.pg
 
 SQL checks exercise denied cross-organization reads/writes, viewer restrictions, revocation, append-only auditing, and commit/rollback context cleanup. PHPUnit integration checks request/service paths, denied/stale workspace selections, and rollback of writes and audit events after failures. It also requires Redis: a unique disposable queue exercises actual worker failure, another tenant's job, and processing after a worker process restart. Test probe jobs live under `tests/Fixtures/` and have no application route. PHPUnit settings override Docker environment values and write caches under writable storage.
 
-The Compose image build, migrations, grants, SQL suite, and six integration tests (109 assertions) passed locally on PHP 8.5.11. The integration suite now includes Inertia workspace projection, partial reload isolation, stale selection cleanup, and named validation errors. The identity/Inertia suite has 23 passing tests (200 assertions). The GitHub workflow defines these checks but has not run remotely.
+The Compose image build, migrations, grants, SQL suite, and six integration tests (109 assertions) passed locally on PHP 8.5.11. The integration suite now includes Inertia workspace projection, partial reload isolation, stale selection cleanup, and named validation errors. The identity/Inertia suite has 23 passing tests (200 assertions). The baseline GitHub backend and clean-setup jobs passed; see [remote evidence](planning/evidence/m1/remote-ci.json).
 
 For the concurrency and process tests, run from the repository root against a migrated **disposable** database:
 
@@ -96,11 +96,13 @@ The Tailwind v4 theme preserves the prototype palette. `components.json`, the ut
 For a **running, migrated disposable Compose stack**, install Chromium and run:
 
 ```sh
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run test:browser
 ```
 
-Tests default to Compose project `weavdash-m1` and `http://localhost:8000`. For the default setup project, use `COMPOSE_PROJECT_NAME=weavdash npm run test:browser`. `PLAYWRIGHT_BASE_URL` can override the browser address; it must match the app's `APP_URL` for signed verification links. On a fresh Linux host, `npx playwright install --with-deps chromium` also installs browser system dependencies.
+The browser suite defines Chromium and WebKit desktop/mobile projects. Use `npx playwright test --project=desktop --project=mobile` for Chromium only. WebKit coverage uses Playwright on Linux; native Safari/macOS and iOS review remains separate.
+
+Tests default to Compose project `weavdash-m1` and `http://localhost:8000`. For the default setup project, use `COMPOSE_PROJECT_NAME=weavdash npm run test:browser`. `PLAYWRIGHT_BASE_URL` can override the browser address; it must match the app's `APP_URL` for signed verification links. On a fresh Linux host, `npx playwright install --with-deps chromium webkit` also installs browser system dependencies.
 
 Browser tests create synthetic identities via `tests/Browser/fixture.php`, a CLI-only local/testing helper. They exercise registration, signed verification, reset links, invalid login, workspace validation/loading/settings, and revocation of two independent database sessions at desktop/mobile sizes. Mail uses the in-memory transport; link fixtures verify browser/server behavior without an external delivery service. Do not run these tests against a shared or production database. Screenshots/traces are generated under ignored `src/test-results/`; curated [UI evidence](planning/evidence/m1/README.md) is retained separately.
 
@@ -115,8 +117,8 @@ python3 src/scripts/check-clean-setup.py --project weavdash-m1-clean-review --po
 
 The pinned source scanner tests a synthetic positive control and scans tracked/nonignored current source, not Git history or ignored credentials. The setup runner requires Docker Compose, Python 3, Node 24/npm, and Chromium system libraries. It rejects existing project resources, copies source without local dependencies/configuration, generates new credentials, installs dependencies, runs the complete application suites, and removes its own services and volumes. Existing host/build/browser caches may be reused. A local run passed; [saved evidence](planning/evidence/m1/clean-setup.json) records its scope.
 
-The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Remote GitHub execution remains unverified.
+The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Baseline remote GitHub execution passed; expanded Chromium/WebKit desktop/mobile coverage also passed on `264e8e3` (22 tests, two intentional skips; 40 axe scans with zero violations).
 
 ## Remaining M1 work
 
-See [M1 status](planning/m1-status.md). Complete remote CI execution, manual screen-reader/full zoom and Safari/WebKit review, external mail validation, and the production MFA policy before acceptance or moving to M2. No Git remote is configured in this checkout. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
+See [M1 status](planning/m1-status.md). Complete manual screen-reader/full zoom and native Safari review before acceptance or moving to M2. External Brevo mail delivery and link opening passed with user confirmation. The production MFA policy is confirmed for operators and owners (D18); enforcement remains pending before production. See the [manual acceptance checklist](planning/m1-manual-acceptance.md), including the proposed free Brevo SMTP trial. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.

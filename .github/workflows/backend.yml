@@ -61,8 +61,8 @@ jobs:
         working-directory: src
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
-          npx playwright install --with-deps chromium
-      - name: Verify desktop and mobile account/workspace journeys
+          npx playwright install --with-deps chromium webkit
+      - name: Verify Chromium and WebKit account/workspace journeys
         working-directory: src
         env:
           COMPOSE_PROJECT_NAME: weavdash
@@ -88,11 +88,11 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
-      - name: Provision Chromium system dependencies
+      - name: Provision browser system dependencies
         working-directory: src
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
       - name: Validate fresh source, credentials, dependencies, and services
         run: python3 src/scripts/check-clean-setup.py --project weavdash-m1-clean-ci --port 8001
       - name: Retain clean setup evidence
