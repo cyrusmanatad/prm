@@ -41,7 +41,8 @@ class Workspaces
         $membership = DB::table('memberships')->where('org_id', $orgId)->where('user_id', $actorId)
             ->whereNull('revoked_at')->first();
         abort_unless($membership && WorkspaceRole::from($membership->role)->canManageSettings(), 403);
-        DB::table('organizations')->where('id', $orgId)->update(['name' => $name, 'updated_at' => now()]);
+        $updated = DB::table('organizations')->where('id', $orgId)->update(['name' => $name, 'updated_at' => now()]);
+        abort_unless($updated === 1, 403, 'Workspace settings are no longer available.');
         $this->audit->record($actorId, $orgId, 'workspace.renamed', $orgId);
     }
 }

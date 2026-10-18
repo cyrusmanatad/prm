@@ -10,3 +10,7 @@ storage/framework/cache/data/*
 storage/framework/views/*
 bootstrap/cache/*.php
 .phpunit.cache
+test-results
+playwright-report
+storage/framework/testing/*
+public/build

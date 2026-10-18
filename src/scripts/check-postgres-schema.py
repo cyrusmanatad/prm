@@ -27,6 +27,7 @@ CREATE TABLE migrations (id serial PRIMARY KEY);
 INSERT INTO users(email_verified_at) VALUES (now()), (now());
 """
     sql = setup + (root / 'database/sql/foundation.sql').read_text()
+    sql += (root / 'database/sql/lock-membership.sql').read_text()
     sql += (root / 'database/sql/runtime-grants.sql').read_text()
     sql += """
 RESET ROLE;

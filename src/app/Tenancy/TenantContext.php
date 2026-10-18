@@ -32,9 +32,8 @@ class TenantContext
         return $connection->transaction(function () use ($connection, $actorId, $orgId, $callback, $requireMembership) {
             $this->set($connection, $actorId, $orgId);
             if ($requireMembership && $orgId !== null) {
-                $member = $connection->table('memberships')->where('org_id', $orgId)
-                    ->where('user_id', $actorId)->whereNull('revoked_at')->first();
-                abort_unless($member, 403, 'Workspace access is no longer available.');
+                $member = $connection->selectOne('SELECT app_lock_membership(?::uuid) AS allowed', [$orgId]);
+                abort_unless($member?->allowed, 403, 'Workspace access is no longer available.');
             }
 
             return $callback();

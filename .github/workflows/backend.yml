@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+      - name: Scan reviewable source for secrets
+        run: python3 src/scripts/check-secrets.py
       - name: Generate disposable configuration
         run: |
           python3 - <<'PY'
@@ -25,11 +27,12 @@ jobs:
           PY
       - name: Build backend and start private dependencies
         run: |
-          docker compose --env-file src/.env build --pull app migrate
+          docker compose --env-file src/.env build --pull app migrate acceptance worker scheduler
           docker compose --env-file src/.env up -d --wait postgres redis
       - name: Validate dependencies and PHP style
         run: |
           docker compose --env-file src/.env run --rm -T --no-deps app composer validate --strict
+          docker compose --env-file src/.env run --rm -T --no-deps app composer --no-cache audit --locked --no-interaction
           docker compose --env-file src/.env run --rm -T --no-deps app vendor/bin/pint --test
       - name: Run identity tests
         run: docker compose --env-file src/.env run --rm -T app php artisan test --compact
@@ -41,12 +44,62 @@ jobs:
         run: |
           docker compose --env-file src/.env exec -T postgres psql -U postgres -d weavdash -v ON_ERROR_STOP=1 < src/tests/Integration/rls-fixtures.sql
           docker compose --env-file src/.env exec -T postgres psql -U postgres -d weavdash -v ON_ERROR_STOP=1 < src/tests/Integration/rls.sql
-      - name: Run PostgreSQL workspace and worker middleware tests
+      - name: Run PostgreSQL isolation and real Redis worker tests
         run: docker compose --env-file src/.env run --rm -T app vendor/bin/phpunit -c phpunit.pgsql.xml
+      - name: Verify membership concurrency and process recovery
+        run: |
+          docker compose --env-file src/.env run --rm -T acceptance
+          python3 src/scripts/check-process-restarts.py --project weavdash
       - name: Smoke test backend container
         run: |
           docker compose --env-file src/.env up -d --wait app
           curl --fail --retry 5 --retry-connrefused http://127.0.0.1:8000/up
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: Install browser test dependencies
+        working-directory: src
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify desktop and mobile account/workspace journeys
+        working-directory: src
+        env:
+          COMPOSE_PROJECT_NAME: weavdash
+        run: npm run test:browser
+      - name: Retain browser accessibility and journey evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: foundation-browser-evidence
+          path: src/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Shut down disposable services
         if: always()
         run: docker compose --env-file src/.env down --volumes
+  clean-setup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: Provision Chromium system dependencies
+        working-directory: src
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Validate fresh source, credentials, dependencies, and services
+        run: python3 src/scripts/check-clean-setup.py --project weavdash-m1-clean-ci --port 8001
+      - name: Retain clean setup evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: foundation-clean-setup-evidence
+          path: /tmp/weavdash-m1-clean-ci-evidence-*/
+          retention-days: 7
+          if-no-files-found: ignore

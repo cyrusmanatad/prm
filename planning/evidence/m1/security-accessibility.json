@@ -1,0 +1,149 @@
+{
+  "date_utc": "2026-10-17T15:58:13.794Z",
+  "browser_results": {
+    "startTime": "2026-10-17T15:58:13.794Z",
+    "duration": 95986.158,
+    "expected": 11,
+    "skipped": 1,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "axe_scans": [
+    {
+      "state": "/login",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/register",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/forgot-password",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/missing-page",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "verification",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "denied-verification",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "workspace-security",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "security-error",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "large-text",
+      "viewport": "desktop",
+      "violations": [],
+      "needs_review": [
+        "color-contrast"
+      ]
+    },
+    {
+      "state": "/login",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/register",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/forgot-password",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "/missing-page",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "verification",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "denied-verification",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "workspace-security",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "security-error",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": []
+    },
+    {
+      "state": "large-text",
+      "viewport": "mobile",
+      "violations": [],
+      "needs_review": [
+        "color-contrast"
+      ]
+    }
+  ],
+  "manual_dispositions": [
+    {
+      "rule": "color-contrast",
+      "target": ".wd-workspace-initial",
+      "reason": "Single decorative initial is aria-hidden and repeats the adjacent workspace name. Foreground #8e1650 on #f2e2e9 has calculated contrast 7.07:1."
+    }
+  ],
+  "limitations": [
+    "Chromium emulation only; no Safari/WebKit or screen-reader certification.",
+    "200% root-font check is not a complete browser zoom/text-resize review.",
+    "Viewport-independent session attack test runs once; mobile recovery/revocation runs in foundation journeys."
+  ]
+}

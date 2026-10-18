@@ -7,17 +7,18 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 class RegisteredUserController extends Controller
 {
-    public function __invoke(RegisterRequest $request): JsonResponse
+    public function __invoke(RegisterRequest $request): JsonResponse|RedirectResponse
     {
         $user = User::create($request->validated());
         event(new Registered($user));
         Auth::login($user);
         $request->session()->regenerate();
 
-        return response()->json(['message' => 'Check your email to verify your account.'], 201);
+        return $this->completed($request, ['message' => 'Check your email to verify your account.'], '/verify-email', 201);
     }
 }

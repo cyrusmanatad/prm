@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
@@ -15,16 +16,16 @@ use Illuminate\Validation\ValidationException;
 
 class PasswordController extends Controller
 {
-    public function sendLink(Request $request): JsonResponse
+    public function sendLink(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate(['email' => ['required', 'email']]);
         Password::sendResetLink($request->only('email'));
 
         // Use the same response whether or not an account exists.
-        return response()->json(['message' => 'If the account exists, a reset link has been requested.']);
+        return $this->completed($request, ['message' => 'If the account exists, a reset link has been requested.'], '/forgot-password');
     }
 
-    public function reset(Request $request): JsonResponse
+    public function reset(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate([
             'email' => ['required', 'email'], 'token' => ['required', 'string'],
@@ -42,6 +43,6 @@ class PasswordController extends Controller
             throw ValidationException::withMessages(['email' => __($status)]);
         }
 
-        return response()->json(['message' => __($status)]);
+        return $this->completed($request, ['message' => __($status)], '/login');
     }
 }

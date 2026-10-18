@@ -28,7 +28,7 @@ x-backend: &backend
     - private-storage:/var/www/html/storage/app/private
 services:
   postgres:
-    image: postgres:16-bookworm
+    image: postgres:16-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: weavdash
@@ -44,7 +44,7 @@ services:
       timeout: 3s
       retries: 20
   redis:
-    image: redis:7.4-bookworm
+    image: redis:7.4-bookworm@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
     command: [redis-server, --appendonly, 'yes']
     volumes:
       - redis-data:/data
@@ -64,10 +64,12 @@ services:
       retries: 10
   worker:
     <<: *backend
+    init: true
     command: [php, artisan, 'queue:work', redis, '--sleep=3', '--tries=3', '--timeout=60', '--max-time=3600']
     restart: unless-stopped
   scheduler:
     <<: *backend
+    init: true
     command: [php, artisan, 'schedule:work']
     restart: unless-stopped
   migrate:
@@ -78,6 +80,15 @@ services:
       DB_USERNAME: weavdash_migrator
       DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Set MIGRATION_DB_PASSWORD in src/.env}
     command: [php, artisan, migrate, --force]
+  acceptance:
+    <<: *backend
+    profiles: [tools]
+    environment:
+      <<: *runtime
+      APP_ENV: testing
+      # Fixture control connection only; never provided to web/worker/scheduler.
+      TEST_MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Set MIGRATION_DB_PASSWORD in src/.env}
+    command: [vendor/bin/phpunit, '-c', phpunit.acceptance.xml]
 volumes:
   postgres-data:
   redis-data:

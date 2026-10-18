@@ -1,0 +1,54 @@
+{
+  "project": "weavdash-m1-clean-review",
+  "phases": [
+    "build",
+    "dependencies",
+    "migrate",
+    "grants",
+    "rls-fixtures",
+    "rls",
+    "identity",
+    "integration",
+    "acceptance",
+    "app",
+    "npm-ci",
+    "frontend-types",
+    "frontend-tests",
+    "frontend-build",
+    "chromium",
+    "browser",
+    "cleanup"
+  ],
+  "elapsed_seconds": 253,
+  "host_dependencies_copied": false,
+  "reused_local_credentials": false,
+  "build_cache_may_be_reused": true,
+  "remote_ci_executed": false,
+  "local_date": "2026-10-18 (Asia/Shanghai)",
+  "verified_results": {
+    "identity": {
+      "tests": 23,
+      "assertions": 200
+    },
+    "postgresql_redis": {
+      "tests": 6,
+      "assertions": 109
+    },
+    "acceptance": {
+      "tests": 14,
+      "assertions": 312
+    },
+    "vue": {
+      "tests": 13
+    },
+    "browser": {
+      "passed": 11,
+      "intentional_viewport_duplicate_skipped": 1
+    },
+    "rls": "RLS_CHECKS_PASSED"
+  },
+  "limitations": [
+    "Uses an existing Docker/Node/Python host; build and browser caches may be reused.",
+    "This is local execution, not a remote GitHub Actions run."
+  ]
+}

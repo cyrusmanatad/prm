@@ -158,4 +158,17 @@ class AuthenticationTest extends TestCase
         $this->app->instance('env', 'local');
         $this->postJson('/login', ['email' => 'creator@example.test', 'password' => 'wrong'])->assertStatus(419);
     }
+
+    public function test_recovery_throttling_does_not_consume_registration_allowance(): void
+    {
+        Notification::fake();
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/forgot-password', ['email' => 'missing@example.test'])->assertOk();
+        }
+        $this->postJson('/forgot-password', ['email' => 'missing@example.test'])->assertTooManyRequests();
+        $this->postJson('/register', [
+            'name' => 'Creator', 'email' => 'creator@example.test',
+            'password' => 'safe-password-123', 'password_confirmation' => 'safe-password-123',
+        ])->assertCreated();
+    }
 }

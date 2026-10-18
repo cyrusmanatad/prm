@@ -40,6 +40,8 @@ Backend modules: identity/tenancy; creator CRM; onboarding/documents; profiles/m
 
 Browser requests pass authentication, active-membership validation, policies, Form Request validation, entitlements, and a tenant-bound database transaction. Eloquent scopes help application queries but do not replace RLS. Serialize explicit authorized props/resources; do not expose entire models, hidden relationships, or private fields through globally shared Inertia props. Public forms use restricted capability handlers. REST/OpenAPI supports integrations and selected JSON operations; see [API design](api-design.md).
 
+M1 implementation holds a shared lock on the actor's active membership for each selected-workspace transaction. A narrowly scoped `app_lock_membership` function obtains it without granting runtime membership mutation. Revocation/demotion waits for an already authorized transaction to commit or roll back; if the membership change locks first, a waiting action observes the changed row and is denied. New requests/jobs recheck membership and role. Keep these transactions short. Workspace changes append an audit event only after exactly one authorized row is updated.
+
 Public media-kit metadata and social previews can use Laravel-rendered HTML/Blade where needed. Inertia SSR and its Node runtime are deferred unless a confirmed requirement justifies them. Avoid microservices, Kubernetes, a warehouse, self-hosted AI, and a generic workflow builder at launch.
 
 ## Reliable jobs and automation
@@ -49,6 +51,8 @@ Persist business changes, audit events, and outbox records in one PostgreSQL tra
 Begin with named templates: reminder, follow-up draft, onboarding invite, weekly digest. Persist organization, subject, rule version, due time/timezone, consent, and approval state. Jobs carry scalar IDs, establish tenant context before loading models, and clear context between jobs. Recheck current membership/grants, replies, rule state, entitlements, and consent before executing. A logged reply cancels obsolete follow-ups; snooze persists a real future time.
 
 Run the scheduler as a separate process; prevent duplicate dispatches with locking and database constraints. Use bounded retries/backoff, failed-job review, per-tenant quotas, and observable queue age. Laravel notifications/mail deliver messages only after required approval. AI remains an optional consent-based adapter with redacted inputs, budgets, recorded versions/factors, feedback, and a non-AI fallback.
+
+M1 process evidence uses synthetic tasks only: an uncommitted worker write is killed and reclaimed from Redis; a failed scheduled task releases its overlap lock; a killed task retains its lock until the configured test TTL expires. Compose worker/scheduler services use an init process for child reaping and restart automatically after their Artisan process is killed. These checks do not establish exactly-once external actions; durable intent, deduplication, and business schedules remain M5 work.
 
 ## Technical references
 

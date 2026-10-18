@@ -5,23 +5,24 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class EmailVerificationController extends Controller
 {
-    public function verify(EmailVerificationRequest $request): JsonResponse
+    public function verify(EmailVerificationRequest $request): JsonResponse|RedirectResponse
     {
         $request->fulfill();
 
-        return response()->json(['message' => 'Email verified.']);
+        return $this->completed($request, ['message' => 'Email verified.'], '/workspaces');
     }
 
-    public function send(Request $request): JsonResponse
+    public function send(Request $request): JsonResponse|RedirectResponse
     {
         if (! $request->user()->hasVerifiedEmail()) {
             $request->user()->sendEmailVerificationNotification();
         }
 
-        return response()->json(['message' => 'Verification link requested.']);
+        return $this->completed($request, ['message' => 'Verification link requested.'], '/verify-email');
     }
 }

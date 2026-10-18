@@ -5,6 +5,9 @@ DO $$ BEGIN
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = current_user AND (rolsuper OR rolbypassrls)) THEN
         RAISE EXCEPTION 'runtime role bypasses RLS';
     END IF;
+    IF app_lock_membership('00000000-0000-4000-8000-000000000001') THEN
+        RAISE EXCEPTION 'membership lock accepted missing context';
+    END IF;
     IF (SELECT count(*) FROM organizations) <> 0 OR (SELECT count(*) FROM memberships) <> 0 THEN
         RAISE EXCEPTION 'missing identity context exposed rows';
     END IF;
@@ -31,6 +34,9 @@ DO $$ BEGIN
         RAISE EXCEPTION 'SELECT isolation failed';
     END IF;
     IF NOT EXISTS (SELECT 1 FROM organizations WHERE name = 'Creator A') THEN RAISE EXCEPTION 'own organization hidden'; END IF;
+    IF NOT app_lock_membership(app_org()) OR app_lock_membership('00000000-0000-4000-8000-000000000002') THEN
+        RAISE EXCEPTION 'membership lock scope failed';
+    END IF;
 END $$;
 UPDATE organizations SET name = 'Creator A renamed' WHERE id = app_org();
 DO $$ BEGIN
@@ -93,7 +99,7 @@ SET ROLE weavdash_app;
 BEGIN;
 SELECT set_config('app.actor_id', '1', true), set_config('app.org_id', '00000000-0000-4000-8000-000000000001', true);
 DO $$ BEGIN
-    IF (SELECT count(*) FROM organizations) <> 0 OR app_has_membership(app_org()) THEN RAISE EXCEPTION 'revoked membership still trusted'; END IF;
+    IF (SELECT count(*) FROM organizations) <> 0 OR app_has_membership(app_org()) OR app_lock_membership(app_org()) THEN RAISE EXCEPTION 'revoked membership still trusted'; END IF;
 END $$;
 COMMIT;
 RESET ROLE;
@@ -102,5 +108,12 @@ DO $$ BEGIN
     IF EXISTS (SELECT 1 FROM pg_class c JOIN pg_roles r ON r.oid = c.relowner WHERE c.relname IN ('organizations','memberships','audit_logs') AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity OR r.rolname = 'weavdash_app')) THEN
         RAISE EXCEPTION 'table ownership/RLS configuration unsafe';
     END IF;
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_proc p JOIN pg_roles r ON r.oid = p.proowner
+        WHERE p.oid = 'app_lock_membership(uuid)'::regprocedure AND p.prosecdef
+          AND r.rolname = 'weavdash_migrator'
+          AND p.proconfig @> ARRAY['search_path=pg_catalog, public']
+          AND NOT EXISTS (SELECT 1 FROM aclexplode(p.proacl) a WHERE a.grantee = 0 AND a.privilege_type = 'EXECUTE')
+    ) THEN RAISE EXCEPTION 'membership lock function privilege boundary unsafe'; END IF;
 END $$;
 SELECT 'RLS_CHECKS_PASSED';
