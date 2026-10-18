@@ -105,7 +105,8 @@ def main():
             phase('cleanup', compose+['down', '--volumes'], timeout=90)
     summary = {'project': args.project, 'phases': phases, 'elapsed_seconds': round(time.monotonic()-started),
                'host_dependencies_copied': False, 'reused_local_credentials': False,
-               'build_cache_may_be_reused': True, 'remote_ci_executed': False}
+               'build_cache_may_be_reused': True,
+               'remote_ci_executed': os.environ.get('GITHUB_ACTIONS') == 'true'}
     (logs / 'summary.json').write_text(json.dumps(summary, indent=2)+'\n')
     print(f'Clean setup passed. Evidence: {logs}', flush=True)
 

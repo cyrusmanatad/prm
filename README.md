@@ -60,7 +60,7 @@ docker compose --env-file src/.env run --rm app vendor/bin/phpunit -c phpunit.pg
 
 SQL checks exercise denied cross-organization reads/writes, viewer restrictions, revocation, append-only auditing, and commit/rollback context cleanup. PHPUnit integration checks request/service paths, denied/stale workspace selections, and rollback of writes and audit events after failures. It also requires Redis: a unique disposable queue exercises actual worker failure, another tenant's job, and processing after a worker process restart. Test probe jobs live under `tests/Fixtures/` and have no application route. PHPUnit settings override Docker environment values and write caches under writable storage.
 
-The Compose image build, migrations, grants, SQL suite, and six integration tests (109 assertions) passed locally on PHP 8.5.11. The integration suite now includes Inertia workspace projection, partial reload isolation, stale selection cleanup, and named validation errors. The identity/Inertia suite has 23 passing tests (200 assertions). The GitHub workflow defines these checks but has not run remotely.
+The Compose image build, migrations, grants, SQL suite, and six integration tests (109 assertions) passed locally on PHP 8.5.11. The integration suite now includes Inertia workspace projection, partial reload isolation, stale selection cleanup, and named validation errors. The identity/Inertia suite has 23 passing tests (200 assertions). The baseline GitHub backend and clean-setup jobs passed; see [remote evidence](planning/evidence/m1/remote-ci.json).
 
 For the concurrency and process tests, run from the repository root against a migrated **disposable** database:
 
@@ -117,8 +117,8 @@ python3 src/scripts/check-clean-setup.py --project weavdash-m1-clean-review --po
 
 The pinned source scanner tests a synthetic positive control and scans tracked/nonignored current source, not Git history or ignored credentials. The setup runner requires Docker Compose, Python 3, Node 24/npm, and Chromium system libraries. It rejects existing project resources, copies source without local dependencies/configuration, generates new credentials, installs dependencies, runs the complete application suites, and removes its own services and volumes. Existing host/build/browser caches may be reused. A local run passed; [saved evidence](planning/evidence/m1/clean-setup.json) records its scope.
 
-The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Remote GitHub execution remains unverified.
+The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Baseline remote GitHub execution passed; expanded WebKit coverage is under review.
 
 ## Remaining M1 work
 
-See [M1 status](planning/m1-status.md). Complete remote CI execution, manual screen-reader/full zoom and Safari/WebKit review, external mail validation, and the production MFA policy before acceptance or moving to M2. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
+See [M1 status](planning/m1-status.md). Complete expanded browser validation, manual screen-reader/full zoom and native Safari review, and external mail validation before acceptance or moving to M2. The production MFA policy is confirmed for operators and owners (D18); enforcement remains pending before production. See the [manual acceptance checklist](planning/m1-manual-acceptance.md), including the proposed free Brevo SMTP trial. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
