@@ -66,6 +66,260 @@
       "flaky": 0
     },
     "failure": "Verification button contrast during disabled-to-enabled opacity transition in both WebKit projects; 20 tests passed, two failed, two skipped.",
-    "fix": "Use transition-colors instead of transition-all; wait for enabled verification button before audit. Rerun pending."
+    "fix": "Use transition-colors instead of transition-all; wait for enabled verification button before audit. Verified by successful run 39090957064."
+  },
+  "webkit_verified": {
+    "url": "https://github.com/cyrusmanatad/prm/actions/runs/39090957064",
+    "commit": "264e8e3da721d43ad9d438068b23d61592fdaff5",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "clean-setup",
+        "conclusion": "success"
+      },
+      {
+        "name": "backend",
+        "conclusion": "success"
+      }
+    ],
+    "frontend_url": "https://github.com/cyrusmanatad/prm/actions/runs/39090957076",
+    "frontend_conclusion": "success",
+    "browser_stats": {
+      "startTime": "2026-10-18T02:44:48.931Z",
+      "duration": 125558.717,
+      "expected": 22,
+      "skipped": 2,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "accessibility_scans": [
+      {
+        "project": "desktop",
+        "state": "/login",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "/register",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "/forgot-password",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "/reset-password/synthetic?email=creator@example.test",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "/missing-page",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "verification",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "denied-verification",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "workspace-security",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "security-error",
+        "violations": 0
+      },
+      {
+        "project": "desktop",
+        "state": "large-text",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "/login",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "/register",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "/forgot-password",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "/reset-password/synthetic?email=creator@example.test",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "/missing-page",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "verification",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "denied-verification",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "workspace-security",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "security-error",
+        "violations": 0
+      },
+      {
+        "project": "mobile",
+        "state": "large-text",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "/login",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "/register",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "/forgot-password",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "/reset-password/synthetic?email=creator@example.test",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "/missing-page",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "verification",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "denied-verification",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "workspace-security",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "security-error",
+        "violations": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "state": "large-text",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "/login",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "/register",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "/forgot-password",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "/reset-password/synthetic?email=creator@example.test",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "/missing-page",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "verification",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "denied-verification",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "workspace-security",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "security-error",
+        "violations": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "state": "large-text",
+        "violations": 0
+      }
+    ],
+    "clean_setup": {
+      "project": "weavdash-m1-clean-ci",
+      "phases": [
+        "build",
+        "dependencies",
+        "migrate",
+        "grants",
+        "rls-fixtures",
+        "rls",
+        "identity",
+        "integration",
+        "acceptance",
+        "app",
+        "npm-ci",
+        "frontend-types",
+        "frontend-tests",
+        "frontend-build",
+        "browsers",
+        "browser",
+        "cleanup"
+      ],
+      "elapsed_seconds": 305,
+      "host_dependencies_copied": false,
+      "reused_local_credentials": false,
+      "build_cache_may_be_reused": true,
+      "remote_ci_executed": true
+    }
   }
 }
