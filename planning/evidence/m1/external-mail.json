@@ -20,13 +20,14 @@
     "account_already_verified": true,
     "verification_state_changed": false
   },
-  "inbox_receipt": "awaiting user confirmation",
-  "email_links": "awaiting user confirmation",
+  "inbox_receipt": "confirmed by user: both messages arrived",
+  "email_links": "confirmed by user: both links work",
   "limitations": [
-    "Password reset was requested but not completed by the agent.",
+    "User confirmed both links work; completion of a new password reset was not separately observed by the agent.",
     "Existing account was already verified; this trial does not establish a new verification state transition.",
     "SMTP handoff does not establish inbox receipt or provider delivery telemetry."
   ],
   "credentials_committed": false,
-  "app_transport_after_trial": "array (confirmed)"
+  "app_transport_after_trial": "array (confirmed)",
+  "acceptance": "External inbox delivery and link opening passed; existing verified-account state was preserved."
 }

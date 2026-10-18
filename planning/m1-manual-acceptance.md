@@ -1,6 +1,6 @@
 # M1 manual acceptance
 
-Status: **Assumption / Open**. These checks are pending; automated browser and axe results do not establish that they passed. Use synthetic identities in a disposable environment.
+Status: manual accessibility/native Safari reviews remain **Assumption / Open**. External mail receipt/link opening passed, and MFA policy is **Confirmed**; see results below. Automated browser and axe results do not establish that manual reviews passed. Use synthetic identities in a disposable environment.
 
 Record the reviewer, date, OS/browser/assistive-technology versions, result, and evidence for each check. Link failures to a fix and repeat the affected journey.
 
@@ -23,7 +23,7 @@ Record the reviewer, date, OS/browser/assistive-technology versions, result, and
 - Request verification through the UI; confirm inbox delivery, intended sender, usable link origin, and successful verification. Check tampered and expired links fail.
 - Request password recovery through the UI; confirm delivery, successful reset, invalidated existing sessions, and rejection of link reuse.
 - Record provider message identifiers and redacted results. Keep credentials, full signed URLs, reset tokens, and mailbox contents out of committed evidence.
-- Restore the in-memory transport after the trial. Provider selection and inbox receipt remain unresolved until supplied and observed.
+- Restore the in-memory transport after the trial. Brevo SMTP was trialed successfully; the user confirmed both messages arrived and both links work. See [external mail evidence](evidence/m1/external-mail.json).
 
 ## MFA policy
 
@@ -33,7 +33,7 @@ Track results and milestone disposition in [M1 status](m1-status.md).
 
 ## Suggested free mail trial
 
-**Proposal (2026-10-18):** Brevo Free provides [300 emails per day](https://www.brevo.com/products/transactional-email/). Use SMTP so a later provider change requires configuration rather than notification changes. Account approval, sender verification, and actual delivery are still pending.
+**Proposal (2026-10-18):** Brevo Free provides [300 emails per day](https://www.brevo.com/products/transactional-email/). Use SMTP so a later provider change requires configuration rather than notification changes. The Brevo account/SMTP setup was subsequently supplied and tested: authentication and notification handoff passed, and the user confirmed inbox receipt and link opening.
 
 Create the account, verify the intended sender/domain, and get the SMTP login and SMTP key from its SMTP page. The [official SMTP instructions](https://help.brevo.com/hc/en-us/articles/7924908994450-Send-transactional-emails-using-Brevo-SMTP) distinguish this key from an API key. Set private `src/.env` values:
 
