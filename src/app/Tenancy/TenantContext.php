@@ -22,7 +22,7 @@ class TenantContext
 
         $unsafe = $connection->selectOne("SELECT rolsuper OR rolbypassrls OR rolcreaterole OR EXISTS (
             SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
-            WHERE n.nspname = 'public' AND c.relname IN ('organizations', 'memberships', 'audit_logs')
+            WHERE n.nspname = 'public' AND c.relname IN ('organizations', 'memberships', 'audit_logs', 'pipeline_entries', 'pipeline_activities')
               AND pg_has_role(current_user, c.relowner, 'USAGE')
         ) AS unsafe FROM pg_roles WHERE rolname = current_user");
         if (! $unsafe || $unsafe->unsafe) {

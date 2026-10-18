@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
 import { useValidationFocus } from '../../composables/useValidationFocus';
@@ -88,6 +89,7 @@ defineExpose({
                 <section v-if="selected" class="wd-card wd-settings-card" aria-labelledby="workspace-settings-title">
                     <span class="wd-eyebrow">Selected workspace</span>
                     <h2 id="workspace-settings-title">{{ selected.name }}</h2>
+                    <Link class="wd-link" href="/pipeline">Open creator pipeline</Link>
                     <p v-if="!canEdit" class="wd-description">Your {{ selected.role }} role does not include workspace settings changes.</p>
                     <form v-else :aria-busy="pendingAction === 'rename'" @submit.prevent="rename">
                         <fieldset class="wd-fields" :disabled="busy">

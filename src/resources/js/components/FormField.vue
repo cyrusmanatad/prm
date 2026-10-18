@@ -2,7 +2,8 @@
 withDefaults(defineProps<{
     id: string;
     label: string;
-    type?: 'text' | 'email' | 'password';
+    type?: 'text' | 'email' | 'password' | 'datetime-local';
+    inputmode?: 'text' | 'decimal';
     autocomplete?: string;
     error?: string;
     hint?: string;
@@ -22,6 +23,7 @@ const value = defineModel<string>({ default: '' });
             v-model="value"
             :name="id"
             :type="type"
+            :inputmode="inputmode"
             :autocomplete="autocomplete"
             :required="required"
             :maxlength="maxlength"

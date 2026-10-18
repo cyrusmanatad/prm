@@ -1,6 +1,6 @@
 # WeavDash
 
-Creator pipeline and brand onboarding, built as a Laravel modular monolith. This checkout contains the **M1 foundation application**, not a finished product. Official Inertia adapters connect Vue authentication, recovery, verification, workspace, and account-session screens to the Laravel backend. Tailwind CSS and a generated shadcn-vue button baseline are installed. CRM features and production deployment remain outside this milestone. Do not use this development slice with live data.
+Creator pipeline and brand onboarding, built as a Laravel modular monolith. This checkout contains the **foundation and first M2 private-pipeline slice**, not a finished product. Official Inertia adapters connect Vue authentication, recovery, verification, workspace, and account-session screens to the Laravel backend. Tailwind CSS and a generated shadcn-vue button baseline are installed. The first CRM slice adds private leads, manual stage changes, next-action snoozing, and activity history. Reusable contacts, dedicated reminders, and outreach templates remain M2 work; production deployment is not included. Do not use this development slice with live data.
 
 ## Layout
 
@@ -119,6 +119,12 @@ The pinned source scanner tests a synthetic positive control and scans tracked/n
 
 The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Baseline remote GitHub execution passed; expanded Chromium/WebKit desktop/mobile coverage also passed on `264e8e3` (22 tests, two intentional skips; 40 axe scans with zero violations).
 
-## Remaining M1 work
+## Milestone status
 
-See [M1 status](planning/m1-status.md). Complete manual screen-reader/full zoom and native Safari review before acceptance or moving to M2. External Brevo mail delivery and link opening passed with user confirmation. The production MFA policy is confirmed for operators and owners (D18); enforcement remains pending before production. See the [manual acceptance checklist](planning/m1-manual-acceptance.md), including the proposed free Brevo SMTP trial. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
+See [M1 status](planning/m1-status.md). Manual screen-reader/full zoom and native Safari reviews remain pending. The user authorized M2 development with these reviews carried forward (D19); this does not waive release acceptance. External Brevo mail delivery and link opening passed with user confirmation. The production MFA policy is confirmed for operators and owners (D18); enforcement remains pending before production. See the [manual acceptance checklist](planning/m1-manual-acceptance.md), including the proposed free Brevo SMTP trial. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
+
+## Creator pipeline (M2 first slice)
+
+Select a workspace, then choose **Open creator pipeline** (or visit `/pipeline`). Capture a brand/contact, enter private notes and estimated value, move among seven stages, log activity, and snooze a next action to a future date. Filters and currency-separated totals derive from stored rows. Simultaneous edits require explicit reload after a version conflict. Viewer access is read-only. Activity logging does not send email.
+
+See [M2 status](planning/m2-status.md) and the [implemented web contract](planning/m2-pipeline-contract.md) for boundaries and remaining work. No contacts directory, reminder delivery, or onboarding automation is implied.

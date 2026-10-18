@@ -57,3 +57,7 @@ Proposed relationships: organization → many memberships/pipeline entries; pipe
 Record actor, organization, event, subject, time, correlation ID, and redacted changes. Plan monthly audit partitions, including a default/future partition creation strategy. Define retention before collecting IPs, kit views, tax documents, or AI inputs. Export/deletion must traverse storage, jobs, integrations, and consent records; preserve only justified financial/audit retention and record exceptions.
 
 Migration tests must prove RLS is enabled, policy coverage is complete, wrong-tenant writes fail, shared grants are narrow, and revoked memberships lose access. Include connection-pool reuse and background jobs. Schema-per-tenant or dedicated databases remain future options for contractual isolation/residency; avoid premature migration complexity.
+
+## M2 implementation note
+
+The first pipeline slice implements `pipeline_entries` and append-only `pipeline_activities` with forced RLS and a composite same-owner parent reference. The entry embeds a primary contact name/email; reusable `brand_contacts` and relation management remain future M2 work. See the [implemented pipeline contract](m2-pipeline-contract.md); the broader entity groups above remain proposals beyond delivered tables.

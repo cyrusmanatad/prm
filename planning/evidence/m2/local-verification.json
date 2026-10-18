@@ -1,0 +1,148 @@
+{
+  "checked_at": "2026-10-18T03:23:04.316204+00:00",
+  "scope": "M2 first private-pipeline slice on disposable PostgreSQL/Redis with restricted runtime role",
+  "identity": {
+    "tests": 23,
+    "assertions": 200
+  },
+  "postgresql_integration": {
+    "tests": 12,
+    "assertions": 224
+  },
+  "acceptance": {
+    "tests": 15,
+    "assertions": 341
+  },
+  "pipeline_integration_subset": {
+    "tests": 6,
+    "assertions": 115
+  },
+  "pipeline_role_subset": {
+    "tests": 1,
+    "assertions": 29
+  },
+  "frontend_tests": 16,
+  "typecheck": "passed",
+  "build": "passed",
+  "php_style": "passed",
+  "schema_ddl": "passed",
+  "fresh_database_migration_rollback_reapply_grants_and_pipeline_tests": "passed; synthetic database removed",
+  "source_secret_scan": "passed (191 reviewable files)",
+  "pipeline_chromium_browser_stats": {
+    "startTime": "2026-10-18T03:21:55.304Z",
+    "duration": 40826.271,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "accessibility_scans": [
+    {
+      "project": "desktop",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "tags": [
+            "cat.aria",
+            "wcag2a",
+            "wcag412",
+            "EN-301-549",
+            "EN-9.4.1.2",
+            "RGAAv4",
+            "RGAA-7.1.1"
+          ],
+          "description": "Ensure ARIA attributes are not prohibited for an element's role",
+          "help": "Elements must only use permitted ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-prohibited-attr?application=playwright",
+          "nodes": [
+            {
+              "any": [],
+              "all": [],
+              "none": [
+                {
+                  "id": "aria-prohibited-attr",
+                  "data": {
+                    "role": null,
+                    "nodeName": "div",
+                    "messageKey": "noRoleSingular",
+                    "prohibited": [
+                      "aria-label"
+                    ]
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+                }
+              ],
+              "impact": "serious",
+              "html": "<div class=\"wd-pipeline-board\" aria-label=\"Seven-stage pipeline\">",
+              "target": [
+                ".wd-pipeline-board"
+              ],
+              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "tags": [
+            "cat.aria",
+            "wcag2a",
+            "wcag412",
+            "EN-301-549",
+            "EN-9.4.1.2",
+            "RGAAv4",
+            "RGAA-7.1.1"
+          ],
+          "description": "Ensure ARIA attributes are not prohibited for an element's role",
+          "help": "Elements must only use permitted ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-prohibited-attr?application=playwright",
+          "nodes": [
+            {
+              "any": [],
+              "all": [],
+              "none": [
+                {
+                  "id": "aria-prohibited-attr",
+                  "data": {
+                    "role": null,
+                    "nodeName": "div",
+                    "messageKey": "noRoleSingular",
+                    "prohibited": [
+                      "aria-label"
+                    ]
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+                }
+              ],
+              "impact": "serious",
+              "html": "<div class=\"wd-pipeline-board\" aria-label=\"Seven-stage pipeline\">",
+              "target": [
+                ".wd-pipeline-board"
+              ],
+              "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on \"div\" elements with no valid role attribute."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "remote_ci": "pending",
+  "manual_screen_reader_zoom_native_safari": "pending per D19",
+  "remaining_m2": [
+    "Reusable contact management",
+    "Dedicated reminders/completion",
+    "Manual outreach templates"
+  ]
+}

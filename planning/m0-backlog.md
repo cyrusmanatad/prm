@@ -9,7 +9,7 @@ M0 planning deliverables are ready for M1. Prototype sessions and rendered deskt
 ## Initial implementation defaults
 
 - One Laravel application under `src/` with Vue/TypeScript/Inertia; keep reference documents and the saved prototype at the repository root (D16).
-- Password/session login, verified email, recovery, and session revocation. Production owner/admin MFA policy remains open.
+- Password/session login, verified email, recovery, and session revocation. Production MFA is confirmed for operators and workspace owners (D18); enforcement remains pending.
 - Free invited-brand participation through scoped forms/grants; private creator data stays private.
 - Draft invoices and manual reconciliation; defer real issuance, signatures, and transfers.
 - AI remains optional; no provider integration is required for the manual path.
@@ -18,7 +18,7 @@ M0 planning deliverables are ready for M1. Prototype sessions and rendered deskt
 
 ## M1 Foundation backlog
 
-Complete only this application milestone next; do not build CRM or onboarding features prematurely.
+M1 foundation implementation and automated validation are delivered. D19 authorizes M2 development while the manual reviews remain pending; onboarding stays M3 scope.
 
 | Task | Deliverable | Acceptance evidence |
 |---|---|---|
@@ -30,7 +30,7 @@ Complete only this application milestone next; do not build CRM or onboarding fe
 | F06: audit and processes | Redacted audit records; Redis worker/scheduler configuration and tenant-context boundary | Audit attribution is correct; repeated worker jobs clear context; no business automation added before M5 |
 | F07: delivery | Local Docker Compose, health checks, CI checks, environment example and setup README | Repeatable migrations and asset build; PostgreSQL/Redis stay private; no committed secrets; CI runs relevant tests |
 
-M1 is complete only after these checks pass. If the execution environment prevents a check, report it as unverified rather than treating configuration as proof.
+M1 manual acceptance remains pending; D19 permits M2 development while carrying the deferred manual checks. If the execution environment prevents a check, report it as unverified rather than treating configuration as proof.
 
 ## Required UI states
 

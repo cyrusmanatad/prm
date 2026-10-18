@@ -16,6 +16,8 @@ interface Props extends PrimitiveProps {
   disabled?: boolean
 }
 
+const emit = defineEmits<{ click: [event: MouseEvent] }>()
+
 const props = withDefaults(defineProps<Props>(), {
   as: "button",
   type: "button",
@@ -27,6 +29,7 @@ const nativeProps = computed(() => ({
   "data-size": props.size,
   type: props.type,
   disabled: props.disabled,
+  onClick: (event: MouseEvent) => emit("click", event),
 }))
 </script>
 
