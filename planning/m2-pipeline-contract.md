@@ -24,6 +24,8 @@ The page includes selected workspace ID/name, `canWrite`, stage options, filters
 
 Entries sort by creation time and ID descending, 25 per page. The cursor identifies a row in the current filtered workspace; inaccessible or no-longer-matching cursors return 404. Counts and totals cover all matching rows, independent of page; totals exclude Lost and never combine currencies. Aggregate money remains a decimal string even when it exceeds signed-64-bit or JavaScript integer range.
 
+Board presentation (**Confirmed**): a stage count appears beside the stage name only when above zero and is not part of the heading's accessible name. A stage with no entries on the current page shows a placeholder card: "N leads on other pages" when its count is above zero, "No matching leads" when filters are active, and otherwise "No leads yet". Presentation does not change props or queries.
+
 Owners/admins/managers/members can write; viewers read only. RLS separately enforces this default. Missing selection returns 409; absent/revoked membership returns 403. Inaccessible row IDs return 404. Invalid fields return JSON 422 or web session validation errors. Version conflicts return JSON 409 or a web redirect with a `version` error. Stale commands cannot append successful activity/audit events. Browser drafts survive the error and saves remain blocked until explicit reload.
 
 ## Follow-on scope

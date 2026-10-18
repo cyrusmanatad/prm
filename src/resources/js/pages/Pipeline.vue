@@ -42,6 +42,14 @@ const query = ref(props.filters.q);
 const stageFilter = ref(props.filters.stage);
 const dueOnly = ref(props.filters.due);
 const stamp = (value: string | null): string => value ? new Date(value).toLocaleString() : 'No next action';
+const stageCount = (stage: string): number => props.counts.find((count) => count.stage === stage)?.count ?? 0;
+const stageEntries = (stage: string): Entry[] => props.entries.filter((row) => row.stage === stage);
+const filtered = computed(() => !!(props.filters.q || props.filters.stage || props.filters.due));
+function placeholder(stage: string): string {
+    const count = stageCount(stage);
+    if (count > 0) return `${count} ${count === 1 ? 'lead' : 'leads'} on other pages`;
+    return filtered.value ? 'No matching leads' : 'No leads yet';
+}
 const localInput = (value: string | null): string => {
     if (!value) return '';
     const date = new Date(value);
@@ -148,11 +156,15 @@ function reloadSelected(): void {
                 </form>
             </details>
             <p v-if="!entries.length" class="wd-empty" role="status">{{ filters.q || filters.stage || filters.due ? 'No leads match these filters.' : 'Your pipeline is empty. Capture your first lead to get started.' }}</p>
-            <div class="wd-pipeline-board" aria-label="Seven-stage pipeline">
+            <section class="wd-pipeline-board" aria-label="Seven-stage pipeline">
                 <section v-for="option in stages" :key="option.value" class="wd-pipeline-stage" :aria-labelledby="`stage-${option.value}`">
-                    <h2 :id="`stage-${option.value}`">{{ option.label }} <span class="wd-hint">{{ counts.find(count => count.stage === option.value)?.count ?? 0 }}</span></h2>
+                    <div class="wd-pipeline-stage-header">
+                        <h2 :id="`stage-${option.value}`">{{ option.label }}</h2>
+                        <span v-if="stageCount(option.value) > 0" class="wd-pipeline-count">{{ stageCount(option.value) }}<span class="wd-sr-only">{{ stageCount(option.value) === 1 ? ' lead' : ' leads' }}</span></span>
+                    </div>
                     <ul class="wd-pipeline-cards">
-                        <li v-for="entry in entries.filter(row => row.stage === option.value)" :key="entry.id" class="wd-card">
+                        <li v-if="!stageEntries(option.value).length" class="wd-pipeline-placeholder">{{ placeholder(option.value) }}</li>
+                        <li v-for="entry in stageEntries(option.value)" :key="entry.id" class="wd-card">
                             <Link class="wd-link" :href="`/pipeline?entry=${entry.id}`">{{ entry.brand_name }}</Link>
                             <p>{{ money(entry.value_minor, entry.currency) }}</p>
                             <p class="wd-hint">{{ entry.contact_name || 'No contact yet' }}</p>
@@ -160,7 +172,7 @@ function reloadSelected(): void {
                         </li>
                     </ul>
                 </section>
-            </div>
+            </section>
             <p v-if="nextCursor" class="wd-hint">Showing 25 leads. Stage counts and totals include every matching lead.</p>
             <button v-if="nextCursor" class="wd-link" type="button" @click="filter(nextCursor)">Next 25 leads</button>
             <section v-if="selected" class="wd-card wd-pipeline-detail" aria-labelledby="lead-detail-title">
