@@ -20,6 +20,8 @@ Laravel/PHP with Vue 3 + TypeScript + Inertia, Tailwind/shadcn-vue, PostgreSQL R
 
 These details beyond the confirmed objective are scope proposals. The PDF Phase 1 includes media kits, invoicing, payouts, and AI; manual financial handling is now confirmed, while AI and signature deferrals remain reviewable tradeoffs.
 
+**Confirmed D25:** required transactional email notifications must work without Gmail/Outlook mailbox syncing. M5 includes closing the existing invitation/onboarding notification gaps and supporting required scheduled notifications. Mailbox syncing remains a future enhancement. See [M5 email requirements](m5-email-notifications.md) for current implementation gaps and delivery acceptance.
+
 ## Explicit future enhancements
 
 - Full campaign scheduling, draft/proof-of-post approvals and deal rooms; integrated contract/e-signature evidence.

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Queries\PipelinePage;
+use App\Services\NotificationOutbox;
 use App\Services\Pipeline;
 use App\Services\Workspaces;
 use Illuminate\Http\Request;
@@ -70,7 +71,8 @@ class PortalController extends Controller
         $relationships = DB::table('partnerships')->orderBy('accepted_at')->get(['id', 'brand_name', 'creator_name', 'status', 'accepted_at'])->all();
         $data = ['portal' => $portal, 'workspace' => $workspace, 'relationships' => $relationships,
             'canManage' => (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$org])->allowed,
-            'invitations' => DB::table('partner_invitations')->orderByDesc('created_at')->limit(100)->get(['id', 'status', 'expires_at'])->all(),
+            'invitations' => DB::table('partner_invitations as i')->leftJoin('notification_outbox as n', 'n.subject_id', '=', 'i.id')
+                ->orderByDesc('i.created_at')->limit(100)->get(['i.id', 'i.status', 'i.expires_at', 'n.state as email_state'])->all(),
             'pipeline' => $portal === 'partner' ? app(PipelinePage::class)->data($request, $pipeline) : null];
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
             return response()->json($data);
@@ -79,14 +81,17 @@ class PortalController extends Controller
         return Inertia::render('Portal', [...$data, 'inviteUrl' => $request->session()->has('partner_invite_url') ? decrypt($request->session()->pull('partner_invite_url')) : null]);
     }
 
-    public function invite(Request $request)
+    public function invite(Request $request, NotificationOutbox $outbox)
     {
-        $data = $request->validate(['email' => ['required', 'email:rfc', 'max:255']]);
+        $data = $request->validate(['email' => ['required', 'email:rfc', 'max:255'], 'send_email' => ['sometimes', 'boolean']]);
         $token = bin2hex(random_bytes(32));
         $id = (string) Str::uuid();
         $ok = DB::selectOne('SELECT app_invite_partner(?::uuid,?::text,?::text) AS allowed', [$id, $data['email'], hash('sha256', $token)])->allowed;
         abort_unless($ok, 409, 'Invitation unavailable. Check your role and outstanding invitations.');
-        $url = url('/partnerships/accept').'#'.$token;
+        $url = rtrim(config('app.url'), '/').'/partnerships/accept#'.$token;
+        if (! empty($data['send_email'])) {
+            $outbox->invitation((int) $request->user()->id, $request->session()->get('active_org_id'), $id, $url);
+        }
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['id' => $id, 'url' => $url], 201);
         }
