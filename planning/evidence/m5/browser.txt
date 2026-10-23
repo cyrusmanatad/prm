@@ -1,0 +1,19 @@
+npm notice run npx
+npm notice run 'playwright' test tests/Browser/notifications.spec.ts tests/Browser/portals.spec.ts --project=desktop --project=mobile
+
+Running 8 tests using 1 worker
+
+(node:258476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/notifications.spec.ts:30:1 › explicit invitation email shows queue capture and cancellation without external mail (10.3s)
+  ✓  2 [desktop] › tests/Browser/portals.spec.ts:11:1 › portal logins share identity and never grant a wrong workspace context (4.7s)
+  ✓  3 [desktop] › tests/Browser/portals.spec.ts:33:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (10.7s)
+  ✓  4 [desktop] › tests/Browser/portals.spec.ts:105:1 › portal registration survives logout and verification before first workspace provisioning (3.8s)
+(node:259681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [mobile] › tests/Browser/notifications.spec.ts:30:1 › explicit invitation email shows queue capture and cancellation without external mail (8.5s)
+  ✓  6 [mobile] › tests/Browser/portals.spec.ts:11:1 › portal logins share identity and never grant a wrong workspace context (4.4s)
+  ✓  7 [mobile] › tests/Browser/portals.spec.ts:33:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (11.1s)
+  ✓  8 [mobile] › tests/Browser/portals.spec.ts:105:1 › portal registration survives logout and verification before first workspace provisioning (3.2s)
+
+  8 passed (1.0m)

@@ -15,7 +15,7 @@ x-backend: &backend
     REDIS_CLIENT: phpredis
     QUEUE_CONNECTION: redis
     SESSION_DRIVER: database
-    MAIL_MAILER: array
+    MAIL_MAILER: ${TRANSACTIONAL_MAIL_MAILER:-array}
     CLAMAV_HOST: clamav
     MIGRATION_DB_PASSWORD: ''
     MIGRATION_DB_USERNAME: ''

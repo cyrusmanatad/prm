@@ -1,5 +1,7 @@
 # M3A Connected Portals Status
 
+See the [current handoff](implementation-handoff.md) and [remaining tasks](remaining-tasks.md) for today's checkpoint and carried-forward reviews/future PRM work. Statements below about later milestones not yet starting describe their historical verification period.
+
 Status: **development complete; automated gates passed; manual release acceptance pending**. The user's implementation request authorizes D21–D23 execution before M4. Existing M1–M3 evidence is retained; manual screen-reader/full browser zoom/native Safari release reviews and production MFA remain pending.
 
 ## Implemented scope

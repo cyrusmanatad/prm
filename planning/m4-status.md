@@ -1,5 +1,7 @@
 # M4 Financial Records and Entitlements Status
 
+Current commercial/operator decisions, inherited reviews and deferred finance expansion remain indexed in [remaining tasks](remaining-tasks.md). M5 has since begun; use the [current handoff](implementation-handoff.md) for the latest checkpoint. The evidence and sequencing statements below retain their original scope.
+
 Status: **development slices complete; automated verification passed; release acceptance pending**. Resumed on 2026-10-23 on the existing `m4/financial-records-entitlements` branch. The original five uncommitted files were inspected as unfinished work and continued without discarding them. Prepared for pull-request review; production release remains subject to the gates below.
 
 See the [M4 contract](m4-finance-contract.md) for implemented behavior, interface, proposal defaults and unresolved decisions, and [retained verification evidence](evidence/m4/README.md) for commands, logs and screenshots.

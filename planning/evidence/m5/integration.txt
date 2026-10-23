@@ -1,0 +1,12 @@
+ Container weavdash-acceptance-run-894aa1f95d79 Creating
+ Container weavdash-acceptance-run-894aa1f95d79 Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.pgsql.xml
+
+...........................                                       27 / 27 (100%)
+
+Time: 00:05.124, Memory: 58.50 MB
+
+[30;42mOK (27 tests, 503 assertions)[0m

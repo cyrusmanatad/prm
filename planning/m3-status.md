@@ -1,5 +1,7 @@
 # M3 Onboarding and Public Presence Status
 
+Current storage/privacy operations, notification gaps and inherited reviews remain indexed in [remaining tasks](remaining-tasks.md). See the [current handoff](implementation-handoff.md) for the latest checkpoint and next implementation sequence.
+
 Status: **development complete; automated gates passed; manual release acceptance pending**. **Confirmed (D20):** finish M2 and proceed through M3 with explicit onboarding initiation and minimal non-sensitive fields. The manual M1 accessibility/zoom/native Safari reviews remain release gates and are not claimed complete.
 
 ## Implemented scope
