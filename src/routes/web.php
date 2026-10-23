@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\RevokeSessionsController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CrmController;
+use App\Http\Controllers\InvoiceDraftController;
+use App\Http\Controllers\ManualPaymentController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OutreachTemplateController;
 use App\Http\Controllers\PipelineController;
@@ -70,6 +72,17 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/portal/enter', [PortalController::class, 'enter']);
 
         Route::middleware(WorkspaceContext::class)->group(function (): void {
+            Route::get('/workspace/entitlements', [InvoiceDraftController::class, 'entitlements']);
+            Route::get('/finance/payments', [ManualPaymentController::class, 'index']);
+            Route::post('/finance/payments', [ManualPaymentController::class, 'mutate']);
+            Route::post('/finance/payments/{payment}/{action}', [ManualPaymentController::class, 'mutate'])->whereUuid('payment')->whereIn('action', ['allocate', 'void']);
+            Route::post('/finance/allocations/{payment}/{action}', [ManualPaymentController::class, 'mutate'])->whereUuid('payment')->whereIn('action', ['reverse']);
+            Route::get('/finance/invoices', [InvoiceDraftController::class, 'index']);
+            Route::get('/finance/invoices/{invoice}', [InvoiceDraftController::class, 'index'])->whereUuid('invoice');
+            Route::post('/finance/invoices', [InvoiceDraftController::class, 'mutate']);
+            Route::patch('/finance/invoices/{invoice}', [InvoiceDraftController::class, 'mutate'])->whereUuid('invoice');
+            Route::post('/finance/invoices/{invoice}/void', [InvoiceDraftController::class, 'mutate'])->whereUuid('invoice');
+
             Route::get('/partner/leads', [PortalController::class, 'index']);
             Route::get('/partner', [PortalController::class, 'index']);
             Route::get('/brand', [PortalController::class, 'index']);

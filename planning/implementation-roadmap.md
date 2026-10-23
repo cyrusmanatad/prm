@@ -18,14 +18,25 @@ Status: stack approved (Laravel, Vue/Inertia, PostgreSQL, Redis/Laravel queues, 
 
 ## Quality approach
 
-The implemented baseline uses PHPUnit for Laravel unit/feature/policy tests and Inertia response assertions, Vitest with Vue Test Utils, Playwright, real PostgreSQL/Redis integration/process tests, Laravel Pint, and TypeScript/vue-tsc. PHP static analysis (for example Larastan) and additional frontend lint/format tooling remain proposals. SQL assertions can run directly or via pgTAP if selected; never substitute SQLite or mocked RLS for tenant tests. Test web redirects/error bags and JSON contracts separately, and test shared/deferred Inertia props for data leakage. See the root README and milestone status files for executable commands and retained verification evidence.
+The implemented baseline uses PHPUnit for Laravel unit/feature/policy tests and Inertia response assertions, Vitest with Vue Test Utils, Playwright, real PostgreSQL/Redis integration/process tests, Laravel Pint, TypeScript/vue-tsc, and pinned Prettier. PHP static analysis (for example Larastan) and additional frontend lint tooling remain proposals. SQL assertions can run directly or via pgTAP if selected; never substitute SQLite or mocked RLS for tenant tests. Test web redirects/error bags and JSON contracts separately, and test shared/deferred Inertia props for data leakage. See the root README and milestone status files for executable commands and retained verification evidence.
 
 No arbitrary line-coverage percentage is prescribed. Release gates focus on permissions, money, workflow transitions, idempotency, and failure recovery. Every new tenant table and query path needs an adversarial tenant test. Include private creator data, shared projections, public capabilities, files, exports, caches, workers, and admin/support paths.
 
 CI progression: PHP/frontend style and static checks → Pest/PHPUnit and Vue component tests → PostgreSQL migration/RLS tests → web/Inertia and JSON integration tests → browser smoke tests → image build and vulnerability checks → controlled deployment → smoke test. Production rollout requires a later explicit request; milestone development is authorized by D13, with the manual-review deferral recorded in D19.
 
+## UI completion gate for every milestone
+
+**Confirmed:** all milestones and all contributors/Codex models must follow the [mandatory UI standards](../AGENTS.md#mandatory-ui-standards-for-every-milestone). New and modified screens must match the existing approved styling and reuse or extract shared sections, navigation, fields, and groups. UI-only changes preserve behavior and data contracts.
+
+Before completing a milestone with UI changes:
+
+- Review alignment with the existing design and identify the components reused or extracted.
+- Apply Prettier to new/modified frontend files; pass `npm run format:check:changed` from `src/`. CI checks changes against the pull request base or previous push. For already committed milestone work, set `PRETTIER_BASE_REF` to the milestone base commit or check the affected paths explicitly.
+- Pass type checking, the production build, and relevant interaction/browser tests; inspect desktop/mobile screenshots, keyboard/focus behavior, and affected feedback states.
+- Record validation commands/results, screenshot evidence, and any unresolved gates in the milestone status/handoff. Formatting is automated; visual alignment and component reuse remain required review checks.
+
 ## Current delivery handoff
 
-M2 CRM and M3 onboarding/public-presence development and automated verification are complete under D20; see [M2 status](m2-status.md), [M3 status](m3-status.md) and the [M3 contract](m3-onboarding-contract.md). Development completion and automated evidence do not satisfy the carried-forward manual screen-reader/full browser zoom/native Safari release reviews. M3A is now authorized and implemented under D21–D23, with automated gates passed and manual release reviews pending; see [M3A status](m3a-status.md) and [contract](m3a-portal-contract.md). Its own evidence covers the new relationship and exact reference UI gates. M4 has not started. See [portal UI alignment](portal-ui-alignment.md).
+M2 CRM and M3 onboarding/public-presence development and automated verification are complete under D20; see [M2 status](m2-status.md), [M3 status](m3-status.md) and the [M3 contract](m3-onboarding-contract.md). Development completion and automated evidence do not satisfy the carried-forward manual screen-reader/full browser zoom/native Safari release reviews. M3A is now authorized and implemented under D21–D23, with automated gates passed and manual release reviews pending; see [M3A status](m3a-status.md) and [contract](m3a-portal-contract.md). Its own evidence covers the new relationship and exact reference UI gates. M4 invoice drafts, manual payment records/allocations and pilot entitlements are implemented with local automated verification passed; see [M4 status](m4-status.md) and [contract](m4-finance-contract.md). Commercial pricing/quotas and manual release acceptance remain open. See [portal UI alignment](portal-ui-alignment.md).
 
 Detailed execution order, scope and resume instructions: [M3A implementation handoff](m3a-implementation-handoff.md).
