@@ -1,3 +1,4 @@
+import { confirmation } from '../../resources/js/composables/useConfirmation';
 import { afterEach, describe, expect, it } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import WorkspaceScreen from '../../resources/js/features/workspaces/WorkspaceScreen.vue';
@@ -10,13 +11,20 @@ const workspaces: WorkspaceSummary[] = [
 const wrappers: VueWrapper[] = [];
 function screen(spaces = workspaces) {
     const wrapper = mount(WorkspaceScreen, {
-        props: { account: { name: 'Creator', email: 'creator@example.test' }, workspaces: spaces, activeOrgId: spaces[0]?.id },
+        props: {
+            account: { name: 'Creator', email: 'creator@example.test' },
+            workspaces: spaces,
+            activeOrgId: spaces[0]?.id,
+        },
         attachTo: document.body,
     });
     wrappers.push(wrapper);
     return wrapper;
 }
-afterEach(() => { wrappers.splice(0).forEach((wrapper) => wrapper.unmount()); });
+afterEach(() => {
+    confirmation.value = null;
+    wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+});
 
 describe('workspace screens', () => {
     it('explains the empty state and submits a first workspace name', async () => {
@@ -71,6 +79,9 @@ describe('workspace screens', () => {
         expect(document.activeElement).toBe(wrapper.get('#revoke_password').element);
         await wrapper.get('#revoke_password').setValue('safe-password-123');
         await wrapper.get('.wd-security-card form').trigger('submit');
+        expect(wrapper.emitted('revokeSessions')).toBeUndefined();
+        expect(confirmation.value?.title).toBe('Sign out all sessions');
+        confirmation.value?.action();
         expect(wrapper.emitted('revokeSessions')).toEqual([['safe-password-123']]);
     });
 });

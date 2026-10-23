@@ -1,10 +1,11 @@
+import { confirmMutation } from './confirmations';
 import { test, expect } from '@playwright/test';
 import { fixture, login } from './helpers';
 
 test('registration, verification, workspace errors, create, and settings', async ({ page }, info) => {
     const email = `m1-browser-register-${Date.now()}@example.test`;
     const errors: string[] = [];
-    page.on('pageerror', error => errors.push(error.message));
+    page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('/login');
     await page.keyboard.press('Tab');
     await expect(page.getByLabel('Email address')).toBeFocused();
@@ -27,8 +28,10 @@ test('registration, verification, workspace errors, create, and settings', async
     await expect(create.getByLabel('Workspace name')).toBeFocused();
     await page.screenshot({ path: info.outputPath('workspace-error.png'), fullPage: true });
     let release!: () => void;
-    const gate = new Promise<void>(resolve => { release = resolve; });
-    await page.route('**/workspaces', async route => {
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    await page.route('**/workspaces', async (route) => {
         if (route.request().method() === 'POST') await gate;
         await route.continue();
     });
@@ -80,7 +83,12 @@ test('recovery, invalid login, and revocation of two real database sessions', as
         await login(second, email, 'reset-password-456');
         await page.getByText('Account security', { exact: true }).click();
         await page.getByLabel('Current password').fill('reset-password-456');
-        await page.getByRole('button', { name: 'Sign out all sessions' }).click();
+        await confirmMutation(
+            page,
+            page.getByRole('button', { name: 'Sign out all sessions' }),
+            'Sign out all sessions',
+            info,
+        );
         await expect(page).toHaveURL(/\/login$/);
         await second.reload();
         await expect(second).toHaveURL(/\/login$/);

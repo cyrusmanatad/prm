@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { nextTick, ref, watch } from 'vue';
 import PartnerDashboard from '../features/portals/PartnerDashboard.vue';
@@ -31,7 +32,7 @@ function openInvitation(): void {
     inviting.value = true;
 }
 const form = useForm({ email: '', send_email: false });
-const removing = ref<string | null>(null);
+
 watch(inviting, async (value) => {
     await nextTick();
     if (value) {
@@ -39,12 +40,6 @@ watch(inviting, async (value) => {
         document.getElementById(invitationLink.value ? 'invite-url' : 'invite-email')?.focus();
     } else {
         invitationDialog.value?.close();
-    }
-});
-watch(removing, async (value) => {
-    if (value) {
-        await nextTick();
-        document.getElementById('confirm-remove')?.focus();
     }
 });
 watch(
@@ -67,11 +62,21 @@ function invite(): void {
         },
     });
 }
+function endPartnership(id: string, trigger: HTMLElement): void {
+    const relationship = props.relationships.find((row) => row.id === id);
+    if (!relationship) return;
+    confirmAction(
+        'End partnership',
+        `End the partnership with ${props.portal === 'brand' ? relationship.creator_name : relationship.brand_name}? Shared relationship access ends on both sides. Private records are preserved.`,
+        () => router.delete(`/partnerships/${id}`),
+        trigger,
+    );
+}
 </script>
 <template>
     <Head :title="portal === 'brand' ? 'Partner hub' : 'My leads'" />
-    <BrandDashboard v-if="portal === 'brand'" :data="props" @invite="openInvitation" @remove="removing = $event" />
-    <PartnerDashboard v-else :data="props" @remove="removing = $event" />
+    <BrandDashboard v-if="portal === 'brand'" :data="props" @invite="openInvitation" @remove="endPartnership" />
+    <PartnerDashboard v-else :data="props" @remove="endPartnership" />
     <dialog
         ref="invitationDialog"
         class="invitation-dialog wd-card"
@@ -125,25 +130,6 @@ function invite(): void {
             />
         </div>
     </dialog>
-    <section v-if="removing" class="wd-card mx-auto max-w-[800px]" aria-label="Partnership actions">
-        <div v-if="removing">
-            <h2>End partnership?</h2>
-            <p>This removes shared relationship access on both sides and preserves private records.</p>
-            <button
-                id="confirm-remove"
-                class="wd-button wd-button-primary"
-                @click="
-                    router.delete(`/partnerships/${removing}`, {
-                        onSuccess: () => {
-                            removing = null;
-                        },
-                    })
-                "
-            >
-                Confirm end partnership</button
-            ><button class="wd-link" @click="removing = null">Cancel</button>
-        </div>
-    </section>
     <div v-if="portal === 'brand' && canManage && invitations.length" class="mx-auto max-w-[1408px] px-6 pb-12">
         <ContentSection title="Invitation history">
             <p class="wd-hint">Refresh this page to check email delivery progress.</p>
@@ -161,7 +147,14 @@ function invite(): void {
                         v-if="row.status === 'pending'"
                         type="button"
                         class="wd-link text-left"
-                        @click="router.delete(`/partner-invitations/${row.id}`)"
+                        @click="
+                            confirmAction(
+                                'Revoke invitation',
+                                `Revoke invitation ${row.id}? The recipient will no longer be able to accept it. Pending email delivery will be cancelled.`,
+                                () => router.delete(`/partner-invitations/${row.id}`),
+                                $event,
+                            )
+                        "
                     >
                         Revoke invitation
                     </button>

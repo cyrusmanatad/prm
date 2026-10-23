@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
@@ -153,7 +154,14 @@ function pick(event: Event): void {
                             class="wd-link"
                             type="button"
                             :disabled="busy || !!errors?.version"
-                            @click="act('delete', `/onboarding/form/${form.id}/documents/${doc.id}`, {})"
+                            @click="
+                                confirmAction(
+                                    'Remove document',
+                                    `Remove ${doc.name} from this onboarding request? It will no longer be shared with the reviewer.`,
+                                    () => act('delete', `/onboarding/form/${form.id}/documents/${doc.id}`, {}),
+                                    $event,
+                                )
+                            "
                         >
                             Remove {{ doc.name }}
                         </button>

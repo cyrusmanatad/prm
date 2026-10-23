@@ -1,3 +1,4 @@
+import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
 import { changeRole, fixture, login } from './helpers';
@@ -46,20 +47,30 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await expect(page.getByRole('status')).toContainText('Next action snoozed.');
     await page.getByLabel('Activity details').fill('Discussed the next collaboration.');
     await Promise.all([
-        page.waitForResponse(response => response.url() === leadUrl && response.request().method() === 'GET' && response.status() === 200),
+        page.waitForResponse(
+            (response) =>
+                response.url() === leadUrl && response.request().method() === 'GET' && response.status() === 200,
+        ),
         page.getByRole('button', { name: 'Record activity', exact: true }).click(),
     ]);
     await expect(page.getByRole('status')).toContainText('Activity recorded.');
     await expect(page.getByText('Discussed the next collaboration.', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Private notes (optional)')).toHaveValue('Draft kept across next-action and activity updates.');
+    await expect(page.getByLabel('Private notes (optional)')).toHaveValue(
+        'Draft kept across next-action and activity updates.',
+    );
     await page.getByRole('button', { name: 'Save lead', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('Lead saved.');
     await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeEnabled();
     await page.reload();
     await expect(page.getByLabel('Next action (optional, your local time)')).toHaveValue('2035-06-10T09:30');
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze();
-    await info.attach('axe-pipeline', { body: JSON.stringify({ project: info.project.name, violations: scan.violations, incomplete: scan.incomplete }), contentType: 'application/json' });
-    expect(scan.violations.map(item => ({ id: item.id, nodes: item.nodes.map(node => node.target) }))).toEqual([]);
+    const scan = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'])
+        .analyze();
+    await info.attach('axe-pipeline', {
+        body: JSON.stringify({ project: info.project.name, violations: scan.violations, incomplete: scan.incomplete }),
+        contentType: 'application/json',
+    });
+    expect(scan.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) }))).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: info.outputPath('pipeline-detail.png'), fullPage: true });
     await page.getByRole('button', { name: 'Close lead', exact: true }).click();
@@ -69,8 +80,12 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await expect(page.getByText('No leads match these filters.', { exact: true })).toBeVisible();
     await page.goto(leadUrl);
     await page.getByText('Delete lead', { exact: true }).click();
-    await page.getByLabel('I want to delete this lead', { exact: true }).check();
-    await page.getByRole('button', { name: 'Delete permanently', exact: true }).click();
+    await confirmMutation(
+        page,
+        page.getByRole('button', { name: 'Delete permanently', exact: true }),
+        'Delete permanently',
+        info,
+    );
     await expect(page.getByRole('status').filter({ hasText: 'Lead deleted.' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Latest studio', exact: true })).toHaveCount(0);
 });

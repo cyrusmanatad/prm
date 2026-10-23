@@ -4,6 +4,8 @@
 
 ## Confirmed direction
 
+**Confirmed (2026-10-23):** across all milestones, destructive actions and actions that revoke access require a modal confirmation using the shared `ConfirmationDialog` and `confirmAction`. Identify the record and consequence; initially focus Cancel, support Escape and keyboard focus containment/restoration, prevent duplicate requests, retain accessible server errors and preserve validation/password/version checks. Render confirmations outside existing forms and lead drawers. Routine saves, navigation and reversible unsaved edits remain immediate; replacement invitations and saves that unpublish shared content revoke access and require confirmation. See [implementation evidence](evidence/confirmation-modals/README.md).
+
 **Confirmed (D21, 2026-10-21):** partners in the brand hub are the same creators who use the partner My leads portal. Build two connected views of a brand–partner relationship, separate brand and partner login pages, and reproduce the exact UI of the supplied dashboard references. This request updates planning only; it does not start application implementation or authorize deployment.
 
 ## Authoritative visual references

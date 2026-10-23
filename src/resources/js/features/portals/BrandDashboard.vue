@@ -20,7 +20,7 @@ const initials = computed(() =>
         .slice(0, 2)
         .join(''),
 );
-defineEmits<{ invite: []; remove: [id: string] }>();
+defineEmits<{ invite: []; remove: [id: string, trigger: HTMLElement] }>();
 const summary = computed(() => [
     {
         label: 'Active partners',
@@ -461,7 +461,7 @@ const summary = computed(() => [
                                                 v-if="data.canManage"
                                                 type="button"
                                                 class="underline"
-                                                @click="$emit('remove', row.id)"
+                                                @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
                                             >
                                                 End partnership
                                             </button>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../../composables/useConfirmation';
 import { Link, router } from '@inertiajs/vue3';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { Button } from '../../components/ui/button';
@@ -76,7 +77,6 @@ const stage = ref('lead');
 const snooze = ref('');
 const activityKind = ref('note');
 const activityBody = ref('');
-const confirmDelete = ref(false);
 const query = ref(props.filters.q);
 const stageFilter = ref(props.filters.stage);
 const dueOnly = ref(props.filters.due);
@@ -106,7 +106,6 @@ watch(
         stage.value = row?.stage ?? 'lead';
         activityBody.value = '';
         snooze.value = '';
-        confirmDelete.value = false;
         formErrors.value = {};
     },
     { immediate: true },
@@ -412,14 +411,18 @@ function reloadSelected(): void {
                     <details>
                         <summary>Delete lead</summary>
                         <p>Deletes this lead, its private notes, and its activity history.</p>
-                        <label class="wd-checkbox"
-                            ><input v-model="confirmDelete" type="checkbox" />I want to delete this lead</label
-                        >
                         <Button
                             type="button"
                             class="wd-button wd-button-secondary"
-                            :disabled="busy || !!errors.version || !confirmDelete"
-                            @click="visit('delete', `/pipeline/${selected.id}`, { version: loadedVersion })"
+                            :disabled="busy || !!errors.version"
+                            @click="
+                                confirmAction(
+                                    'Delete permanently',
+                                    `Permanently delete ${selected.brand_name}, its private notes and activity history?`,
+                                    () => visit('delete', `/pipeline/${selected!.id}`, { version: loadedVersion }),
+                                    $event,
+                                )
+                            "
                             >Delete permanently</Button
                         >
                     </details>

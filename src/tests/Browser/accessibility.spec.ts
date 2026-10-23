@@ -1,19 +1,42 @@
+import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { fixture, login } from './helpers';
 
 async function audit(page: Page, info: TestInfo, state: string) {
     const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze();
-    await info.attach(`axe-${state}`, { body: JSON.stringify({
-        state, viewport: info.project.name, violations: results.violations, incomplete: results.incomplete,
-    }, null, 2), contentType: 'application/json' });
-    expect(results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(node => node.target) })), state).toEqual([]);
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'])
+        .analyze();
+    await info.attach(`axe-${state}`, {
+        body: JSON.stringify(
+            {
+                state,
+                viewport: info.project.name,
+                violations: results.violations,
+                incomplete: results.incomplete,
+            },
+            null,
+            2,
+        ),
+        contentType: 'application/json',
+    });
+    expect(
+        results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map((node) => node.target) })),
+        state,
+    ).toEqual([]);
 }
 
-test('auth, reset, verification, and generic error pages have no automated accessibility violations', async ({ page }, info) => {
+test('auth, reset, verification, and generic error pages have no automated accessibility violations', async ({
+    page,
+}, info) => {
     test.setTimeout(60_000);
-    for (const path of ['/login', '/register', '/forgot-password', '/reset-password/synthetic?email=creator@example.test', '/missing-page']) {
+    for (const path of [
+        '/login',
+        '/register',
+        '/forgot-password',
+        '/reset-password/synthetic?email=creator@example.test',
+        '/missing-page',
+    ]) {
         await page.goto(path);
         await expect(page.locator('main')).toBeVisible();
         await audit(page, info, path);
@@ -33,7 +56,9 @@ test('auth, reset, verification, and generic error pages have no automated acces
     await audit(page, info, 'denied-verification');
 });
 
-test('workspace, security disclosure, validation focus, and 200-percent root font remain accessible', async ({ page }, info) => {
+test('workspace, security disclosure, validation focus, and 200-percent root font remain accessible', async ({
+    page,
+}, info) => {
     test.setTimeout(60_000);
     const email = `m1-browser-layout-${Date.now()}@example.test`;
     fixture('seed-workspaces', email);
@@ -45,9 +70,17 @@ test('workspace, security disclosure, validation focus, and 200-percent root fon
     await expect(page.getByLabel('Current password')).toBeVisible();
     await audit(page, info, 'workspace-security');
     await page.getByLabel('Current password').fill('wrong-password');
-    await page.getByRole('button', { name: 'Sign out all sessions' }).click();
-    await expect(page.getByLabel('Current password')).toBeFocused();
-    await expect(page.getByRole('alert')).toBeVisible();
+    await confirmMutation(
+        page,
+        page.getByRole('button', { name: 'Sign out all sessions' }),
+        'Sign out all sessions',
+        info,
+    );
+    const dialog = page.getByRole('dialog', { name: 'Sign out all sessions?' });
+    await expect(dialog.getByRole('alert')).toBeFocused();
+    await expect(dialog.getByRole('alert')).toContainText('password');
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await expect(page.getByRole('button', { name: 'Sign out all sessions' })).toBeFocused();
     await audit(page, info, 'security-error');
     await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
     await expect(page.locator('body')).toHaveJSProperty('scrollWidth', await page.evaluate(() => innerWidth));

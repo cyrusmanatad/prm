@@ -1,0 +1,225 @@
+
+> test:browser
+> playwright test confirmation-errors.spec.ts crm.spec.ts finance.spec.ts pipeline.spec.ts outreach-templates.spec.ts portals.spec.ts onboarding.spec.ts foundation.spec.ts notifications.spec.ts accessibility.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-confirmation-final-results --reporter=list
+
+
+Running 34 tests using 1 worker
+
+(node:1403142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (7.4s)
+  ✘   2 [desktop] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (3.5s)
+(node:1403642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (3.8s)
+  ✘   4 [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (1.5m)
+(node:1405530) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (9.5s)
+  ✓   6 [desktop] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (22.1s)
+  ✓   7 [desktop] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (3.5s)
+  ✓   8 [desktop] › tests/Browser/foundation.spec.ts:58:1 › recovery, invalid login, and revocation of two real database sessions (8.7s)
+  ✓   9 [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (9.4s)
+  ✓  10 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (16.0s)
+  ✓  11 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (10.9s)
+  ✓  12 [desktop] › tests/Browser/outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete (12.7s)
+  ✓  13 [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (12.7s)
+  ✓  14 [desktop] › tests/Browser/pipeline.spec.ts:93:1 › viewer reads private workspace pipeline and revocation blocks further page access (6.8s)
+  ✓  15 [desktop] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (4.3s)
+  ✓  16 [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (14.0s)
+  ✓  17 [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (3.6s)
+(node:1409922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 [mobile] › tests/Browser/accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (7.9s)
+  ✘  19 [mobile] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (3.2s)
+(node:1410465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [mobile] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (4.5s)
+  ✘  21 [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (1.5m)
+(node:1412016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 [mobile] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (9.0s)
+  ✓  23 [mobile] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (16.0s)
+  ✓  24 [mobile] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (7.0s)
+  ✓  25 [mobile] › tests/Browser/foundation.spec.ts:58:1 › recovery, invalid login, and revocation of two real database sessions (9.4s)
+  ✓  26 [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (9.4s)
+  ✓  27 [mobile] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (15.8s)
+  ✓  28 [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (10.9s)
+  ✓  29 [mobile] › tests/Browser/outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete (13.1s)
+  ✓  30 [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (15.4s)
+  ✓  31 [mobile] › tests/Browser/pipeline.spec.ts:93:1 › viewer reads private workspace pipeline and revocation blocks further page access (6.7s)
+  ✓  32 [mobile] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (4.1s)
+  ✓  33 [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (15.4s)
+  ✓  34 [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (4.2s)
+
+
+  1) [desktop] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+
+    Error: workspace-security
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         "a[href$=\"leads\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      24 |         results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map((node) => node.target) })),
+      25 |         state,
+    > 26 |     ).toEqual([]);
+         |       ^
+      27 | }
+      28 |
+      29 | test('auth, reset, verification, and generic error pages have no automated accessibility violations', async ({
+        at audit (/home/cyrusadmin/weavdash/src/tests/Browser/accessibility.spec.ts:26:7)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/accessibility.spec.ts:71:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Delete reminder', exact: true })
+
+
+       at confirmations.ts:13
+
+      11 |     const dialog = page.getByRole('dialog', { name: `${title}?`, exact: true });
+      12 |     try {
+    > 13 |         await trigger.click();
+         |                       ^
+      14 |         await expect(dialog).toBeVisible();
+      15 |         expect(await dialog.evaluate((element) => element.matches(':modal'))).toBe(true);
+      16 |         await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+        at confirmMutation (/home/cyrusadmin/weavdash/src/tests/Browser/confirmations.ts:13:23)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/crm.spec.ts:59:11
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [mobile] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+
+    Error: workspace-security
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         "a[href$=\"leads\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      24 |         results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map((node) => node.target) })),
+      25 |         state,
+    > 26 |     ).toEqual([]);
+         |       ^
+      27 | }
+      28 |
+      29 | test('auth, reset, verification, and generic error pages have no automated accessibility violations', async ({
+        at audit (/home/cyrusadmin/weavdash/src/tests/Browser/accessibility.spec.ts:26:7)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/accessibility.spec.ts:71:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-confirmation-final-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Delete reminder', exact: true })
+        - locator resolved to <button type="button" data-v-61a3fb49="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Delete reminder</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+      - element was detached from the DOM, retrying
+
+
+       at confirmations.ts:13
+
+      11 |     const dialog = page.getByRole('dialog', { name: `${title}?`, exact: true });
+      12 |     try {
+    > 13 |         await trigger.click();
+         |                       ^
+      14 |         await expect(dialog).toBeVisible();
+      15 |         expect(await dialog.evaluate((element) => element.matches(':modal'))).toBe(true);
+      16 |         await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+        at confirmMutation (/home/cyrusadmin/weavdash/src/tests/Browser/confirmations.ts:13:23)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/crm.spec.ts:59:11
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-confirmation-final-results/crm-contacts-are-reusable--dfa57--snooze-complete-and-reopen-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [desktop] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+    [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen
+    [mobile] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+    [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen
+  30 passed (8.2m)

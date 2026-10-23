@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import FinanceLayout from '../components/FinanceLayout.vue';
@@ -59,7 +60,6 @@ function send(path: string, data: Record<string, string | number>): void {
     );
 }
 const reason = ref('');
-const confirmVoid = ref('');
 </script>
 <template>
     <Head title="Manual payment records" />
@@ -200,20 +200,31 @@ const confirmVoid = ref('');
                             class="wd-button wd-button-secondary"
                             v-else
                             :disabled="!reason.trim() || busy"
-                            @click="send(`/finance/allocations/${a.id}/reverse`, { reason })"
+                            @click="
+                                confirmAction(
+                                    'Reverse allocation',
+                                    `Reverse ${a.amount_minor} minor units from receipt ${p.evidence_reference} allocated to draft ${a.invoice_id}? Reason: ${reason}. The reconciliation history is preserved.`,
+                                    () => send(`/finance/allocations/${a.id}/reverse`, { reason }),
+                                    $event,
+                                )
+                            "
                         >
                             Reverse allocation
                         </button>
                     </li>
                 </ul>
                 <template v-if="p.status === 'recorded'"
-                    ><label class="wd-checkbox"
-                        ><input v-model="confirmVoid" type="radio" :value="p.id" />Confirm void receipt
-                        {{ p.evidence_reference }}</label
                     ><button
                         class="wd-button wd-button-secondary"
-                        :disabled="confirmVoid !== p.id || busy"
-                        @click="send(`/finance/payments/${p.id}/void`, { version: p.version })"
+                        :disabled="busy"
+                        @click="
+                            confirmAction(
+                                'Void receipt',
+                                `Void receipt ${p.evidence_reference}? It can no longer be allocated. Its history is preserved.`,
+                                () => send(`/finance/payments/${p.id}/void`, { version: p.version }),
+                                $event,
+                            )
+                        "
                     >
                         Void receipt {{ p.evidence_reference }}
                     </button></template

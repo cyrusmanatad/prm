@@ -1,0 +1,12 @@
+
+> test
+> vitest run
+
+
+ RUN  v4.1.11 /home/cyrusadmin/weavdash/src
+
+
+ Test Files  6 passed (6)
+      Tests  26 passed (26)
+   Start at  20:43:51
+   Duration  11.62s (transform 1.19s, setup 0ms, import 4.42s, tests 1.32s, environment 4.62s)
