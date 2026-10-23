@@ -50,6 +50,8 @@ Run Compose from the repository root with `--env-file src/.env`; npm/Composer/Ar
 
 For committed frontend files, formatting checks need an explicit path or the milestone base, for example `PRETTIER_BASE_REF=cbbf420 npm run format:check:changed` from `src/`. A clean working tree alone checks no changed files. Follow [AGENTS.md](../AGENTS.md), current feature contracts and the approved portal UI; do not overwrite reference assets/notices.
 
+The later user-requested formatting follow-up standardizes four-space indentation, including Vue, and removes the older two-space Vue override. All 28 Vue files were passed through pinned Prettier; see [follow-up verification](evidence/m5/four-space-formatting/README.md). Preserve this updated rule when resuming work. Its broader browser run exposed an existing workspace-link target-size finding, retained as **M1-06** in the task register; the workspace template compiles identically before/after formatting.
+
 ## Preserved limits
 
 No production release is approved. Required external email delivery, actual screen-reader/full browser zoom/native Safari, current M4/M5 Linux WebKit/full clean-setup coverage and current-candidate remote CI remain unverified. Production MFA, live storage/region/retention/export/deletion operations, recovery/monitoring/operator readiness, pilot validation and commercial decisions remain open under the register. Preserve private draft finance, explicit onboarding initiation, scoped relationships and approval before external outreach.

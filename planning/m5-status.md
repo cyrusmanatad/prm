@@ -20,3 +20,7 @@ The [remaining-task register](remaining-tasks.md#m5-required-implementation-and-
 4. Complete crash/restart/outage, DST, operator reconciliation and external recipient-controlled delivery acceptance. Preserve M1–M4 release gates and the mandatory UI standards.
 
 M5 is not complete until its required notification inventory and automation gates pass. The first slice does not settle precise future lifecycle recipients, digest cadence or uncertain-delivery operator permissions.
+
+## Four-space formatting follow-up
+
+The user's subsequent request changes Prettier to four-space indentation for Vue as well as other supported frontend files. The Vue-only two-space override was removed, all 28 Vue files were formatted with pinned Prettier and contributor guidance was updated. See the [follow-up validation](evidence/m5/four-space-formatting/README.md). Existing milestone tasks and release gates remain tracked in [remaining tasks](remaining-tasks.md).

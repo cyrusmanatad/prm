@@ -1,0 +1,15 @@
+{
+    "task": "M1-06",
+    "rule": "target-size",
+    "selector": "a[href$=\"leads\"]",
+    "viewports": [
+        "desktop",
+        "mobile"
+    ],
+    "test": "tests/Browser/accessibility.spec.ts: workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+    "state": "workspace-security",
+    "formatting_base": "60c580a",
+    "workspace_template_compiles_identically_before_and_after": true,
+    "comparison": "@vue/compiler-sfc parse/compileTemplate with the same filename and scope ID; compared generated code strings",
+    "disposition": "Existing accessibility finding retained for implementation; the target-size assertion is unchanged."
+}

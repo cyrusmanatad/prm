@@ -18,4 +18,4 @@ M6 acceptance requires implemented required predecessor workflows plus applicabl
 
 ## Verification of this preparation
 
-Documentation validation passed: **258 local links/anchors across 15 documents, 44 unique task IDs**, valid handoff task references and all originating milestone categories. Git whitespace checks passed. This documentation step adds no application behavior and relies on the retained [M5 application evidence](evidence/m5/README.md) for its recorded scope. No new runtime acceptance or remote-CI claim is made.
+Initial handoff validation passed: **258 local links/anchors across 15 documents, 44 unique task IDs**, valid handoff task references and all originating milestone categories. Git whitespace checks passed. That documentation step adds no application behavior and relies on the retained [M5 application evidence](evidence/m5/README.md) for its recorded scope. No new runtime acceptance or remote-CI claim is made by that preparation. The later formatting follow-up adds **M1-06**, an observed workspace-link accessibility finding; use the [current register](remaining-tasks.md) for the updated task inventory.
