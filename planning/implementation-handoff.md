@@ -4,7 +4,9 @@ Updated: 2026-10-23. This is the current resume point; older milestone handoffs 
 
 ## Checkpoint and milestone state
 
-- Branch: `m5/durable-automation`.
+- **UI-01 follow-up (2026-10-23):** shared native modal confirmations replace body/checkbox confirmations and immediate destructive/access-revoking submissions throughout the app, including both partnership portals. Required reasons/passwords, permissions and record versions remain in the original mutation handlers. Routine saves remain immediate. Pinned formatting/types, 26 component tests and build pass. All 34 affected desktop/mobile journeys have passing evidence across the broad run and the 12-test follow-up; the follow-up also closes the inherited M1-06 link target-size finding. Logs and inspected screenshots are retained in [confirmation evidence](evidence/confirmation-modals/README.md); this UI task does not close unfinished M5/M6 or inherited release work.
+
+- Branch: `ui/confirmation-modals`; UI-01 follow-up accompanies this handoff, based on `925c0af`. The M5 checkpoint below is historical.
 - Application checkpoint: `efd4fd6` — `feat: add durable partner invitation emails`. M4 was previously merged into the baseline. The subsequent documentation commit adds this handoff and the cross-milestone register.
 - M1–M4 development is implemented; their release/manual/production gates remain open as recorded. M5's first notification slice is complete and locally verified; **M5 is incomplete**.
 - **M6 preparation has started.** Its readiness contract and dependency register are prepared; operational implementation, drills and final acceptance remain pending. Required M5 work cannot be silently skipped when advancing to M6.
@@ -41,6 +43,8 @@ See [M5 evidence and exact commands](evidence/m5/README.md), [status](m5-status.
 The register is the complete carry-forward index. This sequence prioritizes work; it does not replace or discard other open rows. If work stops mid-task, record the exact ID, files changed, last verified command/result and next step here and in the originating milestone status.
 
 ## Local environment and commands
+
+UI-01 verification used Compose project `weavdash-m1`, with the rebuilt app running at `http://localhost:8000`. The older M5 environment snapshot below is retained for context.
 
 At the end of the implementation session, Compose project `weavdash` had app, PostgreSQL 16, Redis, ClamAV, worker and scheduler running; the app was available at `http://localhost:8000`. Recheck current state before relying on that snapshot. The separate synthetic `weavdash_m5_clean` database was retained. Runtime processes use `weavdash_app`; only controlled migrations/fixtures receive migration credentials.
 

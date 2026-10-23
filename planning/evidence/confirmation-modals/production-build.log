@@ -1,0 +1,45 @@
+
+> build
+> vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 3179 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/manifest.json                                          9.06 kB │ gzip:  1.18 kB
+public/build/assets/manrope-latin-ext-Ch3YOpNY.woff2               15.12 kB
+public/build/assets/manrope-latin-DHIcAJRg.woff2                   24.83 kB
+public/build/assets/bricolage-grotesque-latin-ext-IcJDqblK.woff2   30.73 kB
+public/build/assets/bricolage-grotesque-latin-Cre6nC2_.woff2       76.88 kB
+public/build/assets/OnboardingForm-B6x50Lk8.css                     0.08 kB │ gzip:  0.09 kB
+public/build/assets/Crm-DQHhC49K.css                                0.09 kB │ gzip:  0.09 kB
+public/build/assets/PublicPresence-H-tloABv.css                     0.12 kB │ gzip:  0.11 kB
+public/build/assets/OnboardingAdmin-CBGFvd-O.css                    0.16 kB │ gzip:  0.12 kB
+public/build/assets/Portal-hu79DUsG.css                             1.68 kB │ gzip:  0.56 kB
+public/build/assets/app-DiLy2z81.css                               64.00 kB │ gzip: 14.63 kB
+public/build/assets/useValidationFocus-BmsP_XuF.js                  0.29 kB │ gzip:  0.25 kB
+public/build/assets/FieldGroup-BQVOiLwd.js                          0.46 kB │ gzip:  0.32 kB
+public/build/assets/ContentSection-owyWf4TB.js                      0.46 kB │ gzip:  0.31 kB
+public/build/assets/Error-DiX5krfg.js                               0.65 kB │ gzip:  0.45 kB
+public/build/assets/FormField-CALHmke_.js                           1.23 kB │ gzip:  0.64 kB
+public/build/assets/OpenInvitation-DYU5AP8H.js                      1.45 kB │ gzip:  0.83 kB
+public/build/assets/FinanceLayout-DZNKT_w8.js                       1.71 kB │ gzip:  0.87 kB
+public/build/assets/Entitlements-BKvkYyEO.js                        1.91 kB │ gzip:  0.95 kB
+public/build/assets/AcceptPartnership-BEaxOaaX.js                   2.02 kB │ gzip:  1.07 kB
+public/build/assets/PublicLead-BNsilHHH.js                          2.72 kB │ gzip:  1.28 kB
+public/build/assets/FoundationShell-CCemRlkz.js                     4.01 kB │ gzip:  1.86 kB
+public/build/assets/Invoices-Dg6gHzRk.js                            5.71 kB │ gzip:  2.10 kB
+public/build/assets/PublicPresence-Dy778mYj.js                      6.30 kB │ gzip:  2.57 kB
+public/build/assets/OnboardingForm-9tY5y-R9.js                      6.36 kB │ gzip:  2.51 kB
+public/build/assets/OnboardingAdmin-COUuMDtr.js                     6.43 kB │ gzip:  2.34 kB
+public/build/assets/Auth-B3q9W57C.js                                7.14 kB │ gzip:  2.73 kB
+public/build/assets/Payments-DRX4DHsM.js                            7.32 kB │ gzip:  2.38 kB
+public/build/assets/OutreachTemplates-DcVA5JW2.js                   7.77 kB │ gzip:  2.92 kB
+public/build/assets/Workspaces-BLORwrst.js                          8.56 kB │ gzip:  3.17 kB
+public/build/assets/Crm-pNTLvIA4.js                                10.81 kB │ gzip:  3.45 kB
+public/build/assets/app-BhJ8n2p3.js                                39.28 kB │ gzip: 13.52 kB
+public/build/assets/Portal-COgBwSQf.js                            156.03 kB │ gzip: 43.53 kB
+public/build/assets/_plugin-vue_export-helper-BGIFILQ3.js         222.05 kB │ gzip: 76.23 kB
+
+✓ built in 2.86s

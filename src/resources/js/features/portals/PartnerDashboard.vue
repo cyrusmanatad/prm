@@ -24,7 +24,7 @@ const initials = computed(() =>
               .slice(0, 2)
               .join(''),
 );
-defineEmits<{ invite: []; remove: [id: string] }>();
+defineEmits<{ invite: []; remove: [id: string, trigger: HTMLElement] }>();
 const search = ref(props.data.pipeline?.filters.q ?? '');
 const leadManager = ref<InstanceType<typeof LeadManager> | null>(null);
 const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -821,7 +821,7 @@ const summary = computed(() => [
                                     v-if="data.canManage"
                                     class="mt-2 text-[13px] underline"
                                     type="button"
-                                    @click="$emit('remove', row.id)"
+                                    @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
                                 >
                                     End partnership
                                 </button>

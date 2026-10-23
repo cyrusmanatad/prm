@@ -1,3 +1,4 @@
+import { confirmMutation } from './confirmations';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
@@ -58,11 +59,16 @@ test('explicit invitation email shows queue capture and cancellation without ext
     await expect(page.getByRole('dialog', { name: 'Copy invitation link', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
-    await history
-        .getByRole('listitem')
-        .filter({ hasText: 'Email pending' })
-        .getByRole('button', { name: 'Revoke invitation' })
-        .click();
+    await confirmMutation(
+        page,
+        history
+            .getByRole('listitem')
+            .filter({ hasText: 'Email pending' })
+            .getByRole('button', { name: 'Revoke invitation' }),
+        'Revoke invitation',
+        info,
+    );
+    await expect(history).toContainText('revoked');
     deliver(email);
     await page.reload();
     await expect(history).toContainText('Email cancelled');

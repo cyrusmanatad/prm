@@ -24,3 +24,7 @@ M5 is not complete until its required notification inventory and automation gate
 ## Four-space formatting follow-up
 
 The user's subsequent request changes Prettier to four-space indentation for Vue as well as other supported frontend files. The Vue-only two-space override was removed, all 28 Vue files were formatted with pinned Prettier and contributor guidance was updated. See the [follow-up validation](evidence/m5/four-space-formatting/README.md). Existing milestone tasks and release gates remain tracked in [remaining tasks](remaining-tasks.md).
+
+## Required app-wide confirmation follow-up
+
+**Confirmed UI-01:** shared native modal confirmations now cover destructive actions and access revocations across milestones, including both partnership portals and invitation email cancellation. See [implementation and verification](evidence/confirmation-modals/README.md) for pinned formatting/types/build, 26 component tests, affected desktop/mobile journeys, Axe checks and inspected screenshots. The follow-up also closes M1-06's workspace-link target size finding. M5's remaining implementation and inherited release gates stay open in the [register](remaining-tasks.md).

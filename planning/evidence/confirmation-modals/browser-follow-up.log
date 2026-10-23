@@ -1,0 +1,25 @@
+
+> test:browser
+> playwright test accessibility.spec.ts confirmation-errors.spec.ts crm.spec.ts foundation.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-confirmation-rerun-results --reporter=list
+
+
+Running 12 tests using 1 worker
+
+(node:1417236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (7.6s)
+  ✓   2 [desktop] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (6.0s)
+  ✓   3 [desktop] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (3.3s)
+  ✓   4 [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (13.6s)
+  ✓   5 [desktop] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (3.6s)
+  ✓   6 [desktop] › tests/Browser/foundation.spec.ts:58:1 › recovery, invalid login, and revocation of two real database sessions (8.8s)
+(node:1418812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [mobile] › tests/Browser/accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (7.2s)
+  ✓   8 [mobile] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (7.0s)
+  ✓   9 [mobile] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (4.6s)
+  ✓  10 [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (19.0s)
+  ✓  11 [mobile] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (3.7s)
+  ✓  12 [mobile] › tests/Browser/foundation.spec.ts:58:1 › recovery, invalid login, and revocation of two real database sessions (9.0s)
+
+  12 passed (1.6m)

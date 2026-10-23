@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../../composables/useConfirmation';
 import { computed, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Button } from '../../components/ui/button';
@@ -141,7 +142,9 @@ defineExpose({
                 <section v-if="selected" class="wd-card wd-settings-card" aria-labelledby="workspace-settings-title">
                     <span class="wd-eyebrow">Selected workspace</span>
                     <h2 id="workspace-settings-title">{{ selected.name }}</h2>
-                    <Link class="wd-link" :href="selected.kind === 'brand' ? '/brand' : '/partner/leads'"
+                    <Link
+                        class="wd-link inline-flex min-h-11 items-center"
+                        :href="selected.kind === 'brand' ? '/brand' : '/partner/leads'"
                         >Open {{ selected.kind === 'brand' ? 'brand hub' : 'partner portal' }}</Link
                     >
                     <p v-if="selected.role === 'owner'">
@@ -174,7 +177,17 @@ defineExpose({
                 <p class="wd-description">
                     Sign out every session, including this one. Enter your current password to continue.
                 </p>
-                <form :aria-busy="pendingAction === 'revoke-sessions'" @submit.prevent="revoke">
+                <form
+                    :aria-busy="pendingAction === 'revoke-sessions'"
+                    @submit.prevent="
+                        confirmAction(
+                            'Sign out all sessions',
+                            `Sign out every session for ${account.name}, including this one? You will need to sign in again.`,
+                            () => revoke(),
+                            $event,
+                        )
+                    "
+                >
                     <fieldset class="wd-fields" :disabled="busy">
                         <legend class="wd-sr-only">Revoke account sessions</legend>
                         <FormField

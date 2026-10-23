@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
@@ -169,14 +170,28 @@ function review(action: string): void {
                         type="button"
                         class="wd-button wd-button-secondary"
                         :disabled="busy || !!errors?.version"
-                        @click="review('renew')"
+                        @click="
+                            confirmAction(
+                                'Create replacement invitation',
+                                `Replace the invitation for ${selected.label}? The previous invitation and its sessions will stop working.`,
+                                () => review('renew'),
+                                $event,
+                            )
+                        "
                         >Create replacement invitation</Button
                     ><Button
                         v-if="selected.status !== 'revoked'"
                         type="button"
                         class="wd-button wd-button-secondary"
                         :disabled="busy || !!errors?.version"
-                        @click="review('revoke')"
+                        @click="
+                            confirmAction(
+                                'Revoke invitation access',
+                                `Revoke access to ${selected.label}? The invitation and existing onboarding sessions will stop working immediately.`,
+                                () => review('revoke'),
+                                $event,
+                            )
+                        "
                         >Revoke invitation access</Button
                     ></template
                 >

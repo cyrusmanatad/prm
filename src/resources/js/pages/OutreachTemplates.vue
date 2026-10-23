@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
@@ -23,7 +24,6 @@ const version = ref(0);
 const name = ref('');
 const subject = ref('');
 const body = ref('');
-const confirmed = ref(false);
 const values = ref<MergeValues>({ brand_name: '', contact_name: '', creator_name: props.account.name });
 const draftSubject = ref('');
 const draftBody = ref('');
@@ -46,7 +46,6 @@ function choose(row?: Template): void {
     name.value = row?.name ?? '';
     subject.value = row?.subject ?? '';
     body.value = row?.body ?? '';
-    confirmed.value = false;
 }
 watch(
     () => props.workspace.id,
@@ -88,7 +87,7 @@ function save(): void {
     });
 }
 function remove(): void {
-    if (!selected.value || busy.value || errors.value.version || !confirmed.value) return;
+    if (!selected.value || busy.value || errors.value.version) return;
     router.delete(`/outreach-templates/${selected.value}`, {
         data: { version: version.value },
         preserveScroll: true,
@@ -194,13 +193,18 @@ async function copy(): Promise<void> {
                 </fieldset>
             </form>
             <div v-if="canWrite && selected" class="wd-card">
-                <label class="wd-checkbox"
-                    ><input v-model="confirmed" type="checkbox" />Delete this template permanently</label
-                ><Button
+                <Button
                     class="wd-button wd-button-secondary"
                     type="button"
-                    :disabled="!confirmed || busy || !!errors.version"
-                    @click="remove"
+                    :disabled="busy || !!errors.version"
+                    @click="
+                        confirmAction(
+                            'Delete template',
+                            `Permanently delete ${name}? It will no longer be available for outreach drafts.`,
+                            () => remove(),
+                            $event,
+                        )
+                    "
                     >Delete template</Button
                 >
             </div>

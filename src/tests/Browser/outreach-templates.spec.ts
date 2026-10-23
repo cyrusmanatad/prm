@@ -1,3 +1,4 @@
+import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
 import { changeRole, fixture, login } from './helpers';
@@ -43,18 +44,36 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await page.getByLabel('Draft body', { exact: true }).fill('Edited manual draft.');
     // Capture writes without requiring host clipboard support.
     await page.evaluate(() => {
-        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (text: string) => { (window as unknown as { copied: string }).copied = text; } } });
+        Object.defineProperty(navigator, 'clipboard', {
+            configurable: true,
+            value: {
+                writeText: async (text: string) => {
+                    (window as unknown as { copied: string }).copied = text;
+                },
+            },
+        });
     });
     await page.getByRole('button', { name: 'Copy draft', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Draft copied.' })).toBeVisible();
-    expect(await page.evaluate(() => (window as unknown as { copied: string }).copied)).toBe('Hello <b>Studio</b>\n\nEdited manual draft.');
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze();
-    await info.attach('axe-templates', { body: JSON.stringify({ violations: scan.violations, incomplete: scan.incomplete }), contentType: 'application/json' });
-    expect(scan.violations.map(item => item.id)).toEqual([]);
+    expect(await page.evaluate(() => (window as unknown as { copied: string }).copied)).toBe(
+        'Hello <b>Studio</b>\n\nEdited manual draft.',
+    );
+    const scan = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'])
+        .analyze();
+    await info.attach('axe-templates', {
+        body: JSON.stringify({ violations: scan.violations, incomplete: scan.incomplete }),
+        contentType: 'application/json',
+    });
+    expect(scan.violations.map((item) => item.id)).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: info.outputPath('templates.png'), fullPage: true });
-    await page.getByLabel('Delete this template permanently', { exact: true }).check();
-    await page.getByRole('button', { name: 'Delete template', exact: true }).click();
+    await confirmMutation(
+        page,
+        page.getByRole('button', { name: 'Delete template', exact: true }),
+        'Delete template',
+        info,
+    );
     await expect(page.getByRole('status')).toContainText('Template deleted.');
     await expect(page.getByRole('button', { name: 'Latest pitch', exact: true })).toHaveCount(0);
     changeRole(email, 'viewer');

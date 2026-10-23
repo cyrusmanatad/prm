@@ -1,3 +1,4 @@
+import { confirmMutation } from './confirmations';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
@@ -25,7 +26,13 @@ test('private draft exact money, edit and terminal void', async ({ page }, info)
     await page.getByLabel('Recipient business name').fill('Updated finance');
     await page.getByRole('button', { name: 'Save draft', exact: true }).click();
     await expect(page.getByText(/Version 2/)).toBeVisible();
-    await stale.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await confirmMutation(stale, stale.getByRole('button', { name: 'Void draft', exact: true }), 'Void draft');
+    const staleDialog = stale.getByRole('dialog', { name: 'Void draft?', exact: true });
+    await expect(staleDialog.getByRole('alert')).toBeFocused();
+    await expect(staleDialog.getByRole('alert')).toContainText('Reload before continuing');
+    await expect(staleDialog.getByRole('button', { name: 'Void draft', exact: true })).toBeDisabled();
+    await stale.screenshot({ path: info.outputPath('confirmation-stale-record.png'), fullPage: true });
+    await staleDialog.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(stale.getByRole('alert')).toContainText('Reload before continuing');
     await expect(stale.getByLabel('Recipient business name')).toHaveValue('Unsaved stale finance');
     await expect(stale.getByRole('button', { name: 'Save draft', exact: true })).toBeDisabled();
@@ -34,8 +41,7 @@ test('private draft exact money, edit and terminal void', async ({ page }, info)
     await stale.close();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({ path: info.outputPath('draft.png'), fullPage: true });
-    await page.getByLabel('Permanently void this draft').check();
-    await page.getByRole('button', { name: 'Void draft', exact: true }).click();
+    await confirmMutation(page, page.getByRole('button', { name: 'Void draft', exact: true }), 'Void draft', info);
     await expect(page.getByText(/Version 3/)).toContainText('voided');
     await expect(page.getByRole('button', { name: 'Save draft', exact: true })).toBeDisabled();
 });
@@ -71,10 +77,19 @@ test('manual receipt allocation, reversal, void and entitlement visibility', asy
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({ path: info.outputPath('payments.png'), fullPage: true });
     await page.getByLabel('Reason for reversing an allocation').fill('Correct allocation');
-    await page.getByRole('button', { name: 'Reverse allocation', exact: true }).click();
+    await confirmMutation(
+        page,
+        page.getByRole('button', { name: 'Reverse allocation', exact: true }),
+        'Reverse allocation',
+        info,
+    );
     await expect(page.getByText(' · Reversed: Correct allocation')).toBeVisible();
-    await page.getByLabel('Confirm void receipt Browser receipt').check();
-    await page.getByRole('button', { name: 'Void receipt Browser receipt', exact: true }).click();
+    await confirmMutation(
+        page,
+        page.getByRole('button', { name: 'Void receipt Browser receipt', exact: true }),
+        'Void receipt',
+        info,
+    );
     await expect(page.getByText(/voided.*Allocated 0/)).toBeVisible();
     await page.getByRole('link', { name: 'Private invoice drafts' }).click();
     await page.getByRole('link', { name: 'Pilot entitlements' }).click();

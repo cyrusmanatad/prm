@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import FinanceLayout from '../components/FinanceLayout.vue';
@@ -34,7 +35,6 @@ const form = ref({
     })) ?? [{ description: '', quantity: 1, unit_price_minor: '0' }],
 });
 const busy = ref(false);
-const confirmed = ref(false);
 const command = ref(crypto.randomUUID());
 function submit(action: 'save' | 'void'): void {
     if (busy.value || props.errors?.version) return;
@@ -162,14 +162,18 @@ function submit(action: 'save' | 'void'): void {
             title="Void draft"
             description="Keep the draft history while marking it as voided."
         >
-            <form v-if="invoice?.status === 'draft'" @submit.prevent="submit('void')">
-                <label class="wd-checkbox"
-                    ><input v-model="confirmed" type="checkbox" />Permanently void this draft and preserve its
-                    history</label
-                >
-                <button class="wd-button wd-button-secondary" :disabled="!confirmed || busy || !!errors?.version">
-                    Void draft
-                </button>
+            <form
+                v-if="invoice?.status === 'draft'"
+                @submit.prevent="
+                    confirmAction(
+                        'Void draft',
+                        `Void the draft for ${invoice.recipient_name}? Its history is preserved and it can no longer be edited.`,
+                        () => submit('void'),
+                        $event,
+                    )
+                "
+            >
+                <button class="wd-button wd-button-secondary" :disabled="busy || !!errors?.version">Void draft</button>
             </form>
         </ContentSection>
     </FinanceLayout>

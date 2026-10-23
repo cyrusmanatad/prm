@@ -24,6 +24,12 @@ Status: **active carry-forward register**, established 2026-10-23. The user requ
 | M6 | **Preparation started; implementation/acceptance gates remain open** | M6 rows; [readiness contract](m6-readiness-contract.md) |
 | M7–M9 | Future milestones; dependencies and demand/approval gates remain | Future milestone rows |
 
+## Required cross-milestone UI work
+
+| ID | Status | Remaining task and completion evidence | Dependency / gate | Source |
+|---|---|---|---|---|
+| UI-01 | Complete | **Required cross-milestone UI:** replace inline destructive confirmations and immediate access revocations with shared native modal confirmation. Implementation covers both portals, leads/templates/CRM, onboarding documents/access/replacement, public links/unpublishing, finance void/reversal and all-session sign-out. Pinned formatting/types, 26 component tests and build pass. All 34 affected desktop/mobile journeys have passing evidence across the broad run and 12-test follow-up; modal Axe scans and inspected screenshots are retained. Inherited manual/Safari/WebKit/CI release gates remain open. | Required app-wide UI rule for current and future actions. | [UI guidance](portal-ui-alignment.md), [evidence](evidence/confirmation-modals/README.md) |
+
 ## Discovery and inherited release work
 
 | ID | Status | Remaining task and completion evidence | Dependency / gate | Source |
@@ -36,7 +42,7 @@ Status: **active carry-forward register**, established 2026-10-23. The user requ
 | M1-03 | Verification pending | Review core/current journeys on native macOS and iOS Safari; retain device/browser versions and results. | Required release gate; Linux Playwright WebKit is separate evidence. | [manual Safari checklist](m1-manual-acceptance.md#full-browser-zoom-and-native-safari) |
 | M1-04 | Not started | Implement and verify MFA enforcement for workspace owners and platform operators, including approved enrollment, recovery, role changes and bypass prevention. Resolve operator coverage/authorization. | Required before production under D18; production pilot administration depends on it. | [M1 status](m1-status.md), [authentication](auth-and-subscriptions.md), [D09/D18](decisions.md) |
 | M1-05 | Verification pending | Run/review CI for the actual candidate revision, including style/types/build, dependency/security checks, PostgreSQL/worker/browser and clean-setup gates. Preserve run IDs and exact revision. | Required candidate evidence; historical M1/M2 remote successes do not verify M4/M5 commits. Current-candidate remote CI has not been verified in this handoff. | [M1 evidence](m1-status.md#remote-delivery-follow-up), [M3A status](m3a-status.md), [M5 evidence](evidence/m5/README.md) |
-| M1-06 | Not started | Fix the selected workspace's Open partner portal link target size/spacing (`a[href$="leads"]`) and rerun the existing workspace/security accessibility test, including its larger-text state, on desktop/mobile. The broad four-space formatting run exposed the finding; the workspace template compiles identically before/after formatting. | Required accessibility follow-up; preserve the failing test and its WCAG 2.2 target-size assertion. | [formatting follow-up evidence](evidence/m5/four-space-formatting/README.md), [existing accessibility test](../src/tests/Browser/accessibility.spec.ts) |
+| M1-06 | Complete | UI-01 adds a 44px minimum height to the selected workspace portal link. The unchanged target-size assertions and larger-root-font workspace/security checks pass on desktop/mobile in the 12-test follow-up. Historical failing evidence remains retained; see [confirmation verification](evidence/confirmation-modals/README.md). | Required accessibility follow-up; preserve the failing test and its WCAG 2.2 target-size assertion. | [formatting follow-up evidence](evidence/m5/four-space-formatting/README.md), [existing accessibility test](../src/tests/Browser/accessibility.spec.ts) |
 | M2-01 | Verification pending | Verify actual supported system-clipboard integration for manual outreach copy, beyond the captured clipboard fixture, and retain browser/device evidence or resolve any unsupported-browser behavior. | Product/UAT verification; manual templates remain implemented. | [M2 template verification](m2-status.md#manual-outreach-template-slice) |
 
 ## Production data, privacy and finance decisions

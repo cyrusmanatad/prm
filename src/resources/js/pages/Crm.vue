@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
@@ -51,7 +52,6 @@ const reminder = ref({
 });
 const q = ref(props.filters.q);
 const state = ref(props.filters.state);
-const confirm = ref('');
 const snooze = ref('');
 function act(method: 'post' | 'patch' | 'delete', path: string, data: Record<string, string | number | null>): void {
     if (busy.value || errors.value.version) return;
@@ -87,7 +87,6 @@ function act(method: 'post' | 'patch' | 'delete', path: string, data: Record<str
                 if (path.endsWith('/snooze') && typeof data.due_at === 'string')
                     reminder.value.due_at = localDate(data.due_at);
             }
-            confirm.value = '';
         },
     });
 }
@@ -162,10 +161,16 @@ function saveReminder(): void {
                             class="wd-link"
                             :disabled="busy || !!errors.version"
                             @click="
-                                act('delete', `/pipeline/${entry.id}/contacts`, {
-                                    contact_id: row.id,
-                                    version: entry.version,
-                                })
+                                confirmAction(
+                                    'Unlink contact',
+                                    `Unlink ${row.name} from ${entry.brand_name}? The contact record is preserved.`,
+                                    () =>
+                                        act('delete', `/pipeline/${entry!.id}/contacts`, {
+                                            contact_id: row.id,
+                                            version: entry!.version,
+                                        }),
+                                    $event,
+                                )
                             "
                         >
                             Unlink {{ row.name }}
@@ -258,17 +263,17 @@ function saveReminder(): void {
                     </div>
                     <Button type="submit" class="wd-button wd-button-primary">Save contact</Button
                     ><template v-if="contact.id"
-                        ><label class="wd-checkbox"
-                            ><input
-                                type="checkbox"
-                                :checked="confirm === contact.id"
-                                @change="confirm = confirm === contact.id ? '' : contact.id"
-                            />Delete selected contact permanently</label
                         ><Button
                             type="button"
                             class="wd-button wd-button-secondary"
-                            :disabled="confirm !== contact.id"
-                            @click="act('delete', `/contacts/${contact.id}`, { version: contact.version })"
+                            @click="
+                                confirmAction(
+                                    'Delete contact',
+                                    `Permanently delete ${contact.name} and its private contact details?`,
+                                    () => act('delete', `/contacts/${contact.id}`, { version: contact.version }),
+                                    $event,
+                                )
+                            "
                             >Delete contact</Button
                         ></template
                     >
@@ -364,17 +369,17 @@ function saveReminder(): void {
                                 })
                             "
                             >Snooze reminder</Button
-                        ><label class="wd-checkbox"
-                            ><input
-                                type="checkbox"
-                                :checked="confirm === reminder.id"
-                                @change="confirm = confirm === reminder.id ? '' : reminder.id"
-                            />Delete selected reminder permanently</label
                         ><Button
                             type="button"
                             class="wd-button wd-button-secondary"
-                            :disabled="confirm !== reminder.id"
-                            @click="act('delete', `/reminders/${reminder.id}`, { version: reminder.version })"
+                            @click="
+                                confirmAction(
+                                    'Delete reminder',
+                                    `Permanently delete reminder ${reminder.title}?`,
+                                    () => act('delete', `/reminders/${reminder.id}`, { version: reminder.version }),
+                                    $event,
+                                )
+                            "
                             >Delete reminder</Button
                         ></template
                     >

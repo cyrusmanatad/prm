@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
@@ -31,6 +32,16 @@ const published = ref(props.kit?.published ?? false);
 const consent = ref(false);
 const busy = ref(false);
 const version = ref(props.kit?.version ?? 0);
+function requestSave(event: Event): void {
+    if (props.kit?.published && !published.value) {
+        confirmAction(
+            'Unpublish media kit',
+            `Unpublish ${props.kit.title}? Visitors will lose access to the public media kit.`,
+            save,
+            event,
+        );
+    } else save();
+}
 function save(): void {
     if (busy.value || props.errors?.version) return;
     const submittedVersion = version.value;
@@ -83,7 +94,7 @@ function save(): void {
                     Reload latest kit
                 </button>
             </div>
-            <form class="wd-card" :aria-busy="busy" @submit.prevent="save">
+            <form class="wd-card" :aria-busy="busy" @submit.prevent="requestSave($event)">
                 <fieldset class="wd-fields" :disabled="!canWrite || busy || !!errors?.version">
                     <legend>Media kit</legend>
                     <FormField
@@ -175,7 +186,14 @@ function save(): void {
                             v-if="canWrite && !link.revoked_at"
                             type="button"
                             class="wd-link"
-                            @click="router.delete(`/lead-links/${link.id}`)"
+                            @click="
+                                confirmAction(
+                                    'Revoke lead link',
+                                    `Revoke lead link ${link.id}? Anyone using this link will lose access to its contact form.`,
+                                    () => router.delete(`/lead-links/${link.id}`),
+                                    $event,
+                                )
+                            "
                         >
                             Revoke lead link
                         </button>
