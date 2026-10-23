@@ -8,6 +8,7 @@ import type { AuthMode, AuthSubmission, FieldErrors } from '../../types/foundati
 
 const props = withDefaults(defineProps<{
     mode: AuthMode;
+    portal?: 'brand' | 'partner';
     email?: string;
     errors?: FieldErrors;
     processing?: boolean;
@@ -60,7 +61,7 @@ defineExpose({ clearPasswords });
 </script>
 
 <template>
-    <FoundationShell>
+    <FoundationShell :portal="portal">
         <div ref="root" class="wd-auth-grid">
             <aside class="wd-introduction" aria-labelledby="introduction-title">
                 <span class="wd-eyebrow">A little structure. More possibility.</span>
@@ -72,7 +73,7 @@ defineExpose({ clearPasswords });
                 </svg>
             </aside>
             <section class="wd-card wd-auth-card" aria-labelledby="auth-title">
-                <span class="wd-eyebrow">Your account</span>
+                <span class="wd-eyebrow">{{ portal ? `${portal} account` : 'Your account' }}</span>
                 <h1 id="auth-title">{{ content.title }}</h1>
                 <p class="wd-description">{{ content.description }}</p>
                 <p v-if="status" class="wd-status" role="status">{{ status }}</p>
@@ -92,6 +93,7 @@ defineExpose({ clearPasswords });
                 </form>
                 <nav class="wd-auth-navigation" aria-label="Account options">
                     <template v-if="mode === 'login'">
+                        <a v-if="portal" class="wd-link" :href="portal === 'brand' ? '/partner/login' : '/brand/login'">{{ portal === 'brand' ? 'Partner sign in' : 'Brand sign in' }}</a>
                         <button type="button" class="wd-link" :disabled="processing" @click="emit('navigate', 'forgot-password')">Forgot password?</button>
                         <p>New here? <button type="button" class="wd-link" :disabled="processing" @click="emit('navigate', 'register')">Create an account</button></p>
                     </template>

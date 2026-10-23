@@ -127,6 +127,9 @@ class Pipeline
         $entry = $this->entries($orgId)->where('id', $id)->lockForUpdate()->first();
         abort_unless($entry, 404);
         $this->checkVersion($entry->version, $version);
+        if (DB::table('onboarding_requests')->where('org_id', $orgId)->where('pipeline_entry_id', $id)->exists()) {
+            throw ValidationException::withMessages(['entry' => 'This lead has onboarding history. Retain the lead and revoke invitation access from Onboarding requests.'])->status(409);
+        }
         $this->entries($orgId)->where('id', $id)->delete();
         $this->audit->record($actorId, $orgId, 'pipeline.deleted', $id);
     }

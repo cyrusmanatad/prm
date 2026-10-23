@@ -1,0 +1,21 @@
+# M3 verification evidence
+
+[Structured verification](verification.json) records the exact scope and source fingerprints. The full clean setup passed in **703 seconds**, using a new synthetic project, fresh credentials/database/storage and the pinned official Playwright container. It removed its own stack and volumes. Host application dependencies/configuration were excluded; build/tool caches could be reused. This was local execution, not remote CI. See [clean-setup summary](clean-setup.json) and [tested source](fresh-setup-source-revision.json).
+
+- 24 identity tests / 208 assertions.
+- 22 real PostgreSQL integration tests / 392 assertions.
+- 21 process/role/capability acceptance tests / 510 assertions.
+- 21 Vue tests, strict types, build, full Pint, standalone DDL, source secret positive control/scan, strict Composer validation and dependency advisories passed. Standalone DDL is not runtime isolation proof.
+- 46 Chromium/WebKit desktop/mobile browser tests passed; two existing duplicate mobile session-attack tests were intentionally skipped. All 76 axe scans had zero violations and incomplete results.
+- A separate fresh database passed rollback/reapply of all three M2/M3 migrations, grants and ten targeted integration tests / 167 assertions, then was removed.
+- Real ClamAV accepted clean content, rejected the standard antivirus test signature, and the HTTP handler denied rejected-file download. Scanner-failure tests retain quarantine and block submission/download.
+
+A final readable-history refinement replaced the technical snapshot dump with labeled business fields and reference-file counts. It changed only the admin page and its browser assertion. That [history-view source](history-view-source-revision.json) passed strict types, image build and **four additional Chromium/WebKit desktop/mobile onboarding journeys**, including opening the original brief after correction/resubmission. All twelve follow-up axe scans had zero violations/incomplete results. This small follow-up is recorded separately from the full fresh-setup revision.
+
+R03 completion subsequently added manual social accounts, with at most eight labeled HTTP(S) links and explicit publication consent. The [current source](source-revision.json) passed the complete PostgreSQL suite (22 tests / 399 assertions), complete process/role acceptance (21 tests / 510 assertions), frontend checks (21 tests), and four additional Chromium/WebKit desktop/mobile profile/publication journeys with twelve clean axe scans. A fresh database rolled back/reapplied **all four** M2/M3 migrations and passed ten targeted integration tests / 174 assertions, then was removed. Unsafe URL schemes, extra nested keys, excessive rows and internal-metadata projection are tested. The renderer uses escaped text/links and never fetches account URLs. This profile follow-up has its own exact source/results in structured verification.
+
+Final reviewed captures: [mobile form](final-onboarding-form-mobile.png), [desktop history](final-onboarding-review-desktop.png), [mobile history](final-onboarding-review-mobile.png), [public media kit](final-media-kit-desktop.png), [mobile lead form](final-lead-form-mobile.png), and [mobile public settings](final-public-presence-mobile.png). Linux WebKit form captures are retained for [desktop](final-onboarding-form-webkit-desktop.png) and [mobile](final-onboarding-form-webkit-mobile.png). [Initial evidence](browser-initial.json) and initial captures remain historical.
+
+Resolved findings include an omitted test-closure capture, shared-host five-second redirect races, unrelated CRM draft loss, and version acknowledgement of another writer's later redirect data. Response synchronization, realistic functional assertion windows and three component race regressions address them without skipping assertions. The source manifest uses separate path/hash rows to avoid interpreting content hashes as API keys; no scanner exclusion was added.
+
+The [M3 contract](../../m3-onboarding-contract.md) records boundaries. All records/files are synthetic. No external invitation or submission message was sent. Manual screen-reader, actual browser zoom, native Safari and actual host clipboard checks remain pending release reviews. Production MFA, live provider/region validation and retention/orphan reconciliation remain later gates.

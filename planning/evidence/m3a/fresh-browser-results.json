@@ -1,0 +1,2827 @@
+{
+  "config": {
+    "argv": [
+      "/usr/bin/node",
+      "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/playwright.config.ts",
+    "rootDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit-desktop",
+        "name": "webkit-desktop",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit-mobile",
+        "name": "webkit-mobile",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "snapshotDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://localhost:8003",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "snapshotDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://localhost:8003",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Mobile/15E148 Safari/604.1",
+          "viewport": {
+            "width": 390,
+            "height": 664
+          },
+          "screen": {
+            "width": 390,
+            "height": 844
+          },
+          "deviceScaleFactor": 3,
+          "isMobile": true,
+          "hasTouch": true,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "webkit-desktop",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "snapshotDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://localhost:8003",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1792,
+            "height": 1120
+          },
+          "deviceScaleFactor": 2,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "webkit"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "webkit-desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "webkit-mobile",
+        "testDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "snapshotDir": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://localhost:8003",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Mobile/15E148 Safari/604.1",
+          "viewport": {
+            "width": 390,
+            "height": 664
+          },
+          "screen": {
+            "width": 390,
+            "height": 844
+          },
+          "deviceScaleFactor": 3,
+          "isMobile": true,
+          "hasTouch": true,
+          "defaultBrowserType": "webkit"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "webkit-mobile"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "accessibility.spec.ts",
+      "file": "accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12089,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:20:16.841Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-/login",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbG9naW4iLAogICJ2aWV3cG9ydCI6ICJkZXNrdG9wIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-/register",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVnaXN0ZXIiLAogICJ2aWV3cG9ydCI6ICJkZXNrdG9wIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-/forgot-password",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvZm9yZ290LXBhc3N3b3JkIiwKICAidmlld3BvcnQiOiAiZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVzZXQtcGFzc3dvcmQvc3ludGhldGljP2VtYWlsPWNyZWF0b3JAZXhhbXBsZS50ZXN0IiwKICAidmlld3BvcnQiOiAiZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-/missing-page",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbWlzc2luZy1wYWdlIiwKICAidmlld3BvcnQiOiAiZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ2ZXJpZmljYXRpb24iLAogICJ2aWV3cG9ydCI6ICJkZXNrdG9wIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-denied-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJkZW5pZWQtdmVyaWZpY2F0aW9uIiwKICAidmlld3BvcnQiOiAiZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-d832d8e8901614809574",
+          "file": "accessibility.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5751,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:20:32.631Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-workspace-security",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ3b3Jrc3BhY2Utc2VjdXJpdHkiLAogICJ2aWV3cG9ydCI6ICJkZXNrdG9wIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-security-error",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJzZWN1cml0eS1lcnJvciIsCiAgInZpZXdwb3J0IjogImRlc2t0b3AiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-large-text",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJsYXJnZS10ZXh0IiwKICAidmlld3BvcnQiOiAiZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-ed2ac2062902517272d8",
+          "file": "accessibility.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7797,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:31.785Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-/login",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbG9naW4iLAogICJ2aWV3cG9ydCI6ICJtb2JpbGUiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-/register",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVnaXN0ZXIiLAogICJ2aWV3cG9ydCI6ICJtb2JpbGUiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-/forgot-password",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvZm9yZ290LXBhc3N3b3JkIiwKICAidmlld3BvcnQiOiAibW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVzZXQtcGFzc3dvcmQvc3ludGhldGljP2VtYWlsPWNyZWF0b3JAZXhhbXBsZS50ZXN0IiwKICAidmlld3BvcnQiOiAibW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-/missing-page",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbWlzc2luZy1wYWdlIiwKICAidmlld3BvcnQiOiAibW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ2ZXJpZmljYXRpb24iLAogICJ2aWV3cG9ydCI6ICJtb2JpbGUiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-denied-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJkZW5pZWQtdmVyaWZpY2F0aW9uIiwKICAidmlld3BvcnQiOiAibW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-2daa9c44acf7e6ff00f6",
+          "file": "accessibility.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5596,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:39.740Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-workspace-security",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ3b3Jrc3BhY2Utc2VjdXJpdHkiLAogICJ2aWV3cG9ydCI6ICJtb2JpbGUiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-security-error",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJzZWN1cml0eS1lcnJvciIsCiAgInZpZXdwb3J0IjogIm1vYmlsZSIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-large-text",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJsYXJnZS10ZXh0IiwKICAidmlld3BvcnQiOiAibW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-a6cf0da17210105932ee",
+          "file": "accessibility.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12433,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:24:42.039Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-/login",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbG9naW4iLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-/register",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVnaXN0ZXIiLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-/forgot-password",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvZm9yZ290LXBhc3N3b3JkIiwKICAidmlld3BvcnQiOiAid2Via2l0LWRlc2t0b3AiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVzZXQtcGFzc3dvcmQvc3ludGhldGljP2VtYWlsPWNyZWF0b3JAZXhhbXBsZS50ZXN0IiwKICAidmlld3BvcnQiOiAid2Via2l0LWRlc2t0b3AiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-/missing-page",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbWlzc2luZy1wYWdlIiwKICAidmlld3BvcnQiOiAid2Via2l0LWRlc2t0b3AiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ2ZXJpZmljYXRpb24iLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-denied-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJkZW5pZWQtdmVyaWZpY2F0aW9uIiwKICAidmlld3BvcnQiOiAid2Via2l0LWRlc2t0b3AiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-08df46960abea415e503",
+          "file": "accessibility.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7551,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:24:56.638Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-workspace-security",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ3b3Jrc3BhY2Utc2VjdXJpdHkiLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtZGVza3RvcCIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-security-error",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJzZWN1cml0eS1lcnJvciIsCiAgInZpZXdwb3J0IjogIndlYmtpdC1kZXNrdG9wIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-large-text",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJsYXJnZS10ZXh0IiwKICAidmlld3BvcnQiOiAid2Via2l0LWRlc2t0b3AiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-be817e8b94efbbc5a4a3",
+          "file": "accessibility.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13645,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:28:38.147Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-/login",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbG9naW4iLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtbW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-/register",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVnaXN0ZXIiLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtbW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-/forgot-password",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvZm9yZ290LXBhc3N3b3JkIiwKICAidmlld3BvcnQiOiAid2Via2l0LW1vYmlsZSIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvcmVzZXQtcGFzc3dvcmQvc3ludGhldGljP2VtYWlsPWNyZWF0b3JAZXhhbXBsZS50ZXN0IiwKICAidmlld3BvcnQiOiAid2Via2l0LW1vYmlsZSIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-/missing-page",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICIvbWlzc2luZy1wYWdlIiwKICAidmlld3BvcnQiOiAid2Via2l0LW1vYmlsZSIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "axe-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ2ZXJpZmljYXRpb24iLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtbW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-denied-verification",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJkZW5pZWQtdmVyaWZpY2F0aW9uIiwKICAidmlld3BvcnQiOiAid2Via2l0LW1vYmlsZSIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-26952046e6349d98de3d",
+          "file": "accessibility.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11622,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:28:52.112Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-workspace-security",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJ3b3Jrc3BhY2Utc2VjdXJpdHkiLAogICJ2aWV3cG9ydCI6ICJ3ZWJraXQtbW9iaWxlIiwKICAidmlvbGF0aW9ucyI6IFtdLAogICJpbmNvbXBsZXRlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "axe-security-error",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJzZWN1cml0eS1lcnJvciIsCiAgInZpZXdwb3J0IjogIndlYmtpdC1tb2JpbGUiLAogICJ2aW9sYXRpb25zIjogW10sCiAgImluY29tcGxldGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "axe-large-text",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6ICJsYXJnZS10ZXh0IiwKICAidmlld3BvcnQiOiAid2Via2l0LW1vYmlsZSIsCiAgInZpb2xhdGlvbnMiOiBbXSwKICAiaW5jb21wbGV0ZSI6IFtdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddd864604af8a6a0198f-43b748b06140996c88fe",
+          "file": "accessibility.spec.ts",
+          "line": 36,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "adversarial.spec.ts",
+      "file": "adversarial.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10717,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:20:39.688Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-5a7c448bc6b21df5295b",
+          "file": "adversarial.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8818,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:20:50.419Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-e4ff8930ddcb10dd9408",
+          "file": "adversarial.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10897,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:45.357Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-c9e91a121d982fe04cec",
+          "file": "adversarial.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Viewport-independent session attacks run once; mobile recovery/revocation remains covered by foundation journeys.",
+                  "location": {
+                    "file": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser/adversarial.spec.ts",
+                    "line": 30,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 141,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:57.543Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Viewport-independent session attacks run once; mobile recovery/revocation remains covered by foundation journeys.",
+                      "location": {
+                        "file": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser/adversarial.spec.ts",
+                        "line": 30,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-e51c6215d3b84f702acb",
+          "file": "adversarial.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12976,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:25:04.221Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-de8a1d2777c8a0c24ab9",
+          "file": "adversarial.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13001,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:25:18.627Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-f1c6549a4895f193be5b",
+          "file": "adversarial.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13366,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:29:03.767Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-0b613d99eb38e5ce198d",
+          "file": "adversarial.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Viewport-independent session attacks run once; mobile recovery/revocation remains covered by foundation journeys.",
+                  "location": {
+                    "file": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser/adversarial.spec.ts",
+                    "line": 30,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 474,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:29:18.530Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Viewport-independent session attacks run once; mobile recovery/revocation remains covered by foundation journeys.",
+                      "location": {
+                        "file": "/tmp/weavdash-m3a-clean-room/weavdash-m1-clean-m3a-final-source-qut7eekw/src/tests/Browser/adversarial.spec.ts",
+                        "line": 30,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "c8623cf54f8234f94483-3c01c737ce2b15ca4ba7",
+          "file": "adversarial.spec.ts",
+          "line": 29,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "crm.spec.ts",
+      "file": "crm.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "contacts are reusable and reminders snooze, complete and reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7565,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:20:59.261Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-crm",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b49a9ede2a2b64a34c9-e643cb75ddef19751d2a",
+          "file": "crm.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "contacts are reusable and reminders snooze, complete and reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7256,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:57.709Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-crm",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b49a9ede2a2b64a34c9-96541750a048fb9ee7d9",
+          "file": "crm.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "contacts are reusable and reminders snooze, complete and reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12396,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:25:31.655Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-crm",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b49a9ede2a2b64a34c9-3542ac0ea7f365e54f7a",
+          "file": "crm.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "contacts are reusable and reminders snooze, complete and reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13822,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:29:19.035Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-crm",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1b49a9ede2a2b64a34c9-36ff55fa2b1529264216",
+          "file": "crm.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "foundation.spec.ts",
+      "file": "foundation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "registration, verification, workspace errors, create, and settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3142,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:21:06.846Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-f165189847c8df72c7c9",
+          "file": "foundation.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "recovery, invalid login, and revocation of two real database sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8005,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:21:10.002Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-c68b0cc48156d8ede61c",
+          "file": "foundation.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "registration, verification, workspace errors, create, and settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:23:04.988Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-014b37886dba1ccbd5d2",
+          "file": "foundation.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "recovery, invalid login, and revocation of two real database sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7969,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:23:08.774Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-784295f6c3db5648a465",
+          "file": "foundation.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "registration, verification, workspace errors, create, and settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6700,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:25:45.549Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-5b951683ca94f0029a78",
+          "file": "foundation.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "recovery, invalid login, and revocation of two real database sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12160,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:25:52.267Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-44fefea81012fede9c10",
+          "file": "foundation.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "registration, verification, workspace errors, create, and settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6841,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:29:32.907Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-d0034d49f6dacda2f9b0",
+          "file": "foundation.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "recovery, invalid login, and revocation of two real database sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14760,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:29:41.156Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6b60d0cacd30be8ae473-5b34b00b0187974d14f3",
+          "file": "foundation.spec.ts",
+          "line": 55,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "onboarding.spec.ts",
+      "file": "onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10847,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:21:19.311Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-invitation",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-review",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-efed702da8d77dcb866d",
+          "file": "onboarding.spec.ts",
+          "line": 17,
+          "column": 1
+        },
+        {
+          "title": "media kit publication and inbound lead links are explicit and revocable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7618,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:21:30.173Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-media-kit",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-public-presence",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-lead-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-8e9ee397dac5b56bd987",
+          "file": "onboarding.spec.ts",
+          "line": 127,
+          "column": 1
+        },
+        {
+          "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9507,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:23:16.768Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-invitation",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-review",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-f4dd57b6c25fe831661f",
+          "file": "onboarding.spec.ts",
+          "line": 17,
+          "column": 1
+        },
+        {
+          "title": "media kit publication and inbound lead links are explicit and revocable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8132,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:23:27.600Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-media-kit",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-public-presence",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-lead-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-9141a6ceb261a738bf3d",
+          "file": "onboarding.spec.ts",
+          "line": 127,
+          "column": 1
+        },
+        {
+          "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 40978,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:26:04.470Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-invitation",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-review",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-f6149cd237fc11d078d8",
+          "file": "onboarding.spec.ts",
+          "line": 17,
+          "column": 1
+        },
+        {
+          "title": "media kit publication and inbound lead links are explicit and revocable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 29450,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:26:46.970Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-media-kit",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-public-presence",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-lead-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-520414c5468ef640fdd7",
+          "file": "onboarding.spec.ts",
+          "line": 127,
+          "column": 1
+        },
+        {
+          "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21418,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:29:56.695Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-invitation",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-onboarding-review",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-7f54ac9e1f640afb2b39",
+          "file": "onboarding.spec.ts",
+          "line": 17,
+          "column": 1
+        },
+        {
+          "title": "media kit publication and inbound lead links are explicit and revocable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11783,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:30:19.537Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-media-kit",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-public-presence",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    },
+                    {
+                      "name": "axe-lead-form",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-6ec83ce67dfe121b95c4",
+          "file": "onboarding.spec.ts",
+          "line": 127,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "outreach-templates.spec.ts",
+      "file": "outreach-templates.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8643,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:21:37.813Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-templates",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "358fe786fe73dead6a75-da85b75f4a31091a5eb8",
+          "file": "outreach-templates.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9608,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:23:35.754Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-templates",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "358fe786fe73dead6a75-17172e9af34c0f9b6092",
+          "file": "outreach-templates.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16011,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:27:17.941Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-templates",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "358fe786fe73dead6a75-7ac90efc3783a2fb7201",
+          "file": "outreach-templates.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12527,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:30:31.342Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-templates",
+                      "contentType": "application/json",
+                      "body": "eyJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "358fe786fe73dead6a75-94c423740cbf353153fe",
+          "file": "outreach-templates.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "pipeline.spec.ts",
+      "file": "pipeline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10085,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:21:47.761Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-pipeline",
+                      "contentType": "application/json",
+                      "body": "eyJwcm9qZWN0IjoiZGVza3RvcCIsInZpb2xhdGlvbnMiOltdLCJpbmNvbXBsZXRlIjpbXX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-2166f35f24abd7202fb6",
+          "file": "pipeline.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5119,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:21:57.859Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-90ed5f772af2fa3897a8",
+          "file": "pipeline.spec.ts",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12745,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:23:45.387Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-pipeline",
+                      "contentType": "application/json",
+                      "body": "eyJwcm9qZWN0IjoibW9iaWxlIiwidmlvbGF0aW9ucyI6W10sImluY29tcGxldGUiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-964690323411876e8117",
+          "file": "pipeline.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21450,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:23:58.152Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-c3ba47bb496d298e5335",
+          "file": "pipeline.spec.ts",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 25615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:27:35.447Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-pipeline",
+                      "contentType": "application/json",
+                      "body": "eyJwcm9qZWN0Ijoid2Via2l0LWRlc2t0b3AiLCJ2aW9sYXRpb25zIjpbXSwiaW5jb21wbGV0ZSI6W119"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-05d340fea107ee783f2d",
+          "file": "pipeline.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6835,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:28:02.693Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-169d40f64c2a42c5be0a",
+          "file": "pipeline.spec.ts",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 23965,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:30:43.894Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "axe-pipeline",
+                      "contentType": "application/json",
+                      "body": "eyJwcm9qZWN0Ijoid2Via2l0LW1vYmlsZSIsInZpb2xhdGlvbnMiOltdLCJpbmNvbXBsZXRlIjpbXX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-6ac6722515d3e3d6147b",
+          "file": "pipeline.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19787,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:31:09.262Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7df0157fa3d95ec90e97-09e27598a01dcf9bbd6b",
+          "file": "pipeline.spec.ts",
+          "line": 78,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "portals.spec.ts",
+      "file": "portals.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "portal logins share identity and never grant a wrong workspace context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3982,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:03.011Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-608ab4ce9fcfd591d4a2",
+          "file": "portals.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16272,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:07.007Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-c59bf3edcb54659bd984",
+          "file": "portals.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "portal registration survives logout and verification before first workspace provisioning",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6316,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:22:24.589Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-07b12395635e7ca9d1d7",
+          "file": "portals.spec.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "portal logins share identity and never grant a wrong workspace context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3845,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:24:21.003Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-e99291d96510e2cbe2e4",
+          "file": "portals.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10684,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:24:24.863Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-8f28f611076ddd1f4af6",
+          "file": "portals.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "portal registration survives logout and verification before first workspace provisioning",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4233,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:24:36.960Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-7041cce027a8d981a2d2",
+          "file": "portals.spec.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "portal logins share identity and never grant a wrong workspace context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5783,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:28:09.564Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-ccfc30b47523aaba3a7a",
+          "file": "portals.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13906,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:28:15.364Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-855c7a0134d5d0bfb024",
+          "file": "portals.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "portal registration survives logout and verification before first workspace provisioning",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-desktop",
+              "projectName": "webkit-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6053,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:28:29.287Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-14f1908505fdedee417f",
+          "file": "portals.spec.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "portal logins share identity and never grant a wrong workspace context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6700,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:31:30.482Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-83ab913673a7451dafb1",
+          "file": "portals.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18482,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:31:37.209Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-12d7a9703588a200ada7",
+          "file": "portals.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "portal registration survives logout and verification before first workspace provisioning",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit-mobile",
+              "projectName": "webkit-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6853,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T13:31:57.106Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c73aee97ab189c0440c-112749fd388a577c8746",
+          "file": "portals.spec.ts",
+          "line": 83,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T13:20:15.709Z",
+    "duration": 679606.4900000001,
+    "expected": 58,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

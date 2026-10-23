@@ -32,8 +32,8 @@ class WorkspaceController extends Controller
 
     public function store(Request $request, Workspaces $workspaces): JsonResponse|RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:120']]);
-        $orgId = $workspaces->create((int) $request->user()->id, $data['name']);
+        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'kind' => ['sometimes', 'in:creator,brand']]);
+        $orgId = $workspaces->create((int) $request->user()->id, $data['name'], $data['kind'] ?? 'creator');
         $request->session()->put('active_org_id', $orgId);
         $request->session()->regenerate();
 
@@ -44,10 +44,11 @@ class WorkspaceController extends Controller
     {
         $data = $request->validate(['org_id' => ['required', 'uuid']]);
         $workspaces->select((int) $request->user()->id, $data['org_id']);
+        $request->session()->forget('portal');
         $request->session()->put('active_org_id', $data['org_id']);
         $request->session()->regenerate();
 
-        return $this->completed($request, ['message' => 'Workspace selected.'], '/workspaces');
+        return $this->completed($request, ['message' => 'Workspace selected.'], $request->session()->has('partnership_token') ? '/partnerships/accept' : '/workspaces');
     }
 
     public function update(Request $request, Workspaces $workspaces): JsonResponse|RedirectResponse

@@ -8,9 +8,9 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open creator pipeline' }).click();
+    await page.getByRole('link', { name: 'Open partner portal' }).click();
     await expect(page.getByText('Your pipeline is empty.', { exact: false })).toBeVisible();
-    await page.getByText('Capture a lead', { exact: true }).click();
+    await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('M2 Studio');
     await page.getByLabel('Estimated value', { exact: true }).fill('1234.56');
     await page.getByLabel('Private notes (optional)').fill('Private creator notes');
@@ -45,7 +45,10 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.getByRole('button', { name: 'Snooze next action', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('Next action snoozed.');
     await page.getByLabel('Activity details').fill('Discussed the next collaboration.');
-    await page.getByRole('button', { name: 'Record activity', exact: true }).click();
+    await Promise.all([
+        page.waitForResponse(response => response.url() === leadUrl && response.request().method() === 'GET' && response.status() === 200),
+        page.getByRole('button', { name: 'Record activity', exact: true }).click(),
+    ]);
     await expect(page.getByRole('status')).toContainText('Activity recorded.');
     await expect(page.getByText('Discussed the next collaboration.', { exact: true })).toBeVisible();
     await expect(page.getByLabel('Private notes (optional)')).toHaveValue('Draft kept across next-action and activity updates.');
@@ -59,8 +62,8 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     expect(scan.violations.map(item => ({ id: item.id, nodes: item.nodes.map(node => node.target) }))).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: info.outputPath('pipeline-detail.png'), fullPage: true });
-    await page.getByRole('link', { name: 'Close lead', exact: true }).click();
-    await expect(page.getByRole('link', { name: 'Close lead', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Close lead', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Close lead', exact: true })).toHaveCount(0);
     await page.getByLabel('Due next actions only').check();
     await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
     await expect(page.getByText('No leads match these filters.', { exact: true })).toBeVisible();
@@ -77,11 +80,11 @@ test('viewer reads private workspace pipeline and revocation blocks further page
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open creator pipeline' }).click();
+    await page.getByRole('link', { name: 'Open partner portal' }).click();
     changeRole(email, 'viewer');
     await page.reload();
     await expect(page.getByText('Your viewer role provides read-only access to this pipeline.')).toBeVisible();
-    await expect(page.getByText('Capture a lead', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '+ Add lead', exact: true })).toHaveCount(0);
     changeRole(email, 'revoked');
     const response = await page.reload();
     expect(response?.status()).toBe(403);

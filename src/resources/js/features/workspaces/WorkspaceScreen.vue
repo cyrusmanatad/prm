@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{
     accessRevoked?: boolean;
 }>(), { activeOrgId: null, pendingAction: null, errors: () => ({}), status: '', accessRevoked: false });
 const emit = defineEmits<{
-    create: [name: string];
+    create: [name: string, kind: 'creator' | 'brand'];
     select: [orgId: string];
     rename: [name: string];
     revokeSessions: [password: string];
@@ -25,6 +25,7 @@ const emit = defineEmits<{
 }>();
 const root = ref<HTMLElement>();
 const newName = ref('');
+const kind = ref<'creator' | 'brand'>('creator');
 const currentName = ref('');
 const password = ref('');
 const busy = computed(() => props.pendingAction !== null);
@@ -33,7 +34,7 @@ const canEdit = computed(() => selected.value && ['owner', 'admin'].includes(sel
 watch(() => selected.value?.name, (name) => { currentName.value = name ?? ''; }, { immediate: true });
 useValidationFocus(root, () => props.errors, () => !busy.value);
 function create(): void {
-    if (!busy.value) emit('create', newName.value.trim());
+    if (!busy.value) emit('create', newName.value.trim(), kind.value);
 }
 function rename(): void {
     if (!busy.value && canEdit.value) emit('rename', currentName.value.trim());
@@ -66,7 +67,7 @@ defineExpose({
                         <li v-for="workspace in workspaces" :key="workspace.id">
                             <button type="button" class="wd-workspace-option" :aria-pressed="selected?.id === workspace.id" :disabled="busy" @click="emit('select', workspace.id)">
                                 <span class="wd-workspace-initial" aria-hidden="true">{{ workspace.name.slice(0, 1).toUpperCase() }}</span>
-                                <span class="wd-workspace-label"><strong>{{ workspace.name }}</strong><span class="wd-role">{{ workspace.role }}</span></span>
+                                <span class="wd-workspace-label"><strong>{{ workspace.name }}</strong><span class="wd-role">{{ workspace.kind === 'brand' ? 'Brand' : 'Partner' }} · {{ workspace.role }}</span></span>
                                 <span v-if="selected?.id === workspace.id" class="wd-active-label">Selected</span>
                                 <span v-else aria-hidden="true">↗</span>
                             </button>
@@ -81,6 +82,7 @@ defineExpose({
                     <form :aria-busy="pendingAction === 'create'" @submit.prevent="create">
                         <fieldset class="wd-fields" :disabled="busy">
                             <legend class="wd-sr-only">Create a workspace</legend>
+                            <label for="workspace-kind">Workspace type</label><select id="workspace-kind" v-model="kind"><option value="creator">Partner / creator</option><option value="brand">Brand</option></select>
                             <FormField id="workspace_name" v-model="newName" label="Workspace name" autocomplete="organization" :maxlength="120" :error="errors.create_name" />
                             <Button type="submit" class="wd-button wd-button-primary">{{ pendingAction === 'create' ? 'Creating…' : 'Create workspace' }}</Button>
                         </fieldset>
@@ -89,7 +91,7 @@ defineExpose({
                 <section v-if="selected" class="wd-card wd-settings-card" aria-labelledby="workspace-settings-title">
                     <span class="wd-eyebrow">Selected workspace</span>
                     <h2 id="workspace-settings-title">{{ selected.name }}</h2>
-                    <Link class="wd-link" href="/pipeline">Open creator pipeline</Link>
+                    <Link class="wd-link" :href="selected.kind === 'brand' ? '/brand' : '/partner/leads'">Open {{ selected.kind === 'brand' ? 'brand hub' : 'partner portal' }}</Link>
                     <p v-if="!canEdit" class="wd-description">Your {{ selected.role }} role does not include workspace settings changes.</p>
                     <form v-else :aria-busy="pendingAction === 'rename'" @submit.prevent="rename">
                         <fieldset class="wd-fields" :disabled="busy">

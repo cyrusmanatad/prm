@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-18",
+  "revision": "uncommitted working tree based on e6c54bf",
+  "scope": "Manual outreach templates; local synthetic data only",
+  "environment": {
+    "compose_project": "weavdash-m1",
+    "http": "http://localhost:8000",
+    "php": "8.5.11"
+  },
+  "checks": {
+    "identity": {
+      "tests": 23,
+      "assertions": 200
+    },
+    "postgresql": {
+      "tests": 15,
+      "assertions": 259
+    },
+    "template_role_acceptance": {
+      "tests": 1,
+      "assertions": 25
+    },
+    "frontend": {
+      "tests": 18
+    },
+    "typecheck": "passed",
+    "build": "passed",
+    "pint": "passed",
+    "standalone_ddl": "passed; not runtime isolation evidence",
+    "secret_scan": "passed; 211 reviewable files and positive control",
+    "disposable_database": "Fresh full migration, template rollback/reapply, grants and three template integration tests (34 assertions) passed; weavdash_templates_probe removed",
+    "pipeline_browser_regression": "Four existing Chromium desktop/mobile pipeline journeys passed after template navigation was added"
+  },
+  "browser": [
+    {
+      "project": "desktop",
+      "status": "passed",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      }
+    },
+    {
+      "project": "mobile",
+      "status": "passed",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      }
+    }
+  ],
+  "visual_review": "Desktop/mobile screenshots inspected; no body overflow",
+  "limitations": [
+    "No remote CI or WebKit execution for this slice",
+    "Carried-forward manual accessibility/full zoom/native Safari release gates remain",
+    "Clipboard write captured in browser test; host clipboard requires manual review",
+    "Templates list is unpaginated",
+    "Reusable contacts and dedicated reminders remain M2 work"
+  ],
+  "initial_failures": [
+    "First broader PostgreSQL run collided with a retained Faker email in a pre-existing pipeline test; generated factory emails now use UUIDs; complete rerun passed",
+    "Sandboxed browser login did not render; rerun outside sandbox passed",
+    "Docker build cache and Docker-based secret scanner require execution outside sandbox"
+  ]
+}

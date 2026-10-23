@@ -18,7 +18,7 @@ M0 planning deliverables are ready for M1. Prototype sessions and rendered deskt
 
 ## M1 Foundation backlog
 
-M1 foundation implementation and automated validation are delivered. D19 authorizes M2 development while the manual reviews remain pending; onboarding stays M3 scope.
+M1 foundation implementation and automated validation are delivered. D19 authorizes M2 development while the manual reviews remain pending; onboarding is delivered in M3 under D20; see [M3 status](m3-status.md).
 
 | Task | Deliverable | Acceptance evidence |
 |---|---|---|
@@ -44,6 +44,12 @@ Apply these requirements to M1 screens and later feature milestones:
 
 ## Deferred decisions and validation
 
-D04 (hosting/storage/region/budget), D05 (accepted-deal trigger and repeat transitions), D06 (pricing/usage definitions), and D11 (sensitive data/retention) remain open. Resolve each before its dependent feature. Production MFA, provider credentials, and deployment are later gates. D12 belongs to later payout work.
+D04 (hosting/storage/region/budget), D05 (future automatic triggers and repeat transitions), D06 (pricing/usage definitions), and D11 (production retention and any future sensitive collection) remain open. Resolve each before its dependent feature. Production MFA, provider credentials, and deployment are later gates. D12 belongs to later payout work.
 
 Before pilot use, inspect all seven prototype boards at desktop/mobile sizes, record console/network failures and keyboard behavior, then compare implemented journeys against source requirements. Before commercial launch, record pilot recruitment/results and agreed success thresholds; development authorization is not evidence of product validation.
+
+## D21 planning follow-up
+
+**Confirmed:** add the connected brand/partner contexts, separate login pages and exact reference UI to delivery planning. **Confirmed D23:** complete M3A before M4: reference snapshot, relationship/schema/RLS review, portal/login contracts, five visible pipeline columns with existing seven-stage storage/backend preserved (D22), both dashboard compositions and visual/security acceptance. See [portal UI alignment](portal-ui-alignment.md). Historical M1–M3 evidence remains valid for its recorded scope, not proof of new UI acceptance. This request starts no application implementation.
+
+See the [M3A implementation handoff](m3a-implementation-handoff.md) for approved D23 login designs, registration and relationship lifecycle, feature states, execution order and next-chat instructions.

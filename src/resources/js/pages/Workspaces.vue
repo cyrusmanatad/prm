@@ -52,6 +52,6 @@ function logout(): void {
   <Head title="Workspaces" />
   <WorkspaceScreen ref="screen" :account="account" :workspaces="workspaces" :active-org-id="activeOrgId"
     :access-revoked="accessRevoked" :status="status" :errors="errors" :pending-action="pending"
-    @create="submit('create', { name: $event })" @select="submit('select', { org_id: $event })"
+    @create="(name, kind) => submit('create', { name, kind })" @select="submit('select', { org_id: $event })"
     @rename="submit('rename', { name: $event })" @revoke-sessions="submit('revoke-sessions', { password: $event })" @logout="logout" />
 </template>

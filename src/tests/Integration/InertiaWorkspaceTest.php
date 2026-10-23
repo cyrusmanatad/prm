@@ -23,7 +23,7 @@ class InertiaWorkspaceTest extends TestCase
             ->assertSessionMissing('active_org_id')->assertInertia(fn (Assert $page) => $page
             ->component('Workspaces')->where('account', $a->only(['name', 'email']))
             ->where('activeOrgId', null)->where('accessRevoked', true)
-            ->where('workspaces', [['id' => $own, 'name' => 'Visible workspace', 'role' => 'owner']])->etc());
+            ->where('workspaces', [['id' => $own, 'name' => 'Visible workspace', 'kind' => 'creator', 'role' => 'owner']])->etc());
         $version = app(HandleInertiaRequests::class)->version(request());
         $this->get('/workspaces', [
             'X-Inertia' => 'true', 'X-Inertia-Version' => $version ?? '',

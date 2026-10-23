@@ -1,0 +1,542 @@
+{
+  "recorded_at": "2026-10-22T11:49:46.777908+00:00",
+  "scope": "D24 partner navigation and consolidated lead management; local working tree",
+  "base_commit": "e6c54bfc7e937707fc8ad5a695fdd505a3faca07",
+  "source_sha256": {
+    "src/app/Http/Controllers/CrmController.php": "abfe752e2ff30105097241ab6a9d366128bb26c5fa28bc5ace7936fcd00b1820",
+    "src/app/Http/Controllers/OnboardingController.php": "f755b30ad361c51c582a8743599ea55f8ec604998a4a6b829626835b646df547",
+    "src/app/Http/Controllers/OutreachTemplateController.php": "02501b499a0f8654eb603c364ca16b38b2b846f78ff3c8ba24eb518d5ae382f0",
+    "src/app/Http/Controllers/PipelineController.php": "2d34e888e7f69038555a4166e9f790da3fbfa0f89d7aa375b678020c4b0b23d1",
+    "src/app/Http/Controllers/PortalController.php": "7269f75bb658f4ed60c6f619076cfe0066041e9afc2aaebcdcc9d8a6e0f243ec",
+    "src/app/Http/Controllers/PublicPresenceController.php": "839061500c631fa11ad1d96926486291d485c6d62dc50ded78126a41c1bdb1f1",
+    "src/app/Http/Queries/PipelinePage.php": "f6e6eb1797adbdc1d7baace70fa48e18a658de44e599cf13f0746f7be56a4f30",
+    "src/package-lock.json": "992b2487253841ef6b230f29a9840496388864987b04268daf9eca59e17cb8b9",
+    "src/package.json": "2a4808c9aa0f7436e0f3aacc9b04902f2437a3f22265e79a4c26b3821cc61227",
+    "src/resources/js/features/pipeline/LeadManager.vue": "2ba33edeeebb9775f2bfbbcccfc36402020165fa15d407c98bec9dab539a6732",
+    "src/resources/js/features/pipeline/types.ts": "016644e80740d432ba8ebe471457b3a7c2791b947dd4cca6e57a3a02ede6d190",
+    "src/resources/js/features/portals/PartnerDashboard.vue": "b4fe71af9997ad3f220784a9447a77e51e9143da15619adddb440a26cc60ff5f",
+    "src/resources/js/features/portals/types.ts": "746ea7cd41641fd55d0a30147db703de4851133b7988dcb716db3a42375c5d9d",
+    "src/resources/js/features/workspaces/WorkspaceScreen.vue": "ca9132c4bfae4300c0af648bf9f73519c6129c13ae92f3bc0007225f17e88581",
+    "src/resources/js/pages/Crm.vue": "d27017ea17766ae0dc30573c2e8a14a84c5721de072004196e8cd180bd55369c",
+    "src/resources/js/pages/OnboardingAdmin.vue": "07228a97cfb5813cd0b0b9795eabd1a445c39c4375832b98c69dc0d53a882f1e",
+    "src/resources/js/pages/OutreachTemplates.vue": "79cc3b39668ecee965a9813e2e2a30fe447c82fe1b7dc9f62249ec65ed186823",
+    "src/resources/js/pages/Portal.vue": "8a870f0dfd0b8b14d4f639e03a4fca64a56e0c17c87b1fffbd47ef77a09cda84",
+    "src/resources/js/pages/PublicPresence.vue": "9d73432642a7168d5972913410b90314c30e38fc796a301c22836296f6a5c6b6",
+    "src/routes/web.php": "f21dea635a23b8521b1057e47e1f89c8ea868858b5a6cdb56c4e21d1dd5ee365",
+    "src/tests/Acceptance/PartnershipSecurityTest.php": "1312b0aaf45efdce7b7ffaaaa007a7aa00e7b54147e26491ec7bd116bc2f77e2",
+    "src/tests/Browser/crm.spec.ts": "239bcb37f0ccac0e6454ce0f08b93327149c24c7b5880c15e302d51f3f9a762f",
+    "src/tests/Browser/onboarding.spec.ts": "3f944b2837368754dbc51f688d4c24f05dbe3f186c2941563b29097327adba14",
+    "src/tests/Browser/outreach-templates.spec.ts": "2c09fa30411573f744879e60ee05dfd2a8e045d035ead9fc8682110c4f4ea582",
+    "src/tests/Browser/partner-navigation.spec.ts": "3bae51663a2ff7476e3e3d200b80ab7f762dea3366bf76e90e80d8b2111f2d6b",
+    "src/tests/Browser/pipeline.spec.ts": "135ef1bd2e0060ac8ff002344f684bec81818d728c0c96d7aa86fcbc96f361c4",
+    "src/tests/Browser/portals.spec.ts": "ba80de4958faba2ab294e3e9941f73f98b129bd57c1720e38c50a7c18315649e",
+    "src/tests/Frontend/VersionAcknowledgement.test.ts": "2cf5d6573fd966952854ec710ebdaff48f625cbf62adfe844dbdde791c190932",
+    "src/tests/Integration/OutreachTemplateTest.php": "e0d6b169a6a179957f0be373af29a2585d08bd3d518620b81fcf8c3a212123fe",
+    "src/tests/Integration/PipelineTest.php": "b51b8d139af35553fbee5ff5832676565e96d45851bab8279b5bbc3421caf9ab",
+    "src/tests/Integration/PortalTest.php": "47a3968b29635e5a35bb5efe684077476d294d3a73e823108e2085499836cf02",
+    "src/tests/Visual/reference.ts": "04bbfe351a2d73eb670893a712aa1a4e642d483ef6c220f2bbb41440e6e36531",
+    "src/tests/Visual/vite.config.ts": "b5e971b702e449c5dc3a27456353c33df3be101c46bc77f13d906988dcd8e2eb"
+  },
+  "removed_page": "src/resources/js/pages/Pipeline.vue",
+  "browser_image": "mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf",
+  "browser_stats": {
+    "startTime": "2026-10-22T11:41:48.940Z",
+    "duration": 447283.343,
+    "expected": 40,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browser_tests": [
+    {
+      "title": "contacts are reusable and reminders snooze, complete and reopen",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 9987
+    },
+    {
+      "title": "contacts are reusable and reminders snooze, complete and reopen",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 10539
+    },
+    {
+      "title": "contacts are reusable and reminders snooze, complete and reopen",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 15700
+    },
+    {
+      "title": "contacts are reusable and reminders snooze, complete and reopen",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 11421
+    },
+    {
+      "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 12121
+    },
+    {
+      "title": "media kit publication and inbound lead links are explicit and revocable",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 8529
+    },
+    {
+      "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 11379
+    },
+    {
+      "title": "media kit publication and inbound lead links are explicit and revocable",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 8762
+    },
+    {
+      "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 18730
+    },
+    {
+      "title": "media kit publication and inbound lead links are explicit and revocable",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 17762
+    },
+    {
+      "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 15880
+    },
+    {
+      "title": "media kit publication and inbound lead links are explicit and revocable",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 12139
+    },
+    {
+      "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 9937
+    },
+    {
+      "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 10916
+    },
+    {
+      "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 15910
+    },
+    {
+      "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 12790
+    },
+    {
+      "title": "partner URLs, avatar navigation, modal focus and paginated drawer history",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 7201
+    },
+    {
+      "title": "partner URLs, avatar navigation, modal focus and paginated drawer history",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 8658
+    },
+    {
+      "title": "partner URLs, avatar navigation, modal focus and paginated drawer history",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 11096
+    },
+    {
+      "title": "partner URLs, avatar navigation, modal focus and paginated drawer history",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 9802
+    },
+    {
+      "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 12031
+    },
+    {
+      "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 6737
+    },
+    {
+      "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 14500
+    },
+    {
+      "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 6350
+    },
+    {
+      "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 20912
+    },
+    {
+      "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 7753
+    },
+    {
+      "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 19264
+    },
+    {
+      "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 7476
+    },
+    {
+      "title": "portal logins share identity and never grant a wrong workspace context",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 8550
+    },
+    {
+      "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 12779
+    },
+    {
+      "title": "portal registration survives logout and verification before first workspace provisioning",
+      "project": "desktop",
+      "status": "expected",
+      "duration_ms": 4193
+    },
+    {
+      "title": "portal logins share identity and never grant a wrong workspace context",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 4354
+    },
+    {
+      "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 13494
+    },
+    {
+      "title": "portal registration survives logout and verification before first workspace provisioning",
+      "project": "mobile",
+      "status": "expected",
+      "duration_ms": 4457
+    },
+    {
+      "title": "portal logins share identity and never grant a wrong workspace context",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 5925
+    },
+    {
+      "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 16563
+    },
+    {
+      "title": "portal registration survives logout and verification before first workspace provisioning",
+      "project": "webkit-desktop",
+      "status": "expected",
+      "duration_ms": 5279
+    },
+    {
+      "title": "portal logins share identity and never grant a wrong workspace context",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 5578
+    },
+    {
+      "title": "same relationship appears in both portals, private leads survive removal, automation stays unavailable",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 16803
+    },
+    {
+      "title": "portal registration survives logout and verification before first workspace provisioning",
+      "project": "webkit-mobile",
+      "status": "expected",
+      "duration_ms": 5786
+    }
+  ],
+  "retained_axe_scans": [
+    {
+      "name": "axe-crm",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-crm",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-crm",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-crm",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "project": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "project": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    }
+  ],
+  "checks": {
+    "identity": {
+      "tests": 26,
+      "assertions": 252
+    },
+    "postgresql": {
+      "tests": 27,
+      "assertions": 503
+    },
+    "focused_role_partnership_acceptance": {
+      "tests": 5,
+      "assertions": 128
+    },
+    "frontend": {
+      "tests": 21
+    },
+    "typecheck": true,
+    "production_build": true,
+    "pint": {
+      "files": 99
+    },
+    "secret_scan_with_positive_control": true,
+    "documentation_links": true,
+    "diff_check": true
+  },
+  "scope_notes": [
+    "The final browser run uses the pinned container because host WebKit lacks shared libraries.",
+    "Earlier runs exposed and corrected legacy browser selectors, the close-drawer boolean query transport and the avatar accessible name.",
+    "The old visual fixture baseline is historical. The visual Vite harness now resolves the existing @ alias required by the extracted lead forms.",
+    "No schema migration, production deployment, external messaging or remote CI was performed.",
+    "Manual screen-reader, full-browser zoom and native Safari release checks remain pending."
+  ]
+}

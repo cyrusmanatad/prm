@@ -14,11 +14,18 @@ class SessionController extends Controller
 {
     public function store(LoginRequest $request): JsonResponse|RedirectResponse
     {
+        $portal = $request->route('portal');
+        $request->session()->forget('url.intended');
+        if (in_array($portal, ['brand', 'partner'], true)) {
+            $request->session()->put('portal', $portal);
+        } else {
+            $request->session()->forget('portal');
+        }
         $request->authenticate();
         $request->session()->regenerate();
 
         return $this->completed($request, ['verified' => $request->user()->hasVerifiedEmail()],
-            $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
+            $request->user()->hasVerifiedEmail() ? (($portal || $request->user()->registration_workspace_id || $request->session()->has('partnership_token')) ? '/portal/enter' : '/workspaces') : '/verify-email');
     }
 
     public function destroy(Request $request): JsonResponse|RedirectResponse

@@ -1,0 +1,28 @@
+@import "tailwindcss" source(none);
+@import "./fonts.css";
+@source "../*.html";
+@source "./dashboard.js";
+
+@theme {
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --color-ink: #221a26;
+  --color-ink-soft: #4a3f4f;
+  --color-muted: #6b5f70;
+  --color-cream: #fbf7ef;
+  --color-brand: #8e1650;
+  --color-blush: #f6e3ec;
+  --color-line: #eadfcb;
+  --color-line-soft: #f3ece0;
+  --color-line-strong: #d9cbb3;
+  --color-mint: #8fd0b8;
+  --color-mint-soft: #e2f3ec;
+  --color-mint-ink: #24614f;
+  --color-forest: #2f7f69;
+  --color-sand: #e3c79a;
+  --color-switch-off: #c9bba4;
+  --color-lilac: #d9cfd6;
+  --color-lilac-soft: #e6dee3;
+  --color-alert-soft: #fbe4e4;
+  --color-alert: #9b1c1c;
+}

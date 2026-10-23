@@ -1,0 +1,1074 @@
+{
+  "date": "2026-10-18",
+  "source": {
+    "base_commit": "e6c54bf",
+    "state": "uncommitted working tree",
+    "sha256": "aee0aefad444614bb47781b68f0d4f44e783d2749628d1c621f1175ffbf3bebb",
+    "manifest": "fresh-setup-source-revision.json"
+  },
+  "environment": {
+    "execution": "local pinned Playwright container; Linux x86_64",
+    "image": "mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf",
+    "node": "24.21.0",
+    "php": "8.5.11",
+    "project": "weavdash-m1-clean-m3-acceptance",
+    "port": 8002,
+    "logs": "/tmp/weavdash-m3-clean-room/weavdash-m1-clean-m3-acceptance-evidence-gvxkd5yu",
+    "remote_ci_executed": false
+  },
+  "clean_setup": {
+    "project": "weavdash-m1-clean-m3-acceptance",
+    "phases": [
+      "build",
+      "dependencies",
+      "migrate",
+      "grants",
+      "rls-fixtures",
+      "rls",
+      "identity",
+      "integration",
+      "acceptance",
+      "app",
+      "npm-ci",
+      "frontend-types",
+      "frontend-tests",
+      "frontend-build",
+      "browsers",
+      "browser",
+      "cleanup"
+    ],
+    "elapsed_seconds": 703,
+    "host_dependencies_copied": false,
+    "reused_local_credentials": false,
+    "build_cache_may_be_reused": true,
+    "remote_ci_executed": false
+  },
+  "backend": {
+    "identity": {
+      "tests": 24,
+      "assertions": 208
+    },
+    "postgresql": {
+      "tests": 22,
+      "assertions": 392
+    },
+    "acceptance": {
+      "tests": 21,
+      "assertions": 510
+    }
+  },
+  "frontend": {
+    "tests": 21,
+    "typecheck": "passed",
+    "build": "passed"
+  },
+  "browser": {
+    "passed": 46,
+    "skipped": 2,
+    "failed": 0,
+    "results": [
+      {
+        "project": "desktop",
+        "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+        "status": "passed",
+        "duration_ms": 8329
+      },
+      {
+        "project": "desktop",
+        "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+        "status": "passed",
+        "duration_ms": 5835
+      },
+      {
+        "project": "mobile",
+        "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+        "status": "passed",
+        "duration_ms": 7873
+      },
+      {
+        "project": "mobile",
+        "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+        "status": "passed",
+        "duration_ms": 5657
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+        "status": "passed",
+        "duration_ms": 10996
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+        "status": "passed",
+        "duration_ms": 8202
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "auth, reset, verification, and generic error pages have no automated accessibility violations",
+        "status": "passed",
+        "duration_ms": 14277
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "workspace, security disclosure, validation focus, and 200-percent root font remain accessible",
+        "status": "passed",
+        "duration_ms": 7540
+      },
+      {
+        "project": "desktop",
+        "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+        "status": "passed",
+        "duration_ms": 11198
+      },
+      {
+        "project": "desktop",
+        "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+        "status": "passed",
+        "duration_ms": 9204
+      },
+      {
+        "project": "mobile",
+        "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+        "status": "passed",
+        "duration_ms": 11488
+      },
+      {
+        "project": "mobile",
+        "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+        "status": "skipped",
+        "duration_ms": 164
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+        "status": "passed",
+        "duration_ms": 13621
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+        "status": "passed",
+        "duration_ms": 16425
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "all five roles enforce server permissions and revoked pages drop stale workspace data",
+        "status": "passed",
+        "duration_ms": 14275
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "session fixation, CSRF failure, logout replay, and reset of two live sessions",
+        "status": "skipped",
+        "duration_ms": 425
+      },
+      {
+        "project": "desktop",
+        "title": "contacts are reusable and reminders snooze, complete and reopen",
+        "status": "passed",
+        "duration_ms": 7755
+      },
+      {
+        "project": "mobile",
+        "title": "contacts are reusable and reminders snooze, complete and reopen",
+        "status": "passed",
+        "duration_ms": 8038
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "contacts are reusable and reminders snooze, complete and reopen",
+        "status": "passed",
+        "duration_ms": 15721
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "contacts are reusable and reminders snooze, complete and reopen",
+        "status": "passed",
+        "duration_ms": 11112
+      },
+      {
+        "project": "desktop",
+        "title": "registration, verification, workspace errors, create, and settings",
+        "status": "passed",
+        "duration_ms": 3755
+      },
+      {
+        "project": "desktop",
+        "title": "recovery, invalid login, and revocation of two real database sessions",
+        "status": "passed",
+        "duration_ms": 8483
+      },
+      {
+        "project": "mobile",
+        "title": "registration, verification, workspace errors, create, and settings",
+        "status": "passed",
+        "duration_ms": 4135
+      },
+      {
+        "project": "mobile",
+        "title": "recovery, invalid login, and revocation of two real database sessions",
+        "status": "passed",
+        "duration_ms": 8946
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "registration, verification, workspace errors, create, and settings",
+        "status": "passed",
+        "duration_ms": 6961
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "recovery, invalid login, and revocation of two real database sessions",
+        "status": "passed",
+        "duration_ms": 10991
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "registration, verification, workspace errors, create, and settings",
+        "status": "passed",
+        "duration_ms": 6293
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "recovery, invalid login, and revocation of two real database sessions",
+        "status": "passed",
+        "duration_ms": 10772
+      },
+      {
+        "project": "desktop",
+        "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+        "status": "passed",
+        "duration_ms": 11275
+      },
+      {
+        "project": "desktop",
+        "title": "media kit publication and inbound lead links are explicit and revocable",
+        "status": "passed",
+        "duration_ms": 8035
+      },
+      {
+        "project": "mobile",
+        "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+        "status": "passed",
+        "duration_ms": 11519
+      },
+      {
+        "project": "mobile",
+        "title": "media kit publication and inbound lead links are explicit and revocable",
+        "status": "passed",
+        "duration_ms": 7972
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+        "status": "passed",
+        "duration_ms": 18628
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "media kit publication and inbound lead links are explicit and revocable",
+        "status": "passed",
+        "duration_ms": 12961
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "creator invites brand, brand resumes, uploads, submits and corrects; creator revokes",
+        "status": "passed",
+        "duration_ms": 16414
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "media kit publication and inbound lead links are explicit and revocable",
+        "status": "passed",
+        "duration_ms": 11464
+      },
+      {
+        "project": "desktop",
+        "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+        "status": "passed",
+        "duration_ms": 21184
+      },
+      {
+        "project": "mobile",
+        "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+        "status": "passed",
+        "duration_ms": 8713
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+        "status": "passed",
+        "duration_ms": 14528
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "private templates persist, reject stale edits, merge drafts, copy and delete",
+        "status": "passed",
+        "duration_ms": 13346
+      },
+      {
+        "project": "desktop",
+        "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+        "status": "passed",
+        "duration_ms": 12912
+      },
+      {
+        "project": "desktop",
+        "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+        "status": "passed",
+        "duration_ms": 5156
+      },
+      {
+        "project": "mobile",
+        "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+        "status": "passed",
+        "duration_ms": 11713
+      },
+      {
+        "project": "mobile",
+        "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+        "status": "passed",
+        "duration_ms": 5278
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+        "status": "passed",
+        "duration_ms": 22124
+      },
+      {
+        "project": "webkit-desktop",
+        "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+        "status": "passed",
+        "duration_ms": 6667
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion",
+        "status": "passed",
+        "duration_ms": 19191
+      },
+      {
+        "project": "webkit-mobile",
+        "title": "viewer reads private workspace pipeline and revocation blocks further page access",
+        "status": "passed",
+        "duration_ms": 7110
+      }
+    ],
+    "axe_scans": [
+      {
+        "project": "desktop",
+        "page": "axe-/login",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-/register",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-/forgot-password",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-/reset-password/synthetic?email=creator@example.test",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-/missing-page",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-denied-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-workspace-security",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-security-error",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-large-text",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-/login",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-/register",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-/forgot-password",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-/reset-password/synthetic?email=creator@example.test",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-/missing-page",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-denied-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-workspace-security",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-security-error",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-large-text",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-/login",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-/register",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-/forgot-password",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-/reset-password/synthetic?email=creator@example.test",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-/missing-page",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-denied-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-workspace-security",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-security-error",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-large-text",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-/login",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-/register",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-/forgot-password",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-/reset-password/synthetic?email=creator@example.test",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-/missing-page",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-denied-verification",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-workspace-security",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-security-error",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-large-text",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-crm",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-crm",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-crm",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-crm",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-templates",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-templates",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-templates",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-templates",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-pipeline",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-pipeline",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-pipeline",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-pipeline",
+        "violations": 0,
+        "incomplete": 0
+      }
+    ],
+    "axe_violations": 0,
+    "axe_incomplete": 0
+  },
+  "additional_checks": {
+    "pint": "passed full source",
+    "standalone_postgresql_ddl": "passed; not runtime isolation proof",
+    "source_secrets": "Final positive control and source scan passed: 301 reviewable files; no findings",
+    "npm_audit": "zero vulnerabilities",
+    "composer_audit": "no vulnerability advisories",
+    "composer_validate": "strict passed",
+    "rollback_reapply": "Fresh weavdash_m3_final_probe database: full migration, rollback/reapply all three new migrations, grants, ten targeted integration tests / 167 assertions; probe removed"
+  },
+  "scanner": {
+    "image": "clamav/clamav:stable@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6",
+    "reported_version": "ClamAV 1.5.4/28150/Sun Oct 11 06:26:01 2026",
+    "real_positive_control": "Clean bytes accepted; standard antivirus test signature rejected; HTTP rejected file download denied",
+    "failure_behavior": "Scanner unavailable retains pending quarantine"
+  },
+  "resolved_findings": [
+    "Added missing test-closure capture in expanded CRM denial test",
+    "Replaced five-second redirect assumptions with response synchronization and 15-second functional assertion bounds for the shared host; complete browser phase allows 15 minutes",
+    "Kept unsubmitted fields and acknowledged versions when a redirect already contains another writer's edit; three component race regressions pass",
+    "Retained leads with onboarding history via an explicit conflict instead of a database foreign-key error",
+    "R03 structured manual social accounts completed; profile projection independently strips internal metadata. Public Blade directive formatting corrected after the integration render check."
+  ],
+  "limitations": [
+    "Manual screen-reader, full browser zoom, native macOS/iOS Safari and actual host clipboard review remain pending",
+    "All records and uploads synthetic; no external invitation or notification sent",
+    "No production deployment, live provider/region acceptance, retention/orphan reconciliation or production MFA enforcement claimed",
+    "Browser copy test captures the exact clipboard write rather than testing host clipboard integration",
+    "Request list is latest 100; high-volume paging remains a follow-up"
+  ],
+  "final_ui_followup": {
+    "source_sha256": "a6da7b174b0b3d6986de43a4c66bda89b8492836dc27f39c4c0a079e838a88ed",
+    "manifest": "history-view-source-revision.json",
+    "changed_files_since_clean_setup": [
+      "src/resources/js/pages/OnboardingAdmin.vue",
+      "src/tests/Browser/onboarding.spec.ts"
+    ],
+    "scope": "Readable immutable submission history and assertion of the original submitted brief after correction",
+    "typecheck": "passed",
+    "image_build": "passed",
+    "results": [
+      {
+        "project": "desktop",
+        "status": "passed",
+        "duration_ms": 12298
+      },
+      {
+        "project": "mobile",
+        "status": "passed",
+        "duration_ms": 13501
+      },
+      {
+        "project": "webkit-desktop",
+        "status": "passed",
+        "duration_ms": 18286
+      },
+      {
+        "project": "webkit-mobile",
+        "status": "passed",
+        "duration_ms": 26101
+      }
+    ],
+    "axe_scans": [
+      {
+        "project": "desktop",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-invitation",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-onboarding-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-onboarding-review",
+        "violations": 0,
+        "incomplete": 0
+      }
+    ],
+    "browser_results": "/tmp/weavdash-m3-final-browser/results.json"
+  },
+  "visual_review": "Final desktop/mobile captures inspected, including expanded immutable history. Browser overflow checks pass.",
+  "profile_followup": {
+    "source_sha256": "2518c219c17b60d597fd372baf733833c30616d15b3bdf937e4e858479fe08fc",
+    "manifest": "source-revision.json",
+    "scope": "R03 manual social accounts with explicit publication, nested input/URL validation and independently allowlisted public projection",
+    "postgresql": {
+      "tests": 22,
+      "assertions": 399
+    },
+    "acceptance": {
+      "tests": 21,
+      "assertions": 510
+    },
+    "frontend_tests": 21,
+    "typecheck": "passed",
+    "build": "passed",
+    "ddl": "passed",
+    "migration_probe": "Fresh weavdash_profile_probe: full migrate, rollback/reapply all four new migrations, grants and ten integration tests / 174 assertions; removed",
+    "browser_results": [
+      {
+        "project": "desktop",
+        "status": "passed",
+        "duration_ms": 9089
+      },
+      {
+        "project": "mobile",
+        "status": "passed",
+        "duration_ms": 9031
+      },
+      {
+        "project": "webkit-desktop",
+        "status": "passed",
+        "duration_ms": 14221
+      },
+      {
+        "project": "webkit-mobile",
+        "status": "passed",
+        "duration_ms": 12319
+      }
+    ],
+    "axe_scans": [
+      {
+        "project": "desktop",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "desktop",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "mobile",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-desktop",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-media-kit",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-public-presence",
+        "violations": 0,
+        "incomplete": 0
+      },
+      {
+        "project": "webkit-mobile",
+        "page": "axe-lead-form",
+        "violations": 0,
+        "incomplete": 0
+      }
+    ],
+    "raw_browser_results": "/tmp/weavdash-m3-profile-browser/results.json"
+  },
+  "retained_stack": "weavdash-m1 app, worker, scheduler, PostgreSQL, Redis and ClamAV healthy; app/tool/worker images aligned with verified profile build"
+}

@@ -22,11 +22,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project', required=True)
     parser.add_argument('--port', type=int, default=8001)
+    parser.add_argument('--verify-portal-rollback', action='store_true', help='Exercise M3A rollback/reapply with retained synthetic creator records')
     args = parser.parse_args()
     if not re.fullmatch(r'weavdash-m1-clean-[a-z0-9-]+', args.project) or not 1024 <= args.port <= 65535:
         parser.error('Use a new weavdash-m1-clean-* project and a port between 1024 and 65535.')
     root = Path(__file__).resolve().parents[2]
     logs = Path(tempfile.mkdtemp(prefix=args.project+'-evidence-'))
+    logs.chmod(0o755)  # Synthetic evidence remains readable when run in the test container.
     for resource in ['ps', 'volume ls']:
         command = ['docker', *resource.split(), '-q', '--filter', 'label=com.docker.compose.project='+args.project]
         if subprocess.run(command, check=True, capture_output=True, text=True).stdout.strip():
@@ -82,9 +84,17 @@ def main():
 
         try:
             phase('build', compose+['build', '--pull', 'app', 'migrate', 'acceptance', 'worker', 'scheduler'], timeout=900)
-            phase('dependencies', compose+['up', '-d', '--wait', 'postgres', 'redis'])
+            phase('dependencies', compose+['up', '-d', '--wait', 'postgres', 'redis', 'clamav'])
             phase('migrate', compose+['run', '--rm', '-T', 'migrate'])
             phase('grants', compose+['run', '--rm', '-T', 'migrate', 'php', 'scripts/grant-runtime.php'])
+            if args.verify_portal_rollback:
+                psql = compose+['exec', '-T', 'postgres', 'psql', '-U', 'postgres', '-d', 'weavdash', '-v', 'ON_ERROR_STOP=1']
+                phase('portal-migration-seed', psql, input_file=source / 'src/tests/Fixtures/portal-migration-seed.sql')
+                phase('portal-rollback', compose+['run', '--rm', '-T', 'migrate', 'php', 'artisan', 'migrate:rollback', '--step=2', '--force'])
+                phase('portal-reapply', compose+['run', '--rm', '-T', 'migrate'])
+                phase('portal-regrant', compose+['run', '--rm', '-T', 'migrate', 'php', 'scripts/grant-runtime.php'])
+                phase('portal-migration-check', psql, input_file=source / 'src/tests/Fixtures/portal-migration-check.sql')
+
             for name in ['rls-fixtures', 'rls']:
                 phase(name, compose+['exec', '-T', 'postgres', 'psql', '-U', 'postgres', '-d', 'weavdash', '-v', 'ON_ERROR_STOP=1'],
                       input_file=source / f'src/tests/Integration/{name}.sql')
@@ -100,8 +110,11 @@ def main():
             browser_env = {**clean_environment, 'COMPOSE_PROJECT_NAME': args.project,
                            'COMPOSE_FILE': str(source / 'compose.yaml')+os.pathsep+str(source / 'compose.clean.yaml'),
                            'PLAYWRIGHT_BASE_URL': f'http://localhost:{args.port}'}
-            phase('browser', ['npm', 'run', 'test:browser'], cwd=source / 'src', env=browser_env, timeout=360)
+            phase('browser', ['npm', 'run', 'test:browser'], cwd=source / 'src', env=browser_env, timeout=900)
         finally:
+            browser_results = source / 'src/test-results'
+            if browser_results.exists():
+                shutil.copytree(browser_results, logs / 'browser', dirs_exist_ok=True)
             phase('cleanup', compose+['down', '--volumes'], timeout=90)
     summary = {'project': args.project, 'phases': phases, 'elapsed_seconds': round(time.monotonic()-started),
                'host_dependencies_copied': False, 'reused_local_credentials': False,

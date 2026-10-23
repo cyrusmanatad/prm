@@ -1,0 +1,86 @@
+[
+  {
+    "mode": "reference",
+    "portal": "partner",
+    "viewportWidth": 1440,
+    "height": 1622,
+    "width": 1440
+  },
+  {
+    "mode": "vue",
+    "portal": "partner",
+    "viewportWidth": 1440,
+    "height": 1622,
+    "width": 1440
+  },
+  {
+    "mode": "reference",
+    "portal": "brand",
+    "viewportWidth": 1440,
+    "height": 1517,
+    "width": 1440
+  },
+  {
+    "mode": "vue",
+    "portal": "brand",
+    "viewportWidth": 1440,
+    "height": 1517,
+    "width": 1440
+  },
+  {
+    "mode": "reference",
+    "portal": "partner",
+    "viewportWidth": 1024,
+    "height": 2469,
+    "width": 1024
+  },
+  {
+    "mode": "vue",
+    "portal": "partner",
+    "viewportWidth": 1024,
+    "height": 2469,
+    "width": 1024
+  },
+  {
+    "mode": "reference",
+    "portal": "brand",
+    "viewportWidth": 1024,
+    "height": 2537,
+    "width": 1024
+  },
+  {
+    "mode": "vue",
+    "portal": "brand",
+    "viewportWidth": 1024,
+    "height": 2537,
+    "width": 1024
+  },
+  {
+    "mode": "reference",
+    "portal": "partner",
+    "viewportWidth": 390,
+    "height": 3808,
+    "width": 390
+  },
+  {
+    "mode": "vue",
+    "portal": "partner",
+    "viewportWidth": 390,
+    "height": 3808,
+    "width": 390
+  },
+  {
+    "mode": "reference",
+    "portal": "brand",
+    "viewportWidth": 390,
+    "height": 3799,
+    "width": 757
+  },
+  {
+    "mode": "vue",
+    "portal": "brand",
+    "viewportWidth": 390,
+    "height": 3799,
+    "width": 757
+  }
+]

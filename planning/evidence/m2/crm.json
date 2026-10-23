@@ -1,0 +1,34 @@
+{
+  "revision": "working tree based on e6c54bf",
+  "date": "2026-10-18",
+  "focused_postgres": {
+    "tests": 2,
+    "assertions": 36
+  },
+  "contact_role_acceptance": {
+    "tests": 1,
+    "assertions": 25
+  },
+  "browsers": [
+    {
+      "project": "desktop",
+      "status": "passed",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      }
+    },
+    {
+      "project": "mobile",
+      "status": "passed",
+      "axe": {
+        "violations": [],
+        "incomplete": []
+      }
+    }
+  ],
+  "limitations": [
+    "Manual release reviews carried forward under D20"
+  ],
+  "final_verification": "../m3/verification.json"
+}

@@ -16,10 +16,13 @@ x-backend: &backend
     QUEUE_CONNECTION: redis
     SESSION_DRIVER: database
     MAIL_MAILER: array
+    CLAMAV_HOST: clamav
     MIGRATION_DB_PASSWORD: ''
     MIGRATION_DB_USERNAME: ''
     POSTGRES_PASSWORD: ''
   depends_on:
+    clamav:
+      condition: service_healthy
     postgres:
       condition: service_healthy
     redis:
@@ -27,6 +30,15 @@ x-backend: &backend
   volumes:
     - private-storage:/var/www/html/storage/app/private
 services:
+  clamav:
+    image: clamav/clamav:stable@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: [CMD, clamdscan, --ping, '1']
+      interval: 10s
+      timeout: 5s
+      retries: 30
   postgres:
     image: postgres:16-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4
     environment:
@@ -90,6 +102,7 @@ services:
       TEST_MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Set MIGRATION_DB_PASSWORD in src/.env}
     command: [vendor/bin/phpunit, '-c', phpunit.acceptance.xml]
 volumes:
+  clamav-data:
   postgres-data:
   redis-data:
   private-storage:

@@ -24,7 +24,7 @@ describe('workspace screens', () => {
         expect(wrapper.text()).toContain('You don’t have an active workspace yet');
         await wrapper.get('#workspace_name').setValue('  My Studio  ');
         await wrapper.get('form').trigger('submit');
-        expect(wrapper.emitted('create')).toEqual([['My Studio']]);
+        expect(wrapper.emitted('create')).toEqual([['My Studio', 'creator']]);
     });
 
     it('selects by workspace ID and exposes which workspace is selected', async () => {

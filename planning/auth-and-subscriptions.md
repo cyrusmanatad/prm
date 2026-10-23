@@ -39,3 +39,12 @@ MVP can operate with explicit time-limited pilot entitlements and audited manual
 ## Privacy and sensitive documents
 
 The PDF requests consent records, AI consent, export/deletion, encrypted TINs/payment references, and professional review. Implement purpose/version/time/revocation records and minimize collection. Shipping and registration documents must not become generally visible to all collaborators. Define retention, processor agreements, hosting region, and tax-document handling before real-data launch. This plan makes no independent claim of Philippine legal or tax compliance.
+
+## Separate portal entry points
+
+**Confirmed D21:** separate brand and partner login pages share Laravel password/session authentication. A person may have both contexts; authorize each destination through active memberships and relationship grants. Login-page selection grants no permissions. **Proposal:** `/brand/login` and `/partner/login`, with safe intended redirects, context switching and explicit legacy-login behavior. Preserve existing recovery, verification, revocation and MFA requirements. A partnership does not make either side a member of the other's private workspace. Scoped anonymous onboarding remains distinct from a brand account and partnership acceptance. See [portal UI alignment](portal-ui-alignment.md).
+
+
+**Confirmed D23:** role-specific registration creates a creator or brand workspace. Existing users reuse their identity and switch authorized contexts. Login pages share email/password/recovery form structure and a link to the other login, with partner burgundy and brand white headers. Brand invitations require partner acceptance; removal preserves private records. See [M3A handoff](m3a-implementation-handoff.md).
+
+**M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](m3a-portal-contract.md). See [status and current evidence](m3a-status.md). Prior proposal text above records the planning sequence.

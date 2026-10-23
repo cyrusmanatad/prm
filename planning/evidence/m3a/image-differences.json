@@ -1,0 +1,56 @@
+[
+  {
+    "portal": "partner",
+    "viewportWidth": 1440,
+    "imageWidth": 1440,
+    "height": 1622,
+    "differentPixels": 0,
+    "totalPixels": 2335680,
+    "differentFraction": 0
+  },
+  {
+    "portal": "brand",
+    "viewportWidth": 1440,
+    "imageWidth": 1440,
+    "height": 1517,
+    "differentPixels": 0,
+    "totalPixels": 2184480,
+    "differentFraction": 0
+  },
+  {
+    "portal": "partner",
+    "viewportWidth": 1024,
+    "imageWidth": 1024,
+    "height": 2469,
+    "differentPixels": 0,
+    "totalPixels": 2528256,
+    "differentFraction": 0
+  },
+  {
+    "portal": "brand",
+    "viewportWidth": 1024,
+    "imageWidth": 1024,
+    "height": 2537,
+    "differentPixels": 0,
+    "totalPixels": 2597888,
+    "differentFraction": 0
+  },
+  {
+    "portal": "partner",
+    "viewportWidth": 390,
+    "imageWidth": 390,
+    "height": 3808,
+    "differentPixels": 0,
+    "totalPixels": 1485120,
+    "differentFraction": 0
+  },
+  {
+    "portal": "brand",
+    "viewportWidth": 390,
+    "imageWidth": 757,
+    "height": 3799,
+    "differentPixels": 0,
+    "totalPixels": 2875843,
+    "differentFraction": 0
+  }
+]

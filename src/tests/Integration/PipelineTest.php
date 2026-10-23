@@ -94,11 +94,11 @@ class PipelineTest extends TestCase
         $this->postJson('/pipeline/'.$foreign.'/activities', ['body' => 'forged', 'kind' => 'note', 'version' => 1])->assertNotFound();
         $this->deleteJson('/pipeline/'.$foreign, ['version' => 1])->assertNotFound();
         $this->withoutVite();
-        $this->get('/pipeline?entry='.$own)->assertInertia(fn (Assert $page) => $page->component('Pipeline')
-            ->where('workspace.id', $org)->where('entries.0.id', $own)->where('selected.notes', 'Never share with a brand')->etc());
-        $this->get('/pipeline', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '',
-            'X-Inertia-Partial-Component' => 'Pipeline', 'X-Inertia-Partial-Data' => 'entries,notes,actor_id,org_id'])
-            ->assertOk()->assertJsonCount(1, 'props.entries')->assertJsonMissingPath('props.notes')->assertJsonMissingPath('props.actor_id')->assertDontSee('Hidden brand');
+        $this->get('/partner/leads?entry='.$own)->assertInertia(fn (Assert $page) => $page->component('Portal')
+            ->where('workspace.id', $org)->where('pipeline.entries.0.id', $own)->where('pipeline.selected.notes', 'Never share with a brand')->etc());
+        $this->get('/partner/leads', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '',
+            'X-Inertia-Partial-Component' => 'Portal', 'X-Inertia-Partial-Data' => 'pipeline,notes,actor_id,org_id'])
+            ->assertOk()->assertJsonCount(1, 'props.pipeline.entries')->assertJsonMissingPath('props.notes')->assertJsonMissingPath('props.actor_id')->assertDontSee('Hidden brand');
         $this->withSession(['active_org_id' => $foreignOrg])->getJson('/pipeline')->assertForbidden();
     }
 

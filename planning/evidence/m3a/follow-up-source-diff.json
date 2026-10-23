@@ -1,0 +1,13 @@
+{
+  "changed_since_fresh_setup": [
+    "src/app/Http/Controllers/PortalController.php",
+    "src/package-lock.json",
+    "src/package.json",
+    "src/resources/js/features/portals/BrandDashboard.vue",
+    "src/resources/js/features/portals/PartnerDashboard.vue",
+    "src/tests/Acceptance/PartnershipSecurityTest.php",
+    "src/tests/Browser/portals.spec.ts",
+    "src/tests/Integration/PortalTest.php",
+    "src/tests/Visual/capture.mjs"
+  ]
+}

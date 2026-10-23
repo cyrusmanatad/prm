@@ -1,0 +1,149 @@
+{
+  "date": "2026-10-21",
+  "source": {
+    "base_commit": "e6c54bf",
+    "state": "uncommitted working tree",
+    "fresh_setup_sha256": "119228dac81a8bfa2751bbd9d34c4fd5a89afa03f6509fb272977214cedda3dc",
+    "final_sha256": "755f3309e669d09a0baf72ea8336efd9ba3f586ed8b16c5baefdfb808ffcfc3d",
+    "follow_up_diff": "follow-up-source-diff.json"
+  },
+  "environment": {
+    "project": "weavdash-m1-clean-m3a-final",
+    "image": "mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf",
+    "fresh_port": 8003,
+    "final_follow_up_project": "weavdash-m1",
+    "final_follow_up_port": 8000,
+    "remote_ci": false
+  },
+  "fresh_setup": {
+    "project": "weavdash-m1-clean-m3a-final",
+    "phases": [
+      "build",
+      "dependencies",
+      "migrate",
+      "grants",
+      "portal-migration-seed",
+      "portal-rollback",
+      "portal-reapply",
+      "portal-regrant",
+      "portal-migration-check",
+      "rls-fixtures",
+      "rls",
+      "identity",
+      "integration",
+      "acceptance",
+      "app",
+      "npm-ci",
+      "frontend-types",
+      "frontend-tests",
+      "frontend-build",
+      "browsers",
+      "browser",
+      "cleanup"
+    ],
+    "elapsed_seconds": 1013,
+    "host_dependencies_copied": false,
+    "reused_local_credentials": false,
+    "build_cache_may_be_reused": true,
+    "remote_ci_executed": false
+  },
+  "backend": {
+    "identity": {
+      "tests": 26,
+      "assertions": 252
+    },
+    "postgresql": {
+      "tests": 26,
+      "assertions": 475
+    },
+    "acceptance": {
+      "tests": 24,
+      "assertions": 566
+    },
+    "final_portal_postgresql": {
+      "tests": 4,
+      "assertions": 77
+    },
+    "final_partnership_acceptance": {
+      "tests": 3,
+      "assertions": 59
+    },
+    "ddl": "passed; schema-only, not a replacement for runtime tests",
+    "pint": "98 files passed; later changed test/controller files also passed"
+  },
+  "frontend": {
+    "typecheck": "passed",
+    "unit_tests": 21,
+    "build": "passed with pinned Vite 8.3.5",
+    "npm_audit": "zero vulnerabilities",
+    "composer_validate": "strict passed",
+    "composer_audit": "no advisories; host-network retry after initial timeout"
+  },
+  "browser": {
+    "fresh_suite": {
+      "startTime": "2026-10-21T13:20:15.709Z",
+      "duration": 679606.4900000001,
+      "expected": 58,
+      "skipped": 2,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "final_portal_follow_up": {
+      "startTime": "2026-10-21T13:31:30.414Z",
+      "duration": 122100.405,
+      "expected": 12,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "saved_axe_scans": 76,
+    "saved_axe_violations": 0,
+    "saved_axe_incomplete": 0,
+    "additional_final_portal_axe_scans": 20,
+    "additional_final_portal_axe_violations": 0,
+    "final_scope": [
+      "Chromium/WebKit desktop/mobile",
+      "guest invitation retained through login",
+      "durable registration after logout and verification",
+      "keyboard focus",
+      "shared relationship and private lead isolation",
+      "termination and replay denial",
+      "document overflow",
+      "production fixture guard and full roster columns"
+    ]
+  },
+  "visual": {
+    "comparisons": 6,
+    "different_pixels": 0,
+    "widths": [
+      1440,
+      1024,
+      390
+    ],
+    "height": 1000,
+    "details": "image-differences.json",
+    "source_brand_mobile_document_width": 757,
+    "real_account_mobile_document_overflow": false
+  },
+  "migration": {
+    "rollback_reapply": "passed in fresh synthetic database",
+    "preserved": [
+      "creator workspace ID/name/membership",
+      "repeat-client and lost rows, notes, stages and values"
+    ],
+    "inferred_partnerships": 0
+  },
+  "security": {
+    "gitleaks_positive_control": "passed",
+    "gitleaks_source_scan": "passed; 384 files at retained-artifact check",
+    "production_deployment": false,
+    "external_messaging": false
+  },
+  "remaining_gates": [
+    "manual screen-reader",
+    "actual full browser zoom",
+    "native macOS/iOS Safari",
+    "production MFA and infrastructure/operations gates"
+  ],
+  "follow_up_notes": "Fresh setup used the first complete implementation snapshot. Final follow-ups cover the Vite security patch, production-only fixture guard, complete real-account roster columns, guest/keyboard browser assertions and additional denied INSERT/removal assertions. No new backend behavior beyond a comment changed after the fresh snapshot."
+}

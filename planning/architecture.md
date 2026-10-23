@@ -61,3 +61,14 @@ M1 process evidence uses synthetic tasks only: an uncommitted worker write is ki
 - [Laravel queues](https://laravel.com/docs/13.x/queues) and [file storage](https://laravel.com/docs/13.x/filesystem): background work and storage abstraction.
 - [PostgreSQL RLS](https://www.postgresql.org/docs/current/ddl-rowsecurity.html): policy behavior and bypass considerations.
 - [Docker Compose production guidance](https://docs.docker.com/compose/how-tos/production/) and [GitHub image publishing](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images): deployment foundations.
+
+M3 implements capability transactions alongside member transactions: one-use invitations exchange for bounded sessions, and a restricted lookup locks and resolves the request before transaction-local scope is established. Safe public projection/capture functions do not expose CRM tables. Private files stay quarantined until ClamAV returns clean; see the [M3 contract](m3-onboarding-contract.md). Public forms use local assets and server-side session encryption for capability secrets.
+
+## Connected brand and partner portals
+
+**Confirmed D21:** one application and identity system serves separate brand and partner entry pages and authorized contexts. Explicit brand–creator relationships connect the brand roster to creators' partner portals without granting access to each other's private workspace. Basic relationship foundations move ahead of M4 in approved M3A; advanced campaign, incentive and payout modules remain later. Both dashboard shells must reproduce the supplied HTML references exactly, replacing the simplified foundation composition for these pages. See [portal UI alignment](portal-ui-alignment.md) for ownership, projections, assets and acceptance gates.
+
+
+**Confirmed D23:** M3A is next before M4. Shared identity supports separate registration/login and authorized context switching; explicit relationship records connect both portals. Review migrations and permissions before coding; retain existing pipeline storage/backend support. See [M3A handoff](m3a-implementation-handoff.md).
+
+**M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](m3a-portal-contract.md). See [status and current evidence](m3a-status.md). Prior proposal text above records the planning sequence.
