@@ -22,3 +22,14 @@ export interface LeadForm {
     currency: string;
     next_action_due: string;
 }
+
+export interface PipelineWorkspace {
+    entries: Entry[];
+    stages: { value: string; label: string }[];
+    counts: { stage: string; count: number }[];
+    totals: { currency: string; amount_minor: string; count: number }[];
+    nextCursor: string | null;
+    selected: EntryDetail | null;
+    canWrite: boolean;
+    filters: { q: string; stage: string; due: boolean };
+}

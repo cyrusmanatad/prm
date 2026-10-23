@@ -1,0 +1,75 @@
+{
+  "source": "/home/cyrusadmin/weavdash_assets/weavdash",
+  "files": [
+    {
+      "path": "Brand partner hub.png",
+      "bytes": 407301,
+      "sha256": "3fd2971a18833444873abfc845502ee462be7a6ebf4a28333d2d196c01886425"
+    },
+    {
+      "path": "Partner portal \u2013 My leads.png",
+      "bytes": 426001,
+      "sha256": "f7dd4f79db604848b4342092822ec9303768937ea4eac728bdae1c1d77b15476"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1791,
+      "sha256": "0d583bc9eee38d376d2d05893e57853b1a87e107787272376684f14820539920"
+    },
+    {
+      "path": "assets/dashboard.js",
+      "bytes": 1034,
+      "sha256": "6a18f3b6f8597ccc1917ba2c306c511b03acd792e328d9720f6772513d87c16e"
+    },
+    {
+      "path": "assets/fonts/OFL.txt",
+      "bytes": 8997,
+      "sha256": "6a95653552107c915b0ee084bf07e4bdc93d8830e172878fb343a22cdaf5d753"
+    },
+    {
+      "path": "assets/fonts/bricolage-grotesque-latin-ext.woff2",
+      "bytes": 30736,
+      "sha256": "776f6dcaf03636cd69a5802c94808cc8896c0a66c8e9ce0fe147231b6ee01957"
+    },
+    {
+      "path": "assets/fonts/bricolage-grotesque-latin.woff2",
+      "bytes": 76888,
+      "sha256": "a79fdb52d4a5c76552452f69202add96e287401fff03d3e8c0e38b4dcb5a99cd"
+    },
+    {
+      "path": "assets/fonts/manrope-latin-ext.woff2",
+      "bytes": 15120,
+      "sha256": "3911b66d9f2e005a4b989223405d0e5032619c668597ba467cc76a23c8fffcfb"
+    },
+    {
+      "path": "assets/fonts/manrope-latin.woff2",
+      "bytes": 24836,
+      "sha256": "a30ddcd349703aff7464c34bef3fffdff405ee50c113440d7c8693c02d210972"
+    },
+    {
+      "path": "assets/fonts.css",
+      "bytes": 1656,
+      "sha256": "c7236513b2196771ac52c1fbae527a0bb574fc82810b0034562e136cf4e00b68"
+    },
+    {
+      "path": "assets/styles.css",
+      "bytes": 745,
+      "sha256": "aab4026fddf34191b7f12c219ea2eddafc3894b07e494c9071bba04d1bb59210"
+    },
+    {
+      "path": "assets/tailwind.css",
+      "bytes": 15453,
+      "sha256": "47459ad70f17b1a0cea35e371a373e0d2b8b1b5ff581b8221352c79b253064e5"
+    },
+    {
+      "path": "brand-partner-hub.html",
+      "bytes": 22764,
+      "sha256": "87d5fa730b2d8e767d0b1fb80f73130bd534dc3a63c743073e82837879142d25"
+    },
+    {
+      "path": "partner-my-leads.html",
+      "bytes": 27434,
+      "sha256": "28b5619378c894a524973ddd1fefd26078fdc7e6b4f3e1f1c13198ae095bb25e"
+    }
+  ]
+}

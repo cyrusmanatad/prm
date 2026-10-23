@@ -1,0 +1,396 @@
+{
+  "checked_at": "2026-10-18T04:17:18.743219+00:00",
+  "scope": "Pipeline empty-stage placeholders and stage counts; frontend only (Pipeline.vue, foundation.css)",
+  "environment": "Real application on the local weavdash-m1 Docker Compose stack (app image rebuilt); synthetic m1-browser identities",
+  "typecheck": "passed",
+  "frontend_tests": 16,
+  "build": "passed",
+  "pipeline_chromium_browser_stats": {
+    "startTime": "2026-10-18T04:15:27.712Z",
+    "duration": 84303.944,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "pipeline_spec_axe_scans": [
+    {
+      "project": "desktop",
+      "violations": 0,
+      "incomplete": []
+    },
+    {
+      "project": "mobile",
+      "violations": 0,
+      "incomplete": []
+    }
+  ],
+  "webkit_local": "not run locally: host lacks WebKit system libraries (browserType.launch failed before any test step); CI installs them with --with-deps",
+  "captures": {
+    "pipeline-empty-desktop.png": "1440x900 Chromium, new workspace, all seven stages empty",
+    "pipeline-empty-mobile.png": "iPhone 13 Chromium, same state",
+    "pipeline-stages-desktop.png": "1440x900 Chromium, one lead moved to Pitched",
+    "pipeline-stages-mobile.png": "iPhone 13 Chromium, same state"
+  },
+  "states_checked": {
+    "desktop": {
+      "empty": [
+        {
+          "stage": "Lead",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Pitched",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Negotiating",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Onboarded",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Active",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Repeat Client",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Lost",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        }
+      ],
+      "filtered": [
+        {
+          "stage": "Lead",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Pitched",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Negotiating",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Onboarded",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Active",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Repeat Client",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Lost",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        }
+      ],
+      "one_lead": [
+        {
+          "stage": "Lead",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Pitched",
+          "count": "1 lead",
+          "placeholder": null,
+          "cards": 1
+        },
+        {
+          "stage": "Negotiating",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Onboarded",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Active",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Repeat Client",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Lost",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        }
+      ],
+      "leads_on_other_pages": [
+        {
+          "stage": "Lead",
+          "count": "25 leads",
+          "placeholder": null,
+          "cards": 25
+        },
+        {
+          "stage": "Pitched",
+          "count": "1 lead",
+          "placeholder": "1 lead on other pages",
+          "cards": 0
+        },
+        {
+          "stage": "Negotiating",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Onboarded",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Active",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Repeat Client",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Lost",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        }
+      ]
+    },
+    "mobile": {
+      "empty": [
+        {
+          "stage": "Lead",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Pitched",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Negotiating",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Onboarded",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Active",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Repeat Client",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Lost",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        }
+      ],
+      "filtered": [
+        {
+          "stage": "Lead",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Pitched",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Negotiating",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Onboarded",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Active",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Repeat Client",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        },
+        {
+          "stage": "Lost",
+          "count": null,
+          "placeholder": "No matching leads",
+          "cards": 0
+        }
+      ],
+      "one_lead": [
+        {
+          "stage": "Lead",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Pitched",
+          "count": "1 lead",
+          "placeholder": null,
+          "cards": 1
+        },
+        {
+          "stage": "Negotiating",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Onboarded",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Active",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Repeat Client",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        },
+        {
+          "stage": "Lost",
+          "count": null,
+          "placeholder": "No leads yet",
+          "cards": 0
+        }
+      ]
+    }
+  },
+  "state_axe": {
+    "desktop": {
+      "empty": {
+        "violations": [],
+        "incomplete": []
+      },
+      "filtered": {
+        "violations": [],
+        "incomplete": []
+      },
+      "one_lead": {
+        "violations": [],
+        "incomplete": []
+      },
+      "leads_on_other_pages": {
+        "violations": [],
+        "incomplete": []
+      }
+    },
+    "mobile": {
+      "empty": {
+        "violations": [],
+        "incomplete": []
+      },
+      "filtered": {
+        "violations": [],
+        "incomplete": []
+      },
+      "one_lead": {
+        "violations": [],
+        "incomplete": []
+      }
+    }
+  },
+  "no_horizontal_overflow": {
+    "desktop": {
+      "empty": true,
+      "one_lead": true
+    },
+    "mobile": {
+      "empty": true,
+      "one_lead": true
+    }
+  },
+  "paged_state_seed": "Desktop only: 25 extra synthetic leads created through the JSON endpoint (all HTTP 201) so the Pitched lead falls on page 2",
+  "resolved_finding": "aria-prohibited-attr (incomplete) on div.wd-pipeline-board from local-verification.json; the board is now a labelled section and no incomplete results remain",
+  "manual_screen_reader_zoom_native_safari": "pending per D19"
+}

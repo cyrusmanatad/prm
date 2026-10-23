@@ -6,3 +6,5 @@ GRANT EXECUTE ON FUNCTION app_has_membership(uuid, text[]) TO weavdash_app;
 GRANT EXECUTE ON FUNCTION app_create_workspace(uuid, text) TO weavdash_app;
 -- The web runtime must not inspect/change migration bookkeeping.
 REVOKE ALL ON TABLE migrations FROM weavdash_app;
+
+GRANT EXECUTE ON FUNCTION app_onboarding_access(uuid), app_onboarding_scope(text), app_exchange_onboarding(text,text,uuid), app_public_kit(uuid), app_capture_lead(text,uuid,text,text,text,text,uuid) TO weavdash_app;

@@ -60,6 +60,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
 .wd-card h2 + .wd-description { font-size: 13px; color: var(--wd-muted); margin-bottom: 16px; }
 
 .wd-fields { min-width: 0; border: 0; padding: 0; margin: 0; display: grid; gap: 16px; }
+.wd-card.wd-fields { padding: 20px; border: 1px solid var(--wd-line); }
 .wd-field { display: grid; gap: 6px; }
 .wd-field label { font-size: 12px; font-weight: 700; color: var(--wd-body); }
 .wd-field input { width: 100%; min-height: 44px; border: 1px solid var(--wd-control-line); border-radius: 10px; padding: 11px 12px; font-size: 15px; color: var(--wd-ink); background: var(--wd-surface); }
@@ -114,7 +115,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
     .wd-account { gap: 10px; }
     .wd-account-name { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     .wd-main { padding: 20px 16px 40px; }
-    .wd-card, .wd-auth-card { padding: 16px; }
+    .wd-card, .wd-auth-card, .wd-card.wd-fields { padding: 16px; }
     .wd-auth-card h1, .wd-page-heading h1 { font-size: 24px; }
     .wd-active-label { display: none; }
 }
@@ -129,10 +130,15 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
 .wd-pipeline-create { margin-bottom: 24px; }
 .wd-pipeline summary { cursor: pointer; font-weight: 700; padding: 4px 0; }
 .wd-pipeline-create form { margin-top: 20px; max-width: 600px; }
-.wd-pipeline-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 24px 0; }
-.wd-pipeline-stage h2 { font-size: 18px; display: flex; gap: 10px; align-items: baseline; }
-.wd-pipeline-cards { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; }
-.wd-pipeline-cards .wd-card { padding: 18px; overflow-wrap: anywhere; }
+.wd-pipeline-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 24px 0; padding: 20px; background: var(--wd-surface); border: 1px solid var(--wd-line); border-radius: 16px; }
+.wd-pipeline-stage { min-width: 0; background: var(--wd-paper); border-radius: 12px; padding: 10px; }
+.wd-pipeline-stage-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 2px 4px; }
+.wd-pipeline-stage-header h2 { font-size: 14px; line-height: 1.4; margin: 0; overflow-wrap: anywhere; }
+.wd-pipeline-count { font-size: 12px; font-weight: 600; color: var(--wd-muted); }
+.wd-pipeline-cards { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.wd-pipeline-cards .wd-card { padding: 10px 12px; border-radius: 10px; overflow-wrap: anywhere; }
+.wd-pipeline-cards .wd-card p { margin: 2px 0 0; }
+.wd-pipeline-placeholder { min-height: 72px; display: grid; place-items: center; padding: 10px 12px; border: 1px dashed var(--wd-control-line); border-radius: 10px; font-size: 13px; color: var(--wd-muted); text-align: center; }
 .wd-pipeline-detail { display: grid; gap: 24px; }
 .wd-pipeline-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .wd-field select, .wd-field textarea { width: 100%; min-height: 44px; border: 1px solid var(--wd-control-line); border-radius: 10px; padding: 11px 12px; font: inherit; color: var(--wd-ink); background: var(--wd-surface); }
@@ -143,3 +149,5 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
 @media (max-width: 700px) {
     .wd-pipeline-board, .wd-pipeline-actions { grid-template-columns: minmax(0, 1fr); }
 }
+
+.wd-header.wd-header-brand { background: white; color: var(--wd-ink); border-bottom: 1px solid var(--wd-line); }

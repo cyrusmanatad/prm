@@ -52,3 +52,18 @@ Use Laravel session authentication and CSRF protection for Inertia routes. Polic
 Campaigns/deliverables; tracking links/codes/orders/attributions; commission approval/settlement; payout attempts; PRM claims, tiers and incentives; AI insights/feedback. Public API keys must be tenant-bound, hashed, scoped, expiring/revocable, and auditable. Do not expose these before the relevant business module is approved.
 
 The first M2 slice implements session-protected `/pipeline` web actions and selected JSON compatibility. Its exact inputs, projections, paging, role defaults, and conflict behavior are documented in the [M2 pipeline contract](m2-pipeline-contract.md). The proposed `/api/v1` resource families above are not parallel implemented APIs.
+
+Subsequent M2 contracts cover [contacts/reminders](m2-crm-contract.md) and [manual templates](m2-outreach-template-contract.md). [M3](m3-onboarding-contract.md) documents the actual public/capability and creator routes, safe projections, idempotency, session exchange and attachment authorization. These remain session-protected web/JSON contracts, not a published integration API.
+
+## D21 portal routes and relationship contracts
+
+**Confirmed:** separate brand/partner login pages and dashboards; the chosen entry point never grants access. **Proposal for M3A:** `/brand/login`, `/partner/login`, authorized portal landing/context-switch routes, brand-to-partner invitation/acceptance/revocation commands and minimal shared roster projections. Specify exact routes and legacy `/login` redirects during contract review. Keep existing scoped onboarding endpoints distinct; never expose private pipeline endpoints through partnership access. See [portal UI alignment](portal-ui-alignment.md).
+
+
+**Confirmed D23:** add role-specific registration/workspace creation and partner acceptance of brand invitations to M3A contracts. Existing identities can hold both contexts; removing a partnership preserves private records. Exact routes/legacy redirects remain implementation contract choices. See [M3A handoff](m3a-implementation-handoff.md).
+
+**M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](m3a-portal-contract.md). See [status and current evidence](m3a-status.md). Prior proposal text above records the planning sequence.
+
+### Partner page URLs (D24)
+
+Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. The old `/partner`, `/pipeline`, `/crm`, `/outreach-templates`, `/onboarding-requests` and `/public-presence` page URLs redirect with their query strings. Existing JSON clients and mutation/document endpoints remain compatible; the URL consolidation does not change authorization or storage. Inbox/Campaigns/Earnings/Autopilot URLs are reserved and not implemented. See the [partner route contract](m3a-portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).

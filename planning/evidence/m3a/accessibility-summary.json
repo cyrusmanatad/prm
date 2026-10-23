@@ -1,0 +1,537 @@
+{
+  "saved_scans": [
+    {
+      "name": "axe-/login",
+      "state": "/login",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/register",
+      "state": "/register",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/forgot-password",
+      "state": "/forgot-password",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/missing-page",
+      "state": "/missing-page",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-verification",
+      "state": "verification",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-denied-verification",
+      "state": "denied-verification",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-workspace-security",
+      "state": "workspace-security",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-security-error",
+      "state": "security-error",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-large-text",
+      "state": "large-text",
+      "viewport": "desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/login",
+      "state": "/login",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/register",
+      "state": "/register",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/forgot-password",
+      "state": "/forgot-password",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/missing-page",
+      "state": "/missing-page",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-verification",
+      "state": "verification",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-denied-verification",
+      "state": "denied-verification",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-workspace-security",
+      "state": "workspace-security",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-security-error",
+      "state": "security-error",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-large-text",
+      "state": "large-text",
+      "viewport": "mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/login",
+      "state": "/login",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/register",
+      "state": "/register",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/forgot-password",
+      "state": "/forgot-password",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/missing-page",
+      "state": "/missing-page",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-verification",
+      "state": "verification",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-denied-verification",
+      "state": "denied-verification",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-workspace-security",
+      "state": "workspace-security",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-security-error",
+      "state": "security-error",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-large-text",
+      "state": "large-text",
+      "viewport": "webkit-desktop",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/login",
+      "state": "/login",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/register",
+      "state": "/register",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/forgot-password",
+      "state": "/forgot-password",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/reset-password/synthetic?email=creator@example.test",
+      "state": "/reset-password/synthetic?email=creator@example.test",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-/missing-page",
+      "state": "/missing-page",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-verification",
+      "state": "verification",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-denied-verification",
+      "state": "denied-verification",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-workspace-security",
+      "state": "workspace-security",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-security-error",
+      "state": "security-error",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-large-text",
+      "state": "large-text",
+      "viewport": "webkit-mobile",
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-crm",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-crm",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-crm",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-crm",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-invitation",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-onboarding-review",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-media-kit",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-public-presence",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-lead-form",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-templates",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    },
+    {
+      "name": "axe-pipeline",
+      "state": null,
+      "viewport": null,
+      "violations": 0,
+      "incomplete": 0
+    }
+  ],
+  "portal_scans": "Additional portal journey assertions fail the browser tests on any axe violation; final follow-up covers 20 portal scans."
+}

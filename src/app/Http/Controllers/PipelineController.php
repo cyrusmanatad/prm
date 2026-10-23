@@ -3,37 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PipelineStage;
+use App\Http\Queries\PipelinePage;
 use App\Services\Pipeline;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class PipelineController extends Controller
 {
-    public function index(Request $request, Pipeline $pipeline): JsonResponse|Response
+    public function index(Request $request, Pipeline $pipeline): JsonResponse|RedirectResponse
     {
-        $filters = $request->validate([
-            'q' => ['nullable', 'string', 'max:160'], 'stage' => ['nullable', Rule::enum(PipelineStage::class)],
-            'due' => ['nullable', 'boolean'], 'cursor' => ['nullable', 'uuid'], 'entry' => ['nullable', 'uuid'],
-        ]);
-        $orgId = $request->session()->get('active_org_id');
-        $payload = [...$pipeline->listing($orgId, $filters),
-            'workspace' => ['id' => $orgId, 'name' => DB::table('organizations')->where('id', $orgId)->value('name')],
-            'canWrite' => $pipeline->canWrite((int) $request->user()->id, $orgId),
-            'stages' => PipelineStage::options(),
-            'filters' => ['q' => $filters['q'] ?? '', 'stage' => $filters['stage'] ?? '', 'due' => (bool) ($filters['due'] ?? false)],
-            'selected' => empty($filters['entry']) ? null : $pipeline->detail($orgId, $filters['entry']),
-        ];
-        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
-            return response()->json($payload);
+        if (! $request->expectsJson() || $request->header('X-Inertia')) {
+            return redirect('/partner/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
 
-        return Inertia::render('Pipeline', $payload);
+        return response()->json(app(PipelinePage::class)->data($request, $pipeline));
     }
 
     public function store(Request $request, Pipeline $pipeline): JsonResponse|RedirectResponse
@@ -41,7 +27,7 @@ class PipelineController extends Controller
         $data = $this->details($request);
         $id = $pipeline->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data);
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Lead captured.'], '/pipeline?entry='.$id, 201);
+        return $this->completed($request, ['id' => $id, 'message' => 'Lead captured.'], '/partner/leads?entry='.$id, 201);
     }
 
     public function update(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse
@@ -50,7 +36,7 @@ class PipelineController extends Controller
         $version = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']])['version'];
         $pipeline->change((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, (int) $version, 'updated', $data);
 
-        return $this->completed($request, ['message' => 'Lead saved.'], '/pipeline?entry='.$entry);
+        return $this->completed($request, ['message' => 'Lead saved.'], '/partner/leads?entry='.$entry);
     }
 
     public function stage(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse
@@ -60,7 +46,7 @@ class PipelineController extends Controller
         ]);
         $pipeline->change((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, (int) $data['version'], 'stage', ['stage' => $data['stage']]);
 
-        return $this->completed($request, ['message' => 'Stage updated.'], '/pipeline?entry='.$entry);
+        return $this->completed($request, ['message' => 'Stage updated.'], '/partner/leads?entry='.$entry);
     }
 
     public function snooze(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse
@@ -73,7 +59,7 @@ class PipelineController extends Controller
             'next_action_due' => Carbon::parse($data['next_action_due'])->utc()->toIso8601String(),
         ]);
 
-        return $this->completed($request, ['message' => 'Next action snoozed.'], '/pipeline?entry='.$entry);
+        return $this->completed($request, ['message' => 'Next action snoozed.'], '/partner/leads?entry='.$entry);
     }
 
     public function activity(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse
@@ -84,7 +70,7 @@ class PipelineController extends Controller
         ]);
         $pipeline->addActivity((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, (int) $data['version'], $data['kind'], $data['body']);
 
-        return $this->completed($request, ['message' => 'Activity recorded.'], '/pipeline?entry='.$entry, 201);
+        return $this->completed($request, ['message' => 'Activity recorded.'], '/partner/leads?entry='.$entry, 201);
     }
 
     public function destroy(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse
@@ -92,7 +78,7 @@ class PipelineController extends Controller
         $data = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']]);
         $pipeline->delete((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, (int) $data['version']);
 
-        return $this->completed($request, ['message' => 'Lead deleted.'], '/pipeline');
+        return $this->completed($request, ['message' => 'Lead deleted.'], '/partner/leads');
     }
 
     private function details(Request $request): array

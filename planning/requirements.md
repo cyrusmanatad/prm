@@ -34,7 +34,7 @@
 
 | Finding | Implication / proposed resolution |
 |---|---|
-| PDF has seven stages: Lead, Pitched, Negotiating, Onboarded, Active, Repeat Client, Lost. Visible board shows five; automations depend on undefined “Won.” | Keep seven source stages; propose a separate accepted-deal event before onboarding. Approval required. |
+| PDF has seven stages: Lead, Pitched, Negotiating, Onboarded, Active, Repeat Client, Lost. Visible board shows five; automations depend on undefined “Won.” | D22 confirms five visible board columns matching the reference; Repeat Client/Lost UI is optional later. Keep existing seven-stage database/backend support and records unchanged. D20 confirms explicit Start onboarding; no automatic stage trigger. |
 | Both creator onboarding a brand and brand onboarding a creator exist. | Separate invitation types, forms, permissions, and completion events. |
 | PDF's Phase 1 includes payouts and AI; playbook also labels deal rooms, contracts, and brand activation as Phase 1. | Confirmed MVP prioritizes pipeline/onboarding and manual reconciliation; other deferrals are explicit scope proposals. |
 | “Everything else runs on its own” and auto-sent contracts conflict with approval language. | Default to draft approval for external messages, contracts, invoices, and financial actions; define narrow opt-in exceptions later. |
@@ -50,3 +50,10 @@ The mockup is a design reference with scripted demonstrations, not an implemente
 ## Technical baseline after stack approval
 
 Plan Inertia pages served by Laravel controllers, Form Request validation, and organization-aware policies. Use Laravel queues/scheduler for automation and a PostgreSQL outbox for durability. REST APIs serve integrations and selected JSON operations rather than duplicating every Inertia screen. Native Laravel session authentication is the initial proposal; enterprise federation remains a later extension. These refinements do not add business features or approve the unresolved sharing, pricing, AI, or invoice decisions.
+
+## Confirmed connected portals and UI baseline
+
+**Confirmed D21:** separate brand and partner login pages, one identity system, explicitly shared brand–creator relationships, and exact dashboard reproduction from the supplied local HTML/assets are required. The partner listed in a brand roster uses that same identity/relationship in their partner portal; other brands and unshared creator CRM stay private. [Portal UI alignment](portal-ui-alignment.md) supersedes palette-only design direction for these two pages and records reference assets, visual gates, phased functionality and the five-column presentation settled by D22, preserving existing seven-stage storage/backend support. Advanced PRM behavior remains later; basic relationship and dashboard layout work moves to approved M3A. Source inspection so far is not completed rendered visual acceptance.
+
+
+**Confirmed D23:** approve portal-specific login styling, shared form structure, role-specific registration/workspace creation, accepted brand invitations, context switching and data-preserving relationship removal. Deferred features use honest unavailable states and disabled unsupported controls; baseline screenshots precede UI changes. See [M3A handoff](m3a-implementation-handoff.md).

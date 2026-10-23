@@ -22,13 +22,18 @@ CREATE ROLE weavdash_migrator NOLOGIN BYPASSRLS;
 CREATE ROLE weavdash_app NOLOGIN NOSUPERUSER NOBYPASSRLS;
 GRANT USAGE, CREATE ON SCHEMA public TO weavdash_migrator;
 SET ROLE weavdash_migrator;
-CREATE TABLE users (id bigserial PRIMARY KEY, email_verified_at timestamptz);
+CREATE TABLE users (id bigserial PRIMARY KEY, email_verified_at timestamptz, email varchar(255));
 CREATE TABLE migrations (id serial PRIMARY KEY);
 INSERT INTO users(email_verified_at) VALUES (now()), (now());
 """
     sql = setup + (root / 'database/sql/foundation.sql').read_text()
     sql += (root / 'database/sql/lock-membership.sql').read_text()
     sql += (root / 'database/sql/pipeline.sql').read_text()
+    sql += (root / 'database/sql/outreach-templates.sql').read_text()
+    sql += (root / 'database/sql/crm.sql').read_text()
+    sql += (root / 'database/sql/onboarding.sql').read_text()
+    sql += (root / 'database/sql/public-profile.sql').read_text()
+    sql += (root / 'database/sql/portals.sql').read_text()
     sql += (root / 'database/sql/runtime-grants.sql').read_text()
     sql += """
 RESET ROLE;

@@ -25,7 +25,7 @@ These details beyond the confirmed objective are scope proposals. The PDF Phase 
 - Full campaign scheduling, draft/proof-of-post approvals and deal rooms; integrated contract/e-signature evidence.
 - Commerce attribution and order/refund ingestion, immutable commission ledger, automated payout provider integrations and batch approvals, Form 2307 collection workflow.
 - Brand directory/discovery, AI fit/health/rate predictions, advanced forecasts and performance summaries, seasonal re-pitches.
-- Full brand PRM hub, recruitment, tiers/sprints, enablement, B2B lead protection/conflicts, scorecards and opt-in rankings.
+- Advanced brand PRM functionality: recruitment automation, tiers/sprints, enablement workflows, B2B lead protection/conflicts, scorecards and opt-in rankings. Basic brand–partner relationships, separate portal login pages and exact dashboard compositions are brought forward by D21; see below.
 - Screenshot OCR/inbound-email extraction; chat/SMS integrations; offline PWA/push and native apps; configurable workflow builder.
 - Fraud/disclosure assistance, gifting/courier integrations, marketplace fees, consent-based benchmarks.
 - Agency portfolios, white-labeling, CRM integrations, enterprise SSO/SCIM, contractual data residency/SLAs.
@@ -37,3 +37,11 @@ PDF targets: 20–30 committed pilots before full build; Phase 1 goal of 200 cre
 Proposed pilot measures: capture-to-next-action completion, invitation-to-submission conversion, weekly active creators/deals, time saved gathering documents, and willingness to pay. Set numeric thresholds after discovery instead of inventing them.
 
 Technical release requires no unresolved critical isolation/security failures, tested recovery, and successful creator-to-brand submission and manual invoice reconciliation journeys. Commercial launch additionally requires approved pricing, processor setup, support ownership, and relevant privacy/accounting review. A development VPS demo does not establish production readiness.
+
+M3 implementation follows the narrower **Confirmed D20** form: explicit creator initiation; business/contact/email/website/brief with optional non-sensitive reference uploads. Billing/tax/permit/shipping collection is excluded. Public media kits, aggregate views and revocable lead links are implemented; invitations are manually shared links with in-app submission review. See [M3 status](m3-status.md).
+
+## Confirmed portal expansion (D21)
+
+Separate brand and partner login pages, connected brand–creator relationships with explicit sharing, and exact reproduction of both supplied dashboard UIs are required. This extends the earlier creator-first UI boundary while keeping manual finance and private CRM protections. Approved M3A delivers the relationship/context foundations and full reference compositions before M4. Working attribution, payouts, AI predictions and advanced PRM remain in their dependent milestones; visual acceptance uses synthetic fixtures and real accounts use honest empty/unavailable states. See [portal UI alignment](portal-ui-alignment.md). This request is planning-only.
+
+See the [M3A implementation handoff](m3a-implementation-handoff.md) for approved D23 login designs, registration and relationship lifecycle, feature states, execution order and next-chat instructions.

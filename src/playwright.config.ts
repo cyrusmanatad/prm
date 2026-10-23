@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
     testDir: './tests/Browser',
+    // Functional checks run on shared Docker hosts and both browser engines.
+    timeout: 60_000,
+    expect: { timeout: 15_000 },
     fullyParallel: false,
     workers: 1,
     retries: 0,

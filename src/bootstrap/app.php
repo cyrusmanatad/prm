@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'token']);
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             $messages = [
                 403 => 'This page is not available to your account.',
@@ -30,6 +31,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 500 => 'Something went wrong. Please try again.',
                 503 => 'WeavDash is temporarily unavailable. Please try again later.',
             ];
+            if ($request->is('onboarding/*')) {
+                $messages[409] = 'This form changed or is no longer editable. Reload it to see its latest status.';
+            }
+            if ($request->is('partner-invitations*')) {
+                $messages[409] = 'Invitation unavailable. Check your role and outstanding invitations.';
+            }
+            if ($request->is('lead')) {
+                $messages[409] = 'This submission changed. Reload the form before trying again.';
+            }
             $status = $response->getStatusCode();
             if ((! $request->expectsJson() || $request->header('X-Inertia')) && isset($messages[$status])) {
                 return Inertia::render('Error', ['statusCode' => $status, 'message' => $messages[$status]])

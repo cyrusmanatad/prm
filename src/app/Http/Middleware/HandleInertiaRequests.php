@@ -24,6 +24,7 @@ class HandleInertiaRequests extends Middleware
         $response = parent::handle($request, $next);
         // Authenticated props and reset tokens must not enter shared HTTP caches.
         $response->headers->set('Cache-Control', 'no-store, private');
+        $response->headers->set('Referrer-Policy', 'no-referrer');
 
         return $response;
     }

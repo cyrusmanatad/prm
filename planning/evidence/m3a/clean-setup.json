@@ -1,0 +1,32 @@
+{
+  "project": "weavdash-m1-clean-m3a-final",
+  "phases": [
+    "build",
+    "dependencies",
+    "migrate",
+    "grants",
+    "portal-migration-seed",
+    "portal-rollback",
+    "portal-reapply",
+    "portal-regrant",
+    "portal-migration-check",
+    "rls-fixtures",
+    "rls",
+    "identity",
+    "integration",
+    "acceptance",
+    "app",
+    "npm-ci",
+    "frontend-types",
+    "frontend-tests",
+    "frontend-build",
+    "browsers",
+    "browser",
+    "cleanup"
+  ],
+  "elapsed_seconds": 1013,
+  "host_dependencies_copied": false,
+  "reused_local_credentials": false,
+  "build_cache_may_be_reused": true,
+  "remote_ci_executed": false
+}

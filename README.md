@@ -1,6 +1,8 @@
 # WeavDash
 
-Creator pipeline and brand onboarding, built as a Laravel modular monolith. This checkout contains the **foundation and first M2 private-pipeline slice**, not a finished product. Official Inertia adapters connect Vue authentication, recovery, verification, workspace, and account-session screens to the Laravel backend. Tailwind CSS and a generated shadcn-vue button baseline are installed. The first CRM slice adds private leads, manual stage changes, next-action snoozing, and activity history. Reusable contacts, dedicated reminders, and outreach templates remain M2 work; production deployment is not included. Do not use this development slice with live data.
+Creator pipeline and brand onboarding, built as a Laravel modular monolith. This checkout contains the **foundation, creator CRM and M3 onboarding development implementation**, not a finished product. Official Inertia adapters connect Vue authentication, recovery, verification, workspace, and account-session screens to the Laravel backend. Tailwind CSS and a generated shadcn-vue button baseline are installed. The first CRM slice adds private leads, manual stage changes, next-action snoozing, and activity history. Private outreach templates support literal merge, draft editing, and manual copy. Reusable contacts and dedicated reminders support linking, completion and snooze; production deployment is not included. Do not use this development slice with live data.
+
+Partner lead management now lives at `/partner/leads`, with Add lead in a modal and editing/actions in a drawer. Supporting pages use `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. Old page bookmarks redirect; existing JSON and mutation endpoints remain available. See the [partner navigation contract](planning/m3a-portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
 
 ## Layout
 
@@ -27,7 +29,7 @@ Docker uses PHP 8.5 (`php:8.5-cli-bookworm`) with Redis extension 6.3.0. Require
 
 1. Copy `src/.env.example` to `src/.env`. Generate a base64 32-byte `APP_KEY` and distinct random `DB_PASSWORD`, `MIGRATION_DB_PASSWORD`, and `POSTGRES_PASSWORD`. Never commit `src/.env`.
 2. Run `docker compose --env-file src/.env build --pull app migrate worker scheduler acceptance`.
-3. Run `docker compose --env-file src/.env up -d --wait postgres redis`.
+3. Run `docker compose --env-file src/.env up -d --wait postgres redis clamav`.
 4. Run `docker compose --env-file src/.env run --rm migrate`, then `docker compose --env-file src/.env run --rm migrate php scripts/grant-runtime.php`.
 5. Run `docker compose --env-file src/.env up -d app worker scheduler`. Open `http://localhost:8000/login`; liveness is at `http://localhost:8000/up`. The development HTTP command uses `--no-reload` to retain container-provided configuration.
 
@@ -121,10 +123,30 @@ The frontend workflow checks dependency advisories, types, interactions, and the
 
 ## Milestone status
 
-See [M1 status](planning/m1-status.md). Manual screen-reader/full zoom and native Safari reviews remain pending. The user authorized M2 development with these reviews carried forward (D19); this does not waive release acceptance. External Brevo mail delivery and link opening passed with user confirmation. The production MFA policy is confirmed for operators and owners (D18); enforcement remains pending before production. See the [manual acceptance checklist](planning/m1-manual-acceptance.md), including the proposed free Brevo SMTP trial. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
+Current development implementation is described in [M2 status](planning/m2-status.md), [M3 status](planning/m3-status.md) and [M3A status](planning/m3a-status.md); earlier foundation test counts in this README are historical. See [M1 status](planning/m1-status.md). Manual screen-reader/full zoom and native Safari reviews remain pending. The user authorized M2 development with these reviews carried forward (D19); this does not waive release acceptance. External Brevo mail delivery and link opening passed with user confirmation. The production MFA policy is confirmed for operators and owners (D18); enforcement remains pending before production. See the [manual acceptance checklist](planning/m1-manual-acceptance.md), including the proposed free Brevo SMTP trial. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
 
 ## Creator pipeline (M2 first slice)
 
 Select a workspace, then choose **Open creator pipeline** (or visit `/pipeline`). Capture a brand/contact, enter private notes and estimated value, move among seven stages, log activity, and snooze a next action to a future date. Filters and currency-separated totals derive from stored rows. Simultaneous edits require explicit reload after a version conflict. Viewer access is read-only. Activity logging does not send email.
 
-See [M2 status](planning/m2-status.md) and the [implemented web contract](planning/m2-pipeline-contract.md) for boundaries and remaining work. No contacts directory, reminder delivery, or onboarding automation is implied.
+See [M2 status](planning/m2-status.md) and the [implemented web contract](planning/m2-pipeline-contract.md) for boundaries and remaining work. The pipeline links to reusable contacts/reminders, manual templates, public presence and onboarding. Reminder delivery and automatic stage/onboarding actions remain outside this implementation.
+
+Open **Outreach templates** from the pipeline to save private plain-text templates, fill named merge fields, review/edit a draft, and copy it manually. No message is sent. See the [template contract](planning/m2-outreach-template-contract.md) and [local verification](planning/evidence/m2/outreach-templates.json).
+
+## Contacts and onboarding
+
+Use **Contacts and reminders** to manage reusable private contacts, link them to several leads, and create/complete/reopen/snooze reminders. Open the lead-specific link to associate records with that lead. See the [CRM contract](planning/m2-crm-contract.md).
+
+Choose **Start onboarding** on a lead to create a private invitation. Copy its one-time URL and open it in a separate browser session to test the brand journey. Drafts resume at the saved form URL in that browser; submission requires explicit sharing consent. The creator reviews submitted forms, requests corrections, accepts, replaces invitations or revokes access. No email is sent. **Public presence** manages explicit media-kit publication, up to eight manual social-account links, and revocable inbound lead links. See [M3 status](planning/m3-status.md) and the [contract](planning/m3-onboarding-contract.md).
+
+The pinned official ClamAV service runs on the private Compose network with no published port. Its signature database is stored in a separate development volume. Application services wait for scanner health; startup needs more memory/time than the foundation-only stack. Uploads are optional non-sensitive PDF/PNG/JPEG/text references, at most 2 MB each and five per request. Pending/rejected files cannot be downloaded or submitted; the creator can retry a pending scan. Provider selection, retention/orphan reconciliation and production deployment remain separate gates.
+
+The host lacks WebKit system libraries. Full fresh-setup verification can run in the pinned official Playwright container, which includes Node 24, Chromium/WebKit and their libraries. The retained [M3 evidence](planning/evidence/m3/README.md) records the image digest, isolated synthetic project, command and exact scope. This covers Linux WebKit; native Safari and manual assistive-technology/zoom acceptance remain pending.
+
+## Connected partner and brand portals (M3A)
+
+Use `/partner/login` or `/brand/login` with your existing account, or register from the matching portal. Registration provisions the matching workspace after email verification, including when verification occurs after signing out. Existing workspaces remain creator workspaces. Create additional partner or brand workspaces from `/workspaces` and open the selected workspace's portal. The legacy `/login` remains available.
+
+Brand owners/admins choose **Invite partners**, enter the recipient email and copy the one-time link. The verified recipient signs in, selects a creator workspace they own/administer and explicitly accepts the partnership. Both portals then show the same relationship. Either side's owner/admin can end it without deleting private records. No invitation email is sent.
+
+Real dashboards use stored private pipeline estimates and accepted relationships. Deferred finance, AI, campaign performance, tiers and automation remain explicitly unavailable. Both exact dashboard compositions can be checked with the isolated visual fixture described in [M3A evidence](planning/evidence/m3a/README.md); fixture data is never enabled by application routes. The board shows five columns while all seven stored stages, filters, detail access and totals remain supported. See [M3A status](planning/m3a-status.md) and [contract](planning/m3a-portal-contract.md).

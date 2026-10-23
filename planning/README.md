@@ -1,6 +1,8 @@
 # WeavDash Planning
 
-Status: milestone-by-milestone implementation is authorized by the user. Development may proceed before pilot recruitment; pilot validation remains required before commercial launch. Detailed business and operating decisions remain under review. M1 automated gates passed; manual reviews remain pending and the user authorized M2 development (D19). See [M1 status](m1-status.md) for evidence and [M2 status](m2-status.md) for the next implementation slice. See [M0 delivery backlog](m0-backlog.md) for readiness and unresolved gates.
+Status: milestone-by-milestone implementation is authorized by the user. Development may proceed before pilot recruitment; pilot validation remains required before commercial launch. Detailed business and operating decisions remain under review. M1 automated gates passed; manual release reviews remain pending under D19/D20. M2 and M3 development is complete with automated gates passed; manual release acceptance remains pending. See [M1 status](m1-status.md) for evidence and [M2 status](m2-status.md) for CRM implementation, including [contacts/reminders](m2-crm-contract.md) and [manual templates](m2-outreach-template-contract.md). See [M3 status](m3-status.md) for onboarding/public presence and verification. See [M0 delivery backlog](m0-backlog.md) for readiness and unresolved gates.
+
+**Confirmed D21–D23:** M3A implementation is now authorized and precedes M4. Connected brand/partner portals, explicit relationships and both reference dashboard compositions are implemented; automated gates have passed; manual release reviews remain pending. See [M3A status](m3a-status.md), [contract](m3a-portal-contract.md) and [portal UI alignment](portal-ui-alignment.md).
 
 ## Reading order
 
@@ -25,3 +27,5 @@ Status: milestone-by-milestone implementation is authorized by the user. Develop
 - **Assumption / Open**: unresolved input; must not silently become a requirement.
 
 Confirmed launch scope: creator pipeline and brand onboarding first, with manual payment reconciliation initially. Confirmed stack: Laravel/PHP, Vue 3 + TypeScript + Inertia.js, Tailwind CSS + shadcn-vue, PostgreSQL with RLS, Redis/Laravel queues and scheduler, Docker Compose, and GitHub Actions. AWS S3 versus OVH Object Storage remains open. Development sizing starts with an estimated 2 vCPU / 4 GB RAM / approximately 80 GB SSD; provision after measurement and budget review. Other defaults remain proposals. The PDF is the primary business source. Its prices, market claims, targets, and regulatory statements are working assumptions, not independently verified facts.
+
+See the [M3A implementation handoff](m3a-implementation-handoff.md) for approved D23 login designs, registration and relationship lifecycle, feature states, execution order and next-chat instructions.

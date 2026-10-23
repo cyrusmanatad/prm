@@ -1,0 +1,65 @@
+{
+  "recorded_at": "2026-10-22T12:06:51.996862+00:00",
+  "scope": "Brand account avatar beside Invite partners; workspace/security and sign out moved from footer to dropdown",
+  "source_sha256": {
+    "src/resources/js/features/portals/BrandDashboard.vue": "fd17c4c45715c0ee0067f55f4484007afc99298e5f98a11c28a0b39581b2af67",
+    "src/resources/js/pages/Portal.vue": "09459488b4d9362770e78b0e642eabb3c3e1f7dab01224b4ef69fa1daf9a3bff"
+  },
+  "typecheck": true,
+  "production_build": true,
+  "browser_checks": [
+    {
+      "engine": "chromium",
+      "viewport": "desktop",
+      "adjacent": true,
+      "icons": 2,
+      "keyboard": true,
+      "workspaceLink": true,
+      "signOut": true,
+      "inviteDialog": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "axeIncomplete": 2
+    },
+    {
+      "engine": "chromium",
+      "viewport": "mobile",
+      "adjacent": true,
+      "icons": 2,
+      "keyboard": true,
+      "workspaceLink": true,
+      "signOut": true,
+      "inviteDialog": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "axeIncomplete": 3
+    },
+    {
+      "engine": "webkit",
+      "viewport": "desktop",
+      "adjacent": true,
+      "icons": 2,
+      "keyboard": true,
+      "workspaceLink": true,
+      "signOut": true,
+      "inviteDialog": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "axeIncomplete": 2
+    },
+    {
+      "engine": "webkit",
+      "viewport": "mobile",
+      "adjacent": true,
+      "icons": 2,
+      "keyboard": true,
+      "workspaceLink": true,
+      "signOut": true,
+      "inviteDialog": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "axeIncomplete": 3
+    }
+  ],
+  "note": "Focused checks only; previous 40-journey results remain scoped to their recorded source. Open-menu axe scans have zero violations and retain incomplete findings as recorded. Manual release reviews and remote CI were not performed."
+}

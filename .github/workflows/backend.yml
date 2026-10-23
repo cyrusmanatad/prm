@@ -28,7 +28,7 @@ jobs:
       - name: Build backend and start private dependencies
         run: |
           docker compose --env-file src/.env build --pull app migrate acceptance worker scheduler
-          docker compose --env-file src/.env up -d --wait postgres redis
+          docker compose --env-file src/.env up -d --wait postgres redis clamav
       - name: Validate dependencies and PHP style
         run: |
           docker compose --env-file src/.env run --rm -T --no-deps app composer validate --strict

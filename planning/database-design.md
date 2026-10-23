@@ -60,4 +60,17 @@ Migration tests must prove RLS is enabled, policy coverage is complete, wrong-te
 
 ## M2 implementation note
 
-The first pipeline slice implements `pipeline_entries` and append-only `pipeline_activities` with forced RLS and a composite same-owner parent reference. The entry embeds a primary contact name/email; reusable `brand_contacts` and relation management remain future M2 work. See the [implemented pipeline contract](m2-pipeline-contract.md); the broader entity groups above remain proposals beyond delivered tables.
+The first pipeline slice implements `pipeline_entries` and append-only `pipeline_activities` with forced RLS and a composite same-owner parent reference. The entry retains embedded primary contact fields; M2 also implements reusable `brand_contacts`, `pipeline_contacts`, dedicated `reminders` and `outreach_templates`. See the [contact/reminder contract](m2-crm-contract.md). See the [implemented pipeline contract](m2-pipeline-contract.md); the broader entity groups above remain proposals beyond delivered tables.
+
+## M3 implementation note
+
+M3 adds explicit-consent `media_kits` with manual social-account links, hashed/revocable `lead_links`, private inbound idempotency receipts, and separate onboarding requests, sessions, documents, immutable submissions and events. Capability RLS never extends to CRM tables. See the [M3 contract](m3-onboarding-contract.md) for reviewed public functions, minimal collection and upload quarantine. Production provider/region and retention/deletion choices remain open.
+
+## D21 relationship design follow-up
+
+**Confirmed:** brand roster rows and creator portal partnerships represent one relationship; private creator CRM remains private. **Proposal for M3A:** explicit brand-organization/creator-organization relationships with invitation, acceptance, revocation, status and scoped shared projections. Support many brands per creator and many creators per brand; constrain duplicate active relationships and concurrent acceptance. Model creator-to-brand onboarding separately from brand-to-partner invitations. Do not auto-convert prospects or onboarding submissions into memberships/partnerships. Review current schema, migration/backfill and RLS before implementation, including multi-brand isolation and termination. See [portal UI alignment](portal-ui-alignment.md).
+
+
+**Confirmed D23:** extend the existing schema for explicit brand–creator relationships and scoped sharing after migration/backfill and permission review. Preserve private records on relationship removal. D22 leaves current pipeline storage and backend stages unchanged. Review uniqueness, invitation acceptance concurrency and cross-brand RLS. See [M3A handoff](m3a-implementation-handoff.md).
+
+**M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](m3a-portal-contract.md). See [status and current evidence](m3a-status.md). Prior proposal text above records the planning sequence.
