@@ -12,6 +12,8 @@ Frontend formatting, type checking, **21 Vitest tests**, production build and PH
 
 ## Next tasks and remaining gates
 
+The [remaining-task register](remaining-tasks.md#m5-required-implementation-and-delivery-work) tracks these under **M5-01–M5-10**, with dependencies and completion evidence. The first slice is committed as `efd4fd6`. See the [current handoff](implementation-handoff.md) and [M6 preparation](m6-status.md); M6 acceptance does not waive the remaining M5 work.
+
 1. Add onboarding invitation recipient/send controls and submitted/correction/accepted notifications with scoped recipients and safe return links.
 2. Implement persisted scheduling, timezone/preferences/consent, reminders and digest.
 3. Add approval inbox, follow-up drafts, logged-reply cancellation and approval invalidation, plus rate budgets and optional AI off-path behavior.

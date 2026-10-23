@@ -62,3 +62,7 @@ When localhost and browser tooling become available, inspect all seven boards at
 ## Email notification scope
 
 **D25 — Confirmed:** Gmail/Outlook mailbox syncing is a nice-to-have for a possible future integration. Required product email notifications must work independently of mailbox syncing. M5 must include working transactional notifications for supported workflows, including closing existing invitation/onboarding notification gaps; an in-app approval inbox alone is insufficient. This requirement does not authorize mailbox access, unattended outreach, real invoice issuance, or unsolicited test messages. See [M5 email requirements and current gaps](m5-email-notifications.md). Detailed recipients, preferences and delivery behavior remain to be specified; existing notification gaps are not marked complete by this decision.
+
+## Commit, readiness and task continuity
+
+**D26 — Confirmed (2026-10-23):** the user requested committing the current changes, moving toward M6 if possible, and creating a handoff that retains all unfinished, in-progress and deferred earlier milestone work so it can be implemented later. The verified M5 slice is committed; M5 remains incomplete. M6 preparation and a cross-milestone task register implement this request without waiving the existing M1–M5 dependencies or production/external-action approval boundaries. See [current handoff](implementation-handoff.md), [remaining tasks](remaining-tasks.md) and [M6 status](m6-status.md).

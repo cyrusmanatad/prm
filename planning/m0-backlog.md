@@ -1,5 +1,7 @@
 # M0 Discovery and Delivery Backlog
 
+Current carry-forward work is indexed in [remaining tasks](remaining-tasks.md) and the [current handoff](implementation-handoff.md). The original backlog/evidence boundaries below remain historical; later implemented milestones are recorded in their status files.
+
 ## Status and evidence
 
 Implementation is authorized milestone by milestone (D13). Development may start before recruiting 20–30 pilots (D14); no recruited pilots or willingness-to-pay evidence is claimed. Initial product defaults are accepted (D15). The approved stack and source-to-requirement inventory are recorded in [architecture](architecture.md) and [requirements](requirements.md).

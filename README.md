@@ -125,6 +125,8 @@ The frontend workflow checks dependency advisories, types, interactions, and the
 
 ## Milestone status
 
+Start from the [current handoff](planning/implementation-handoff.md) and [remaining-task register](planning/remaining-tasks.md). M5's first notification slice is committed and locally verified; required M5 work remains open. [M6 preparation](planning/m6-status.md) has started; acceptance and inherited release gates remain pending.
+
 Current development implementation is described in [M2 status](planning/m2-status.md), [M3 status](planning/m3-status.md) and [M3A status](planning/m3a-status.md); earlier foundation test counts in this README are historical. See [M1 status](planning/m1-status.md). Manual screen-reader/full zoom and native Safari reviews remain pending. The user authorized M2 development with these reviews carried forward (D19); this does not waive release acceptance. External Brevo mail delivery and link opening passed with user confirmation. The production MFA policy is confirmed for operators and owners (D18); enforcement remains pending before production. See the [manual acceptance checklist](planning/m1-manual-acceptance.md), including the proposed free Brevo SMTP trial. The Git remote is `origin` at `cyrusmanatad/prm`. Package network access and Docker work through approved commands outside the sandbox. `AGENTS.md` remains unchanged as requested.
 
 ## Creator pipeline (M2 first slice)

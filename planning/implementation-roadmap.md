@@ -30,6 +30,12 @@ CI progression: PHP/frontend style and static checks → Pest/PHPUnit and Vue co
 
 M5's first implementation slice covers durable notification intent and explicitly requested partner invitation email. See the [contract](m5-notification-contract.md), [status and next tasks](m5-status.md), and [verification evidence](evidence/m5/README.md). Local SMTP acceptance is separate from provider delivery; onboarding notifications and the remaining automation gates are still required.
 
+## M6 preparation and carry-forward work
+
+**Confirmed D26:** commit the verified M5 slice, progress toward M6 where possible, and preserve unfinished/in-progress/deferred work for later implementation. [M6 preparation](m6-status.md) now has a [readiness contract](m6-readiness-contract.md) and [current handoff](implementation-handoff.md). Required M5 workflows remain open; M6 final acceptance still depends on M1–M5 and applicable release gates. Independent planning and synthetic readiness rehearsals can proceed alongside that work.
+
+The [remaining-task register](remaining-tasks.md) assigns stable IDs, statuses, dependencies, completion criteria and source links across all milestones. Starting a later milestone never silently completes, removes or waives an earlier task. Explicitly deferred/optional features remain available for later work without becoming current launch requirements.
+
 ## UI completion gate for every milestone
 
 **Confirmed:** all milestones and all contributors/Codex models must follow the [mandatory UI standards](../AGENTS.md#mandatory-ui-standards-for-every-milestone). New and modified screens must match the existing approved styling and reuse or extract shared sections, navigation, fields, and groups. UI-only changes preserve behavior and data contracts.

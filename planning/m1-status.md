@@ -1,5 +1,7 @@
 # M1 Foundation Status
 
+Current carried-forward release work remains active under the stable M1 task IDs in [remaining tasks](remaining-tasks.md). See the [current handoff](implementation-handoff.md) for the latest checkpoint; results below retain their original scope.
+
 Status: **manual acceptance pending**. Automated foundation gates and external mail trial passed. **Confirmed (D19):** continue M2 development with screen-reader, full browser zoom, and native Safari reviews carried forward. This does not establish M1 manual acceptance or production readiness.
 
 ## Implemented foundation slices
