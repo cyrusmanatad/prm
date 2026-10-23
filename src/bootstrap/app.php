@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,6 +21,21 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->report(function (QueryException $exception) {
+            if (($exception->errorInfo[0] ?? null) === 'P0004') {
+                return false;
+            }
+        });
+        $exceptions->render(function (QueryException $exception, Request $request) {
+            if (($exception->errorInfo[0] ?? null) !== 'P0004') {
+                return null;
+            }
+            $message = 'Pilot entitlement is inactive or its resource limit has been reached. Existing records remain available. Contact the pilot administrator.';
+
+            return $request->expectsJson() && ! $request->header('X-Inertia')
+                ? response()->json(['message' => $message, 'errors' => ['quota' => [$message]]], 422)
+                : back()->withErrors(['quota' => $message]);
+        });
         $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'token']);
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             $messages = [

@@ -4,6 +4,8 @@ Status: milestone-by-milestone implementation is authorized by the user. Develop
 
 **Confirmed D21–D23:** M3A implementation is now authorized and precedes M4. Connected brand/partner portals, explicit relationships and both reference dashboard compositions are implemented; automated gates have passed; manual release reviews remain pending. See [M3A status](m3a-status.md), [contract](m3a-portal-contract.md) and [portal UI alignment](portal-ui-alignment.md).
 
+M4 development and automated verification are complete on `m4/financial-records-entitlements`: private draft invoices, manual receipt/allocation history and explicit time-limited pilot entitlements. See [M4 status](m4-status.md) and [finance/entitlement contract](m4-finance-contract.md). Pricing and numerical commercial quotas remain open; issuance, charging and transfers remain gated.
+
 ## Reading order
 
 1. [Project overview](project-overview.md): business concept, evidence, and source-access limitations.

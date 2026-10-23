@@ -34,6 +34,9 @@ INSERT INTO users(email_verified_at) VALUES (now()), (now());
     sql += (root / 'database/sql/onboarding.sql').read_text()
     sql += (root / 'database/sql/public-profile.sql').read_text()
     sql += (root / 'database/sql/portals.sql').read_text()
+    sql += (root / 'database/sql/invoice-drafts.sql').read_text()
+    sql += (root / 'database/sql/manual-payments.sql').read_text()
+    sql += (root / 'database/sql/pilot-entitlements.sql').read_text()
     sql += (root / 'database/sql/runtime-grants.sql').read_text()
     sql += """
 RESET ROLE;
@@ -51,6 +54,11 @@ DO $$ BEGIN
     END IF;
     IF (SELECT count(*) FROM pg_policy WHERE polrelid IN ('pipeline_entries'::regclass, 'pipeline_activities'::regclass)) <> 6 THEN
         RAISE EXCEPTION 'missing pipeline policies';
+    END IF;
+END $$;
+DO $$ BEGIN
+    IF (SELECT count(*) FROM pg_class WHERE relname IN ('invoice_drafts','invoice_draft_lines','financial_commands','manual_payments','payment_allocations','payment_allocation_reversals','payment_commands','pilot_plan_versions','pilot_assignments','pilot_admin_events') AND relrowsecurity AND relforcerowsecurity) <> 10 THEN
+        RAISE EXCEPTION 'missing finance/pilot forced RLS';
     END IF;
 END $$;
 SELECT 'SCHEMA_CHECKS_PASSED';
