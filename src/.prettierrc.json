@@ -1,13 +1,5 @@
 {
     "singleQuote": true,
     "tabWidth": 4,
-    "printWidth": 120,
-    "overrides": [
-        {
-            "files": ["*.vue"],
-            "options": {
-                "tabWidth": 2
-            }
-        }
-    ]
+    "printWidth": 120
 }

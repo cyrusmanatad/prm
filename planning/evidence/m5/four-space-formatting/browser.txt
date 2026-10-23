@@ -1,0 +1,148 @@
+npm notice run npx
+npm notice run 'playwright' test --project=desktop --project=mobile
+
+Running 38 tests using 1 worker
+
+(node:434780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/accessibility.spec.ts:14:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (8.3s)
+  ✘   2 [desktop] › tests/Browser/accessibility.spec.ts:36:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (3.1s)
+(node:435283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/Browser/adversarial.spec.ts:4:1 › all five roles enforce server permissions and revoked pages drop stale workspace data (12.9s)
+  ✓   4 [desktop] › tests/Browser/adversarial.spec.ts:29:1 › session fixation, CSRF failure, logout replay, and reset of two live sessions (8.5s)
+  ✓   5 [desktop] › tests/Browser/crm.spec.ts:5:1 › contacts are reusable and reminders snooze, complete and reopen (9.0s)
+  ✓   6 [desktop] › tests/Browser/finance.spec.ts:7:1 › private draft exact money, edit and terminal void (6.0s)
+  ✓   7 [desktop] › tests/Browser/finance.spec.ts:43:1 › manual receipt allocation, reversal, void and entitlement visibility (9.1s)
+  ✓   8 [desktop] › tests/Browser/foundation.spec.ts:4:1 › registration, verification, workspace errors, create, and settings (3.8s)
+  ✓   9 [desktop] › tests/Browser/foundation.spec.ts:55:1 › recovery, invalid login, and revocation of two real database sessions (7.0s)
+  ✓  10 [desktop] › tests/Browser/notifications.spec.ts:30:1 › explicit invitation email shows queue capture and cancellation without external mail (7.2s)
+  ✓  11 [desktop] › tests/Browser/onboarding.spec.ts:17:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (11.0s)
+  ✓  12 [desktop] › tests/Browser/onboarding.spec.ts:127:1 › media kit publication and inbound lead links are explicit and revocable (8.1s)
+  ✓  13 [desktop] › tests/Browser/outreach-templates.spec.ts:5:1 › private templates persist, reject stale edits, merge drafts, copy and delete (11.6s)
+  ✓  14 [desktop] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (7.2s)
+  ✓  15 [desktop] › tests/Browser/pipeline.spec.ts:5:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (11.0s)
+  ✓  16 [desktop] › tests/Browser/pipeline.spec.ts:78:1 › viewer reads private workspace pipeline and revocation blocks further page access (5.6s)
+  ✓  17 [desktop] › tests/Browser/portals.spec.ts:11:1 › portal logins share identity and never grant a wrong workspace context (4.4s)
+  ✓  18 [desktop] › tests/Browser/portals.spec.ts:33:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (9.1s)
+  ✓  19 [desktop] › tests/Browser/portals.spec.ts:105:1 › portal registration survives logout and verification before first workspace provisioning (3.1s)
+(node:457804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [mobile] › tests/Browser/accessibility.spec.ts:14:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (7.2s)
+  ✘  21 [mobile] › tests/Browser/accessibility.spec.ts:36:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (3.0s)
+(node:458314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 [mobile] › tests/Browser/adversarial.spec.ts:4:1 › all five roles enforce server permissions and revoked pages drop stale workspace data (12.3s)
+  -  23 [mobile] › tests/Browser/adversarial.spec.ts:29:1 › session fixation, CSRF failure, logout replay, and reset of two live sessions
+  ✓  24 [mobile] › tests/Browser/crm.spec.ts:5:1 › contacts are reusable and reminders snooze, complete and reopen (7.3s)
+  ✓  25 [mobile] › tests/Browser/finance.spec.ts:7:1 › private draft exact money, edit and terminal void (5.3s)
+  ✓  26 [mobile] › tests/Browser/finance.spec.ts:43:1 › manual receipt allocation, reversal, void and entitlement visibility (7.7s)
+  ✓  27 [mobile] › tests/Browser/foundation.spec.ts:4:1 › registration, verification, workspace errors, create, and settings (3.6s)
+  ✓  28 [mobile] › tests/Browser/foundation.spec.ts:55:1 › recovery, invalid login, and revocation of two real database sessions (7.6s)
+  ✓  29 [mobile] › tests/Browser/notifications.spec.ts:30:1 › explicit invitation email shows queue capture and cancellation without external mail (9.6s)
+  ✓  30 [mobile] › tests/Browser/onboarding.spec.ts:17:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (22.4s)
+  ✓  31 [mobile] › tests/Browser/onboarding.spec.ts:127:1 › media kit publication and inbound lead links are explicit and revocable (10.7s)
+  ✓  32 [mobile] › tests/Browser/outreach-templates.spec.ts:5:1 › private templates persist, reject stale edits, merge drafts, copy and delete (13.9s)
+  ✓  33 [mobile] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (12.3s)
+  ✓  34 [mobile] › tests/Browser/pipeline.spec.ts:5:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (19.4s)
+  ✓  35 [mobile] › tests/Browser/pipeline.spec.ts:78:1 › viewer reads private workspace pipeline and revocation blocks further page access (12.2s)
+  ✓  36 [mobile] › tests/Browser/portals.spec.ts:11:1 › portal logins share identity and never grant a wrong workspace context (5.4s)
+  ✓  37 [mobile] › tests/Browser/portals.spec.ts:33:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (18.5s)
+  ✓  38 [mobile] › tests/Browser/portals.spec.ts:105:1 › portal registration survives logout and verification before first workspace provisioning (5.8s)
+
+
+  1) [desktop] › tests/Browser/accessibility.spec.ts:36:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+
+    Error: workspace-security
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         "a[href$=\"leads\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+       9 |         state, viewport: info.project.name, violations: results.violations, incomplete: results.incomplete,
+      10 |     }, null, 2), contentType: 'application/json' });
+    > 11 |     expect(results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(node => node.target) })), state).toEqual([]);
+         |                                                                                                               ^
+      12 | }
+      13 |
+      14 | test('auth, reset, verification, and generic error pages have no automated accessibility violations', async ({ page }, info) => {
+        at audit (/home/user/projects/prm/src/tests/Browser/accessibility.spec.ts:11:111)
+        at /home/user/projects/prm/src/tests/Browser/accessibility.spec.ts:46:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › tests/Browser/accessibility.spec.ts:36:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+
+    Error: workspace-security
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         "a[href$=\"leads\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+       9 |         state, viewport: info.project.name, violations: results.violations, incomplete: results.incomplete,
+      10 |     }, null, 2), contentType: 'application/json' });
+    > 11 |     expect(results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(node => node.target) })), state).toEqual([]);
+         |                                                                                                               ^
+      12 | }
+      13 |
+      14 | test('auth, reset, verification, and generic error pages have no automated accessibility violations', async ({ page }, info) => {
+        at audit (/home/user/projects/prm/src/tests/Browser/accessibility.spec.ts:11:111)
+        at /home/user/projects/prm/src/tests/Browser/accessibility.spec.ts:46:5
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-workspace-se-3b697-root-font-remain-accessible-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › tests/Browser/accessibility.spec.ts:36:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+    [mobile] › tests/Browser/accessibility.spec.ts:36:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+  1 skipped
+  35 passed (5.6m)

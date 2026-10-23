@@ -1,16 +1,19 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
-    id: string;
-    label: string;
-    type?: 'text' | 'email' | 'password' | 'datetime-local';
-    inputmode?: 'text' | 'decimal';
-    autocomplete?: string;
-    error?: string;
-    hint?: string;
-    required?: boolean;
-    maxlength?: number;
-    minlength?: number;
-}>(), { type: 'text', required: true });
+withDefaults(
+    defineProps<{
+        id: string;
+        label: string;
+        type?: 'text' | 'email' | 'password' | 'datetime-local';
+        inputmode?: 'text' | 'decimal';
+        autocomplete?: string;
+        error?: string;
+        hint?: string;
+        required?: boolean;
+        maxlength?: number;
+        minlength?: number;
+    }>(),
+    { type: 'text', required: true },
+);
 
 const value = defineModel<string>({ default: '' });
 </script>
@@ -29,8 +32,10 @@ const value = defineModel<string>({ default: '' });
             :maxlength="maxlength"
             :minlength="minlength"
             :aria-invalid="error ? 'true' : undefined"
-            :aria-describedby="[hint ? `${id}-hint` : '', error ? `${id}-error` : ''].filter(Boolean).join(' ') || undefined"
-        >
+            :aria-describedby="
+                [hint ? `${id}-hint` : '', error ? `${id}-error` : ''].filter(Boolean).join(' ') || undefined
+            "
+        />
         <p v-if="hint" :id="`${id}-hint`" class="wd-hint">{{ hint }}</p>
         <p v-if="error" :id="`${id}-error`" class="wd-field-error" role="alert">{{ error }}</p>
     </div>

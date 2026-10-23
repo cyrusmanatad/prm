@@ -4,7 +4,14 @@ import BrandLogo from '../components/BrandLogo.vue';
 
 const props = defineProps<{ accountName?: string; portal?: 'brand' | 'partner' }>();
 defineEmits<{ logout: [] }>();
-const initials = computed(() => (props.accountName ?? '').trim().split(/\s+/).slice(0, 2).map((part) => part.slice(0, 1).toUpperCase()).join(''));
+const initials = computed(() =>
+    (props.accountName ?? '')
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.slice(0, 1).toUpperCase())
+        .join(''),
+);
 </script>
 
 <template>
@@ -13,7 +20,8 @@ const initials = computed(() => (props.accountName ?? '').trim().split(/\s+/).sl
             <div class="wd-header-inner">
                 <span class="wd-brand">
                     <BrandLogo />
-                    <span class="wd-wordmark">WeavDash</span><span v-if="portal">{{ portal === 'brand' ? 'Brand' : 'Partner' }}</span>
+                    <span class="wd-wordmark">WeavDash</span
+                    ><span v-if="portal">{{ portal === 'brand' ? 'Brand' : 'Partner' }}</span>
                 </span>
                 <div v-if="accountName" class="wd-account">
                     <span class="wd-account-name">{{ accountName }}</span>
