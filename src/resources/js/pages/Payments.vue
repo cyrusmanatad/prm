@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import FinanceLayout from '../components/FinanceLayout.vue';
 import ContentSection from '../components/ContentSection.vue';
 import FieldGroup from '../components/FieldGroup.vue';
+import SelectField from '../components/SelectField.vue';
 type Payment = {
     id: string;
     currency: string;
@@ -18,7 +19,7 @@ type Payment = {
     allocations: { id: string; invoice_id: string; amount_minor: string; reversal_reason: string | null }[];
 };
 const props = defineProps<{
-    account: { name: string };
+    account: { name: string; email: string };
     workspace: { name: string };
     drafts: {
         items: {
@@ -60,11 +61,33 @@ function send(path: string, data: Record<string, string | number>): void {
     );
 }
 const reason = ref('');
+const correctionOptions = computed(() => [
+    { value: '', label: 'No correction' },
+    ...props.payments
+        .filter((p) => p.status === 'voided')
+        .map((p) => ({ value: p.id, label: `${p.evidence_reference} · ${p.currency} ${p.amount_minor}` })),
+]);
+const paymentOptions = computed(() => [
+    { value: '', label: 'Choose payment' },
+    ...props.payments
+        .filter((p) => p.status === 'recorded')
+        .map((p) => ({ value: p.id, label: `${p.evidence_reference} · ${p.currency}` })),
+]);
+const draftOptions = computed(() => [
+    { value: '', label: 'Choose draft' },
+    ...props.drafts.items
+        .filter((d) => d.status === 'draft')
+        .map((d) => ({
+            value: d.id,
+            label: `${d.recipient_name} · ${d.currency} ${d.total_minor} minor units`,
+        })),
+]);
 </script>
 <template>
     <Head title="Manual payment records" />
     <FinanceLayout
         :account-name="account.name"
+        :account-email="account.email"
         title="Manual payment records"
         active="payments"
         :workspace-name="workspace.name"
@@ -102,64 +125,39 @@ const reason = ref('');
                         <FieldGroup id="payments-field-4" label="Unique evidence reference"
                             ><input id="payments-field-4" v-model="record.evidence_reference" required maxlength="160"
                         /></FieldGroup>
-                        <FieldGroup id="correction-receipt" label="Corrects voided receipt (optional)"
-                            ><select id="correction-receipt" v-model="record.correction_of">
-                                <option value="">No correction</option>
-                                <option
-                                    v-for="p in payments.filter((p) => p.status === 'voided')"
-                                    :key="p.id"
-                                    :value="p.id"
-                                >
-                                    {{ p.evidence_reference }} · {{ p.currency }} {{ p.amount_minor }}
-                                </option>
-                            </select></FieldGroup
-                        >
+                        <SelectField
+                            id="correction-receipt"
+                            v-model="record.correction_of"
+                            label="Corrects voided receipt (optional)"
+                            :options="correctionOptions"
+                        />
                         <button class="wd-button wd-button-primary" type="submit">Record manual receipt</button>
                     </fieldset>
                 </form> </ContentSection
             ><ContentSection title="Allocate receipt">
                 <form @submit.prevent="send(`/finance/payments/${allocation.payment_id}/allocate`, allocation)">
                     <fieldset class="wd-fields" :disabled="busy">
-                        <FieldGroup id="allocation-payment" label="Payment"
-                            ><select
-                                id="allocation-payment"
-                                v-model="allocation.payment_id"
-                                required
-                                @change="
-                                    allocation.version =
-                                        payments.find((p) => p.id === allocation.payment_id)?.version ?? 1
-                                "
-                            >
-                                <option value="">Choose payment</option>
-                                <option
-                                    v-for="p in payments.filter((p) => p.status === 'recorded')"
-                                    :key="p.id"
-                                    :value="p.id"
-                                >
-                                    {{ p.evidence_reference }} · {{ p.currency }}
-                                </option>
-                            </select></FieldGroup
-                        >
-                        <FieldGroup id="allocation-draft" label="Draft"
-                            ><select
-                                id="allocation-draft"
-                                v-model="allocation.invoice_id"
-                                required
-                                @change="
-                                    allocation.invoice_version =
-                                        drafts.items.find((d) => d.id === allocation.invoice_id)?.version ?? 1
-                                "
-                            >
-                                <option value="">Choose draft</option>
-                                <option
-                                    v-for="d in drafts.items.filter((d) => d.status === 'draft')"
-                                    :key="d.id"
-                                    :value="d.id"
-                                >
-                                    {{ d.recipient_name }} · {{ d.currency }} {{ d.total_minor }} minor units
-                                </option>
-                            </select></FieldGroup
-                        >
+                        <SelectField
+                            id="allocation-payment"
+                            v-model="allocation.payment_id"
+                            label="Payment"
+                            :options="paymentOptions"
+                            required
+                            @change="
+                                allocation.version = payments.find((p) => p.id === allocation.payment_id)?.version ?? 1
+                            "
+                        />
+                        <SelectField
+                            id="allocation-draft"
+                            v-model="allocation.invoice_id"
+                            label="Draft"
+                            :options="draftOptions"
+                            required
+                            @change="
+                                allocation.invoice_version =
+                                    drafts.items.find((d) => d.id === allocation.invoice_id)?.version ?? 1
+                            "
+                        />
                         <Link
                             class="wd-link"
                             v-if="drafts.nextCursor"
@@ -181,9 +179,6 @@ const reason = ref('');
         </div>
         <ContentSection title="Receipt history">
             <p v-if="!payments.length" class="wd-empty">No receipts recorded yet.</p>
-            <FieldGroup id="payments-field-6" label="Reason for reversing an allocation"
-                ><input id="payments-field-6" v-model="reason" maxlength="240"
-            /></FieldGroup>
             <article class="wd-finance-record" v-for="p in payments" :key="p.id">
                 <h3>{{ p.evidence_reference }}</h3>
                 <p>
@@ -195,27 +190,34 @@ const reason = ref('');
                     <li v-for="a in p.allocations" :key="a.id">
                         <Link class="wd-link" :href="`/finance/invoices/${a.invoice_id}`">Open allocated draft</Link> ·
                         {{ a.amount_minor }} minor units
-                        <span v-if="a.reversal_reason"> · Reversed: {{ a.reversal_reason }}</span
-                        ><button
-                            class="wd-button wd-button-secondary"
-                            v-else
-                            :disabled="!reason.trim() || busy"
-                            @click="
-                                confirmAction(
-                                    'Reverse allocation',
-                                    `Reverse ${a.amount_minor} minor units from receipt ${p.evidence_reference} allocated to draft ${a.invoice_id}? Reason: ${reason}. The reconciliation history is preserved.`,
-                                    () => send(`/finance/allocations/${a.id}/reverse`, { reason }),
-                                    $event,
-                                )
-                            "
-                        >
-                            Reverse allocation
-                        </button>
+                        <span v-if="a.reversal_reason"> · Reversed: {{ a.reversal_reason }}</span>
+                        <template v-else>
+                            <FieldGroup :id="`reverse-reason-${a.id}`" label="Reason for reversing an allocation"
+                                ><input :id="`reverse-reason-${a.id}`" v-model="reason" maxlength="240"
+                            /></FieldGroup>
+                            <button
+                                type="button"
+                                class="wd-button wd-button-danger"
+                                :disabled="!reason.trim() || busy"
+                                @click="
+                                    confirmAction(
+                                        'Reverse allocation',
+                                        `Reverse ${a.amount_minor} minor units from receipt ${p.evidence_reference} allocated to draft ${a.invoice_id}? Reason: ${reason}. The reconciliation history is preserved.`,
+                                        () => send(`/finance/allocations/${a.id}/reverse`, { reason }),
+                                        $event,
+                                        { tone: 'danger' },
+                                    )
+                                "
+                            >
+                                Reverse allocation
+                            </button>
+                        </template>
                     </li>
                 </ul>
                 <template v-if="p.status === 'recorded'"
                     ><button
-                        class="wd-button wd-button-secondary"
+                        type="button"
+                        class="wd-button wd-button-danger"
                         :disabled="busy"
                         @click="
                             confirmAction(
@@ -223,6 +225,7 @@ const reason = ref('');
                                 `Void receipt ${p.evidence_reference}? It can no longer be allocated. Its history is preserved.`,
                                 () => send(`/finance/payments/${p.id}/void`, { version: p.version }),
                                 $event,
+                                { tone: 'danger' },
                             )
                         "
                     >

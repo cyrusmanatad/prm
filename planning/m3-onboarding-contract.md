@@ -15,15 +15,15 @@ All creator routes require a verified identity, selected workspace and locked ac
 | `POST /lead-links` | Create scoped inbound form link; return its URL once |
 | `DELETE /lead-links/{id}` | Revoke inbound capture |
 | `GET /onboarding-requests` | Latest 100 request summaries, submitted/awaiting-review indicator; optional `request` UUID for authorized detail/history |
-| `POST /onboarding-requests` | Explicit `pipeline_entry_id`, `label` (160); create request and return invitation URL once |
+| `POST /onboarding-requests` | Explicit `pipeline_entry_id`, `label` (160); create request and return invitation URL once. M5-01 adds optional boolean `send_email` (default false), requiring `recipient_email` (valid email, 255) when true. |
 | `POST /onboarding-requests/{id}/correct` | Current `version`, required correction `note` (2,000); submitted → correction |
 | `POST /onboarding-requests/{id}/accept` | Current `version`; submitted → accepted |
 | `POST /onboarding-requests/{id}/revoke` | Current `version`; end all invitation/session access |
-| `POST /onboarding-requests/{id}/renew` | Current `version`; replace an unrevoked invitation, expire all prior browser sessions, extend invitation seven days |
+| `POST /onboarding-requests/{id}/renew` | Current `version`; replace an unrevoked invitation, expire all prior browser sessions, extend invitation seven days. M5-01 adds the same optional `send_email` / `recipient_email` contract, with fresh explicit selection. |
 | `GET /onboarding-requests/{id}/documents/{document}` | Authorized clean attachment download |
 | `POST /onboarding-requests/{id}/documents/{document}` | Retry a pending scan; editing role required |
 
-Request status is draft, submitted, correction, accepted or revoked. Row locks and versions reject stale writes. Accepting a submission does not change the pipeline stage. Leads with onboarding history cannot be deleted through the pipeline; a conflict directs the user to revoke access while retaining the history. Separate requests may reference the same lead; no deal-merging rule is inferred. The awaiting-review indicator and persistent submission events are the in-app notification. Email invitation/submission delivery and durable external actions remain M5 work.
+Request status is draft, submitted, correction, accepted or revoked. Row locks and versions reject stale writes. Accepting a submission does not change the pipeline stage. Leads with onboarding history cannot be deleted through the pipeline; a conflict directs the user to revoke access while retaining the history. Separate requests may reference the same lead; no deal-merging rule is inferred. The awaiting-review indicator and persistent submission events are the in-app notification. [M5-01](m5-onboarding-email-contract.md) adds durable, explicitly requested invitation email and writer-only delivery history (latest 20 intents, IDs/states/timestamps only). Lifecycle email and other durable external actions remain M5 work; provider delivery is unverified.
 
 ## Public and capability routes
 

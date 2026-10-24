@@ -31,14 +31,14 @@ test('contacts are reusable and reminders snooze, complete and reopen', async ({
     await page.getByRole('button', { name: 'Snooze reminder', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('Reminder snooze saved.');
     await expect(page.getByLabel('Contact name', { exact: true })).toHaveValue('Unrelated contact draft');
-    await page.getByLabel('Reminder filter', { exact: true }).selectOption('due');
+    await page.locator('#reminder-state').selectOption('due');
     await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
     await expect(page.getByText('No reminders match.', { exact: true })).toBeVisible();
-    await page.getByLabel('Reminder filter', { exact: true }).selectOption('all');
+    await page.locator('#reminder-state').selectOption('all');
     await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
     await page.getByRole('button', { name: 'Complete Check in', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('Reminder complete saved.');
-    await page.getByLabel('Reminder filter', { exact: true }).selectOption('completed');
+    await page.locator('#reminder-state').selectOption('completed');
     await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
     await page.getByRole('button', { name: 'Reopen Check in', exact: true }).focus();
     await page.keyboard.press('Enter');
@@ -53,7 +53,7 @@ test('contacts are reusable and reminders snooze, complete and reopen', async ({
     expect(scan.violations.map((item) => item.id)).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: info.outputPath('crm.png'), fullPage: true });
-    await page.getByLabel('Reminder filter', { exact: true }).selectOption('all');
+    await page.locator('#reminder-state').selectOption('all');
     await Promise.all([
         page.evaluate(
             () =>

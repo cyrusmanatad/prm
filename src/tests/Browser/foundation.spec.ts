@@ -7,6 +7,8 @@ test('registration, verification, workspace errors, create, and settings', async
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('/login');
+    await page.getByRole('link', { name: 'Skip to main content' }).focus();
+    await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(page.getByLabel('Email address')).toBeFocused();
     await page.screenshot({ path: info.outputPath('login.png'), fullPage: true });

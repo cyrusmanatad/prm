@@ -17,7 +17,7 @@ type Invoice = {
     lines: Line[];
 };
 const props = defineProps<{
-    account: { name: string };
+    account: { name: string; email: string };
     workspace: { id: string; name: string };
     invoice?: Invoice;
     invoices?: { items: Invoice[]; nextCursor: string | null };
@@ -58,6 +58,7 @@ function submit(action: 'save' | 'void'): void {
     <Head title="Private invoice drafts" />
     <FinanceLayout
         :account-name="account.name"
+        :account-email="account.email"
         title="Private invoice drafts"
         active="invoices"
         :workspace-name="workspace.name"
@@ -94,48 +95,52 @@ function submit(action: 'save' | 'void'): void {
             </p>
             <form @submit.prevent="submit('save')">
                 <fieldset class="wd-fields" :disabled="busy || invoice?.status === 'voided' || !!errors?.version">
-                    <FieldGroup id="invoices-field-1" label="Recipient business name"
-                        ><input id="invoices-field-1" v-model="form.recipient_name" required maxlength="160"
-                    /></FieldGroup>
-                    <FieldGroup id="invoices-field-2" label="Currency code"
-                        ><input
-                            id="invoices-field-2"
-                            v-model="form.currency"
-                            required
-                            pattern="[A-Z]{3}"
-                            maxlength="3"
-                            placeholder="USD"
-                    /></FieldGroup>
-                    <FieldGroup id="invoices-field-3" label="Due date"
-                        ><input id="invoices-field-3" v-model="form.due_date" type="date"
-                    /></FieldGroup>
+                    <div class="wd-form-row">
+                        <FieldGroup id="invoices-field-1" label="Recipient business name"
+                            ><input id="invoices-field-1" v-model="form.recipient_name" required maxlength="160"
+                        /></FieldGroup>
+                        <FieldGroup id="invoices-field-2" label="Currency code"
+                            ><input
+                                id="invoices-field-2"
+                                v-model="form.currency"
+                                required
+                                pattern="[A-Z]{3}"
+                                maxlength="3"
+                                placeholder="USD"
+                        /></FieldGroup>
+                        <FieldGroup id="invoices-field-3" label="Due date"
+                            ><input id="invoices-field-3" v-model="form.due_date" type="date"
+                        /></FieldGroup>
+                    </div>
                     <fieldset class="wd-finance-line wd-fields" v-for="(line, index) in form.lines" :key="index">
                         <legend>Line {{ index + 1 }}</legend>
-                        <FieldGroup :id="`invoices-field-4-${index}`" label="Description"
-                            ><input
-                                :id="`invoices-field-4-${index}`"
-                                v-model="line.description"
-                                required
-                                maxlength="240"
-                        /></FieldGroup>
-                        <FieldGroup :id="`invoices-field-5-${index}`" label="Quantity"
-                            ><input
-                                :id="`invoices-field-5-${index}`"
-                                v-model.number="line.quantity"
-                                type="number"
-                                min="1"
-                                max="1000000"
-                                step="1"
-                                required
-                        /></FieldGroup>
-                        <FieldGroup :id="`invoices-field-6-${index}`" label="Unit price in minor units"
-                            ><input
-                                :id="`invoices-field-6-${index}`"
-                                v-model="line.unit_price_minor"
-                                inputmode="numeric"
-                                pattern="0|[1-9][0-9]*"
-                                required
-                        /></FieldGroup>
+                        <div class="wd-finance-line-row">
+                            <FieldGroup :id="`invoices-field-4-${index}`" label="Description"
+                                ><input
+                                    :id="`invoices-field-4-${index}`"
+                                    v-model="line.description"
+                                    required
+                                    maxlength="240"
+                            /></FieldGroup>
+                            <FieldGroup :id="`invoices-field-5-${index}`" label="Quantity"
+                                ><input
+                                    :id="`invoices-field-5-${index}`"
+                                    v-model.number="line.quantity"
+                                    type="number"
+                                    min="1"
+                                    max="1000000"
+                                    step="1"
+                                    required
+                            /></FieldGroup>
+                            <FieldGroup :id="`invoices-field-6-${index}`" label="Unit price in minor units"
+                                ><input
+                                    :id="`invoices-field-6-${index}`"
+                                    v-model="line.unit_price_minor"
+                                    inputmode="numeric"
+                                    pattern="0|[1-9][0-9]*"
+                                    required
+                            /></FieldGroup>
+                        </div>
                         <button
                             class="wd-button wd-button-secondary"
                             v-if="form.lines.length > 1"
@@ -170,10 +175,13 @@ function submit(action: 'save' | 'void'): void {
                         `Void the draft for ${invoice.recipient_name}? Its history is preserved and it can no longer be edited.`,
                         () => submit('void'),
                         $event,
+                        { tone: 'danger' },
                     )
                 "
             >
-                <button class="wd-button wd-button-secondary" :disabled="busy || !!errors?.version">Void draft</button>
+                <button class="wd-button wd-button-danger" type="submit" :disabled="busy || !!errors?.version">
+                    Void draft
+                </button>
             </form>
         </ContentSection>
     </FinanceLayout>

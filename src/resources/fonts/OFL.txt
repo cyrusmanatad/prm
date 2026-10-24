@@ -1,5 +1,6 @@
-Font files in this directory were extracted unchanged from mockup/index.html, which
-embeds latin and latin-ext subsets downloaded from Google Fonts. Each family's license follows.
+Font files in this directory are latin and latin-ext subsets downloaded from Google Fonts.
+Manrope and Bricolage Grotesque were extracted unchanged from mockup/index.html.
+Each family's license follows.
 
 Bricolage Grotesque
 

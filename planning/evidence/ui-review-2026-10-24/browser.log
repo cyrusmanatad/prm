@@ -1,0 +1,1184 @@
+
+> test:browser
+> playwright test adversarial.spec.ts foundation.spec.ts confirmation-errors.spec.ts accessibility.spec.ts portals.spec.ts crm.spec.ts pipeline.spec.ts partner-navigation.spec.ts finance.spec.ts onboarding.spec.ts onboarding-notifications.spec.ts notifications.spec.ts outreach-templates.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-ui-review-browser --reporter=list
+
+
+Running 42 tests using 1 worker
+
+(node:1748823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (17.7s)
+  ✓   2 [desktop] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (15.5s)
+  ✓   3 [desktop] › tests/Browser/adversarial.spec.ts:4:1 › all five roles enforce server permissions and revoked pages drop stale workspace data (28.6s)
+  ✓   4 [desktop] › tests/Browser/adversarial.spec.ts:32:1 › session fixation, CSRF failure, logout replay, and reset of two live sessions (15.7s)
+  ✓   5 [desktop] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (7.9s)
+  ✓   6 [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (24.2s)
+  ✘   7 [desktop] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (13.1s)
+(node:1752716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 [desktop] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (9.6s)
+(node:1753108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [desktop] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (5.7s)
+  ✓  10 [desktop] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (15.3s)
+  ✘  11 [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (18.2s)
+(node:1754405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (23.2s)
+(node:1755131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (31.2s)
+  ✘  14 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (37.9s)
+(node:1756577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [desktop] › tests/Browser/outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete (32.3s)
+  ✓  16 [desktop] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (14.2s)
+  ✘  17 [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (13.4s)
+(node:1758195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 [desktop] › tests/Browser/pipeline.spec.ts:94:1 › viewer reads private workspace pipeline and revocation blocks further page access (11.3s)
+  ✓  19 [desktop] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (10.0s)
+  ✘  20 [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (16.3s)
+(node:1759469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (7.8s)
+(node:1759783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 [mobile] › tests/Browser/accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations (17.2s)
+  ✓  23 [mobile] › tests/Browser/accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible (13.7s)
+  ✓  24 [mobile] › tests/Browser/adversarial.spec.ts:4:1 › all five roles enforce server permissions and revoked pages drop stale workspace data (26.4s)
+  -  25 [mobile] › tests/Browser/adversarial.spec.ts:32:1 › session fixation, CSRF failure, logout replay, and reset of two live sessions
+  ✓  26 [mobile] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (7.8s)
+  ✓  27 [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (26.2s)
+  ✘  28 [mobile] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (15.6s)
+(node:1763040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  29 [mobile] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (10.7s)
+(node:1763352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 [mobile] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (14.5s)
+  ✓  31 [mobile] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (16.9s)
+  ✘  32 [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (22.5s)
+(node:1764681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  33 [mobile] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (23.5s)
+(node:1765406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 [mobile] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (35.2s)
+  ✘  35 [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (36.7s)
+(node:1766871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 [mobile] › tests/Browser/outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete (24.1s)
+  ✓  37 [mobile] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (8.9s)
+  ✘  38 [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (6.3s)
+(node:1768045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  39 [mobile] › tests/Browser/pipeline.spec.ts:94:1 › viewer reads private workspace pipeline and revocation blocks further page access (6.4s)
+  ✓  40 [mobile] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (5.6s)
+  ✘  41 [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (9.9s)
+(node:1769004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  42 [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (5.7s)
+
+
+  1) [desktop] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-8\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-8",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      40 |     await expect(stale.getByLabel('Recipient business name')).toHaveValue('Updated finance');
+      41 |     await stale.close();
+    > 42 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      43 |     await page.screenshot({ path: info.outputPath('draft.png'), fullPage: true });
+      44 |     await confirmMutation(page, page.getByRole('button', { name: 'Void draft', exact: true }), 'Void draft', info);
+      45 |     await expect(page.getByText(/Version 3/)).toContainText('voided');
+        at /home/cyrusadmin/weavdash/src/tests/Browser/finance.spec.ts:42:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-20\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-20",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      75 |     await page.getByRole('button', { name: 'Allocate receipt' }).click();
+      76 |     await expect(page.getByText(/Allocated 500/)).toBeVisible();
+    > 77 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      78 |     await page.screenshot({ path: info.outputPath('payments.png'), fullPage: true });
+      79 |     await page.getByLabel('Reason for reversing an allocation').fill('Correct allocation');
+      80 |     await confirmMutation(
+        at /home/cyrusadmin/weavdash/src/tests/Browser/finance.spec.ts:77:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger wd-account-trigger-light\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      73 |     await page.reload();
+      74 |     await expect(history).toContainText('Email cancelled');
+    > 75 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      76 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      77 |     await page.screenshot({ path: info.outputPath(`notification-history-${info.project.name}.png`), fullPage: true });
+      78 | });
+        at /home/cyrusadmin/weavdash/src/tests/Browser/notifications.spec.ts:75:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      85 |     await expect(history).toContainText('Email cancelled');
+      86 |     await expect(history).toContainText('Email captured locally; no external delivery');
+    > 87 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      88 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      89 |     await page.screenshot({ path: info.outputPath('onboarding-email-history.png'), fullPage: true });
+      90 |     await recipientPage.goto(replacement);
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding-notifications.spec.ts:87:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /Inbound Studio/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: /Inbound Studio/ }) with timeout 15000ms
+      - waiting for getByRole('link', { name: /Inbound Studio/ })
+
+
+      203 |     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
+      204 |     await page.getByRole('link', { name: 'My leads', exact: true }).click();
+    > 205 |     await expect(page.getByRole('link', { name: /Inbound Studio/ })).toBeVisible();
+          |                                                                      ^
+      206 |     await context.close();
+      207 | });
+      208 |
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding.spec.ts:205:70
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('status')
+    Expected substring: "Stage updated."
+    Error: strict mode violation: getByRole('status') resolved to 2 elements:
+        1) <div role="status" data-v-8a7bfaec="" class="pipeline-empty">…</div> aka getByText('No leads match these filtersTry a different brand name, stage or segment.')
+        2) <p role="status" class="wd-status" data-v-d42c9c88="">Stage updated.</p> aka getByText('Stage updated.')
+
+    Call log:
+      - Expect "toContainText" getByRole('status') with timeout 15000ms
+      - waiting for getByRole('status')
+
+
+      24 |         await page.locator('#lead-stage').selectOption(stage);
+      25 |         await page.getByRole('button', { name: 'Move lead', exact: true }).click();
+    > 26 |         await expect(page.getByRole('status')).toContainText('Stage updated.');
+         |                                                ^
+      27 |         await expect(page.getByRole('button', { name: 'Move lead', exact: true })).toBeEnabled();
+      28 |         await page.reload();
+      29 |         await expect(page.locator('#lead-stage')).toHaveValue(stage);
+        at /home/cyrusadmin/weavdash/src/tests/Browser/pipeline.spec.ts:26:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 60
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button data-v-8a7bfaec=\"\" type=\"button\" class=\"lead-card\" aria-label=\"Open Private portal prospect\"><span data-v-8a7bfaec=\"\" class=\"lead-brand\">Private portal prospect</span><span data-v-8a7bfaec=\"\" class=\"lead-amount\">PHP 9.00</span><!----></button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".lead-card",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+       6 | async function clean(page: Parameters<typeof login>[0]) {
+       7 |     const result = await new AxeBuilder({ page }).analyze();
+    >  8 |     expect(result.violations).toEqual([]);
+         |                               ^
+       9 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      10 | }
+      11 |
+        at clean (/home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:8:31)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:97:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger wd-account-trigger-light\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+       6 | async function clean(page: Parameters<typeof login>[0]) {
+       7 |     const result = await new AxeBuilder({ page }).analyze();
+    >  8 |     expect(result.violations).toEqual([]);
+         |                               ^
+       9 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      10 | }
+      11 |
+        at clean (/home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:8:31)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:154:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [mobile] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-8\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-8",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      40 |     await expect(stale.getByLabel('Recipient business name')).toHaveValue('Updated finance');
+      41 |     await stale.close();
+    > 42 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      43 |     await page.screenshot({ path: info.outputPath('draft.png'), fullPage: true });
+      44 |     await confirmMutation(page, page.getByRole('button', { name: 'Void draft', exact: true }), 'Void draft', info);
+      45 |     await expect(page.getByText(/Version 3/)).toContainText('voided');
+        at /home/cyrusadmin/weavdash/src/tests/Browser/finance.spec.ts:42:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/finance-private-draft-exact-money-edit-and-terminal-void-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [mobile] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-20\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-20",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      75 |     await page.getByRole('button', { name: 'Allocate receipt' }).click();
+      76 |     await expect(page.getByText(/Allocated 500/)).toBeVisible();
+    > 77 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      78 |     await page.screenshot({ path: info.outputPath('payments.png'), fullPage: true });
+      79 |     await page.getByLabel('Reason for reversing an allocation').fill('Correct allocation');
+      80 |     await confirmMutation(
+        at /home/cyrusadmin/weavdash/src/tests/Browser/finance.spec.ts:77:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/finance-manual-receipt-all-ac698--and-entitlement-visibility-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger wd-account-trigger-light\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      73 |     await page.reload();
+      74 |     await expect(history).toContainText('Email cancelled');
+    > 75 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      76 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      77 |     await page.screenshot({ path: info.outputPath(`notification-history-${info.project.name}.png`), fullPage: true });
+      78 | });
+        at /home/cyrusadmin/weavdash/src/tests/Browser/notifications.spec.ts:75:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [mobile] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      85 |     await expect(history).toContainText('Email cancelled');
+      86 |     await expect(history).toContainText('Email captured locally; no external delivery');
+    > 87 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+         |                                                                   ^
+      88 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      89 |     await page.screenshot({ path: info.outputPath('onboarding-email-history.png'), fullPage: true });
+      90 |     await recipientPage.goto(replacement);
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding-notifications.spec.ts:87:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /Inbound Studio/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: /Inbound Studio/ }) with timeout 15000ms
+      - waiting for getByRole('link', { name: /Inbound Studio/ })
+
+
+      203 |     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
+      204 |     await page.getByRole('link', { name: 'My leads', exact: true }).click();
+    > 205 |     await expect(page.getByRole('link', { name: /Inbound Studio/ })).toBeVisible();
+          |                                                                      ^
+      206 |     await context.close();
+      207 | });
+      208 |
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding.spec.ts:205:70
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('status')
+    Expected substring: "Stage updated."
+    Error: strict mode violation: getByRole('status') resolved to 2 elements:
+        1) <div role="status" data-v-8a7bfaec="" class="pipeline-empty">…</div> aka getByText('No leads match these filtersTry a different brand name, stage or segment.')
+        2) <p role="status" class="wd-status" data-v-d42c9c88="">Stage updated.</p> aka getByText('Stage updated.')
+
+    Call log:
+      - Expect "toContainText" getByRole('status') with timeout 15000ms
+      - waiting for getByRole('status')
+
+
+      24 |         await page.locator('#lead-stage').selectOption(stage);
+      25 |         await page.getByRole('button', { name: 'Move lead', exact: true }).click();
+    > 26 |         await expect(page.getByRole('status')).toContainText('Stage updated.');
+         |                                                ^
+      27 |         await expect(page.getByRole('button', { name: 'Move lead', exact: true })).toBeEnabled();
+      28 |         await page.reload();
+      29 |         await expect(page.locator('#lead-stage')).toHaveValue(stage);
+        at /home/cyrusadmin/weavdash/src/tests/Browser/pipeline.spec.ts:26:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 60
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button data-v-8a7bfaec=\"\" type=\"button\" class=\"lead-card\" aria-label=\"Open Private portal prospect\"><span data-v-8a7bfaec=\"\" class=\"lead-brand\">Private portal prospect</span><span data-v-8a7bfaec=\"\" class=\"lead-amount\">PHP 9.00</span><!----></button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".lead-card",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+       6 | async function clean(page: Parameters<typeof login>[0]) {
+       7 |     const result = await new AxeBuilder({ page }).analyze();
+    >  8 |     expect(result.violations).toEqual([]);
+         |                               ^
+       9 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      10 | }
+      11 |
+        at clean (/home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:8:31)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:97:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/portals-same-relationship--07791-utomation-stays-unavailable-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 40
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"reka-dropdown-menu-trigger-v-0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\" class=\"wd-account-trigger wd-account-trigger-light\" aria-label=\"Account menu\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#reka-dropdown-menu-trigger-v-0",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+       6 | async function clean(page: Parameters<typeof login>[0]) {
+       7 |     const result = await new AxeBuilder({ page }).analyze();
+    >  8 |     expect(result.violations).toEqual([]);
+         |                               ^
+       9 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      10 | }
+      11 |
+        at clean (/home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:8:31)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/portals.spec.ts:154:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-browser/portals-portal-registratio-a2d15-irst-workspace-provisioning-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16 failed
+    [desktop] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void
+    [desktop] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility
+    [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+    [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+    [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+    [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+    [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable
+    [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning
+    [mobile] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void
+    [mobile] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility
+    [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+    [mobile] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+    [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+    [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+    [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable
+    [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning
+  1 skipped
+  25 passed (12.7m)

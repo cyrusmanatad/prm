@@ -2,13 +2,15 @@
 
 Current resume point: [implementation handoff](implementation-handoff.md). All unfinished, in-progress and deferred work is retained in the [remaining-task register](remaining-tasks.md). M5 is partially implemented; [M6 preparation](m6-status.md) has started with its dependencies and release gates still open.
 
+**Current UI review (2026-10-24):** the uncommitted design revision needs pipeline and accessibility corrections before acceptance. [Review and evidence](evidence/ui-review-2026-10-24/README.md) feed **UI-02–UI-05** in the register; historical milestone passes do not certify this revision.
+
 Status: milestone-by-milestone implementation is authorized by the user. Development may proceed before pilot recruitment; pilot validation remains required before commercial launch. Detailed business and operating decisions remain under review. M1 automated gates passed; manual release reviews remain pending under D19/D20. M2 and M3 development is complete with automated gates passed; manual release acceptance remains pending. See [M1 status](m1-status.md) for evidence and [M2 status](m2-status.md) for CRM implementation, including [contacts/reminders](m2-crm-contract.md) and [manual templates](m2-outreach-template-contract.md). See [M3 status](m3-status.md) for onboarding/public presence and verification. See [M0 delivery backlog](m0-backlog.md) for readiness and unresolved gates.
 
 **Confirmed D21–D23:** M3A implementation is now authorized and precedes M4. Connected brand/partner portals, explicit relationships and both reference dashboard compositions are implemented; automated gates have passed; manual release reviews remain pending. See [M3A status](m3a-status.md), [contract](m3a-portal-contract.md) and [portal UI alignment](portal-ui-alignment.md).
 
 M4 development and automated verification are complete on `m4/financial-records-entitlements`: private draft invoices, manual receipt/allocation history and explicit time-limited pilot entitlements. See [M4 status](m4-status.md) and [finance/entitlement contract](m4-finance-contract.md). Pricing and numerical commercial quotas remain open; issuance, charging and transfers remain gated.
 
-**Confirmed D25:** M5 includes required transactional email notifications independently of optional future Gmail/Outlook syncing. Its first implementation slice adds the durable outbox and explicitly requested partner invitation email; see [M5 status](m5-status.md), [first-slice contract](m5-notification-contract.md) and [email requirements](m5-email-notifications.md). Onboarding notifications and the rest of M5 remain pending; external provider delivery is unverified.
+**Confirmed D25:** M5 includes required transactional email notifications independently of optional future Gmail/Outlook syncing. The durable outbox supports explicitly requested partner and onboarding invitation email, including onboarding replacements; see [M5 status](m5-status.md), [first-slice contract](m5-notification-contract.md), [onboarding invitation contract](m5-onboarding-email-contract.md) and [email requirements](m5-email-notifications.md). Onboarding lifecycle notifications and the rest of M5 remain pending; external provider delivery is unverified.
 
 ## Reading order
 

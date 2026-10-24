@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
+import SelectField from '../components/SelectField.vue';
 import { Button } from '../components/ui/button';
 import { useValidationFocus } from '../composables/useValidationFocus';
 type Contact = {
@@ -23,7 +24,7 @@ type Reminder = {
     version: number;
 };
 const props = defineProps<{
-    account: { name: string };
+    account: { name: string; email: string };
     workspace: { id: string; name: string };
     contacts: { items: Contact[]; nextCursor: string | null };
     reminders: { items: Reminder[]; nextCursor: string | null };
@@ -123,7 +124,7 @@ function saveReminder(): void {
 </script>
 <template>
     <Head title="Contacts and reminders" />
-    <FoundationShell :account-name="account.name" @logout="router.post('/logout')"
+    <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')"
         ><div ref="root" class="wd-workspace-content wd-crm">
             <nav aria-label="Workspace">
                 <Link class="wd-link" :href="entry ? `/partner/leads?entry=${entry.id}` : '/partner/leads'"
@@ -136,7 +137,7 @@ function saveReminder(): void {
                 <p v-if="entry" class="wd-description">Working with {{ entry.brand_name }}</p>
             </div>
             <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <div v-if="Object.keys(errors).length" role="alert" class="wd-status">
+            <div v-if="Object.keys(errors).length" role="alert" class="wd-banner">
                 <p v-for="(message, key) in errors" :key="key">{{ message }}</p>
                 <button
                     v-if="errors.version"
@@ -151,14 +152,14 @@ function saveReminder(): void {
             <p v-if="!canWrite" class="wd-hint">Viewer access is read only.</p>
             <section v-if="entry" class="wd-card" aria-labelledby="linked-title">
                 <h2 id="linked-title">Contacts for {{ entry.brand_name }}</h2>
-                <p v-if="!linked.length">No linked contacts.</p>
+                <p v-if="!linked.length" class="wd-empty">No linked contacts.</p>
                 <ul>
                     <li v-for="row in linked" :key="row.id">
                         {{ row.name }}
                         <button
                             v-if="canWrite"
                             type="button"
-                            class="wd-link"
+                            class="wd-action-danger"
                             :disabled="busy || !!errors.version"
                             @click="
                                 confirmAction(
@@ -170,6 +171,7 @@ function saveReminder(): void {
                                             version: entry!.version,
                                         }),
                                     $event,
+                                    { tone: 'danger' },
                                 )
                             "
                         >
@@ -178,218 +180,239 @@ function saveReminder(): void {
                     </li>
                 </ul>
             </section>
-            <form class="wd-card wd-fields" aria-label="Filter contacts and reminders" @submit.prevent="list()">
+            <form class="wd-toolbar wd-card" aria-label="Filter contacts and reminders" @submit.prevent="list()">
                 <FormField id="crm-search" v-model="q" label="Search contacts" :required="false" :maxlength="160" />
-                <div class="wd-field">
-                    <label for="reminder-state">Reminder filter</label
-                    ><select id="reminder-state" v-model="state">
-                        <option value="pending">Pending</option>
-                        <option value="due">Due</option>
-                        <option value="completed">Completed</option>
-                        <option value="all">All</option>
-                    </select>
-                </div>
+                <SelectField
+                    id="reminder-state"
+                    v-model="state"
+                    label="Reminder filter"
+                    :options="[
+                        { value: 'pending', label: 'Pending' },
+                        { value: 'due', label: 'Due' },
+                        { value: 'completed', label: 'Completed' },
+                        { value: 'all', label: 'All' },
+                    ]"
+                />
                 <Button type="submit" class="wd-button wd-button-secondary">Apply filters</Button>
             </form>
-            <section class="wd-card" aria-labelledby="contacts-title">
-                <h2 id="contacts-title">Reusable contacts</h2>
-                <p v-if="!contacts.items.length">No contacts match.</p>
-                <ul class="wd-fields">
-                    <li v-for="row in contacts.items" :key="row.id">
-                        <strong>{{ row.name }}</strong> · {{ row.company }} <span>{{ row.email }}</span>
-                        <p class="wd-pipeline-note">{{ row.notes }}</p>
-                        <div v-if="canWrite">
-                            <button
-                                type="button"
-                                class="wd-link"
-                                :disabled="busy || !!errors.version"
-                                @click="contact = { ...row, email: row.email ?? '' }"
-                            >
-                                Edit {{ row.name }}
-                            </button>
-                            <button
-                                v-if="entry && !linked.some((item) => item.id === row.id)"
-                                type="button"
-                                class="wd-link"
-                                :disabled="busy || !!errors.version"
-                                @click="
-                                    act('post', `/pipeline/${entry.id}/contacts`, {
-                                        contact_id: row.id,
-                                        version: entry.version,
-                                    })
-                                "
-                            >
-                                Link {{ row.name }}
-                            </button>
-                        </div>
-                    </li>
-                </ul>
-                <button
-                    v-if="contacts.nextCursor"
-                    type="button"
-                    class="wd-link"
-                    @click="list(contacts.nextCursor, 'contacts')"
-                >
-                    More contacts
-                </button>
-            </section>
-            <form v-if="canWrite" class="wd-card" :aria-busy="busy" @submit.prevent="saveContact">
-                <fieldset class="wd-fields" :disabled="busy || !!errors.version">
-                    <legend>{{ contact.id ? 'Edit contact' : 'New contact' }}</legend>
-                    <FormField
-                        id="contact-name"
-                        v-model="contact.name"
-                        label="Contact name"
-                        :maxlength="120"
-                        :error="errors.name"
-                    /><FormField
-                        id="contact-email"
-                        v-model="contact.email"
-                        label="Contact email"
-                        type="email"
-                        :required="false"
-                        :maxlength="255"
-                        :error="errors.email"
-                    /><FormField
-                        id="contact-company"
-                        v-model="contact.company"
-                        label="Company"
-                        :required="false"
-                        :maxlength="160"
-                    />
-                    <div class="wd-field">
-                        <label for="contact-notes">Private contact notes</label
-                        ><textarea id="contact-notes" v-model="contact.notes" rows="3" maxlength="5000" />
-                    </div>
-                    <Button type="submit" class="wd-button wd-button-primary">Save contact</Button
-                    ><template v-if="contact.id"
-                        ><Button
+            <div class="wd-split">
+                <div class="wd-split-pane">
+                    <section class="wd-card" aria-labelledby="contacts-title">
+                        <h2 id="contacts-title">Reusable contacts</h2>
+                        <p v-if="!contacts.items.length" class="wd-empty">
+                            No contacts match. Create a contact in the editor.
+                        </p>
+                        <ul class="wd-fields">
+                            <li v-for="row in contacts.items" :key="row.id">
+                                <strong>{{ row.name }}</strong> · {{ row.company }} <span>{{ row.email }}</span>
+                                <p class="wd-pipeline-note">{{ row.notes }}</p>
+                                <div v-if="canWrite">
+                                    <button
+                                        type="button"
+                                        class="wd-action"
+                                        :disabled="busy || !!errors.version"
+                                        @click="contact = { ...row, email: row.email ?? '' }"
+                                    >
+                                        Edit {{ row.name }}
+                                    </button>
+                                    <button
+                                        v-if="entry && !linked.some((item) => item.id === row.id)"
+                                        type="button"
+                                        class="wd-action"
+                                        :disabled="busy || !!errors.version"
+                                        @click="
+                                            act('post', `/pipeline/${entry.id}/contacts`, {
+                                                contact_id: row.id,
+                                                version: entry.version,
+                                            })
+                                        "
+                                    >
+                                        Link {{ row.name }}
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                        <button
+                            v-if="contacts.nextCursor"
                             type="button"
-                            class="wd-button wd-button-secondary"
-                            @click="
-                                confirmAction(
-                                    'Delete contact',
-                                    `Permanently delete ${contact.name} and its private contact details?`,
-                                    () => act('delete', `/contacts/${contact.id}`, { version: contact.version }),
-                                    $event,
-                                )
-                            "
-                            >Delete contact</Button
-                        ></template
-                    >
-                </fieldset>
-            </form>
-            <section class="wd-card" aria-labelledby="reminders-title">
-                <h2 id="reminders-title">Reminders</h2>
-                <p class="wd-hint">Private tasks. Dates use your local time.</p>
-                <p v-if="!reminders.items.length">No reminders match.</p>
-                <ul class="wd-fields">
-                    <li v-for="row in reminders.items" :key="row.id">
-                        <strong>{{ row.title }}</strong> ·
-                        <time :datetime="row.due_at">{{ new Date(row.due_at).toLocaleString() }}</time> ·
-                        {{ row.completed_at ? 'Completed' : 'Pending' }}
-                        <Link
-                            v-if="row.pipeline_entry_id"
                             class="wd-link"
-                            :href="`/partner/leads?entry=${row.pipeline_entry_id}`"
-                            >Open related lead</Link
+                            @click="list(contacts.nextCursor, 'contacts')"
                         >
-                        <div v-if="canWrite">
-                            <button
-                                type="button"
-                                class="wd-link"
-                                :disabled="busy || !!errors.version"
-                                @click="
-                                    reminder = {
-                                        ...row,
-                                        due_at: localDate(row.due_at),
-                                        pipeline_entry_id: row.pipeline_entry_id ?? '',
-                                    }
-                                "
-                            >
-                                Edit {{ row.title }}
-                            </button>
-                            <button
-                                type="button"
-                                class="wd-link"
-                                :disabled="busy || !!errors.version"
-                                @click="
-                                    act('post', `/reminders/${row.id}/${row.completed_at ? 'reopen' : 'complete'}`, {
-                                        version: row.version,
-                                    })
-                                "
-                            >
-                                {{ row.completed_at ? 'Reopen' : 'Complete' }} {{ row.title }}
-                            </button>
-                        </div>
-                    </li>
-                </ul>
-                <button
-                    v-if="reminders.nextCursor"
-                    type="button"
-                    class="wd-link"
-                    @click="list(reminders.nextCursor, 'reminders')"
-                >
-                    More reminders
-                </button>
-            </section>
-            <form v-if="canWrite" class="wd-card" :aria-busy="busy" @submit.prevent="saveReminder">
-                <fieldset class="wd-fields" :disabled="busy || !!errors.version">
-                    <legend>{{ reminder.id ? 'Edit reminder' : 'New reminder' }}</legend>
-                    <FormField
-                        id="reminder-title"
-                        v-model="reminder.title"
-                        label="Reminder title"
-                        :maxlength="240"
-                        :error="errors.title"
-                    /><FormField
-                        id="reminder-due"
-                        v-model="reminder.due_at"
-                        label="Reminder due (your local time)"
-                        type="datetime-local"
-                        :error="errors.due_at"
-                    />
-                    <p v-if="entry" class="wd-hint">New reminders here relate to {{ entry.brand_name }}.</p>
-                    <Button type="submit" class="wd-button wd-button-primary">Save reminder</Button
-                    ><template v-if="reminder.id"
-                        ><FormField
-                            id="reminder-snooze"
-                            v-model="snooze"
-                            label="Snooze until (your local time)"
-                            type="datetime-local"
-                            :required="false"
-                        /><Button
+                            More contacts
+                        </button>
+                    </section>
+                    <section class="wd-card" aria-labelledby="reminders-title">
+                        <h2 id="reminders-title">Reminders</h2>
+                        <p class="wd-hint">Private tasks. Dates use your local time.</p>
+                        <p v-if="!reminders.items.length" class="wd-empty">No reminders match.</p>
+                        <ul class="wd-fields">
+                            <li v-for="row in reminders.items" :key="row.id">
+                                <strong>{{ row.title }}</strong> ·
+                                <time :datetime="row.due_at">{{ new Date(row.due_at).toLocaleString() }}</time> ·
+                                {{ row.completed_at ? 'Completed' : 'Pending' }}
+                                <Link
+                                    v-if="row.pipeline_entry_id"
+                                    class="wd-link"
+                                    :href="`/partner/leads?entry=${row.pipeline_entry_id}`"
+                                    >Open related lead</Link
+                                >
+                                <div v-if="canWrite">
+                                    <button
+                                        type="button"
+                                        class="wd-action"
+                                        :disabled="busy || !!errors.version"
+                                        @click="
+                                            reminder = {
+                                                ...row,
+                                                due_at: localDate(row.due_at),
+                                                pipeline_entry_id: row.pipeline_entry_id ?? '',
+                                            }
+                                        "
+                                    >
+                                        Edit {{ row.title }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="wd-action"
+                                        :disabled="busy || !!errors.version"
+                                        @click="
+                                            act(
+                                                'post',
+                                                `/reminders/${row.id}/${row.completed_at ? 'reopen' : 'complete'}`,
+                                                {
+                                                    version: row.version,
+                                                },
+                                            )
+                                        "
+                                    >
+                                        {{ row.completed_at ? 'Reopen' : 'Complete' }} {{ row.title }}
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                        <button
+                            v-if="reminders.nextCursor"
                             type="button"
-                            class="wd-button wd-button-secondary"
-                            :disabled="!snooze"
-                            @click="
-                                act('post', `/reminders/${reminder.id}/snooze`, {
-                                    version: reminder.version,
-                                    due_at: iso(snooze),
-                                })
-                            "
-                            >Snooze reminder</Button
-                        ><Button
-                            type="button"
-                            class="wd-button wd-button-secondary"
-                            @click="
-                                confirmAction(
-                                    'Delete reminder',
-                                    `Permanently delete reminder ${reminder.title}?`,
-                                    () => act('delete', `/reminders/${reminder.id}`, { version: reminder.version }),
-                                    $event,
-                                )
-                            "
-                            >Delete reminder</Button
-                        ></template
-                    >
-                </fieldset>
-            </form>
+                            class="wd-link"
+                            @click="list(reminders.nextCursor, 'reminders')"
+                        >
+                            More reminders
+                        </button>
+                    </section>
+                </div>
+                <div class="wd-split-pane">
+                    <form v-if="canWrite" class="wd-card" :aria-busy="busy" @submit.prevent="saveContact">
+                        <fieldset class="wd-fields" :disabled="busy || !!errors.version">
+                            <legend>{{ contact.id ? 'Edit contact' : 'New contact' }}</legend>
+                            <FormField
+                                id="contact-name"
+                                v-model="contact.name"
+                                label="Contact name"
+                                :maxlength="120"
+                                :error="errors.name"
+                            /><FormField
+                                id="contact-email"
+                                v-model="contact.email"
+                                label="Contact email"
+                                type="email"
+                                :required="false"
+                                :maxlength="255"
+                                :error="errors.email"
+                            /><FormField
+                                id="contact-company"
+                                v-model="contact.company"
+                                label="Company"
+                                :required="false"
+                                :maxlength="160"
+                            />
+                            <div class="wd-field">
+                                <label for="contact-notes">Private contact notes</label
+                                ><textarea id="contact-notes" v-model="contact.notes" rows="3" maxlength="5000" />
+                            </div>
+                            <Button type="submit" class="wd-button wd-button-primary">Save contact</Button
+                            ><template v-if="contact.id"
+                                ><Button
+                                    type="button"
+                                    class="wd-button wd-button-danger"
+                                    @click="
+                                        confirmAction(
+                                            'Delete contact',
+                                            `Permanently delete ${contact.name} and its private contact details?`,
+                                            () =>
+                                                act('delete', `/contacts/${contact.id}`, { version: contact.version }),
+                                            $event,
+                                            { tone: 'danger' },
+                                        )
+                                    "
+                                    >Delete contact</Button
+                                ></template
+                            >
+                        </fieldset>
+                    </form>
+                    <form v-if="canWrite" class="wd-card" :aria-busy="busy" @submit.prevent="saveReminder">
+                        <fieldset class="wd-fields" :disabled="busy || !!errors.version">
+                            <legend>{{ reminder.id ? 'Edit reminder' : 'New reminder' }}</legend>
+                            <FormField
+                                id="reminder-title"
+                                v-model="reminder.title"
+                                label="Reminder title"
+                                :maxlength="240"
+                                :error="errors.title"
+                            /><FormField
+                                id="reminder-due"
+                                v-model="reminder.due_at"
+                                label="Reminder due (your local time)"
+                                type="datetime-local"
+                                :error="errors.due_at"
+                            />
+                            <p v-if="entry" class="wd-hint">New reminders here relate to {{ entry.brand_name }}.</p>
+                            <Button type="submit" class="wd-button wd-button-primary">Save reminder</Button
+                            ><template v-if="reminder.id"
+                                ><FormField
+                                    id="reminder-snooze"
+                                    v-model="snooze"
+                                    label="Snooze until (your local time)"
+                                    type="datetime-local"
+                                    :required="false"
+                                /><Button
+                                    type="button"
+                                    class="wd-button wd-button-secondary"
+                                    :disabled="!snooze"
+                                    @click="
+                                        act('post', `/reminders/${reminder.id}/snooze`, {
+                                            version: reminder.version,
+                                            due_at: iso(snooze),
+                                        })
+                                    "
+                                    >Snooze reminder</Button
+                                ><Button
+                                    type="button"
+                                    class="wd-button wd-button-danger"
+                                    @click="
+                                        confirmAction(
+                                            'Delete reminder',
+                                            `Permanently delete reminder ${reminder.title}?`,
+                                            () =>
+                                                act('delete', `/reminders/${reminder.id}`, {
+                                                    version: reminder.version,
+                                                }),
+                                            $event,
+                                            { tone: 'danger' },
+                                        )
+                                    "
+                                    >Delete reminder</Button
+                                ></template
+                            >
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
         </div></FoundationShell
     >
 </template>
 <style scoped>
-.wd-crm > .wd-card {
+.wd-crm > .wd-card,
+.wd-split-pane > .wd-card {
     margin-bottom: 1rem;
 }
 li {

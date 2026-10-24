@@ -1,0 +1,21 @@
+Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-acceptance-run-3225e08d93ae Creating
+ Container weavdash-m1-acceptance-run-3225e08d93ae Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.pgsql.xml
+
+...........................                                       27 / 27 (100%)
+
+Time: 00:05.356, Memory: 58.50 MB
+
+OK (27 tests, 503 assertions)

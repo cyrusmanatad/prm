@@ -38,6 +38,7 @@ INSERT INTO users(email_verified_at) VALUES (now()), (now());
     sql += (root / 'database/sql/manual-payments.sql').read_text()
     sql += (root / 'database/sql/pilot-entitlements.sql').read_text()
     sql += (root / 'database/sql/notification-outbox.sql').read_text()
+    sql += (root / 'database/sql/onboarding-notifications.sql').read_text()
     sql += (root / 'database/sql/runtime-grants.sql').read_text()
     sql += (root / 'tests/Fixtures/notification-schema-check.sql').read_text()
     sql += """

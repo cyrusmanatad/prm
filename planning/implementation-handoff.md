@@ -1,16 +1,20 @@
 # Current Implementation Handoff
 
-Updated: 2026-10-23. This is the current resume point; older milestone handoffs retain historical evidence and instructions for their original scope.
+Updated: 2026-10-24. This is the current resume point; older milestone handoffs retain historical evidence and instructions for their original scope.
 
 ## Checkpoint and milestone state
 
+- **Current UI review (2026-10-24):** checkout is `ui/audit-design-refinement`, HEAD `eac7de2`, with uncommitted UI changes from another session. Review found regressions in paginated pipeline filtering/counts/stage presentation, select keyboard choice and dialog traversal, plus account-menu/lead-card accessible-name failures and a stale visual fixture. **This UI revision is not accepted.** Formatting/types/build and 32 component tests pass; desktop/mobile browser results are 25 passed, 16 failed and one intentional skip. Preserve the existing implementation; repair and verify **UI-02–UI-05** in the [register](remaining-tasks.md). See the [review, reproduction evidence and validation](evidence/ui-review-2026-10-24/README.md). Branch/checkpoint statements below are historical. M5 remains incomplete; M5-02 remains the next business-feature slice after these UI repairs.
+
+- **M5-01 (2026-10-23):** onboarding invitation and replacement email is implemented on `m5/onboarding-invitation-email`, based on `ce2d9bd`; changes are currently uncommitted. Explicit validated recipient selection, generation-scoped encrypted intent, current authorization/access checks and delivery history reuse the M5 outbox and UI components. Local acceptance passes 53 tests / 1,142 assertions, integration 27 / 503, identity 29 / 256, frontend 26 component tests plus formatting/types/build. Eight affected desktop/mobile journeys pass across the broad run and corrected two-test follow-up; migration rollback/reapply, catalog checks, Pint and source scan pass. See [contract](m5-onboarding-email-contract.md) and [evidence/screenshots](evidence/m5/onboarding-email/README.md). **M5-02 is next; M5 remains incomplete.**
+
 - **UI-01 follow-up (2026-10-23):** shared native modal confirmations replace body/checkbox confirmations and immediate destructive/access-revoking submissions throughout the app, including both partnership portals. Required reasons/passwords, permissions and record versions remain in the original mutation handlers. Routine saves remain immediate. Pinned formatting/types, 26 component tests and build pass. All 34 affected desktop/mobile journeys have passing evidence across the broad run and the 12-test follow-up; the follow-up also closes the inherited M1-06 link target-size finding. Logs and inspected screenshots are retained in [confirmation evidence](evidence/confirmation-modals/README.md); this UI task does not close unfinished M5/M6 or inherited release work.
 
-- Branch: `ui/confirmation-modals`; UI-01 follow-up accompanies this handoff, based on `925c0af`. The M5 checkpoint below is historical.
+- Branch: `m5/onboarding-invitation-email`, based on `ce2d9bd` (`ui: require modal confirmation for destructive actions`). UI-01 and the original M5 checkpoint below are historical.
 - Application checkpoint: `efd4fd6` — `feat: add durable partner invitation emails`. M4 was previously merged into the baseline. The subsequent documentation commit adds this handoff and the cross-milestone register.
-- M1–M4 development is implemented; their release/manual/production gates remain open as recorded. M5's first notification slice is complete and locally verified; **M5 is incomplete**.
+- M1–M4 development is implemented; their release/manual/production gates remain open as recorded. M5's partner and onboarding invitation slices are complete and locally verified; **M5 is incomplete**.
 - **M6 preparation has started.** Its readiness contract and dependency register are prepared; operational implementation, drills and final acceptance remain pending. Required M5 work cannot be silently skipped when advancing to M6.
-- The latest user request authorizes committing this work, progressing toward M6 where possible and retaining all unfinished/in-progress/deferred tasks. It does not authorize production deployment, purchases, mailbox access or real trial messages.
+- The current user request authorized inspecting the next task, creating a new branch and implementing it. The follow-up authorizes continuing without additional task approvals for this session. D26's prior M6/carry-forward direction remains recorded; no production deployment, purchase, mailbox access or real trial message was performed.
 
 Read [remaining tasks](remaining-tasks.md) for stable IDs, current states, completion criteria and source links. Read the [M6 readiness contract](m6-readiness-contract.md) before readiness implementation. Maintain both at each handoff; do not remove open work when changing milestone labels.
 
@@ -34,7 +38,7 @@ See [M5 evidence and exact commands](evidence/m5/README.md), [status](m5-status.
 
 ## Next implementation sequence
 
-1. Inspect the current checkout and register before editing; preserve any new user/session work. Resume **M5-01/M5-02**: onboarding invitation recipients/send controls and lifecycle emails. Specify authorized recipients and safe return-link/session behavior before implementation. Reuse the existing durable outbox and current UI components.
+1. Inspect the current checkout and register before editing; preserve any new user/session work. Correct and verify **UI-02–UI-05** from the current UI review before accepting the revised shared controls/pipeline. Then resume **M5-02**: submitted, correction-requested and accepted onboarding emails. Specify authorized recipients and safe usable return links, including expired 24-hour sessions, before implementation. Reuse the existing durable outbox and current UI components. M5-01 invitation/replacement email is locally complete; provider receipt remains M5-09.
 2. Complete **M5-03–M5-08**: persistent scheduling/timezones/preferences/consent, reminder/digest delivery, follow-up drafts and approvals, reply cancellation, approval invalidation, rate/transport budgets and uncertain-delivery operator behavior. Optional mailbox syncing and AI are not required.
 3. Complete **M5-09/M5-10** delivery/recovery acceptance with a separately authorized recipient-controlled trial. Existing local SMTP capture and historical account-mail trials do not prove current business-notification receipt.
 4. Independent M6 preparation/rehearsals can proceed: start with **M6-01** isolated synthetic backup/restore planning/drill and **M6-03/M6-04** monitoring/runbooks, while keeping M5 dependencies explicit. Resolve hosting/region/recovery/pilot/operator decisions before dependent live operations.
@@ -44,7 +48,7 @@ The register is the complete carry-forward index. This sequence prioritizes work
 
 ## Local environment and commands
 
-UI-01 verification used Compose project `weavdash-m1`, with the rebuilt app running at `http://localhost:8000`. The older M5 environment snapshot below is retained for context.
+M5-01 verification uses Compose project `weavdash-m1`, with the rebuilt app running at `http://localhost:8000` and local array mail. Its separate synthetic database is `weavdash_m5_onboarding_20261023`; migration/rollback/reapply and full acceptance ran there with the documented runtime grants. The normal worker/scheduler were paused during deterministic queue/browser checks and are restored at handoff. The older M5 environment snapshot below is retained for context.
 
 At the end of the implementation session, Compose project `weavdash` had app, PostgreSQL 16, Redis, ClamAV, worker and scheduler running; the app was available at `http://localhost:8000`. Recheck current state before relying on that snapshot. The separate synthetic `weavdash_m5_clean` database was retained. Runtime processes use `weavdash_app`; only controlled migrations/fixtures receive migration credentials.
 

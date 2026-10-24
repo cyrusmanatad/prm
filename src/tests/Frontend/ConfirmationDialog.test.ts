@@ -93,4 +93,11 @@ describe('confirmation lifecycle', () => {
         button().dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
         expect(document.activeElement?.textContent?.trim()).toBe('Cancel');
     });
+    it('styles destructive confirmation as a danger action', async () => {
+        confirmAction('Delete lead', 'Permanently delete Acme and its history.', vi.fn(), undefined, {
+            tone: 'danger',
+        });
+        await flushPromises();
+        expect(button().className).toContain('wd-button-danger');
+    });
 });

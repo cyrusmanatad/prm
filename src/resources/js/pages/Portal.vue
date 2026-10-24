@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { confirmAction } from '../composables/useConfirmation';
+import { containDialogFocus } from '../composables/useDialogFocus';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { nextTick, ref, watch } from 'vue';
 import PartnerDashboard from '../features/portals/PartnerDashboard.vue';
 import BrandDashboard from '../features/portals/BrandDashboard.vue';
 import type { PortalData } from '../features/portals/types';
 import FormField from '../components/FormField.vue';
-import ContentSection from '../components/ContentSection.vue';
+import DialogClose from '../components/DialogClose.vue';
+import { emailStates } from '../features/notifications/emailStates';
 import { Button } from '../components/ui/button';
 const props = defineProps<
     PortalData & {
@@ -15,14 +17,6 @@ const props = defineProps<
         inviteUrl?: string | null;
     }
 >();
-const emailStates: Record<string, string> = {
-    pending: 'Email pending',
-    sending: 'Email sending',
-    sent: 'Email accepted by mail server; receipt unconfirmed',
-    captured: 'Email captured locally; no external delivery',
-    cancelled: 'Email cancelled',
-    uncertain: 'Email delivery uncertain; review required before any new send',
-};
 const inviting = ref(false);
 const invitationDialog = ref<HTMLDialogElement | null>(null);
 const invitationLink = ref<string | null>(null);
@@ -70,25 +64,62 @@ function endPartnership(id: string, trigger: HTMLElement): void {
         `End the partnership with ${props.portal === 'brand' ? relationship.creator_name : relationship.brand_name}? Shared relationship access ends on both sides. Private records are preserved.`,
         () => router.delete(`/partnerships/${id}`),
         trigger,
+        { tone: 'danger' },
     );
 }
 </script>
 <template>
     <Head :title="portal === 'brand' ? 'Partner hub' : 'My leads'" />
-    <BrandDashboard v-if="portal === 'brand'" :data="props" @invite="openInvitation" @remove="endPartnership" />
+    <BrandDashboard v-if="portal === 'brand'" :data="props" @invite="openInvitation" @remove="endPartnership">
+        <template v-if="canManage && invitations.length" #after-partners>
+            <section class="rounded-2xl border border-line bg-white p-5" aria-labelledby="invitation-history-title">
+                <h2 id="invitation-history-title" class="mb-2 font-display text-[18px] font-bold">
+                    Invitation history
+                </h2>
+                <p class="wd-hint mb-3">Refresh this page to check email delivery progress.</p>
+                <ul class="invitation-history">
+                    <li
+                        v-for="row in invitations"
+                        :key="row.id"
+                        class="grid gap-2 border-b border-[var(--wd-line)] py-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4"
+                    >
+                        <span>{{ row.status }} · expires {{ new Date(row.expires_at).toLocaleDateString() }}</span
+                        ><span role="status">{{
+                            row.email_state ? emailStates[row.email_state] : 'Link only; email not requested'
+                        }}</span
+                        ><button
+                            v-if="row.status === 'pending'"
+                            type="button"
+                            class="wd-action-danger"
+                            @click="
+                                confirmAction(
+                                    'Revoke invitation',
+                                    `Revoke invitation ${row.id}? The recipient will no longer be able to accept it. Pending email delivery will be cancelled.`,
+                                    () => router.delete(`/partner-invitations/${row.id}`),
+                                    $event,
+                                    { tone: 'danger' },
+                                )
+                            "
+                        >
+                            Revoke invitation
+                        </button>
+                    </li>
+                </ul>
+            </section>
+        </template>
+    </BrandDashboard>
     <PartnerDashboard v-else :data="props" @remove="endPartnership" />
     <dialog
         ref="invitationDialog"
-        class="invitation-dialog wd-card"
+        class="wd-dialog"
         aria-labelledby="invitation-title"
         @close="inviting = false"
         @cancel="inviting = false"
+        @keydown="containDialogFocus($event, invitationDialog)"
     >
-        <div class="mb-4 flex items-start justify-between gap-4">
+        <div class="wd-dialog-header">
             <h2 id="invitation-title">{{ invitationLink ? 'Copy invitation link' : 'Invite a partner' }}</h2>
-            <button type="button" class="wd-link" aria-label="Close invitation dialog" @click="inviting = false">
-                Close
-            </button>
+            <DialogClose label="Close invitation dialog" @click="inviting = false" />
         </div>
         <form v-if="!invitationLink" class="grid gap-4" @submit.prevent="invite">
             <p>Only the verified recipient can accept. The invitation expires in seven days.</p>
@@ -113,10 +144,12 @@ function endPartnership(id: string, trigger: HTMLElement): void {
                 Choose email to request delivery. Check invitation history for delivery status.
             </p>
             <p v-if="form.errors.send_email" role="alert">{{ form.errors.send_email }}</p>
-            <Button type="submit" class="wd-button wd-button-primary" :disabled="form.processing">{{
-                form.send_email ? 'Create and email invitation' : 'Create invitation link'
-            }}</Button
-            ><button type="button" class="wd-link" @click="inviting = false">Cancel</button>
+            <div class="wd-dialog-footer">
+                <button type="button" class="wd-button wd-button-secondary" @click="inviting = false">Cancel</button>
+                <Button type="submit" class="wd-button wd-button-primary" :disabled="form.processing">{{
+                    form.send_email ? 'Create and email invitation' : 'Create invitation link'
+                }}</Button>
+            </div>
         </form>
         <div v-if="invitationLink" class="grid gap-4">
             <p>Save this link now. It is shown once. Send it only to the intended recipient.</p>
@@ -130,54 +163,11 @@ function endPartnership(id: string, trigger: HTMLElement): void {
             />
         </div>
     </dialog>
-    <div v-if="portal === 'brand' && canManage && invitations.length" class="mx-auto max-w-[1408px] px-6 pb-12">
-        <ContentSection title="Invitation history">
-            <p class="wd-hint">Refresh this page to check email delivery progress.</p>
-            <ul class="invitation-history">
-                <li
-                    v-for="row in invitations"
-                    :key="row.id"
-                    class="grid gap-2 border-b border-[var(--wd-line)] py-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4"
-                >
-                    <span>{{ row.status }} · expires {{ new Date(row.expires_at).toLocaleDateString() }}</span
-                    ><span role="status">{{
-                        row.email_state ? emailStates[row.email_state] : 'Link only; email not requested'
-                    }}</span
-                    ><button
-                        v-if="row.status === 'pending'"
-                        type="button"
-                        class="wd-link text-left"
-                        @click="
-                            confirmAction(
-                                'Revoke invitation',
-                                `Revoke invitation ${row.id}? The recipient will no longer be able to accept it. Pending email delivery will be cancelled.`,
-                                () => router.delete(`/partner-invitations/${row.id}`),
-                                $event,
-                            )
-                        "
-                    >
-                        Revoke invitation
-                    </button>
-                </li>
-            </ul></ContentSection
-        >
-    </div>
 </template>
 
 <style scoped>
-.invitation-dialog {
-    position: fixed;
-    inset: 0;
-    margin: auto;
-    width: min(520px, calc(100% - 32px));
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
-    color: var(--wd-ink);
-}
-.invitation-dialog::backdrop {
-    background: rgb(0 0 0 / 45%);
-}
 .invitation-history {
     padding-left: 0;
+    list-style: none;
 }
 </style>

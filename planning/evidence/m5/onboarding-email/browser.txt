@@ -1,0 +1,110 @@
+> test:browser
+> playwright test onboarding-notifications.spec.ts onboarding.spec.ts notifications.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-onboarding-email-browser --reporter=list
+
+
+Running 8 tests using 1 worker
+
+(node:1446825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (8.6s)
+  ✘  2 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (27.4s)
+(node:1448318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (13.5s)
+  ✓  4 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (13.4s)
+(node:1449317) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (12.5s)
+  ✘  6 [mobile] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (28.6s)
+(node:1451094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 [mobile] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (14.5s)
+  ✓  8 [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (11.6s)
+
+
+  1) [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /not found/i })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /not found/i }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: /not found/i })
+
+
+      90 |     await recipientPage.goto(replacement);
+      91 |     await recipientPage.getByRole('button', { name: 'Open invitation', exact: true }).click();
+    > 92 |     await expect(recipientPage.getByRole('heading', { name: /not found/i })).toBeVisible();
+         |                                                                              ^
+      93 |     await recipientContext.close();
+      94 | });
+      95 |
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding-notifications.spec.ts:92:78
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /not found/i })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /not found/i }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: /not found/i })
+
+
+      90 |     await recipientPage.goto(replacement);
+      91 |     await recipientPage.getByRole('button', { name: 'Open invitation', exact: true }).click();
+    > 92 |     await expect(recipientPage.getByRole('heading', { name: 'We could not find this page.', exact: true })).toBeVisible();
+         |                                                                              ^
+      93 |     await recipientContext.close();
+      94 | });
+      95 |
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding-notifications.spec.ts:92:78
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-onboarding-email-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+    [mobile] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+  6 passed (2.3m)

@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
+import SelectField from '../../components/SelectField.vue';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 import FoundationShell from '../../layouts/FoundationShell.vue';
 import type { AccountSummary, FieldErrors, WorkspaceAction, WorkspaceSummary } from '../../types/foundation';
@@ -30,6 +31,9 @@ const emit = defineEmits<{
 const root = ref<HTMLElement>();
 const newName = ref('');
 const kind = ref<'creator' | 'brand'>('creator');
+function onKind(next: string): void {
+    if (next === 'creator' || next === 'brand') kind.value = next;
+}
 const currentName = ref('');
 const password = ref('');
 const busy = computed(() => props.pendingAction !== null);
@@ -69,7 +73,7 @@ defineExpose({
 </script>
 
 <template>
-    <FoundationShell :account-name="account.name" @logout="emit('logout')">
+    <FoundationShell :account-name="account.name" :account-email="account.email" @logout="emit('logout')">
         <div ref="root" class="wd-workspace-content">
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">Your workspaces</span>
@@ -120,11 +124,16 @@ defineExpose({
                     <form :aria-busy="pendingAction === 'create'" @submit.prevent="create">
                         <fieldset class="wd-fields" :disabled="busy">
                             <legend class="wd-sr-only">Create a workspace</legend>
-                            <label for="workspace-kind">Workspace type</label
-                            ><select id="workspace-kind" v-model="kind">
-                                <option value="creator">Partner / creator</option>
-                                <option value="brand">Brand</option>
-                            </select>
+                            <SelectField
+                                id="workspace-kind"
+                                :model-value="kind"
+                                label="Workspace type"
+                                :options="[
+                                    { value: 'creator', label: 'Partner / creator' },
+                                    { value: 'brand', label: 'Brand' },
+                                ]"
+                                @update:model-value="onKind"
+                            />
                             <FormField
                                 id="workspace_name"
                                 v-model="newName"
@@ -139,7 +148,9 @@ defineExpose({
                         </fieldset>
                     </form>
                 </section>
-                <section v-if="selected" class="wd-card wd-settings-card" aria-labelledby="workspace-settings-title">
+            </div>
+            <div v-if="selected" class="wd-settings-row">
+                <section class="wd-card wd-settings-card" aria-labelledby="workspace-settings-title">
                     <span class="wd-eyebrow">Selected workspace</span>
                     <h2 id="workspace-settings-title">{{ selected.name }}</h2>
                     <Link
@@ -171,8 +182,41 @@ defineExpose({
                         </fieldset>
                     </form>
                 </section>
+                <details class="wd-card wd-security-card">
+                    <summary>Account security</summary>
+                    <p class="wd-description">
+                        Sign out every session, including this one. Enter your current password to continue.
+                    </p>
+                    <form
+                        :aria-busy="pendingAction === 'revoke-sessions'"
+                        @submit.prevent="
+                            confirmAction(
+                                'Sign out all sessions',
+                                `Sign out every session for ${account.name}, including this one? You will need to sign in again.`,
+                                () => revoke(),
+                                $event,
+                                { tone: 'danger' },
+                            )
+                        "
+                    >
+                        <fieldset class="wd-fields" :disabled="busy">
+                            <legend class="wd-sr-only">Revoke account sessions</legend>
+                            <FormField
+                                id="revoke_password"
+                                v-model="password"
+                                label="Current password"
+                                type="password"
+                                autocomplete="current-password"
+                                :error="errors.password"
+                            />
+                            <Button type="submit" class="wd-button wd-button-danger">{{
+                                pendingAction === 'revoke-sessions' ? 'Signing out…' : 'Sign out all sessions'
+                            }}</Button>
+                        </fieldset>
+                    </form>
+                </details>
             </div>
-            <details class="wd-card wd-security-card">
+            <details v-else class="wd-card wd-security-card">
                 <summary>Account security</summary>
                 <p class="wd-description">
                     Sign out every session, including this one. Enter your current password to continue.
@@ -185,6 +229,7 @@ defineExpose({
                             `Sign out every session for ${account.name}, including this one? You will need to sign in again.`,
                             () => revoke(),
                             $event,
+                            { tone: 'danger' },
                         )
                     "
                 >
@@ -198,7 +243,7 @@ defineExpose({
                             autocomplete="current-password"
                             :error="errors.password"
                         />
-                        <Button type="submit" class="wd-button wd-button-secondary">{{
+                        <Button type="submit" class="wd-button wd-button-danger">{{
                             pendingAction === 'revoke-sessions' ? 'Signing out…' : 'Sign out all sessions'
                         }}</Button>
                     </fieldset>

@@ -1,0 +1,94 @@
+[
+  {
+    "width": 1440,
+    "check": "Tab to Brand then Enter",
+    "focusedOption": "Brand",
+    "selectedAfterEnter": "creator",
+    "expected": "brand"
+  },
+  {
+    "width": 1440,
+    "check": "Paged stage count",
+    "pitchedColumn": "Pitched\n0\nUSD 0.00\nNo leads",
+    "total": "27 leads · excludes Lost",
+    "expectedPitchedCount": 1
+  },
+  {
+    "width": 1440,
+    "check": "Search older record from board",
+    "missing": true,
+    "url": "http://localhost:8000/partner/leads"
+  },
+  {
+    "width": 1440,
+    "check": "Same search via server",
+    "found": true,
+    "header": "1 leads · excludes Lost"
+  },
+  {
+    "width": 1440,
+    "check": "Change prefiltered search to Recent",
+    "cards": 0,
+    "expectedMatchingRecords": 26,
+    "url": "http://localhost:8000/partner/leads?q=Older%20target"
+  },
+  {
+    "width": 1440,
+    "check": "Switch away from server Lost filter",
+    "cards": 0,
+    "expectedMatchingRecords": 27,
+    "url": "http://localhost:8000/partner/leads?stage=lost"
+  },
+  {
+    "width": 1440,
+    "check": "Reverse Tab from lead drawer first control",
+    "focusStayedOnClose": true,
+    "expected": "Delete lead disclosure summary"
+  },
+  {
+    "width": 390,
+    "check": "Tab to Brand then Enter",
+    "focusedOption": "Brand",
+    "selectedAfterEnter": "creator",
+    "expected": "brand"
+  },
+  {
+    "width": 390,
+    "check": "Paged stage count",
+    "pitchedColumn": "Pitched\n0\nUSD 0.00\nNo leads",
+    "total": "27 leads · excludes Lost",
+    "expectedPitchedCount": 1
+  },
+  {
+    "width": 390,
+    "check": "Search older record from board",
+    "missing": true,
+    "url": "http://localhost:8000/partner/leads"
+  },
+  {
+    "width": 390,
+    "check": "Same search via server",
+    "found": true,
+    "header": "1 leads · excludes Lost"
+  },
+  {
+    "width": 390,
+    "check": "Change prefiltered search to Recent",
+    "cards": 0,
+    "expectedMatchingRecords": 26,
+    "url": "http://localhost:8000/partner/leads?q=Older%20target"
+  },
+  {
+    "width": 390,
+    "check": "Switch away from server Lost filter",
+    "cards": 0,
+    "expectedMatchingRecords": 27,
+    "url": "http://localhost:8000/partner/leads?stage=lost"
+  },
+  {
+    "width": 390,
+    "check": "Reverse Tab from lead drawer first control",
+    "focusStayedOnClose": true,
+    "expected": "Delete lead disclosure summary"
+  }
+]

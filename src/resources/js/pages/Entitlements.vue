@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import FinanceLayout from '../components/FinanceLayout.vue';
 import ContentSection from '../components/ContentSection.vue';
 defineProps<{
-    account: { name: string };
+    account: { name: string; email: string };
     entitlements: {
         state: string;
         plan: null | { name: string; version: number; assignment_version: number; starts_at: string; ends_at: string };
@@ -13,7 +13,12 @@ defineProps<{
 </script>
 <template>
     <Head title="Pilot entitlements" />
-    <FinanceLayout :account-name="account.name" title="Pilot entitlements" active="entitlements">
+    <FinanceLayout
+        :account-name="account.name"
+        :account-email="account.email"
+        title="Pilot entitlements"
+        active="entitlements"
+    >
         <ContentSection title="Pilot plan"
             ><p>State: {{ entitlements.state }}</p>
             <p v-if="!entitlements.plan">

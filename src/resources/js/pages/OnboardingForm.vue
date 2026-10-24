@@ -74,7 +74,7 @@ function pick(event: Event): void {
             </div>
             <p v-if="status" role="status" class="wd-status">{{ status }}</p>
             <p class="wd-hint">Status: {{ form.status }}</p>
-            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-status">
+            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
                 <p v-for="(message, k) in errors" :key="k">{{ message }}</p>
                 <button
                     v-if="errors.version"
@@ -86,7 +86,7 @@ function pick(event: Event): void {
                 </button>
                 <p v-if="errors.version">Copy unsaved changes before reloading.</p>
             </div>
-            <p v-if="form.correction_note" class="wd-status">Requested correction: {{ form.correction_note }}</p>
+            <p v-if="form.correction_note" class="wd-warning">Requested correction: {{ form.correction_note }}</p>
             <form
                 class="wd-card"
                 :aria-busy="busy"
@@ -151,7 +151,7 @@ function pick(event: Event): void {
                         >
                         <button
                             v-if="editable"
-                            class="wd-link"
+                            class="wd-action-danger"
                             type="button"
                             :disabled="busy || !!errors?.version"
                             @click="
@@ -160,6 +160,7 @@ function pick(event: Event): void {
                                     `Remove ${doc.name} from this onboarding request? It will no longer be shared with the reviewer.`,
                                     () => act('delete', `/onboarding/form/${form.id}/documents/${doc.id}`, {}),
                                     $event,
+                                    { tone: 'danger' },
                                 )
                             "
                         >
@@ -167,7 +168,7 @@ function pick(event: Event): void {
                         </button>
                     </li>
                 </ul>
-                <p v-if="!form.documents.length">No files uploaded.</p>
+                <p v-if="!form.documents.length" class="wd-empty">No files uploaded.</p>
                 <form
                     v-if="editable"
                     :aria-busy="busy"

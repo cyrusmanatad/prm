@@ -31,7 +31,7 @@ Coverage includes invitation replay/expiry, scoped save/resume, consent and idem
 
 - Manual screen-reader, actual full browser zoom and native macOS/iOS Safari review remain pending from M1 under D19/D20.
 - Production MFA enforcement, hosting/storage provider and region, retention/deletion operations, monitoring/recovery and commercial launch remain later gates.
-- Invitations and submission notifications are local links/in-app status. External delivery and durable automation belong to M5.
+- The later [M5-01 slice](m5-onboarding-email-contract.md) adds optional durable onboarding invitation/replacement email with local verification. Lifecycle notifications, provider delivery and remaining automation are still M5 work; original M3 evidence below remains historical.
 - Upload scans require the healthy pinned ClamAV service and its signatures. Scanner failure retains quarantine. Private orphan reconciliation remains an operations follow-up before live data.
 - The creator request list shows the most recent 100; high-volume paging remains a follow-up.
 

@@ -201,7 +201,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     );
     await expect(page.getByRole('status')).toContainText('Media kit saved.');
     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
-    await page.getByRole('link', { name: 'Back to leads', exact: true }).click();
+    await page.getByRole('link', { name: 'My leads', exact: true }).click();
     await expect(page.getByRole('link', { name: /Inbound Studio/ })).toBeVisible();
     await context.close();
 });

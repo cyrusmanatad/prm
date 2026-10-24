@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
+import OnboardingEmailFields from '../components/OnboardingEmailFields.vue';
+import ContentSection from '../components/ContentSection.vue';
+import { emailStates } from '../features/notifications/emailStates';
 import { Button } from '../components/ui/button';
 type Detail = {
     id: string;
@@ -19,7 +22,7 @@ type Detail = {
     documents: { id: string; name: string; scan_state: string }[];
 };
 const props = defineProps<{
-    account: { name: string };
+    account: { name: string; email: string };
     workspace: { id: string; name: string };
     canWrite: boolean;
     requests: {
@@ -30,6 +33,7 @@ const props = defineProps<{
         pipeline_entry_id: string;
     }[];
     selected: Detail | null;
+    emails: { id: string; state: string; created_at: string }[];
     submissions: {
         id: string;
         revision: number;
@@ -49,14 +53,44 @@ const props = defineProps<{
 }>();
 const note = ref('');
 const busy = ref(false);
+const sendEmail = ref(false);
+const recipient = ref('');
+const replacementForm = ref<HTMLFormElement>();
+watch(
+    () => props.selected?.id,
+    () => {
+        sendEmail.value = false;
+        recipient.value = '';
+    },
+);
+function replace(event: Event): void {
+    if (!props.selected || busy.value || !replacementForm.value?.reportValidity()) return;
+    confirmAction(
+        'Create replacement invitation',
+        `Replace the invitation for ${props.selected.label}? The previous invitation and its sessions will stop working.${sendEmail.value ? ` A new invitation email will be requested for ${recipient.value}.` : ''}`,
+        () => review('renew'),
+        event,
+        { tone: 'danger' },
+    );
+}
 function review(action: string): void {
     if (!props.selected || busy.value || props.errors?.version) return;
     router.post(
         `/onboarding-requests/${props.selected.id}/${action}`,
-        { version: props.selected.version, note: note.value },
+        {
+            version: props.selected.version,
+            note: note.value,
+            ...(action === 'renew' ? { send_email: sendEmail.value, recipient_email: recipient.value } : {}),
+        },
         {
             preserveState: true,
             preserveScroll: true,
+            onSuccess: () => {
+                if (action === 'renew') {
+                    sendEmail.value = false;
+                    recipient.value = '';
+                }
+            },
             onStart: () => {
                 busy.value = true;
             },
@@ -68,7 +102,10 @@ function review(action: string): void {
 }
 </script>
 <template>
-    <Head title="Onboarding requests" /><FoundationShell :account-name="account.name" @logout="router.post('/logout')"
+    <Head title="Onboarding requests" /><FoundationShell
+        :account-name="account.name"
+        :account-email="account.email"
+        @logout="router.post('/logout')"
         ><div class="wd-workspace-content wd-onboarding-admin">
             <nav aria-label="Workspace">
                 <Link class="wd-link" href="/partner/leads">Back to leads</Link>
@@ -79,7 +116,7 @@ function review(action: string): void {
                 <p class="wd-description">Submitted requests below are ready for your review.</p>
             </div>
             <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-status">
+            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
                 <p v-for="(msg, k) in errors" :key="k">{{ msg }}</p>
                 <button
                     v-if="errors.version"
@@ -104,7 +141,7 @@ function review(action: string): void {
             </div>
             <section class="wd-card" aria-labelledby="request-list">
                 <h2 id="request-list">Recent requests</h2>
-                <p v-if="!requests.length">Start onboarding from a lead in your pipeline.</p>
+                <p v-if="!requests.length" class="wd-empty">Start onboarding from a lead in your pipeline.</p>
                 <ul>
                     <li v-for="row in requests" :key="row.id">
                         <Link class="wd-link" :href="`/partner/onboarding?request=${row.id}`">{{ row.label }}</Link>
@@ -136,7 +173,7 @@ function review(action: string): void {
                         <button
                             v-if="canWrite && doc.scan_state === 'pending'"
                             type="button"
-                            class="wd-link"
+                            class="wd-action"
                             @click="router.post(`/onboarding-requests/${selected.id}/documents/${doc.id}`)"
                         >
                             Retry scan {{ doc.name }}
@@ -144,45 +181,53 @@ function review(action: string): void {
                     </li>
                 </ul>
                 <template v-if="canWrite"
-                    ><FormField
-                        v-if="selected.status === 'submitted'"
-                        id="correction-note"
-                        v-model="note"
-                        label="Correction request"
-                        :maxlength="2000"
-                        :required="false"
-                    /><Button
-                        v-if="selected.status === 'submitted'"
-                        type="button"
-                        class="wd-button wd-button-secondary"
-                        :disabled="busy || !note.trim() || !!errors?.version"
-                        @click="review('correct')"
-                        >Request correction</Button
-                    ><Button
-                        v-if="selected.status === 'submitted'"
-                        type="button"
-                        class="wd-button wd-button-primary"
-                        :disabled="busy || !!errors?.version"
-                        @click="review('accept')"
-                        >Accept submission</Button
-                    ><Button
+                    ><div v-if="selected.status === 'submitted'" class="wd-fields">
+                        <FormField
+                            id="correction-note"
+                            v-model="note"
+                            label="Correction request"
+                            :maxlength="2000"
+                            :required="false"
+                        />
+                        <div class="wd-toolbar">
+                            <Button
+                                type="button"
+                                class="wd-button wd-button-secondary"
+                                :disabled="busy || !note.trim() || !!errors?.version"
+                                @click="review('correct')"
+                                >Request correction</Button
+                            ><Button
+                                type="button"
+                                class="wd-button wd-button-primary"
+                                :disabled="busy || !!errors?.version"
+                                @click="review('accept')"
+                                >Accept submission</Button
+                            >
+                        </div>
+                    </div>
+                    <form
+                        v-if="selected.status !== 'revoked'"
+                        ref="replacementForm"
+                        :aria-busy="busy"
+                        @submit.prevent="replace"
+                    >
+                        <fieldset class="wd-fields" :disabled="busy || !!errors?.version">
+                            <legend>Replacement invitation</legend>
+                            <OnboardingEmailFields
+                                prefix="replacement"
+                                v-model:send-email="sendEmail"
+                                v-model:recipient="recipient"
+                                :errors="errors"
+                            />
+                            <Button type="submit" class="wd-button wd-button-secondary"
+                                >Create replacement invitation</Button
+                            >
+                        </fieldset>
+                    </form>
+                    <Button
                         v-if="selected.status !== 'revoked'"
                         type="button"
-                        class="wd-button wd-button-secondary"
-                        :disabled="busy || !!errors?.version"
-                        @click="
-                            confirmAction(
-                                'Create replacement invitation',
-                                `Replace the invitation for ${selected.label}? The previous invitation and its sessions will stop working.`,
-                                () => review('renew'),
-                                $event,
-                            )
-                        "
-                        >Create replacement invitation</Button
-                    ><Button
-                        v-if="selected.status !== 'revoked'"
-                        type="button"
-                        class="wd-button wd-button-secondary"
+                        class="wd-button wd-button-danger"
                         :disabled="busy || !!errors?.version"
                         @click="
                             confirmAction(
@@ -190,6 +235,7 @@ function review(action: string): void {
                                 `Revoke access to ${selected.label}? The invitation and existing onboarding sessions will stop working immediately.`,
                                 () => review('revoke'),
                                 $event,
+                                { tone: 'danger' },
                             )
                         "
                         >Revoke invitation access</Button
@@ -224,6 +270,18 @@ function review(action: string): void {
                     <p>{{ submission.snapshot.documents?.length ?? 0 }} reference files shared with this submission.</p>
                 </details>
             </section>
+            <ContentSection v-if="selected && canWrite" title="Onboarding email history">
+                <p class="wd-hint">
+                    Refresh this page to check delivery progress. Replacing or revoking an invitation cancels pending
+                    delivery; mail already sending cannot be recalled.
+                </p>
+                <p v-if="!emails.length">Link only; email not requested.</p>
+                <ul v-else>
+                    <li v-for="email in emails" :key="email.id">
+                        {{ new Date(email.created_at).toLocaleString() }} · {{ emailStates[email.state] }}
+                    </li>
+                </ul>
+            </ContentSection>
         </div></FoundationShell
     >
 </template>

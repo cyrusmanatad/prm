@@ -11,6 +11,7 @@ withDefaults(
         required?: boolean;
         maxlength?: number;
         minlength?: number;
+        pattern?: string;
     }>(),
     { type: 'text', required: true },
 );
@@ -31,6 +32,7 @@ const value = defineModel<string>({ default: '' });
             :required="required"
             :maxlength="maxlength"
             :minlength="minlength"
+            :pattern="pattern"
             :aria-invalid="error ? 'true' : undefined"
             :aria-describedby="
                 [hint ? `${id}-hint` : '', error ? `${id}-error` : ''].filter(Boolean).join(' ') || undefined

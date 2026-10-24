@@ -1,4 +1,10 @@
 DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='notification_outbox'::regclass
+        AND conname='notification_onboarding_target' AND contype='f' AND cardinality(conkey)=2)
+        OR NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='notification_outbox'::regclass
+        AND conname='notification_onboarding_generation' AND contype='u') THEN
+        RAISE EXCEPTION 'missing onboarding notification target/generation constraints';
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_class WHERE oid='notification_outbox'::regclass
         AND relrowsecurity AND relforcerowsecurity AND relowner='weavdash_migrator'::regrole) THEN
         RAISE EXCEPTION 'missing migration-owned forced notification RLS';

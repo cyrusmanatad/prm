@@ -2,6 +2,8 @@
 
 Status: local automated checks passed on 2026-10-23. Scope: durable outbox and explicitly requested partner invitation email only; full M5 remains incomplete. See the [contract](../../m5-notification-contract.md) and [status](../../m5-status.md).
 
+Subsequent M5-01 onboarding invitation/replacement email has its own [verification and screenshots](onboarding-email/README.md). Results below retain the original first-slice scope.
+
 No external email is sent by these checks. Acceptance uses mail fakes, the local array transport and a loopback SMTP sink; browser fixtures reject external transports and use synthetic `example.test` identities. A provider delivery/recipient link trial is still required separately.
 
 ## Commands and results

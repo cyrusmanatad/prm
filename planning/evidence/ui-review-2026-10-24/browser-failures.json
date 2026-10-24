@@ -1,0 +1,66 @@
+[
+  {
+    "case": "finance-manual-receipt-all-ac698--and-entitlement-visibility-desktop",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "finance-manual-receipt-all-ac698--and-entitlement-visibility-mobile",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "finance-private-draft-exact-money-edit-and-terminal-void-desktop",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "finance-private-draft-exact-money-edit-and-terminal-void-mobile",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "notifications-explicit-inv-66dc3-ation-without-external-mail-desktop",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "notifications-explicit-inv-66dc3-ation-without-external-mail-mobile",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop",
+    "category": "stale inbound-lead link selector"
+  },
+  {
+    "case": "onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile",
+    "category": "stale inbound-lead link selector"
+  },
+  {
+    "case": "onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "onboarding-notifications-o-17bb6--safely-replaced-or-revoked-mobile",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "pipeline-private-pipeline--40b68-nooze-activity-and-deletion-desktop",
+    "category": "ambiguous pipeline status selector"
+  },
+  {
+    "case": "pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile",
+    "category": "ambiguous pipeline status selector"
+  },
+  {
+    "case": "portals-portal-registratio-a2d15-irst-workspace-provisioning-desktop",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "portals-portal-registratio-a2d15-irst-workspace-provisioning-mobile",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "portals-same-relationship--07791-utomation-stays-unavailable-desktop",
+    "category": "accessible-name mismatch"
+  },
+  {
+    "case": "portals-same-relationship--07791-utomation-stays-unavailable-mobile",
+    "category": "accessible-name mismatch"
+  }
+]

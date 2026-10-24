@@ -41,6 +41,8 @@ services:
       retries: 30
   postgres:
     image: postgres:16-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4
+    ports:
+      - '127.0.0.1:5433:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: weavdash

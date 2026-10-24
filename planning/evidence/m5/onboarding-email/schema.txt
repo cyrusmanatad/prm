@@ -1,0 +1,133 @@
+Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-migrate-run-1c94e270337d Creating
+ Container weavdash-m1-migrate-run-1c94e270337d Created
+
+   INFO  Preparing database.
+
+  Creating migration table ...................................... 18.93ms DONE
+
+   INFO  Running migrations.
+
+  0001_01_01_000000_create_users_table .......................... 58.79ms DONE
+  0001_01_01_000001_create_cache_table .......................... 49.02ms DONE
+  0001_01_01_000002_create_jobs_table ........................... 58.80ms DONE
+  2026_10_17_000001_create_workspace_foundation ................. 78.64ms DONE
+  2026_10_17_000002_lock_active_memberships ...................... 3.30ms DONE
+  2026_10_18_000001_create_pipeline ............................. 62.87ms DONE
+  2026_10_18_000002_create_outreach_templates ................... 22.37ms DONE
+  2026_10_18_000003_create_crm .................................. 45.05ms DONE
+  2026_10_18_000004_create_onboarding .......................... 144.54ms DONE
+  2026_10_18_000005_add_public_social_profiles ................... 4.68ms DONE
+  2026_10_21_000001_create_portals .............................. 40.84ms DONE
+  2026_10_21_000002_add_registration_workspace_intent ............ 3.43ms DONE
+  2026_10_23_000001_create_invoice_drafts ....................... 35.88ms DONE
+  2026_10_23_000002_create_manual_payments ...................... 75.30ms DONE
+  2026_10_23_000003_create_pilot_entitlements ................... 51.17ms DONE
+  2026_10_23_000004_create_notification_outbox .................. 34.69ms DONE
+  2026_10_23_000005_add_onboarding_notifications ................ 14.53ms DONE
+
+ Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-migrate-run-012b80e432b4 Creating
+ Container weavdash-m1-migrate-run-012b80e432b4 Created
+
+   INFO  Rolling back migrations.
+
+  2026_10_23_000005_add_onboarding_notifications ............... 331.30ms DONE
+
+ Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-migrate-run-f2d9aa0ae9a6 Creating
+ Container weavdash-m1-migrate-run-f2d9aa0ae9a6 Created
+
+   INFO  Running migrations.
+
+  2026_10_23_000005_add_onboarding_notifications ................ 29.23ms DONE
+
+DO
+        ?column?
+-------------------------
+ M5_SCHEMA_CHECKS_PASSED
+(1 row)
+
+ Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-migrate-run-0558764d765a Creating
+ Container weavdash-m1-migrate-run-0558764d765a Created
+Runtime privileges applied.
+ requests | onboarding_emails | partner_emails
+----------+-------------------+----------------
+       28 |                18 |             15
+(1 row)
+
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-migrate-run-33018d90538e Creating
+ Container weavdash-m1-migrate-run-33018d90538e Created
+
+   INFO  Rolling back migrations.
+
+  2026_10_23_000005_add_onboarding_notifications ................ 15.34ms DONE
+
+ requests | onboarding_emails | partner_emails
+----------+-------------------+----------------
+       28 |                 0 |             15
+(1 row)
+
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-migrate-run-741b98b6fc5d Creating
+ Container weavdash-m1-migrate-run-741b98b6fc5d Created
+
+   INFO  Running migrations.
+
+  2026_10_23_000005_add_onboarding_notifications ................ 32.01ms DONE
+
+DO
+        ?column?
+-------------------------
+ M5_SCHEMA_CHECKS_PASSED
+(1 row)

@@ -10,7 +10,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
     await page.getByRole('link', { name: 'Open partner portal' }).click();
-    await expect(page.getByText('Your pipeline is empty.', { exact: false })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'No leads match these filters', exact: true })).toBeVisible();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('M2 Studio');
     await page.getByLabel('Estimated value', { exact: true }).fill('1234.56');
@@ -18,15 +18,15 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'M2 Studio', exact: true })).toBeVisible();
     await expect(page.getByRole('status')).toContainText('Lead captured.');
-    await expect(page.getByRole('region', { name: 'Pipeline totals' })).toContainText('PHP 1,234.56');
+    await expect(page.locator('.pipeline-card')).toContainText('PHP 1,234.56');
     const leadUrl = page.url();
     for (const stage of ['pitched', 'negotiating', 'onboarded', 'active', 'repeat-client', 'lost', 'lead']) {
-        await page.getByLabel('Stage', { exact: true }).selectOption(stage);
+        await page.locator('#lead-stage').selectOption(stage);
         await page.getByRole('button', { name: 'Move lead', exact: true }).click();
         await expect(page.getByRole('status')).toContainText('Stage updated.');
         await expect(page.getByRole('button', { name: 'Move lead', exact: true })).toBeEnabled();
         await page.reload();
-        await expect(page.getByLabel('Stage', { exact: true })).toHaveValue(stage);
+        await expect(page.locator('#lead-stage')).toHaveValue(stage);
     }
     const stale = await page.context().newPage();
     await stale.goto(leadUrl);
@@ -75,9 +75,10 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.screenshot({ path: info.outputPath('pipeline-detail.png'), fullPage: true });
     await page.getByRole('button', { name: 'Close lead', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Close lead', exact: true })).toHaveCount(0);
-    await page.getByLabel('Due next actions only').check();
-    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
-    await expect(page.getByText('No leads match these filters.', { exact: true })).toBeVisible();
+    await page.getByRole('combobox', { name: 'Stage filter', exact: true }).click();
+    await page.getByRole('button', { name: 'Due next actions', exact: true }).click();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('heading', { name: 'No leads match these filters', exact: true })).toBeVisible();
     await page.goto(leadUrl);
     await page.getByText('Delete lead', { exact: true }).click();
     await confirmMutation(

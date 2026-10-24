@@ -2,6 +2,8 @@
 
 Status: **first slice implemented; local automated gates passed; external delivery unverified**. This slice implements the PostgreSQL outbox and explicitly requested brand-to-partner invitation email. It does not complete M5. See [confirmed requirements](m5-email-notifications.md), [roadmap](implementation-roadmap.md) and [status](m5-status.md).
 
+The subsequent [M5-01 onboarding invitation slice](m5-onboarding-email-contract.md) extends this outbox with generation-scoped onboarding targets and existing onboarding writer permissions. The partner-invitation behavior below remains unchanged.
+
 ## Behavior and recipients
 
 **Confirmed D15/D25:** supported transactional email works independently of mailbox syncing; external invitations require an explicit send action. Brand owners/admins may create an invitation link or select **Email this invitation to the recipient** before submitting. Existing API clients retain link-only behavior unless they send `send_email: true`. Validation, verified-recipient acceptance, seven-day expiry, throttling, workspace selection, explicit acceptance consent and revocation remain enforced.
@@ -36,4 +38,4 @@ Local automated SMTP acceptance uses a one-message loopback sink inside the disp
 
 ## Remaining M5 work
 
-Onboarding send/recipient controls and lifecycle notifications; persisted timezone/preferences/consent; reminders and digest; approval inbox and follow-up drafts; reply cancellation, approval invalidation, DST and rate budgets; operator reconciliation; crash/outage drills; and external delivery evidence remain open. AI stays optional and off the required path. Real invoice issuance, charging, unattended outreach and mailbox access remain outside this slice.
+Onboarding lifecycle notifications; persisted timezone/preferences/consent; reminders and digest; approval inbox and follow-up drafts; reply cancellation, approval invalidation, DST and rate budgets; operator reconciliation; crash/outage drills; and external delivery evidence remain open. M5-01 invitation send/recipient controls are covered by the subsequent contract above. AI stays optional and off the required path. Real invoice issuance, charging, unattended outreach and mailbox access remain outside this slice.
