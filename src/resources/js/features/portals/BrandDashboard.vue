@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
-import { Settings, LogOut } from '@lucide/vue';
-import {
-    DropdownMenuRoot,
-    DropdownMenuTrigger,
-    DropdownMenuPortal,
-    DropdownMenuContent,
-    DropdownMenuItem,
-} from 'reka-ui';
+import { router } from '@inertiajs/vue3';
+import AccountMenu from '../../components/AccountMenu.vue';
 import type { PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
 // Synthetic reference content cannot be enabled in a production build.
@@ -39,6 +32,7 @@ const summary = computed(() => [
         class="portal-ui min-h-screen bg-cream font-sans leading-[normal] text-ink"
         @click="fixture && $event.preventDefault()"
     >
+        <a class="wd-skip-link" href="#main-content">Skip to main content</a>
         <header class="border-b border-line bg-white">
             <div class="mx-auto flex max-w-[1408px] flex-wrap items-center gap-6 px-6 py-3.5">
                 <div class="flex items-center gap-2.5">
@@ -79,45 +73,20 @@ const summary = computed(() => [
                         class="rounded-lg bg-cream px-3 py-2 text-[14px] font-bold hover:text-brand"
                         >Partner hub</a
                     >
-                    <a
-                        role="link"
-                        aria-disabled="true"
-                        tabindex="0"
-                        title="Unavailable in this milestone"
-                        class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Lead registrations</a
+                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
+                        >Lead registrations</span
                     >
-                    <a
-                        role="link"
-                        aria-disabled="true"
-                        tabindex="0"
-                        title="Unavailable in this milestone"
-                        class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Campaigns</a
+                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
+                        >Campaigns</span
                     >
-                    <a
-                        role="link"
-                        aria-disabled="true"
-                        tabindex="0"
-                        title="Unavailable in this milestone"
-                        class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Incentives</a
+                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
+                        >Incentives</span
                     >
-                    <a
-                        role="link"
-                        aria-disabled="true"
-                        tabindex="0"
-                        title="Unavailable in this milestone"
-                        class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Enablement</a
+                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
+                        >Enablement</span
                     >
-                    <a
-                        role="link"
-                        aria-disabled="true"
-                        tabindex="0"
-                        title="Unavailable in this milestone"
-                        class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Payouts</a
+                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
+                        >Payouts</span
                     >
                 </nav>
                 <div class="flex items-center gap-3">
@@ -129,38 +98,19 @@ const summary = computed(() => [
                     >
                         + Invite partners
                     </button>
-                    <DropdownMenuRoot :modal="false">
-                        <DropdownMenuTrigger as-child
-                            ><button
-                                type="button"
-                                class="flex size-9 shrink-0 items-center justify-center rounded-full bg-sand text-[13px] font-bold text-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
-                            >
-                                <span>{{ initials }}</span
-                                ><span class="sr-only">Account menu</span>
-                            </button></DropdownMenuTrigger
-                        >
-                        <DropdownMenuPortal>
-                            <nav aria-label="Account">
-                                <DropdownMenuContent align="end" :side-offset="8" class="brand-account-menu">
-                                    <DropdownMenuItem as-child
-                                        ><Link href="/workspaces"
-                                            ><Settings :size="18" aria-hidden="true" class="shrink-0" />Switch workspace
-                                            / account security</Link
-                                        ></DropdownMenuItem
-                                    >
-                                    <DropdownMenuItem @select="!fixture && router.post('/logout')"
-                                        ><LogOut :size="18" aria-hidden="true" class="shrink-0" />Sign
-                                        out</DropdownMenuItem
-                                    >
-                                </DropdownMenuContent>
-                            </nav>
-                        </DropdownMenuPortal>
-                    </DropdownMenuRoot>
+                    <AccountMenu
+                        :account-name="data.account.name"
+                        :account-email="fixture ? 'bea@example.test' : data.account.email"
+                        :initials="initials"
+                        :fixture="fixture"
+                        tone="light"
+                        @logout="router.post('/logout')"
+                    />
                 </div>
             </div>
         </header>
 
-        <main class="mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
+        <main id="main-content" class="mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
             <div>
                 <h1 class="font-display text-[32px] font-bold">Partner hub</h1>
                 <p class="mt-1.5 text-[15px] text-ink-soft">
@@ -460,7 +410,7 @@ const summary = computed(() => [
                                             <button
                                                 v-if="data.canManage"
                                                 type="button"
-                                                class="underline"
+                                                class="wd-action-danger"
                                                 @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
                                             >
                                                 End partnership
@@ -470,7 +420,7 @@ const summary = computed(() => [
                                 </tbody>
                             </table>
                         </div>
-                        <p v-if="!data.relationships.length" class="text-[13px] text-muted">
+                        <p v-if="!data.relationships.length" class="wd-empty mt-3">
                             No active partners. Invite a partner to begin.
                         </p></template
                     >
@@ -553,6 +503,7 @@ const summary = computed(() => [
                     >
                 </aside>
             </div>
+            <slot name="after-partners" />
 
             <div class="flex flex-wrap items-start gap-6">
                 <section class="min-w-0 flex-[1_1_562px] rounded-2xl border border-line bg-white p-5">
@@ -723,32 +674,3 @@ const summary = computed(() => [
         </main>
     </div>
 </template>
-
-<style>
-.brand-account-menu {
-    z-index: 50;
-    max-width: calc(100vw - 32px);
-    padding: 6px;
-    border: 1px solid #e7dfd5;
-    border-radius: 12px;
-    background: #fff;
-    color: #25212b;
-    box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
-    font-family: inherit;
-    font-size: 14px;
-}
-.brand-account-menu [role='menuitem'] {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    outline: none;
-    text-decoration: none;
-}
-.brand-account-menu [data-highlighted] {
-    background: #f6edf1;
-    color: #8e1650;
-}
-</style>

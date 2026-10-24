@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3';
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { confirmation } from '../composables/useConfirmation';
+import { containDialogFocus } from '../composables/useDialogFocus';
 import { Button } from './ui/button';
 
 const dialog = ref<HTMLDialogElement>();
@@ -43,20 +44,6 @@ function submit(): void {
     } catch {
         pending.value = false;
         errors.value = ['Unable to submit. Cancel and try again.'];
-    }
-}
-function containFocus(event: KeyboardEvent): void {
-    if (event.key !== 'Tab') return;
-    const controls = [...(dialog.value?.querySelectorAll<HTMLElement>('button:not(:disabled), [tabindex="0"]') ?? [])];
-    const first = controls[0];
-    const last = controls.at(-1);
-    if (
-        !first ||
-        (event.shiftKey && document.activeElement === first) ||
-        (!event.shiftKey && document.activeElement === last)
-    ) {
-        event.preventDefault();
-        (event.shiftKey ? last : first)?.focus();
     }
 }
 watch(confirmation, async (value) => {
@@ -114,11 +101,11 @@ onUnmounted(() => cleanup.forEach((off) => off()));
     <Teleport to="body">
         <dialog
             ref="dialog"
-            class="wd-card wd-confirmation"
+            class="wd-card wd-confirmation wd-dialog"
             aria-labelledby="confirmation-title"
             aria-describedby="confirmation-description"
             @cancel.prevent="close"
-            @keydown="containFocus"
+            @keydown="containDialogFocus($event, dialog)"
         >
             <form v-if="confirmation" class="grid gap-4" :aria-busy="pending" @submit.prevent="submit">
                 <h2 id="confirmation-title">{{ confirmation.title }}?</h2>
@@ -128,7 +115,7 @@ onUnmounted(() => cleanup.forEach((off) => off()));
                     <p v-if="stale">Cancel and reload the latest record before trying again.</p>
                     <p v-else>Cancel to update any required fields before trying again.</p>
                 </div>
-                <div class="flex flex-wrap justify-end gap-3">
+                <div class="wd-dialog-footer">
                     <button
                         ref="cancel"
                         type="button"
@@ -139,9 +126,13 @@ onUnmounted(() => cleanup.forEach((off) => off()));
                     >
                         Cancel
                     </button>
-                    <Button type="submit" class="wd-button wd-button-primary" :disabled="pending || stale">{{
-                        pending ? 'Working…' : confirmation.title
-                    }}</Button>
+                    <Button
+                        type="submit"
+                        class="wd-button"
+                        :class="confirmation.tone === 'danger' ? 'wd-button-danger' : 'wd-button-primary'"
+                        :disabled="pending || stale"
+                        >{{ pending ? 'Working…' : confirmation.title }}</Button
+                    >
                 </div>
             </form>
         </dialog>
@@ -150,16 +141,6 @@ onUnmounted(() => cleanup.forEach((off) => off()));
 
 <style scoped>
 .wd-confirmation {
-    position: fixed;
-    inset: 0;
-    margin: auto;
     width: min(520px, calc(100% - 32px));
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
-    color: var(--wd-ink);
-    background: var(--wd-surface, #fff);
-}
-.wd-confirmation::backdrop {
-    background: rgb(0 0 0 / 45%);
 }
 </style>

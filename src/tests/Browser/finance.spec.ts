@@ -69,8 +69,8 @@ test('manual receipt allocation, reversal, void and entitlement visibility', asy
     await page.getByLabel('Unique evidence reference').fill('Browser receipt');
     await page.getByRole('button', { name: 'Record manual receipt' }).click();
     await expect(page.getByRole('heading', { name: 'Browser receipt' })).toBeVisible();
-    await page.getByRole('combobox', { name: 'Payment', exact: true }).selectOption({ label: 'Browser receipt · USD' });
-    await page.getByRole('combobox', { name: 'Draft', exact: true }).selectOption(invoice);
+    await page.locator('#allocation-payment').selectOption({ label: 'Browser receipt · USD' });
+    await page.locator('#allocation-draft').selectOption(invoice);
     await page.getByLabel('Allocation in minor units').fill('500');
     await page.getByRole('button', { name: 'Allocate receipt' }).click();
     await expect(page.getByText(/Allocated 500/)).toBeVisible();

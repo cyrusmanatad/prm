@@ -34,7 +34,7 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     fixture('seed', email);
     await login(page, email);
     await page.getByLabel('Workspace name', { exact: true }).fill('Onboarding email review');
-    await page.getByLabel('Workspace type').selectOption('creator');
+    await page.locator('#workspace-kind').selectOption('creator');
     await page.getByRole('button', { name: 'Create workspace', exact: true }).click();
     await page.getByRole('link', { name: 'Open partner portal' }).click();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();

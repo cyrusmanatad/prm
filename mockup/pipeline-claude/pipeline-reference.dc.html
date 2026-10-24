@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My pipeline</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #8A1148;outline-offset:2px}
+.lead-card:hover{border-color:#8A1148;box-shadow:0 2px 8px rgba(138,17,72,0.12)}
+.ghost:hover{background:#F3ECDF}
+.seg-off:hover{color:#1F1A1D}
+</style>
+</helmet>
+<div style="background: #F8F3EA; padding: 24px; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1F1A1D; min-height: 640px">
+<div style="max-width: 1120px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E6DCCB; border-radius: 20px; padding: 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+
+<!-- Header -->
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px">
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1 1 320px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h2 style="margin: 0; font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em">My pipeline</h2>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #F3ECDF; color: #5E555B; font-size: 12px; font-weight: 600">
+<span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 50%; background: #B7791F"></span>
+Automation unavailable
+</span>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #5E555B">Open a lead to edit it, move its stage or start onboarding.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end; text-align: right">
+<span style="font-size: 12px; font-weight: 600; color: #5E555B; letter-spacing: 0.04em; text-transform: uppercase">Pipeline value</span>
+<span style="font-size: 30px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">{{totalText}}</span>
+<span style="font-size: 13px; color: #5E555B">{{leadCountText}} · excludes Lost</span>
+</div>
+</div>
+
+<!-- Toolbar -->
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
+
+<div role="group" aria-label="Lead segment" style="display: inline-flex; gap: 2px; padding: 4px; background: #F3ECDF; border-radius: 12px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+<sc-if value="{{t.active}}" hint-placeholder-val="{{ true }}">
+<button type="button" aria-pressed="true" onClick="{{t.pick}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: #FFFFFF; color: #1F1A1D; font-size: 14px; font-weight: 600; box-shadow: 0 1px 3px rgba(31,26,29,0.12)">
+{{t.label}}
+<span style="min-width: 20px; padding: 1px 6px; border-radius: 999px; background: #8A1148; color: #FFFFFF; font-size: 12px; font-weight: 600; text-align: center">{{t.count}}</span>
+</button>
+</sc-if>
+<sc-if value="{{t.inactive}}" hint-placeholder-val="{{ false }}">
+<button type="button" class="seg-off" aria-pressed="false" onClick="{{t.pick}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; color: #5E555B; font-size: 14px; font-weight: 600">
+{{t.label}}
+<span style="min-width: 20px; padding: 1px 6px; border-radius: 999px; background: #E6DCCB; color: #3F373C; font-size: 12px; font-weight: 600; text-align: center">{{t.count}}</span>
+</button>
+</sc-if>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-left: auto; flex: 1 1 460px; justify-content: flex-end">
+
+<div style="position: relative; flex: 1 1 220px; max-width: 320px; min-width: 180px">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E555B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 14px; top: 14px; pointer-events: none"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+<input type="search" aria-label="Search brands" placeholder="Search brands" value="{{query}}" onInput="{{setQuery}}" style="width: 100%; box-sizing: border-box; height: 44px; padding: 0 14px 0 40px; border: 1px solid #D9CDB8; border-radius: 12px; background: #FFFFFF; color: #1F1A1D; font-size: 14px">
+</div>
+
+<div style="position: relative; flex: 0 0 auto">
+<select aria-label="Stage filter" value="{{stage}}" onChange="{{setStage}}" style="appearance: none; -webkit-appearance: none; height: 44px; min-width: 160px; padding: 0 40px 0 14px; border: 1px solid #D9CDB8; border-radius: 12px; background: #FFFFFF; color: #1F1A1D; font-size: 14px">
+<sc-for list="{{stageOptions}}" as="o" hint-placeholder-count="6">
+<option value="{{o.value}}">{{o.label}}</option>
+</sc-for>
+</select>
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E555B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; right: 14px; top: 14px; pointer-events: none"><path d="M6 9l6 6 6-6"></path></svg>
+</div>
+
+<sc-if value="{{dueOn}}" hint-placeholder-val="{{ false }}">
+<button type="button" aria-pressed="true" onClick="{{toggleDue}}" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border: 1px solid #8A1148; border-radius: 12px; background: #F6E3EC; color: #6E0C3A; font-size: 14px; font-weight: 600">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>
+Due next actions
+</button>
+</sc-if>
+<sc-if value="{{dueOff}}" hint-placeholder-val="{{ true }}">
+<button type="button" aria-pressed="false" onClick="{{toggleDue}}" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border: 1px solid #D9CDB8; border-radius: 12px; background: #FFFFFF; color: #1F1A1D; font-size: 14px; font-weight: 600">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+Due next actions
+</button>
+</sc-if>
+
+<sc-if value="{{filtersActive}}" hint-placeholder-val="{{ false }}">
+<button type="button" class="ghost" onClick="{{clearFilters}}" style="height: 44px; padding: 0 14px; border: 0; border-radius: 12px; background: transparent; color: #8A1148; font-size: 14px; font-weight: 600">Clear filters</button>
+</sc-if>
+</div>
+</div>
+
+<!-- Board -->
+<sc-if value="{{hasResults}}" hint-placeholder-val="{{ true }}">
+<div style="overflow-x: auto; margin: 0 -4px; padding: 0 4px 4px">
+<div style="display: grid; grid-auto-flow: column; grid-auto-columns: minmax(212px, 1fr); gap: 14px">
+<sc-for list="{{columns}}" as="col" hint-placeholder-count="5">
+<section aria-label="{{col.name}}" style="display: flex; flex-direction: column; gap: 12px; padding: 14px; background: #FAF5EC; border: 1px solid #F0E7D6; border-radius: 16px; min-width: 0">
+<header style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{col.dot}}"></span>
+<h3 style="margin: 0; font-size: 14px; font-weight: 700; flex: 1 1 auto">{{col.name}}</h3>
+<span style="min-width: 22px; padding: 1px 7px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E6DCCB; color: #3F373C; font-size: 12px; font-weight: 600; text-align: center">{{col.count}}</span>
+</div>
+<span style="padding-left: 16px; font-size: 12px; color: #5E555B; font-variant-numeric: tabular-nums">{{col.totalText}}</span>
+</header>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{col.items}}" as="lead" hint-placeholder-count="1">
+<button type="button" class="lead-card" aria-label="Open {{lead.brand}}" style="display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; padding: 14px; border: 1px solid #E6DCCB; border-radius: 12px; background: #FFFFFF; color: #1F1A1D; text-align: left">
+<span style="font-size: 15px; font-weight: 600; line-height: 1.3">{{lead.brand}}</span>
+<span style="font-size: 13px; color: #5E555B; font-variant-numeric: tabular-nums">{{lead.amountText}}</span>
+<sc-if value="{{lead.hasTags}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px">
+<sc-if value="{{lead.repeat}}" hint-placeholder-val="{{ false }}">
+<span style="padding: 2px 8px; border-radius: 999px; background: #F6E3EC; color: #6E0C3A; font-size: 11px; font-weight: 600">Repeat client</span>
+</sc-if>
+<sc-if value="{{lead.due}}" hint-placeholder-val="{{ false }}">
+<span style="padding: 2px 8px; border-radius: 999px; background: #FBEBD0; color: #6B4200; font-size: 11px; font-weight: 600">Action due</span>
+</sc-if>
+</span>
+</sc-if>
+</button>
+</sc-for>
+<sc-if value="{{col.empty}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 20px 12px; border: 1px dashed #D9CDB8; border-radius: 12px; text-align: center; font-size: 13px; color: #5E555B">No leads</div>
+</sc-if>
+</div>
+</section>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{noResults}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 48px 16px; background: #FAF5EC; border: 1px dashed #D9CDB8; border-radius: 16px; text-align: center">
+<h3 style="margin: 0; font-size: 16px; font-weight: 700">{{emptyTitle}}</h3>
+<p style="margin: 0; font-size: 14px; color: #5E555B; max-width: 360px; line-height: 1.5">{{emptyBody}}</p>
+<sc-if value="{{filtersActive}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{clearFilters}}" style="margin-top: 8px; height: 44px; padding: 0 20px; border: 0; border-radius: 12px; background: #8A1148; color: #FFFFFF; font-size: 14px; font-weight: 600">Clear filters</button>
+</sc-if>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1120,"height":640}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: 'all', query: '', stage: 'all', dueOnly: false };
+}
+renderVals() {
+const fmt = (n) => 'USD ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const stages = ['Lead', 'Pitched', 'Negotiating', 'Onboarded', 'Active'];
+const dots = { Lead: '#8FA3B8', Pitched: '#C9A24B', Negotiating: '#D9803B', Onboarded: '#5F9C84', Active: '#8A1148' };
+const leads = [
+{ brand: 'Cedar Studio', amount: 650, stage: 'Lead', segment: 'pipeline', due: false },
+{ brand: 'Aurora Goods', amount: 800, stage: 'Pitched', segment: 'pipeline', due: true },
+{ brand: 'Summit Outdoors', amount: 950, stage: 'Negotiating', segment: 'pipeline', due: true },
+{ brand: 'Harbor Coffee', amount: 1100, stage: 'Onboarded', segment: 'pipeline', due: false },
+{ brand: 'Bloom Skincare', amount: 1250, stage: 'Active', segment: 'pipeline', due: false },
+{ brand: 'Atlas Travel', amount: 1400, stage: 'Active', segment: 'repeat', due: false }
+];
+const s = this.state;
+const open = leads.filter((l) => l.segment !== 'lost');
+const lost = leads.filter((l) => l.segment === 'lost');
+const repeat = leads.filter((l) => l.segment === 'repeat');
+const inTab = s.tab === 'repeat' ? repeat : s.tab === 'lost' ? lost : open;
+const q = s.query.trim().toLowerCase();
+const visible = inTab.filter((l) => (!q || l.brand.toLowerCase().includes(q)) && (!s.dueOnly || l.due));
+const tabDefs = [
+{ id: 'all', label: 'All active', count: open.length },
+{ id: 'repeat', label: 'Repeat clients', count: repeat.length },
+{ id: 'lost', label: 'Lost', count: lost.length }
+];
+const tabs = tabDefs.map((t) => ({
+label: t.label, count: t.count,
+active: s.tab === t.id, inactive: s.tab !== t.id,
+pick: () => this.setState({ tab: t.id })
+}));
+const columns = stages
+.filter((st) => s.stage === 'all' || s.stage === st)
+.map((st) => {
+const inStage = visible.filter((l) => l.stage === st);
+return {
+name: st, dot: dots[st], count: inStage.length,
+totalText: fmt(inStage.reduce((a, l) => a + l.amount, 0)),
+empty: inStage.length === 0,
+items: inStage.map((l) => ({
+brand: l.brand, amountText: fmt(l.amount),
+repeat: l.segment === 'repeat', due: l.due,
+hasTags: l.segment === 'repeat' || l.due
+}))
+};
+});
+const filtersActive = s.query !== '' || s.stage !== 'all' || s.dueOnly;
+const hasResults = visible.length > 0;
+let emptyTitle = 'No leads match these filters';
+let emptyBody = 'Try a different brand name, stage or segment.';
+if (!filtersActive && s.tab === 'lost') { emptyTitle = 'No lost leads'; emptyBody = 'Leads you mark as lost will appear here.'; }
+if (!filtersActive && s.tab === 'repeat') { emptyTitle = 'No repeat clients yet'; emptyBody = 'Clients you work with again will appear here.'; }
+return {
+tabs, columns, filtersActive, hasResults, noResults: !hasResults, emptyTitle, emptyBody,
+totalText: fmt(open.reduce((a, l) => a + l.amount, 0)),
+leadCountText: open.length + ' leads',
+query: s.query, stage: s.stage,
+dueOn: s.dueOnly, dueOff: !s.dueOnly,
+stageOptions: [{ value: 'all', label: 'All stages' }].concat(stages.map((x) => ({ value: x, label: x }))),
+setQuery: (e) => this.setState({ query: e.target.value }),
+setStage: (e) => this.setState({ stage: e.target.value }),
+toggleDue: () => this.setState({ dueOnly: !s.dueOnly }),
+clearFilters: () => this.setState({ query: '', stage: 'all', dueOnly: false })
+};
+}
+}
+</script>
+</body>
+</html>

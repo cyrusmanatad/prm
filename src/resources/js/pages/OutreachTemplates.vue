@@ -10,7 +10,7 @@ import { useValidationFocus } from '../composables/useValidationFocus';
 
 type Template = { id: string; name: string; subject: string; body: string; version: number };
 const props = defineProps<{
-    account: { name: string };
+    account: { name: string; email: string };
     workspace: { id: string; name: string };
     templates: Template[];
     canWrite: boolean;
@@ -119,7 +119,7 @@ async function copy(): Promise<void> {
 
 <template>
     <Head title="Outreach templates" />
-    <FoundationShell :account-name="account.name" @logout="router.post('/logout')">
+    <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
         <div ref="root" class="wd-workspace-content">
             <nav aria-label="Workspace"><Link class="wd-link" href="/partner/leads">Back to leads</Link></nav>
             <div class="wd-page-heading">
@@ -128,7 +128,7 @@ async function copy(): Promise<void> {
                 <p class="wd-description">Prepare a personal draft, review it, and copy it when ready.</p>
             </div>
             <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <div v-if="errors.version" role="alert" class="wd-status">
+            <div v-if="errors.version" role="alert" class="wd-banner">
                 <p>{{ errors.version }}</p>
                 <p>Copy unsaved changes before reloading.</p>
                 <button
@@ -142,71 +142,84 @@ async function copy(): Promise<void> {
             <ul v-if="Object.keys(errors).some((key) => key !== 'version')" role="alert" class="wd-field-error">
                 <li v-for="(message, field) in errors" :key="field">{{ message }}</li>
             </ul>
-            <section class="wd-card" aria-labelledby="saved-title">
-                <h2 id="saved-title">Saved templates</h2>
-                <p v-if="!templates.length" class="wd-hint">No templates yet.</p>
-                <ul>
-                    <li v-for="row in templates" :key="row.id">
-                        <button type="button" class="wd-link" :disabled="busy || !!errors.version" @click="choose(row)">
-                            {{ row.name }}
-                        </button>
-                    </li>
-                </ul>
-                <button class="wd-link" type="button" :disabled="busy || !!errors.version" @click="choose()">
-                    New template
-                </button>
-            </section>
-            <form class="wd-card" :aria-busy="busy" @submit.prevent="save">
-                <fieldset class="wd-fields" :disabled="busy || !!errors.version">
-                    <legend>{{ selected ? 'Selected template' : 'New template' }}</legend>
-                    <FormField
-                        id="template-name"
-                        v-model="name"
-                        label="Template name"
-                        :maxlength="160"
-                        :error="errors.name"
-                        :required="canWrite"
-                    />
-                    <FormField
-                        id="template-subject"
-                        v-model="subject"
-                        label="Subject"
-                        :maxlength="240"
-                        :required="false"
-                        :error="errors.subject"
-                    />
-                    <div class="wd-field">
-                        <label for="template-body">Template body</label
-                        ><textarea id="template-body" v-model="body" rows="6" maxlength="5000" :required="canWrite" />
-                    </div>
-                    <p class="wd-hint">
-                        Plain text. Available placeholders:
-                        <code v-pre>{{ brand_name }}, {{ contact_name }}, {{ creator_name }}</code
-                        >.
-                    </p>
-                    <Button v-if="canWrite" class="wd-button wd-button-primary" type="submit">{{
-                        selected ? 'Save template' : 'Create template'
-                    }}</Button>
-                    <p v-else class="wd-hint">
-                        Viewer access: you can prepare a local draft; saving templates requires an editing role.
-                    </p>
-                </fieldset>
-            </form>
-            <div v-if="canWrite && selected" class="wd-card">
-                <Button
-                    class="wd-button wd-button-secondary"
-                    type="button"
-                    :disabled="busy || !!errors.version"
-                    @click="
-                        confirmAction(
-                            'Delete template',
-                            `Permanently delete ${name}? It will no longer be available for outreach drafts.`,
-                            () => remove(),
-                            $event,
-                        )
-                    "
-                    >Delete template</Button
-                >
+            <div class="wd-split">
+                <section class="wd-card" aria-labelledby="saved-title">
+                    <h2 id="saved-title">Saved templates</h2>
+                    <p v-if="!templates.length" class="wd-empty">No templates yet. Create one in the editor.</p>
+                    <ul>
+                        <li v-for="row in templates" :key="row.id">
+                            <button
+                                type="button"
+                                class="wd-action"
+                                :disabled="busy || !!errors.version"
+                                @click="choose(row)"
+                            >
+                                {{ row.name }}
+                            </button>
+                        </li>
+                    </ul>
+                    <button class="wd-action" type="button" :disabled="busy || !!errors.version" @click="choose()">
+                        New template
+                    </button>
+                </section>
+                <form class="wd-card" :aria-busy="busy" @submit.prevent="save">
+                    <fieldset class="wd-fields" :disabled="busy || !!errors.version">
+                        <legend>{{ selected ? 'Selected template' : 'New template' }}</legend>
+                        <FormField
+                            id="template-name"
+                            v-model="name"
+                            label="Template name"
+                            :maxlength="160"
+                            :error="errors.name"
+                            :required="canWrite"
+                        />
+                        <FormField
+                            id="template-subject"
+                            v-model="subject"
+                            label="Subject"
+                            :maxlength="240"
+                            :required="false"
+                            :error="errors.subject"
+                        />
+                        <div class="wd-field">
+                            <label for="template-body">Template body</label
+                            ><textarea
+                                id="template-body"
+                                v-model="body"
+                                rows="6"
+                                maxlength="5000"
+                                :required="canWrite"
+                            />
+                        </div>
+                        <p class="wd-hint">
+                            Plain text. Available placeholders:
+                            <code v-pre>{{ brand_name }}, {{ contact_name }}, {{ creator_name }}</code
+                            >.
+                        </p>
+                        <Button v-if="canWrite" class="wd-button wd-button-primary" type="submit">{{
+                            selected ? 'Save template' : 'Create template'
+                        }}</Button>
+                        <Button
+                            v-if="canWrite && selected"
+                            class="wd-button wd-button-danger"
+                            type="button"
+                            :disabled="busy || !!errors.version"
+                            @click="
+                                confirmAction(
+                                    'Delete template',
+                                    `Permanently delete ${name}? It will no longer be available for outreach drafts.`,
+                                    () => remove(),
+                                    $event,
+                                    { tone: 'danger' },
+                                )
+                            "
+                            >Delete template</Button
+                        >
+                        <p v-if="!canWrite" class="wd-hint">
+                            Viewer access: you can prepare a local draft; saving templates requires an editing role.
+                        </p>
+                    </fieldset>
+                </form>
             </div>
             <section class="wd-card" aria-labelledby="draft-title">
                 <h2 id="draft-title">Prepare a draft</h2>

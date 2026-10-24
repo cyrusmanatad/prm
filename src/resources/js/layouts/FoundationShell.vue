@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import AccountMenu from '../components/AccountMenu.vue';
 import BrandLogo from '../components/BrandLogo.vue';
 
-const props = defineProps<{ accountName?: string; portal?: 'brand' | 'partner' }>();
+defineProps<{ accountName?: string; accountEmail?: string; portal?: 'brand' | 'partner' }>();
 defineEmits<{ logout: [] }>();
-const initials = computed(() =>
-    (props.accountName ?? '')
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((part) => part.slice(0, 1).toUpperCase())
-        .join(''),
-);
 </script>
 
 <template>
     <div class="wd-shell">
+        <a class="wd-skip-link" href="#main-content">Skip to main content</a>
         <header class="wd-header" :class="{ 'wd-header-brand': portal === 'brand' }">
             <div class="wd-header-inner">
                 <span class="wd-brand">
@@ -24,9 +17,7 @@ const initials = computed(() =>
                     ><span v-if="portal">{{ portal === 'brand' ? 'Brand' : 'Partner' }}</span>
                 </span>
                 <div v-if="accountName" class="wd-account">
-                    <span class="wd-account-name">{{ accountName }}</span>
-                    <button type="button" class="wd-link wd-header-link" @click="$emit('logout')">Sign out</button>
-                    <span class="wd-avatar" aria-hidden="true">{{ initials }}</span>
+                    <AccountMenu :account-name="accountName" :account-email="accountEmail" @logout="$emit('logout')" />
                 </div>
             </div>
         </header>

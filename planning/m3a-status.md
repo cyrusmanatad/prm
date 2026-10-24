@@ -1,5 +1,7 @@
 # M3A Connected Portals Status
 
+**Current revision exception (2026-10-24):** the uncommitted portal/shared-control redesign is awaiting correction and acceptance under UI-02–UI-05. Account-menu/lead-card accessible-name scans fail, pipeline semantics need repair, and the visual fixture still renders the former board instead of the new production component. See the [review](evidence/ui-review-2026-10-24/README.md) and [register](remaining-tasks.md). Earlier reference screenshots and passing suites do not certify this revision.
+
 See the [current handoff](implementation-handoff.md) and [remaining tasks](remaining-tasks.md) for today's checkpoint and carried-forward reviews/future PRM work. Statements below about later milestones not yet starting describe their historical verification period.
 
 Status: **development complete; automated gates passed; manual release acceptance pending**. The user's implementation request authorizes D21–D23 execution before M4. Existing M1–M3 evidence is retained; manual screen-reader/full browser zoom/native Safari release reviews and production MFA remain pending.

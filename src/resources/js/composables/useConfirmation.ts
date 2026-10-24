@@ -1,6 +1,13 @@
 import { shallowRef } from 'vue';
 
-export type Confirmation = { title: string; description: string; action: () => void; trigger: HTMLElement | null };
+export type ConfirmationTone = 'default' | 'danger';
+export type Confirmation = {
+    title: string;
+    description: string;
+    action: () => void;
+    trigger: HTMLElement | null;
+    tone: ConfirmationTone;
+};
 export const confirmation = shallowRef<Confirmation | null>(null);
 
 /** Request confirmation before invoking an existing mutation handler. Opening never sends a request. */
@@ -9,6 +16,7 @@ export function confirmAction(
     description: string,
     action: () => void,
     source?: Event | HTMLElement,
+    options?: { tone?: ConfirmationTone },
 ): void {
     if (confirmation.value) return;
     const trigger =
@@ -21,6 +29,7 @@ export function confirmAction(
         title,
         description,
         action,
+        tone: options?.tone ?? 'default',
         trigger:
             trigger instanceof HTMLElement
                 ? trigger

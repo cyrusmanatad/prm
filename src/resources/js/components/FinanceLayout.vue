@@ -3,6 +3,7 @@ import { Link, router } from '@inertiajs/vue3';
 import FoundationShell from '../layouts/FoundationShell.vue';
 defineProps<{
     accountName: string;
+    accountEmail?: string;
     title: string;
     active: 'invoices' | 'payments' | 'entitlements';
     workspaceName?: string;
@@ -18,7 +19,7 @@ const links = [
 </script>
 
 <template>
-    <FoundationShell :account-name="accountName" @logout="router.post('/logout')">
+    <FoundationShell :account-name="accountName" :account-email="accountEmail" @logout="router.post('/logout')">
         <div class="wd-workspace-content wd-finance">
             <nav class="wd-finance-nav" aria-label="Finance">
                 <Link

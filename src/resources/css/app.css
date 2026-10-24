@@ -1,7 +1,16 @@
-@import "tailwindcss";
-@import "./fonts.css";
-@import "./foundation.css" layer(components);
-@import "./portal-theme.css";
+@import 'tailwindcss';
+@import './fonts.css';
+@import './foundation.css' layer(components);
+@import './portal-theme.css';
+
+/* Unlayered so stacked shadcn `bg-primary` cannot make destroy look like save. */
+.wd-button.wd-button-danger {
+    background: var(--wd-danger);
+    color: #fff;
+}
+.wd-button.wd-button-danger:hover:not(:disabled) {
+    background: #6f1a2b;
+}
 @source "../js";
 @source "../views";
 

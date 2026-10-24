@@ -1,8 +1,10 @@
 # Current Implementation Handoff
 
-Updated: 2026-10-23. This is the current resume point; older milestone handoffs retain historical evidence and instructions for their original scope.
+Updated: 2026-10-24. This is the current resume point; older milestone handoffs retain historical evidence and instructions for their original scope.
 
 ## Checkpoint and milestone state
+
+- **Current UI review (2026-10-24):** checkout is `ui/audit-design-refinement`, HEAD `eac7de2`, with uncommitted UI changes from another session. Review found regressions in paginated pipeline filtering/counts/stage presentation, select keyboard choice and dialog traversal, plus account-menu/lead-card accessible-name failures and a stale visual fixture. **This UI revision is not accepted.** Formatting/types/build and 32 component tests pass; desktop/mobile browser results are 25 passed, 16 failed and one intentional skip. Preserve the existing implementation; repair and verify **UI-02–UI-05** in the [register](remaining-tasks.md). See the [review, reproduction evidence and validation](evidence/ui-review-2026-10-24/README.md). Branch/checkpoint statements below are historical. M5 remains incomplete; M5-02 remains the next business-feature slice after these UI repairs.
 
 - **M5-01 (2026-10-23):** onboarding invitation and replacement email is implemented on `m5/onboarding-invitation-email`, based on `ce2d9bd`; changes are currently uncommitted. Explicit validated recipient selection, generation-scoped encrypted intent, current authorization/access checks and delivery history reuse the M5 outbox and UI components. Local acceptance passes 53 tests / 1,142 assertions, integration 27 / 503, identity 29 / 256, frontend 26 component tests plus formatting/types/build. Eight affected desktop/mobile journeys pass across the broad run and corrected two-test follow-up; migration rollback/reapply, catalog checks, Pint and source scan pass. See [contract](m5-onboarding-email-contract.md) and [evidence/screenshots](evidence/m5/onboarding-email/README.md). **M5-02 is next; M5 remains incomplete.**
 
@@ -36,7 +38,7 @@ See [M5 evidence and exact commands](evidence/m5/README.md), [status](m5-status.
 
 ## Next implementation sequence
 
-1. Inspect the current checkout and register before editing; preserve any new user/session work. Resume **M5-02**: submitted, correction-requested and accepted onboarding emails. Specify authorized recipients and safe usable return links, including expired 24-hour sessions, before implementation. Reuse the existing durable outbox and current UI components. M5-01 invitation/replacement email is locally complete; provider receipt remains M5-09.
+1. Inspect the current checkout and register before editing; preserve any new user/session work. Correct and verify **UI-02–UI-05** from the current UI review before accepting the revised shared controls/pipeline. Then resume **M5-02**: submitted, correction-requested and accepted onboarding emails. Specify authorized recipients and safe usable return links, including expired 24-hour sessions, before implementation. Reuse the existing durable outbox and current UI components. M5-01 invitation/replacement email is locally complete; provider receipt remains M5-09.
 2. Complete **M5-03–M5-08**: persistent scheduling/timezones/preferences/consent, reminder/digest delivery, follow-up drafts and approvals, reply cancellation, approval invalidation, rate/transport budgets and uncertain-delivery operator behavior. Optional mailbox syncing and AI are not required.
 3. Complete **M5-09/M5-10** delivery/recovery acceptance with a separately authorized recipient-controlled trial. Existing local SMTP capture and historical account-mail trials do not prove current business-notification receipt.
 4. Independent M6 preparation/rehearsals can proceed: start with **M6-01** isolated synthetic backup/restore planning/drill and **M6-03/M6-04** monitoring/runbooks, while keeping M5 dependencies explicit. Resolve hosting/region/recovery/pilot/operator decisions before dependent live operations.

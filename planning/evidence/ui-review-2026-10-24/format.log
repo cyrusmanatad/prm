@@ -1,0 +1,5 @@
+
+> format:check:changed
+> node scripts/format-changed.mjs
+
+47 changed frontend files checked.

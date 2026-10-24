@@ -53,8 +53,10 @@ function submit(): void {
                     Share your business contact details with the creator who provided this link.
                 </p>
             </div>
-            <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <ul v-if="errors && Object.keys(errors).length" role="alert" class="wd-field-error">
+            <p v-if="status || done" role="status" class="wd-status">
+                {{ status || 'Contact details shared. The creator who sent this link can now follow up.' }}
+            </p>
+            <ul v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
                 <li v-for="(message, k) in errors" :key="k">{{ message }}</li>
             </ul>
             <form v-if="!done" class="wd-card wd-fields" :aria-busy="busy" @submit.prevent="submit">

@@ -58,7 +58,7 @@ test('same relationship appears in both portals, private leads survive removal, 
         ).toBe(201);
         await login(bp, brandEmail);
         await bp.getByLabel('Workspace name', { exact: true }).fill('Habi Home');
-        await bp.getByLabel('Workspace type').selectOption('brand');
+        await bp.locator('#workspace-kind').selectOption('brand');
         await bp.getByRole('button', { name: 'Create workspace', exact: true }).click();
         await expect(bp.getByRole('link', { name: 'Open brand hub' })).toBeVisible();
         await bp.getByRole('link', { name: 'Open brand hub' }).click();

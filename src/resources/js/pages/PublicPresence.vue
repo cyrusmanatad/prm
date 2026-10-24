@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { confirmAction } from '../composables/useConfirmation';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import FoundationShell from '../layouts/FoundationShell.vue';
+import PartnerChrome from '../features/portals/PartnerChrome.vue';
 import FormField from '../components/FormField.vue';
 import { Button } from '../components/ui/button';
 const props = defineProps<{
-    account: { name: string };
+    account: { name: string; email: string };
     workspace: { id: string; name: string };
     canWrite: boolean;
     kit: {
@@ -39,6 +39,7 @@ function requestSave(event: Event): void {
             `Unpublish ${props.kit.title}? Visitors will lose access to the public media kit.`,
             save,
             event,
+            { tone: 'danger' },
         );
     } else save();
 }
@@ -72,18 +73,16 @@ function save(): void {
 }
 </script>
 <template>
-    <Head title="Public presence" /><FoundationShell :account-name="account.name" @logout="router.post('/logout')"
-        ><div class="wd-workspace-content wd-presence">
-            <nav aria-label="Workspace">
-                <Link class="wd-link" href="/partner/leads">Back to leads</Link>
-            </nav>
+    <Head title="Media kit" />
+    <PartnerChrome current="media-kit" :account-name="account.name" :account-email="account.email">
+        <main id="main-content" class="mx-auto max-w-[1040px] px-6 pt-7 pb-12">
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
-                <h1>Public presence</h1>
+                <h1>Media kit</h1>
                 <p class="wd-description">Choose exactly what to share publicly.</p>
             </div>
             <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-status">
+            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
                 <p v-for="(msg, k) in errors" :key="k">{{ msg }}</p>
                 <button
                     v-if="errors.version"
@@ -121,7 +120,7 @@ function save(): void {
                         <p class="wd-hint">
                             Add up to eight public account links. Accounts are not connected or verified.
                         </p>
-                        <div v-for="(link, index) in socialLinks" :key="index" class="wd-fields">
+                        <div v-for="(link, index) in socialLinks" :key="index" class="wd-social-row">
                             <FormField
                                 :id="`social-label-${index}`"
                                 v-model="link.label"
@@ -136,7 +135,7 @@ function save(): void {
                                 :maxlength="500"
                                 :error="errors?.[`social_links.${index}.url`]"
                             />
-                            <button type="button" class="wd-link" @click="socialLinks.splice(index, 1)">
+                            <button type="button" class="wd-action-danger" @click="socialLinks.splice(index, 1)">
                                 Remove social account {{ index + 1 }}
                             </button>
                         </div>
@@ -185,13 +184,14 @@ function save(): void {
                         <button
                             v-if="canWrite && !link.revoked_at"
                             type="button"
-                            class="wd-link"
+                            class="wd-action-danger"
                             @click="
                                 confirmAction(
                                     'Revoke lead link',
                                     `Revoke lead link ${link.id}? Anyone using this link will lose access to its contact form.`,
                                     () => router.delete(`/lead-links/${link.id}`),
                                     $event,
+                                    { tone: 'danger' },
                                 )
                             "
                         >
@@ -200,8 +200,8 @@ function save(): void {
                     </li>
                 </ul>
             </section>
-        </div></FoundationShell
-    >
+        </main>
+    </PartnerChrome>
 </template>
 <style scoped>
 .wd-card {

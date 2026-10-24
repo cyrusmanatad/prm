@@ -1,0 +1,18 @@
+{
+  "documents_checked": 7,
+  "local_link_targets_checked": 213,
+  "missing_targets": [],
+  "reviewed_source_files": 51,
+  "source_files_changed_by_review": [],
+  "browser": {
+    "passed": 25,
+    "failed": 16,
+    "skipped": 1
+  },
+  "component_tests_passed": 32,
+  "formatting": "pass",
+  "typecheck": "pass",
+  "build": "pass",
+  "diff_check": "pass",
+  "local_services": "app healthy; postgres/redis/clamav healthy; worker/scheduler running"
+}

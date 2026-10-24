@@ -15,10 +15,10 @@ Status: **active carry-forward register**, established 2026-10-23. The user requ
 | Milestone | Current disposition | Carry-forward location |
 |---|---|---|
 | M0 | Planning baseline delivered; pilot/discovery and business decisions remain open | M0 rows and linked M3/M4/M6 decisions below |
-| M1 | Foundation development complete; manual acceptance, production MFA and the newly observed workspace link target-size finding remain pending | M1 rows |
-| M2 | CRM/templates/reminders development complete; release reviews and actual clipboard verification remain | M1 rows, M2-01 and M5 scheduling/delivery rows |
+| M1 | Foundation development complete; manual acceptance and production MFA remain pending; prior workspace target-size fix is complete | M1 rows; new shared-control regressions under UI-03/UI-04 |
+| M2 | CRM/templates/reminders baseline complete; current UI revision has pipeline/control regressions; release reviews and actual clipboard verification remain | UI-02–UI-05, M1 rows, M2-01 and M5 scheduling/delivery rows |
 | M3 | Onboarding/public presence development complete; production storage/privacy operations and notifications remain | M3 rows and M5-01/M5-02 |
-| M3A | Connected portals/reference UI development complete; current release/CI reviews remain | M1 rows and M6-08; advanced PRM stays M8 |
+| M3A | Connected portals baseline complete; current UI revision requires repair and new visual acceptance | UI-02–UI-05, M1 rows and M6-08; advanced PRM stays M8 |
 | M4 | Private finance/pilot entitlement development complete; commercial/operator decisions remain | M4 rows; expanded finance remains deferred |
 | M5 | **Partner and onboarding invitation slices complete; milestone incomplete** | M5 rows; [status/evidence](m5-status.md) |
 | M6 | **Preparation started; implementation/acceptance gates remain open** | M6 rows; [readiness contract](m6-readiness-contract.md) |
@@ -26,9 +26,15 @@ Status: **active carry-forward register**, established 2026-10-23. The user requ
 
 ## Required cross-milestone UI work
 
+The 2026-10-24 working-tree review adds UI-02–UI-05. UI-01 remains completed historical implementation; the new shared focus-helper regression is tracked explicitly under UI-03. Repair these issues before accepting the redesign; M5/M6 work and inherited release gates remain open.
+
 | ID | Status | Remaining task and completion evidence | Dependency / gate | Source |
 |---|---|---|---|---|
 | UI-01 | Complete | **Required cross-milestone UI:** replace inline destructive confirmations and immediate access revocations with shared native modal confirmation. Implementation covers both portals, leads/templates/CRM, onboarding documents/access/replacement, public links/unpublishing, finance void/reversal and all-session sign-out. Pinned formatting/types, 26 component tests and build pass. All 34 affected desktop/mobile journeys have passing evidence across the broad run and 12-test follow-up; modal Axe scans and inspected screenshots are retained. Inherited manual/Safari/WebKit/CI release gates remain open. | Required app-wide UI rule for current and future actions. | [UI guidance](portal-ui-alignment.md), [evidence](evidence/confirmation-modals/README.md) |
+| UI-02 | Not started | Repair pipeline search/stage/due/segment filtering across all server pages; synchronize URL/props/cursors/history; restore truthful stage counts, other-page empty states and currency totals; keep Repeat Client/Lost distinct from Active. Verify more than 25 leads, existing URL filters, mixed stages/currencies and drawer history. Direct desktop/mobile probes reproduce missing older records and false zero counts. | Required before accepting the redesigned pipeline; retain D22 storage and aggregate semantics. | [Review findings 1–3 and evidence](evidence/ui-review-2026-10-24/README.md), [pipeline contract](m2-pipeline-contract.md) |
+| UI-03 | Not started | Repair visible select keyboard selection/active-option accessibility and dialog traversal through closed/open disclosures. Test pointer, Tab/Shift+Tab, arrows, Enter/Escape, disabled controls and focus restoration on the visible controls; hidden native-select mutation tests alone are insufficient. | Required shared-control acceptance across workspaces, pipeline, CRM and finance; preserve UI-01 confirmations. | [Review findings 4–5 and reproduction](evidence/ui-review-2026-10-24/README.md) |
+| UI-04 | Not started | Include visible account identity and lead-card content in their accessible names and rerun affected desktop/mobile accessibility/browser journeys across foundation, partner and brand shells. Retain the failing Axe assertion and evidence; do not suppress the rule. | Required accessibility gate; current finance/portal scans report serious label-content-name-mismatch on account and lead-card buttons. | [Review finding 6 and browser evidence](evidence/ui-review-2026-10-24/README.md) |
+| UI-05 | Verification pending | Reconcile new pipeline mockup scope with approved portal references and aggregate semantics; render the real PipelineBoard in the visual fixture; map styles to shared tokens, restore action/section spacing and consolidate duplicated workspace security markup. Repair stale link/status assertions and ineffective deletion checks. Inspect desktop/mobile production screenshots, visible selects, modal/error/empty/paged states, and rerun formatting/types/build/relevant browser checks after repairs. | Required visual/component-reuse acceptance; historical fixture screenshots render the old board and do not certify this redesign. | [Review findings 7–8 and alignment notes](evidence/ui-review-2026-10-24/README.md), [UI guidance](portal-ui-alignment.md), [new mockup](../mockup/pipeline-claude/pipeline-spec.md) |
 
 ## Discovery and inherited release work
 

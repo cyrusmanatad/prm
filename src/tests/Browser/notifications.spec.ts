@@ -33,7 +33,7 @@ test('explicit invitation email shows queue capture and cancellation without ext
     fixture('seed', email);
     await login(page, email);
     await page.getByLabel('Workspace name', { exact: true }).fill('Notification review brand');
-    await page.getByLabel('Workspace type').selectOption('brand');
+    await page.locator('#workspace-kind').selectOption('brand');
     await page.getByRole('button', { name: 'Create workspace', exact: true }).click();
     await page.getByRole('link', { name: 'Open brand hub' }).click();
     await page.getByRole('button', { name: '+ Invite partners', exact: true }).click();

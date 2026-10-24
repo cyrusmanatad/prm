@@ -1,5 +1,7 @@
 # M2 Creator CRM Status
 
+**Current revision exception (2026-10-24):** the new uncommitted pipeline board regresses server-backed filtering, pagination counts and stage presentation; shared select keyboard behavior also needs repair. Track UI-02/UI-03 and the cross-screen UI-04/UI-05 acceptance work in the [register](remaining-tasks.md), with [review evidence](evidence/ui-review-2026-10-24/README.md). The completion and passing evidence below describe earlier revisions.
+
 Outstanding reviews, clipboard verification and M5 reminder delivery remain indexed in [remaining tasks](remaining-tasks.md). See the [current handoff](implementation-handoff.md); historical evidence below does not close later release gates.
 
 Status: **development complete; automated gates passed; manual release acceptance pending**. **Confirmed (D19):** M2 development may continue while manual M1 screen-reader, browser-zoom, and native Safari reviews remain pending. These reviews remain release gates; no production readiness is claimed.
