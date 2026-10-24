@@ -7,6 +7,7 @@ import BrandDashboard from '../features/portals/BrandDashboard.vue';
 import type { PortalData } from '../features/portals/types';
 import FormField from '../components/FormField.vue';
 import ContentSection from '../components/ContentSection.vue';
+import { emailStates } from '../features/notifications/emailStates';
 import { Button } from '../components/ui/button';
 const props = defineProps<
     PortalData & {
@@ -15,14 +16,6 @@ const props = defineProps<
         inviteUrl?: string | null;
     }
 >();
-const emailStates: Record<string, string> = {
-    pending: 'Email pending',
-    sending: 'Email sending',
-    sent: 'Email accepted by mail server; receipt unconfirmed',
-    captured: 'Email captured locally; no external delivery',
-    cancelled: 'Email cancelled',
-    uncertain: 'Email delivery uncertain; review required before any new send',
-};
 const inviting = ref(false);
 const invitationDialog = ref<HTMLDialogElement | null>(null);
 const invitationLink = ref<string | null>(null);

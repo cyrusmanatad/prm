@@ -1,0 +1,21 @@
+Container weavdash-m1-clamav-1 Running
+ Container weavdash-m1-postgres-1 Running
+ Container weavdash-m1-redis-1 Running
+ Container weavdash-m1-postgres-1 Waiting
+ Container weavdash-m1-redis-1 Waiting
+ Container weavdash-m1-clamav-1 Waiting
+ Container weavdash-m1-redis-1 Healthy
+ Container weavdash-m1-postgres-1 Healthy
+ Container weavdash-m1-clamav-1 Healthy
+ Container weavdash-m1-acceptance-run-a7d3a197bdf7 Creating
+ Container weavdash-m1-acceptance-run-a7d3a197bdf7 Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.acceptance.xml
+
+.....................................................             53 / 53 (100%)
+
+Time: 01:29.128, Memory: 64.50 MB
+
+OK (53 tests, 1142 assertions)

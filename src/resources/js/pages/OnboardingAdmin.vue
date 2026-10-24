@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
+import OnboardingEmailFields from '../components/OnboardingEmailFields.vue';
+import ContentSection from '../components/ContentSection.vue';
+import { emailStates } from '../features/notifications/emailStates';
 import { Button } from '../components/ui/button';
 type Detail = {
     id: string;
@@ -30,6 +33,7 @@ const props = defineProps<{
         pipeline_entry_id: string;
     }[];
     selected: Detail | null;
+    emails: { id: string; state: string; created_at: string }[];
     submissions: {
         id: string;
         revision: number;
@@ -49,14 +53,43 @@ const props = defineProps<{
 }>();
 const note = ref('');
 const busy = ref(false);
+const sendEmail = ref(false);
+const recipient = ref('');
+const replacementForm = ref<HTMLFormElement>();
+watch(
+    () => props.selected?.id,
+    () => {
+        sendEmail.value = false;
+        recipient.value = '';
+    },
+);
+function replace(event: Event): void {
+    if (!props.selected || busy.value || !replacementForm.value?.reportValidity()) return;
+    confirmAction(
+        'Create replacement invitation',
+        `Replace the invitation for ${props.selected.label}? The previous invitation and its sessions will stop working.${sendEmail.value ? ` A new invitation email will be requested for ${recipient.value}.` : ''}`,
+        () => review('renew'),
+        event,
+    );
+}
 function review(action: string): void {
     if (!props.selected || busy.value || props.errors?.version) return;
     router.post(
         `/onboarding-requests/${props.selected.id}/${action}`,
-        { version: props.selected.version, note: note.value },
+        {
+            version: props.selected.version,
+            note: note.value,
+            ...(action === 'renew' ? { send_email: sendEmail.value, recipient_email: recipient.value } : {}),
+        },
         {
             preserveState: true,
             preserveScroll: true,
+            onSuccess: () => {
+                if (action === 'renew') {
+                    sendEmail.value = false;
+                    recipient.value = '';
+                }
+            },
             onStart: () => {
                 busy.value = true;
             },
@@ -165,21 +198,27 @@ function review(action: string): void {
                         :disabled="busy || !!errors?.version"
                         @click="review('accept')"
                         >Accept submission</Button
-                    ><Button
+                    >
+                    <form
                         v-if="selected.status !== 'revoked'"
-                        type="button"
-                        class="wd-button wd-button-secondary"
-                        :disabled="busy || !!errors?.version"
-                        @click="
-                            confirmAction(
-                                'Create replacement invitation',
-                                `Replace the invitation for ${selected.label}? The previous invitation and its sessions will stop working.`,
-                                () => review('renew'),
-                                $event,
-                            )
-                        "
-                        >Create replacement invitation</Button
-                    ><Button
+                        ref="replacementForm"
+                        :aria-busy="busy"
+                        @submit.prevent="replace"
+                    >
+                        <fieldset class="wd-fields" :disabled="busy || !!errors?.version">
+                            <legend>Replacement invitation</legend>
+                            <OnboardingEmailFields
+                                prefix="replacement"
+                                v-model:send-email="sendEmail"
+                                v-model:recipient="recipient"
+                                :errors="errors"
+                            />
+                            <Button type="submit" class="wd-button wd-button-secondary"
+                                >Create replacement invitation</Button
+                            >
+                        </fieldset>
+                    </form>
+                    <Button
                         v-if="selected.status !== 'revoked'"
                         type="button"
                         class="wd-button wd-button-secondary"
@@ -224,6 +263,18 @@ function review(action: string): void {
                     <p>{{ submission.snapshot.documents?.length ?? 0 }} reference files shared with this submission.</p>
                 </details>
             </section>
+            <ContentSection v-if="selected && canWrite" title="Onboarding email history">
+                <p class="wd-hint">
+                    Refresh this page to check delivery progress. Replacing or revoking an invitation cancels pending
+                    delivery; mail already sending cannot be recalled.
+                </p>
+                <p v-if="!emails.length">Link only; email not requested.</p>
+                <ul v-else>
+                    <li v-for="email in emails" :key="email.id">
+                        {{ new Date(email.created_at).toLocaleString() }} · {{ emailStates[email.state] }}
+                    </li>
+                </ul>
+            </ContentSection>
         </div></FoundationShell
     >
 </template>

@@ -12,7 +12,7 @@ class Onboarding
 {
     public function __construct(private Pipeline $pipeline, private Audit $audit, private TenantContext $context) {}
 
-    public function create(int $actor, string $org, string $entry, string $label): array
+    public function create(int $actor, string $org, string $entry, string $label, ?string $recipient = null): array
     {
         abort_unless($this->pipeline->canWrite($actor, $org), 403);
         abort_unless(DB::table('pipeline_entries')->where('org_id', $org)->where('id', $entry)->lockForUpdate()->first(), 404);
@@ -21,10 +21,10 @@ class Onboarding
         DB::table('onboarding_requests')->insert(['id' => $id, 'org_id' => $org, 'pipeline_entry_id' => $entry, 'label' => $label, 'token_hash' => hash('sha256', $token), 'expires_at' => now()->addDays(7)]);
         $this->audit->record($actor, $org, 'onboarding.started', $id);
 
-        return ['id' => $id, 'url' => url('/onboarding').'#token='.$token];
+        return $this->invitation($actor, $org, $id, $token, $recipient);
     }
 
-    public function renew(int $actor, string $org, string $id, int $version): array
+    public function renew(int $actor, string $org, string $id, int $version, ?string $recipient = null): array
     {
         abort_unless($this->pipeline->canWrite($actor, $org), 403);
         $row = $this->locked($org, $id, $version);
@@ -34,7 +34,17 @@ class Onboarding
         DB::table('onboarding_requests')->where('org_id', $org)->where('id', $id)->update(['token_hash' => hash('sha256', $token), 'consumed_at' => null, 'expires_at' => now()->addDays(7), 'version' => $version + 1]);
         $this->audit->record($actor, $org, 'onboarding.renewed', $id);
 
-        return ['id' => $id, 'url' => url('/onboarding').'#token='.$token];
+        return $this->invitation($actor, $org, $id, $token, $recipient);
+    }
+
+    private function invitation(int $actor, string $org, string $id, string $token, ?string $recipient): array
+    {
+        $url = rtrim(config('app.url'), '/').'/onboarding#token='.$token;
+        if ($recipient !== null) {
+            app(NotificationOutbox::class)->onboardingInvitation($actor, $org, $id, $token, $url, $recipient);
+        }
+
+        return ['id' => $id, 'url' => $url];
     }
 
     public function exchange(string $token): string

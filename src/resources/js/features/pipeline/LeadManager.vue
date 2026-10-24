@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
+import OnboardingEmailFields from '../../components/OnboardingEmailFields.vue';
 import EntryFields from './EntryFields.vue';
 import { fromMinor, money, toMinor } from './money';
 import type { LeadForm, PipelineWorkspace } from './types';
@@ -53,6 +54,15 @@ function close(): void {
     }
 }
 const busy = ref(false);
+const sendOnboardingEmail = ref(false);
+const onboardingRecipient = ref('');
+watch(
+    () => props.selected?.id,
+    () => {
+        sendOnboardingEmail.value = false;
+        onboardingRecipient.value = '';
+    },
+);
 const formAction = ref('');
 const loadedVersion = ref(0);
 const formErrors = ref<Record<string, string>>({});
@@ -213,7 +223,12 @@ function startOnboarding(): void {
     if (busy.value || errors.value.version || !props.selected) return;
     router.post(
         '/onboarding-requests',
-        { pipeline_entry_id: props.selected.id, label: `Onboarding for ${props.selected.brand_name}`.slice(0, 160) },
+        {
+            pipeline_entry_id: props.selected.id,
+            label: `Onboarding for ${props.selected.brand_name}`.slice(0, 160),
+            send_email: sendOnboardingEmail.value,
+            recipient_email: onboardingRecipient.value,
+        },
         {
             onStart: () => {
                 busy.value = true;
@@ -340,13 +355,20 @@ function reloadSelected(): void {
                             }}</Button>
                         </fieldset>
                     </form>
-                    <Button
-                        type="button"
-                        class="wd-button wd-button-secondary"
-                        :disabled="busy || !!errors.version"
-                        @click="startOnboarding"
-                        >Start onboarding</Button
-                    >
+                    <form :aria-busy="busy" @submit.prevent="startOnboarding">
+                        <fieldset class="wd-fields" :disabled="busy || !!errors.version">
+                            <legend>Onboarding invitation</legend>
+                            <OnboardingEmailFields
+                                prefix="start-onboarding"
+                                v-model:send-email="sendOnboardingEmail"
+                                v-model:recipient="onboardingRecipient"
+                                :errors="errors"
+                            />
+                            <Button type="submit" class="wd-button wd-button-secondary">{{
+                                sendOnboardingEmail ? 'Start onboarding and email invitation' : 'Start onboarding'
+                            }}</Button>
+                        </fieldset>
+                    </form>
                     <div class="wd-pipeline-actions">
                         <form :aria-busy="busy" @submit.prevent="command('stage', { stage })">
                             <fieldset class="wd-fields" :disabled="busy || !!errors.version">

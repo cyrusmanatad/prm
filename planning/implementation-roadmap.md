@@ -28,7 +28,7 @@ CI progression: PHP/frontend style and static checks → Pest/PHPUnit and Vue co
 
 **Confirmed D25:** required email notifications are part of M5 completion, including existing onboarding and partner-invitation gaps. Gmail/Outlook mailbox syncing remains an optional future enhancement. The approval inbox supports action review; it does not replace transactional email delivery. See [notification inventory, current gaps, and delivery acceptance](m5-email-notifications.md). Preserve D24's portal navigation and scoped sharing when introducing these workflows.
 
-M5's first implementation slice covers durable notification intent and explicitly requested partner invitation email. See the [contract](m5-notification-contract.md), [status and next tasks](m5-status.md), and [verification evidence](evidence/m5/README.md). Local SMTP acceptance is separate from provider delivery; onboarding notifications and the remaining automation gates are still required.
+M5's first implementation slice covers durable notification intent and explicitly requested partner invitation email. The subsequent [M5-01 slice](m5-onboarding-email-contract.md) adds explicitly requested onboarding invitation/replacement email. See the [first-slice contract](m5-notification-contract.md), [status and next tasks](m5-status.md), and [verification evidence](evidence/m5/README.md). Local capture/SMTP acceptance is separate from provider delivery; onboarding lifecycle notifications and the remaining automation gates are still required.
 
 ## M6 preparation and carry-forward work
 

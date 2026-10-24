@@ -1,0 +1,14 @@
+> test:browser
+> playwright test onboarding-notifications.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-onboarding-email-browser-followup --reporter=list
+
+
+Running 2 tests using 1 worker
+
+(node:1452434) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (9.1s)
+(node:1452908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [mobile] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (11.2s)
+
+  2 passed (22.5s)

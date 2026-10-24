@@ -20,7 +20,7 @@ Status: **active carry-forward register**, established 2026-10-23. The user requ
 | M3 | Onboarding/public presence development complete; production storage/privacy operations and notifications remain | M3 rows and M5-01/M5-02 |
 | M3A | Connected portals/reference UI development complete; current release/CI reviews remain | M1 rows and M6-08; advanced PRM stays M8 |
 | M4 | Private finance/pilot entitlement development complete; commercial/operator decisions remain | M4 rows; expanded finance remains deferred |
-| M5 | **First slice complete; milestone incomplete** | M5 rows; [status/evidence](m5-status.md) |
+| M5 | **Partner and onboarding invitation slices complete; milestone incomplete** | M5 rows; [status/evidence](m5-status.md) |
 | M6 | **Preparation started; implementation/acceptance gates remain open** | M6 rows; [readiness contract](m6-readiness-contract.md) |
 | M7–M9 | Future milestones; dependencies and demand/approval gates remain | Future milestone rows |
 
@@ -61,7 +61,7 @@ The outbox, explicit brand-to-partner invitation email, local queue/SMTP checks 
 
 | ID | Status | Remaining task and completion evidence | Dependency / gate | Source |
 |---|---|---|---|---|
-| M5-01 | Not started | Specify/implement creator onboarding invitation recipient selection/validation, explicit send controls and durable intent. Define initial send/replacement behavior with current capability expiry/revocation and clear pending/failure UI. | Required M5; recipient/send contract before external delivery. | [email inventory](m5-email-notifications.md), [M3 contract](m3-onboarding-contract.md) |
+| M5-01 | Complete | Onboarding creation/replacement now supports explicit optional email to a validated entered recipient, encrypted generation-scoped outbox intent and delivery history. Current authorization, expiry/consumption/replacement/revocation checks preserve capability access. Local PostgreSQL/Redis, migration, UI and desktop/mobile gates pass; provider receipt remains M5-09. | Required M5 implementation; external delivery acceptance remains separate. | [recipient/access contract](m5-onboarding-email-contract.md), [verification](evidence/m5/onboarding-email/README.md) |
 | M5-02 | Not started | Specify authorized recipients and implement submitted, correction-requested and accepted onboarding emails. Verify minimal disclosure, safe usable return links, event/intent atomicity, retries, revocation and tenant isolation. | Required M5; capability/session lifetime must be handled explicitly. | [email inventory](m5-email-notifications.md), [M5 status](m5-status.md) |
 | M5-03 | Not started | Persist named business schedules, timezone, preferences, consent and rule versions; reconstruct due work from PostgreSQL after queue loss and recheck current authorization/entitlements/consent at execution. | Required M5 foundation for reminders/digests/follow-ups. | [reliable automation](architecture.md#reliable-jobs-and-automation) |
 | M5-04 | Not started | Deliver reminder and digest/review notifications with agreed recipients, opt-out rules, cadence and tenant-local time. Keep account verification/reset independent of optional notice preferences. | Required M5; cadence and precise preferences remain decisions within the implementation contract. | [email requirements](m5-email-notifications.md), [CRM reminders](m2-crm-contract.md) |

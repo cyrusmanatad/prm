@@ -12,7 +12,7 @@ This is planning/handoff progress. No M6 restore drill, monitoring implementatio
 
 ## Next work and dependencies
 
-Resume required **M5-01/M5-02** onboarding notification work, then the remaining M5 scheduling, approval and delivery/recovery tasks. Independent synthetic recovery/runbook/monitoring preparation can begin under **M6-01/M6-03/M6-04**. The [register](remaining-tasks.md) contains all other required and deferred tasks; completing this short next-step list does not close them.
+M5-01 onboarding invitation/replacement email is implemented with [local verification](evidence/m5/onboarding-email/README.md). Resume required **M5-02** onboarding lifecycle notification work, then the remaining M5 scheduling, approval and delivery/recovery tasks. Independent synthetic recovery/runbook/monitoring preparation can begin under **M6-01/M6-03/M6-04**. The [register](remaining-tasks.md) contains all other required and deferred tasks; completing this short next-step list does not close them.
 
 M6 acceptance requires implemented required predecessor workflows plus applicable manual, identity, data/privacy, recovery, hosting, security, pilot/UAT and commercial gates. User/provider/reviewer decisions remain open until recorded. Optional AI/mailbox integration and future M7–M9 scope are tracked without becoming mandatory M6 features.
 

@@ -1,0 +1,7 @@
+Container weavdash-m1-app-run-83957339f4c5 Creating
+ Container weavdash-m1-app-run-83957339f4c5 Created
+
+  .............................
+
+  Tests:    29 passed (256 assertions)
+  Duration: 4.67s
