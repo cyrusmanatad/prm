@@ -14,6 +14,7 @@ interface Props extends PrimitiveProps {
     class?: HTMLAttributes['class'];
     type?: 'button' | 'submit' | 'reset';
     disabled?: boolean;
+    form?: string;
 }
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>();
@@ -29,6 +30,7 @@ const nativeProps = computed(() => ({
     'data-size': props.size,
     type: props.type,
     disabled: props.disabled,
+    ...(props.form ? { form: props.form } : {}),
     onClick: (event: MouseEvent) => emit('click', event),
 }));
 </script>

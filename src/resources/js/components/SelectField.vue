@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-export type SelectOption = { value: string; label: string };
+export type SelectOption = { value: string; label: string; hint?: string };
 
 const props = withDefaults(
     defineProps<{
@@ -13,8 +13,21 @@ const props = withDefaults(
         required?: boolean;
         searchable?: boolean;
         disabled?: boolean;
+        emptyText?: string;
+        searchPlaceholder?: string;
+        searchLabel?: string;
+        showMark?: boolean;
+        showSearchIcon?: boolean;
     }>(),
-    { required: false, searchable: true, disabled: false },
+    {
+        required: false,
+        searchable: true,
+        disabled: false,
+        emptyText: 'No matching options.',
+        searchPlaceholder: 'Search',
+        showMark: false,
+        showSearchIcon: false,
+    },
 );
 
 const value = defineModel<string>({ default: '' });
@@ -29,10 +42,11 @@ const search = ref<HTMLInputElement>();
 const list = ref<HTMLElement>();
 
 const selected = computed(() => props.options.find((option) => option.value === value.value));
+const searchAria = computed(() => props.searchLabel || `Search ${props.label}`);
 const filtered = computed(() => {
     const needle = query.value.trim().toLowerCase();
     if (!needle) return props.options;
-    return props.options.filter((option) => option.label.toLowerCase().includes(needle));
+    return props.options.filter((option) => `${option.label} ${option.hint ?? ''}`.toLowerCase().includes(needle));
 });
 const describedby = computed(
     () =>
@@ -59,6 +73,11 @@ function syncNative(event: Event): void {
     setValue((event.target as HTMLSelectElement).value);
 }
 function highlightSelected(): void {
+    // A typed query commits the first match. An empty query keeps the current selection highlighted.
+    if (query.value.trim()) {
+        active.value = 0;
+        return;
+    }
     const index = filtered.value.findIndex((option) => option.value === value.value);
     active.value = index >= 0 ? index : 0;
 }
@@ -167,32 +186,68 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
             <span class="wd-select-chevron" aria-hidden="true"></span>
         </button>
         <div v-if="open" class="wd-select-panel" @keydown="onPanelKey">
-            <input
-                v-if="searchable"
-                :id="searchId"
-                ref="search"
-                class="wd-select-search"
-                type="search"
-                :aria-label="`Search ${label}`"
-                :aria-controls="listId"
-                autocomplete="off"
-                placeholder="Search"
-                v-model="query"
-            />
+            <div v-if="searchable" class="wd-select-search-wrap">
+                <svg
+                    v-if="showSearchIcon"
+                    class="wd-select-search-icon"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M20 20l-3.5-3.5" />
+                </svg>
+                <input
+                    :id="searchId"
+                    ref="search"
+                    class="wd-select-search"
+                    :class="{ 'has-icon': showSearchIcon }"
+                    type="search"
+                    :aria-label="searchAria"
+                    :aria-controls="listId"
+                    autocomplete="off"
+                    :placeholder="searchPlaceholder"
+                    v-model="query"
+                />
+            </div>
             <ul :id="listId" ref="list" class="wd-select-options" role="listbox" :aria-labelledby="`${id}-label`">
-                <li v-if="!filtered.length" class="wd-select-empty" role="status">No matching options.</li>
+                <li v-if="!filtered.length" class="wd-select-empty" role="status">{{ emptyText }}</li>
                 <li v-for="(option, index) in filtered" :key="optionId(option.value)" role="presentation">
                     <button
                         :id="optionId(option.value)"
                         type="button"
                         class="wd-select-option"
+                        :class="{ 'is-active': index === active, 'is-rich': showMark || option.hint }"
                         role="option"
                         :aria-selected="option.value === value ? 'true' : 'false'"
-                        :class="{ 'is-active': index === active }"
                         @mouseenter="active = index"
                         @click="choose(option)"
                     >
-                        {{ option.label }}
+                        <span class="wd-select-option-copy">
+                            <span>{{ option.label }}</span>
+                            <span v-if="option.hint" class="wd-select-option-hint">{{ option.hint }}</span>
+                        </span>
+                        <svg
+                            v-if="showMark && option.value === value"
+                            class="wd-select-mark"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M5 12l5 5 9-10" />
+                        </svg>
                     </button>
                 </li>
             </ul>
@@ -201,3 +256,41 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
         <p v-if="error" :id="`${id}-error`" class="wd-field-error" role="alert">{{ error }}</p>
     </div>
 </template>
+<style scoped>
+.wd-select-option.is-rich {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.wd-select-option-copy {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+.wd-select-option-hint {
+    color: var(--wd-muted);
+    font-size: 13px;
+    font-weight: 400;
+}
+.wd-select-mark {
+    flex: none;
+    color: var(--wd-brand);
+}
+.wd-select-search-wrap {
+    position: relative;
+}
+.wd-select-search-icon {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: var(--wd-muted);
+    pointer-events: none;
+}
+.wd-select-search.has-icon {
+    height: 40px;
+    min-height: 40px;
+    padding-left: 36px;
+}
+</style>

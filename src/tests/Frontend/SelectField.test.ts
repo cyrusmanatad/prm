@@ -39,4 +39,36 @@ describe('SelectField', () => {
         expect(wrapper.emitted('update:modelValue')).toEqual([['brand']]);
         expect(wrapper.find('#workspace-kind-search').exists()).toBe(false);
     });
+
+    it('matches a hint, shows a mark, and enters the first match', async () => {
+        const wrapper = mount(SelectField, {
+            props: {
+                id: 'currency',
+                label: 'Currency',
+                emptyText: 'No matches',
+                searchPlaceholder: 'Search code or name',
+                searchLabel: 'Search currencies',
+                showMark: true,
+                options: [
+                    { value: 'PHP', label: 'PHP', hint: 'Philippine peso' },
+                    { value: 'USD', label: 'USD', hint: 'US dollar' },
+                ],
+                modelValue: 'PHP',
+            },
+            attachTo: document.body,
+        });
+        wrappers.push(wrapper);
+        await wrapper.get('#currency-trigger').trigger('click');
+        await wrapper.get('#currency-search').setValue('peso');
+        const match = wrapper.get('[role="option"]');
+        expect(match.text()).toContain('PHP');
+        expect(match.text()).toContain('Philippine peso');
+        expect(match.attributes('aria-selected')).toBe('true');
+        expect(match.find('svg').exists()).toBe(true);
+        await wrapper.get('#currency-search').setValue('zzz');
+        expect(wrapper.get('.wd-select-empty').text()).toBe('No matches');
+        await wrapper.get('#currency-search').setValue('us');
+        await wrapper.get('#currency-search').trigger('keydown', { key: 'Enter' });
+        expect(wrapper.emitted('update:modelValue')).toEqual([['USD']]);
+    });
 });
