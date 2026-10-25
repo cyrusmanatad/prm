@@ -52,6 +52,22 @@ class CrmTest extends TestCase
         app(TenantContext::class)->run($u->id, $o, fn () => $this->assertStringNotContainsString('Private contact note', json_encode(DB::table('audit_logs')->get())));
     }
 
+    public function test_browser_mutations_preserve_validated_filters_and_reset_paging(): void
+    {
+        $this->workspace();
+        $filters = ['q' => '0', 'state' => 'completed'];
+        $this->post('/contacts', ['name' => 'Filtered contact', 'crm_filters' => $filters])
+            ->assertRedirect('/partner/contacts?q=0&state=completed');
+        $id = $this->postJson('/reminders', ['title' => 'Complete me', 'due_at' => now()->toIso8601String()])->json('id');
+        $this->post('/reminders/'.$id.'/complete', ['version' => 1, 'crm_filters' => $filters])
+            ->assertRedirect('/partner/contacts?q=0&state=completed');
+        $this->getJson('/crm?state=completed')->assertJsonPath('reminders.items.0.id', $id);
+        $this->postJson('/reminders/'.$id.'/reopen', ['version' => 2, 'crm_filters' => ['state' => 'forged']])->assertUnprocessable();
+        $this->getJson('/crm?state=completed')->assertJsonPath('reminders.items.0.version', 2);
+        $this->postJson('/contacts', ['name' => 'Rejected context', 'crm_filters' => ['q' => str_repeat('a', 161)]])->assertUnprocessable();
+        $this->getJson('/crm')->assertJsonCount(1, 'contacts.items');
+    }
+
     public function test_foreign_ids_all_rls_operations_and_same_owner_relations(): void
     {
         [$u,$o] = $this->workspace();

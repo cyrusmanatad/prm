@@ -2,6 +2,8 @@
 
 Status: **preparation started; implementation and acceptance pending** on 2026-10-23. The user requested committing the current work, advancing toward M6 where possible and retaining all unfinished work in the handoff. The [roadmap](implementation-roadmap.md) still requires M1–M5 for full M6 acceptance. [M5 remains incomplete](m5-status.md).
 
+**Confirmed D27 priority (2026-10-25):** platform-owner/super-admin administration is required and brought forward before further milestone advancement. Implement ADM-01–ADM-07 next under the [administration contract](platform-administration-contract.md), beginning with authorization/MFA/protected owner provisioning. This does not complete M5 or waive other readiness work; it adds a required gate. No real owner or cleanup has been performed.
+
 ## Entry and scope
 
 Preparation now consists of this dependency/evidence contract, the [remaining-task register](remaining-tasks.md) and [implementation handoff](implementation-handoff.md). No M6 operational drill, monitoring deployment, MFA implementation, provider selection or launch acceptance is claimed by these documents.
@@ -14,6 +16,7 @@ Preparation now consists of this dependency/evidence contract, the [remaining-ta
 
 | Work package | Tasks | Ready to begin | Completion evidence |
 |---|---|---|---|
+| Platform administration (priority) | ADM-01–ADM-07, M1-04, M4-02 | ADM-01 is next; design explicit platform authorization/MFA/bootstrap, then implement the admin console and governed operations. | Protected real owner, tested account/workspace and entitlement controls, sanitized diagnostics/audit, scoped support access and safe synthetic cleanup; current isolation and desktop/mobile admin acceptance. |
 | Recovery | M6-01 | Define objectives and rehearse with isolated synthetic database/documents; coordinate production storage/key decisions. | Database plus document restore, key/secret recovery, integrity and tenant-boundary checks; measured recovery against approved objectives. |
 | Hosting and capacity | M6-02, M3-01 | Define a representative pilot load, inventory services and measure development resources. | Approved budget/host/regions/storage and measured peak/load behavior including scanner, queues and storage; no assumed capacity from the development machine. |
 | Observability | M6-03 | Specify metrics, redaction and alert ownership using current app/queue/outbox states. | Implemented monitoring and demonstrated alert/incident routes for application, DB, storage, queue, scheduler, outbox and upload failures. |

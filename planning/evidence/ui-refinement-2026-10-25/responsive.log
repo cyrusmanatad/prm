@@ -1,0 +1,12 @@
+
+> test:browser
+> playwright test ui-refinement.spec.ts --project=desktop --output=/tmp/weavdash-ui-refinement-responsive-acceptance --reporter=list
+
+
+Running 1 test using 1 worker
+
+(node:1960862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths (23.8s)
+
+  1 passed (25.0s)

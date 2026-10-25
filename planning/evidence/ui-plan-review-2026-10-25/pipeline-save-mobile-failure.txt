@@ -1,0 +1,254 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: pipeline.spec.ts >> private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+- Location: tests/Browser/pipeline.spec.ts:6:1
+
+# Error details
+
+```
+Test timeout of 120000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=f2e1]:
+  - generic [ref=f2e3]:
+    - link "Skip to main content" [ref=f2e4] [cursor=pointer]:
+      - /url: "#main-content"
+    - banner [ref=f2e5]:
+      - generic [ref=f2e6]:
+        - generic [ref=f2e7]:
+          - img "WeavDash logo" [ref=f2e8]
+          - generic [ref=f2e14]: WeavDash
+          - generic [ref=f2e15]: Partner
+        - navigation "Main" [ref=f2e16]:
+          - link "My leads" [ref=f2e17] [cursor=pointer]:
+            - /url: /partner/leads
+          - generic "Unavailable in this milestone" [ref=f2e18]: Inbox
+          - generic "Unavailable in this milestone" [ref=f2e19]: Campaigns
+          - link "Media kit" [ref=f2e20] [cursor=pointer]:
+            - /url: /partner/media-kit
+          - generic "Unavailable in this milestone" [ref=f2e21]: Earnings
+          - generic "Unavailable in this milestone" [ref=f2e22]: Autopilot
+        - generic [ref=f2e23]:
+          - generic [ref=f2e24]: Search leads
+          - searchbox "Search leads" [ref=f2e25]
+          - 'button "Account menu: Browser Creator m1-browser-pipeline-1792896653278@example.test BC" [ref=f2e26] [cursor=pointer]':
+            - generic [ref=f2e27]: "Account menu:"
+            - generic [ref=f2e28]:
+              - generic [ref=f2e29]: Browser Creator
+              - generic [ref=f2e30]: m1-browser-pipeline-1792896653278@example.test
+            - generic [ref=f2e31]: BC
+    - main [ref=f2e32]:
+      - generic [ref=f2e33]:
+        - generic [ref=f2e34]:
+          - paragraph [ref=f2e35]: Sunday 25 October
+          - heading "Magandang umaga, Browser" [level=1] [ref=f2e36]
+          - paragraph [ref=f2e37]: Your private leads and explicit brand partnerships, in one place.
+        - generic [ref=f2e38]:
+          - button "Share my lead link" [ref=f2e39] [cursor=pointer]
+          - button "+ Add lead" [ref=f2e40] [cursor=pointer]
+      - region "Summary" [ref=f2e41]:
+        - generic [ref=f2e42]:
+          - generic [ref=f2e43]: Open pipeline
+          - generic [ref=f2e44]: PHP 1,234.56
+          - generic [ref=f2e45]: Stored estimates, separated by currency
+        - generic [ref=f2e46]:
+          - generic [ref=f2e47]: Expected this month
+          - generic [ref=f2e48]: Unavailable
+          - generic [ref=f2e49]: Not yet measured
+        - generic [ref=f2e50]:
+          - generic [ref=f2e51]: Commissions earned
+          - generic [ref=f2e52]: Unavailable
+          - generic [ref=f2e53]: Not yet measured
+        - generic [ref=f2e54]:
+          - generic [ref=f2e55]: Reply rate
+          - generic [ref=f2e56]: Unavailable
+          - generic [ref=f2e57]: Not yet measured
+      - generic [ref=f2e58]:
+        - generic [ref=f2e59]:
+          - generic [ref=f2e60]:
+            - heading "Today's next best actions" [level=2] [ref=f2e61]
+            - paragraph [ref=f2e62]: AI ranking and suggested drafts are unavailable.
+            - link "View contacts and due reminders →" [ref=f2e63] [cursor=pointer]:
+              - /url: /partner/contacts?state=due
+          - generic [ref=f2e64]:
+            - region [ref=f2e66]:
+              - generic [ref=f2e67]:
+                - generic [ref=f2e68]:
+                  - generic [ref=f2e69]:
+                    - heading "My pipeline" [level=2] [ref=f2e70]
+                    - generic [ref=f2e71]: Automation unavailable
+                  - paragraph [ref=f2e73]: Open a lead to edit it, move its stage or start onboarding.
+                - generic [ref=f2e74]:
+                  - generic [ref=f2e75]: Pipeline value
+                  - generic [ref=f2e76]: PHP 1,234.56
+                  - generic [ref=f2e77]: 1 leads · excludes Lost
+              - generic [ref=f2e78]:
+                - group "Lead segment" [ref=f2e79]:
+                  - button "All active 1" [pressed] [ref=f2e80] [cursor=pointer]:
+                    - text: All active
+                    - generic [ref=f2e81]: "1"
+                  - button "Repeat clients 0" [ref=f2e82] [cursor=pointer]:
+                    - text: Repeat clients
+                    - generic [ref=f2e83]: "0"
+                  - button "Lost 0" [ref=f2e84] [cursor=pointer]:
+                    - text: Lost
+                    - generic [ref=f2e85]: "0"
+                - generic [ref=f2e86]:
+                  - searchbox "Search brands" [ref=f2e88]
+                  - combobox "Stage filter" [ref=f2e90] [cursor=pointer]:
+                    - generic [ref=f2e91]: All stages
+              - region "Five-stage pipeline" [ref=f2e94]:
+                - generic [ref=f2e95]:
+                  - region "Lead" [ref=f2e96]:
+                    - generic [ref=f2e97]:
+                      - generic [ref=f2e98]:
+                        - heading "Lead" [level=3] [ref=f2e100]
+                        - generic [ref=f2e101]: "0"
+                      - generic [ref=f2e102]: PHP 0.00
+                    - generic [ref=f2e103]: No leads
+                  - region "Pitched" [ref=f2e105]:
+                    - generic [ref=f2e106]:
+                      - generic [ref=f2e107]:
+                        - heading "Pitched" [level=3] [ref=f2e109]
+                        - generic [ref=f2e110]: "0"
+                      - generic [ref=f2e111]: PHP 0.00
+                    - generic [ref=f2e112]: No leads
+                  - region "Negotiating" [ref=f2e114]:
+                    - generic [ref=f2e115]:
+                      - generic [ref=f2e116]:
+                        - heading "Negotiating" [level=3] [ref=f2e118]
+                        - generic [ref=f2e119]: "1"
+                      - generic [ref=f2e120]: PHP 1,234.56
+                    - button "Open M2 Studio PHP 1,234.56" [ref=f2e122] [cursor=pointer]:
+                      - generic [ref=f2e123]: Open
+                      - generic [ref=f2e124]: M2 Studio
+                      - generic [ref=f2e125]: PHP 1,234.56
+                  - region "Onboarded" [ref=f2e126]:
+                    - generic [ref=f2e127]:
+                      - generic [ref=f2e128]:
+                        - heading "Onboarded" [level=3] [ref=f2e130]
+                        - generic [ref=f2e131]: "0"
+                      - generic [ref=f2e132]: PHP 0.00
+                    - generic [ref=f2e133]: No leads
+                  - region "Active" [ref=f2e135]:
+                    - generic [ref=f2e136]:
+                      - generic [ref=f2e137]:
+                        - heading "Active" [level=3] [ref=f2e139]
+                        - generic [ref=f2e140]: "0"
+                      - generic [ref=f2e141]: PHP 0.00
+                    - generic [ref=f2e142]: No leads
+            - dialog [ref=f2e144]:
+              - generic [ref=f2e145]:
+                - generic [ref=f2e146]:
+                  - generic [ref=f2e147]:
+                    - heading "M2 Studio" [level=2] [ref=f2e148]
+                    - generic [ref=f2e149]:
+                      - generic [ref=f2e150]: Onboarded
+                      - generic [ref=f2e152]: PHP 1,234.56
+                  - button "Close lead" [ref=f2e153] [cursor=pointer]
+                - link "Contacts & reminders Manage people and due dates for this lead" [ref=f2e157] [cursor=pointer]:
+                  - /url: /partner/contacts?entry=2ac8477f-bd82-4acf-a9bc-b1ac8e2999ce
+                  - generic [ref=f2e162]:
+                    - generic [ref=f2e163]: Contacts & reminders
+                    - generic [ref=f2e164]: Manage people and due dates for this lead
+                - tablist "Lead sections" [ref=f2e167]:
+                  - tab "Details" [selected] [ref=f2e168] [cursor=pointer]
+                  - tab "Activity" [ref=f2e169] [cursor=pointer]
+              - tabpanel "Details" [ref=f2e171]:
+                - group "Lead details" [ref=f2e173]:
+                  - generic [ref=f2e175]:
+                    - heading "Lead" [level=3] [ref=f2e176]
+                    - generic [ref=f2e177]:
+                      - generic [ref=f2e178]: Brand name
+                      - textbox "Brand name" [active] [ref=f2e179]: M2 Studio
+                    - generic [ref=f2e180]:
+                      - generic [ref=f2e181]: Stage
+                      - combobox [aria-hidden] [ref=f2e182]
+                      - combobox "Stage" [ref=f2e183] [cursor=pointer]:
+                        - generic [ref=f2e184]: Onboarded
+                    - generic [ref=f2e186]:
+                      - generic [ref=f2e187]: Estimated value
+                      - generic [ref=f2e188]:
+                        - generic [ref=f2e189]:
+                          - generic [ref=f2e190]: Currency
+                          - combobox [aria-hidden] [ref=f2e191]
+                          - combobox "Currency" [ref=f2e192] [cursor=pointer]:
+                            - generic [ref=f2e193]: PHP
+                        - textbox "Estimated value" [ref=f2e195]: "1234.56"
+                      - paragraph [ref=f2e196]: Totals are kept separate for each currency.
+                  - generic [ref=f2e197]:
+                    - heading "Primary contact" [level=3] [ref=f2e198]
+                    - generic [ref=f2e199]:
+                      - generic [ref=f2e200]:
+                        - generic [ref=f2e201]: Name
+                        - textbox "Name" [ref=f2e202]
+                      - generic [ref=f2e203]:
+                        - generic [ref=f2e204]: Email
+                        - textbox "Email" [ref=f2e205]
+                  - generic [ref=f2e206]:
+                    - heading "Follow-up" [level=3] [ref=f2e207]
+                    - generic [ref=f2e208]:
+                      - generic [ref=f2e209]: Next action
+                      - textbox "Next action" [ref=f2e210]
+                      - generic [ref=f2e211]:
+                        - generic [ref=f2e212]: "Snooze:"
+                        - button "Tomorrow" [ref=f2e213] [cursor=pointer]
+                        - button "In 3 days" [ref=f2e214] [cursor=pointer]
+                        - button "Next week" [ref=f2e215] [cursor=pointer]
+                      - paragraph [ref=f2e216]: Shown in your local time.
+                    - generic [ref=f2e217]:
+                      - generic [ref=f2e218]: Private notes
+                      - textbox "Private notes" [ref=f2e219]:
+                        - /placeholder: Only you can see these
+                        - text: Private creator notes
+                - group "Onboarding invitation" [ref=f2e221]:
+                  - generic [ref=f2e223]:
+                    - heading "Onboarding invitation" [level=3] [ref=f2e224]
+                    - paragraph [ref=f2e225]: Start onboarding when this lead is ready to join.
+                  - generic [ref=f2e226]:
+                    - generic [ref=f2e227]:
+                      - checkbox "Email this onboarding invitation" [ref=f2e228]
+                      - text: Email this onboarding invitation
+                    - paragraph [ref=f2e229]: Optional. Anyone with this private link can open the form once. Choose the intended recipient carefully.
+                  - button "Start onboarding" [ref=f2e230] [cursor=pointer]
+                - group [ref=f2e231]:
+                  - generic "Delete lead" [ref=f2e232] [cursor=pointer]
+              - generic [ref=f2e236]:
+                - button "Cancel" [ref=f2e237] [cursor=pointer]
+                - button "Save lead" [ref=f2e238] [cursor=pointer]
+        - complementary [ref=f2e239]:
+          - generic [ref=f2e240]:
+            - heading "Autopilot" [level=2] [ref=f2e241]
+            - paragraph [ref=f2e242]: Automation is unavailable. Start onboarding explicitly from a lead; only non-sensitive business details are collected.
+            - generic [ref=f2e243]:
+              - generic [ref=f2e244]: Smart follow-ups
+              - 'button "Smart follow-ups: unavailable" [disabled] [ref=f2e245]'
+            - generic [ref=f2e247]:
+              - generic [ref=f2e248]: Onboarding automation
+              - 'button "Onboarding automation: unavailable" [disabled] [ref=f2e249]'
+            - generic [ref=f2e251]:
+              - generic [ref=f2e252]: Invoice automation
+              - 'button "Invoice automation: unavailable" [disabled] [ref=f2e253]'
+            - generic [ref=f2e255]:
+              - generic [ref=f2e256]: Automatic payouts
+              - 'button "Automatic payouts: unavailable" [disabled] [ref=f2e257]'
+            - generic [ref=f2e259]:
+              - generic [ref=f2e260]: Seasonal re-pitch
+              - 'button "Seasonal re-pitch: unavailable" [disabled] [ref=f2e261]'
+            - generic [ref=f2e263]:
+              - generic [ref=f2e264]: Earnings digest
+              - 'button "Earnings digest: unavailable" [disabled] [ref=f2e265]'
+          - generic [ref=f2e267]:
+            - heading "From your brand partners" [level=2] [ref=f2e268]
+            - paragraph [ref=f2e269]: No active partnerships. Accept a brand invitation to connect.
+  - navigation "Account"
+```

@@ -1,0 +1,74 @@
+{
+    "algorithm": "sha256",
+    "base": "1646135",
+    "files": [
+        {
+            "path": "src/app/Http/Controllers/PipelineController.php",
+            "digest": "21d0158a4ad990204f39a92e3376481293ee639ee2ec5883da5b363d9d9a08fa"
+        },
+        {
+            "path": "src/resources/css/foundation.css",
+            "digest": "f8ddccc034d082c370bf3c2f37f9b4a673bbfa212f5d392a6359900cf312c25c"
+        },
+        {
+            "path": "src/resources/css/portal-theme.css",
+            "digest": "0eb78408994033e097633e0727efade9ed917b5da788e6dff58705edbd17ae8c"
+        },
+        {
+            "path": "src/resources/js/components/ActionGroup.vue",
+            "digest": "65d09013b4fc2aab2053325a080eda0786ac0432a1efb37d8e0859b33ce1b7f5"
+        },
+        {
+            "path": "src/resources/js/components/ui/button/Button.vue",
+            "digest": "acdf222bc503230ecb63bcbda00d8d5326cac6d87bf0ee352538f6e9c2bcf864"
+        },
+        {
+            "path": "src/resources/js/features/pipeline/LeadManager.vue",
+            "digest": "f3d16e475c6ce0539c9e35672fc47d0a6af416133d61678aba0ed5d6308fa002"
+        },
+        {
+            "path": "src/resources/js/features/pipeline/PipelineBoard.vue",
+            "digest": "7fb2cf75941df3ed4bfa71ac870d63a0d9fbf72405b13caf11712b35e227cdd1"
+        },
+        {
+            "path": "src/resources/js/features/pipeline/PipelineColumn.vue",
+            "digest": "2226b203d8d93f60ce43c66eca4e147551aeb715acfde026d44766b29769bd76"
+        },
+        {
+            "path": "src/resources/js/features/pipeline/stages.ts",
+            "digest": "00e3f9b407ce45401a4889f7db97ec3547cd6ee261290b74428cf9547d8cbcf8"
+        },
+        {
+            "path": "src/resources/js/features/portals/PartnerChrome.vue",
+            "digest": "80cb018c794e59bf69799dff3a685f2c398127d5df33e53393d4aa10a13af4ac"
+        },
+        {
+            "path": "src/resources/js/features/portals/PartnerDashboard.vue",
+            "digest": "1ab90ef088ae3ebb633738f35f3f45a8c9969a98d0582fef6ca3bcc149c6746f"
+        },
+        {
+            "path": "src/tests/Browser/onboarding.spec.ts",
+            "digest": "b164fdf26c0b58fccc3f83fdeb6187828dc690905c364d06ee485ed449079d24"
+        },
+        {
+            "path": "src/tests/Browser/pipeline-filtering.spec.ts",
+            "digest": "e3ccfa55a4705a6fd5275e393bec6a582a30f9d90af81f7994721a434e75015c"
+        },
+        {
+            "path": "src/tests/Browser/pipeline.spec.ts",
+            "digest": "36464f5d2ce3ad5f4a66ef9f69462648aa21bf02f023c2f6b64053fb4e2991db"
+        },
+        {
+            "path": "src/tests/Frontend/PipelineBoard.test.ts",
+            "digest": "58161801d033b80f4c8ca7d22d70e3bf4daabbb73f5d2be286b4a381420e4e10"
+        },
+        {
+            "path": "src/tests/Integration/PipelineTest.php",
+            "digest": "9e2e9f236fefec6089753ac904496263e7a65992d6a5b34d9191cb421717b3ce"
+        },
+        {
+            "path": "src/tests/Visual/reference.ts",
+            "digest": "addf8fa20aba085d525a4f07a72a80210b66a4f7745edbb42b910056b67337af"
+        }
+    ]
+}

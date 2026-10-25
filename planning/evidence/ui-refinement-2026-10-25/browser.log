@@ -1,0 +1,35 @@
+
+> test:browser
+> playwright test crm.spec.ts outreach-templates.spec.ts foundation.spec.ts confirmation-errors.spec.ts finance.spec.ts partner-navigation.spec.ts portals.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-ui-refinement-acceptance --reporter=list
+
+
+Running 22 tests using 1 worker
+
+(node:1960643) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (4.0s)
+  ✓   2 [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (36.1s)
+  ✓   3 [desktop] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (10.8s)
+  ✓   4 [desktop] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (11.3s)
+  ✓   5 [desktop] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (3.6s)
+  ✓   6 [desktop] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (9.4s)
+  ✓   7 [desktop] › tests/Browser/outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete (11.1s)
+  ✓   8 [desktop] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (6.4s)
+  ✓   9 [desktop] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (4.0s)
+  ✓  10 [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (15.8s)
+  ✓  11 [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (4.0s)
+(node:1964449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [mobile] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (4.3s)
+  ✓  13 [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (22.8s)
+  ✓  14 [mobile] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (8.5s)
+  ✓  15 [mobile] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (17.3s)
+  ✓  16 [mobile] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (5.2s)
+  ✓  17 [mobile] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (9.2s)
+  ✓  18 [mobile] › tests/Browser/outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete (21.9s)
+  ✓  19 [mobile] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (5.8s)
+  ✓  20 [mobile] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (4.4s)
+  ✓  21 [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (17.1s)
+  ✓  22 [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (4.4s)
+
+  22 passed (4.0m)

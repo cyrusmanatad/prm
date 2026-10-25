@@ -33,27 +33,31 @@ class CrmController extends Controller
 
     public function store(Request $request, Crm $crm, string $kind): mixed
     {
+        $destination = $this->destination($request);
         $id = $crm->save((int) $request->user()->id, $request->session()->get('active_org_id'), $kind, $this->details($request, $kind));
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Record created.'], $this->destination($request), 201);
+        return $this->completed($request, ['id' => $id, 'message' => $this->recordLabel($kind).' created'], $destination, 201);
     }
 
     public function update(Request $request, Crm $crm, string $kind, string $record): mixed
     {
+        $destination = $this->destination($request);
         $crm->save((int) $request->user()->id, $request->session()->get('active_org_id'), $kind, $this->details($request, $kind), $record, $this->version($request));
 
-        return $this->completed($request, ['message' => 'Record saved.'], $this->destination($request));
+        return $this->completed($request, ['message' => $this->recordLabel($kind).' saved'], $destination);
     }
 
     public function destroy(Request $request, Crm $crm, string $kind, string $record): mixed
     {
+        $destination = $this->destination($request);
         $crm->delete((int) $request->user()->id, $request->session()->get('active_org_id'), $kind, $record, $this->version($request));
 
-        return $this->completed($request, ['message' => 'Record deleted.'], $this->destination($request));
+        return $this->completed($request, ['message' => $this->recordLabel($kind).' deleted'], $destination);
     }
 
     public function command(Request $request, Crm $crm, string $record, string $action): mixed
     {
+        $destination = $this->destination($request);
         $due = null;
         if ($action === 'snooze') {
             $d = $request->validate(['due_at' => ['required', 'date', 'after:now', 'regex:/T.*(?:Z|[+-]\d{2}:\d{2})$/']]);
@@ -61,15 +65,23 @@ class CrmController extends Controller
         }
         $crm->command((int) $request->user()->id, $request->session()->get('active_org_id'), $record, $this->version($request), $action, $due);
 
-        return $this->completed($request, ['message' => 'Reminder '.$action.' saved.'], $this->destination($request));
+        $message = match ($action) {
+            'snooze' => 'Reminder snoozed until '.Carbon::parse((string) $due)->format('M j'),
+            'complete' => 'Reminder completed',
+            'reopen' => 'Reminder reopened',
+            default => 'Reminder updated',
+        };
+
+        return $this->completed($request, ['message' => $message], $destination);
     }
 
     public function link(Request $request, Crm $crm, string $entry): mixed
     {
+        $destination = $this->destination($request, $entry);
         $contact = $request->validate(['contact_id' => ['required', 'uuid']])['contact_id'];
         $crm->link((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, $contact, $this->version($request), $request->isMethod('post'));
 
-        return $this->completed($request, ['message' => 'Contact links saved.'], '/partner/contacts?entry='.$entry);
+        return $this->completed($request, ['message' => $request->isMethod('post') ? 'Contact linked' : 'Contact unlinked'], $destination);
     }
 
     private function details(Request $request, string $kind): array
@@ -89,10 +101,26 @@ class CrmController extends Controller
         return (int) $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']])['version'];
     }
 
-    private function destination(Request $request): string
+    private function recordLabel(string $kind): string
     {
-        $entry = $request->validate(['entry' => ['nullable', 'uuid']])['entry'] ?? null;
+        return $kind === 'contacts' ? 'Contact' : 'Reminder';
+    }
 
-        return '/partner/contacts'.($entry ? '?entry='.$entry : '');
+    private function destination(Request $request, ?string $linkedEntry = null): string
+    {
+        $data = $request->validate([
+            'entry' => ['nullable', 'uuid'],
+            'crm_filters' => ['sometimes', 'array:q,state'],
+            'crm_filters.q' => ['nullable', 'string', 'max:160'],
+            'crm_filters.state' => ['nullable', 'in:pending,due,completed,all'],
+        ]);
+        $filters = $data['crm_filters'] ?? [];
+        $context = array_filter([
+            'q' => $filters['q'] ?? '',
+            'state' => $filters['state'] ?? '',
+            'entry' => $linkedEntry ?? $data['entry'] ?? '',
+        ], fn ($value) => $value !== '' && $value !== null);
+
+        return '/partner/contacts'.($context ? '?'.http_build_query($context) : '');
     }
 }

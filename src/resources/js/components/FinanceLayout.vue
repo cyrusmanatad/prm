@@ -35,7 +35,6 @@ const links = [
                 <h1>{{ title }}</h1>
                 <div class="wd-description"><slot name="description" /></div>
             </header>
-            <p v-if="status" role="status" class="wd-status">{{ status }}</p>
             <div v-if="Object.keys(errors ?? {}).length" role="alert" class="wd-banner">
                 <p v-for="(message, key) in errors" :key="key">{{ message }}</p>
                 <slot name="error-action" />

@@ -66,3 +66,8 @@ When localhost and browser tooling become available, inspect all seven boards at
 ## Commit, readiness and task continuity
 
 **D26 — Confirmed (2026-10-23):** the user requested committing the current changes, moving toward M6 if possible, and creating a handoff that retains all unfinished, in-progress and deferred earlier milestone work so it can be implemented later. The verified M5 slice is committed; M5 remains incomplete. M6 preparation and a cross-milestone task register implement this request without waiving the existing M1–M5 dependencies or production/external-action approval boundaries. See [current handoff](implementation-handoff.md), [remaining tasks](remaining-tasks.md) and [M6 status](m6-status.md).
+
+
+## Platform administration priority
+
+**D27 — Confirmed (2026-10-25):** application-wide platform-owner/super-admin administration is required and must be prioritized before proceeding to the next milestone. Bring forward a required administration work package covering account/workspace management, plans/entitlements, notification/job diagnostics, audit review and controlled support access, with MFA and protected provisioning of a real owner account that survives synthetic-data cleanup. Implementation details remain subject to the [platform administration contract](platform-administration-contract.md) and existing tenant-privacy boundaries. **ADM-01 is the next implementation task**, before UI-07 and the remaining M5 work; M5 stays incomplete and earlier tasks are retained. This request updates the plan; no admin account, application feature, data deletion or production action is performed by the planning change.

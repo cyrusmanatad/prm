@@ -97,7 +97,9 @@ class PortalController extends Controller
         }
 
         // Encrypted at rest in the session; consumed on the next browser portal render.
-        return redirect('/brand')->with('partner_invite_url', encrypt($url));
+        $message = ! empty($data['send_email']) ? 'Invitation sent to '.$data['email'] : 'Invitation link created';
+
+        return redirect('/brand')->with('partner_invite_url', encrypt($url))->with('status', $message);
     }
 
     public function accept(Request $request)
@@ -108,7 +110,7 @@ class PortalController extends Controller
 
         $request->session()->forget('partnership_token');
 
-        return $this->completed($request, ['message' => 'Partnership accepted.'], '/partner/leads');
+        return $this->completed($request, ['message' => 'Partnership accepted'], '/partner/leads');
     }
 
     public function revoke(Request $request, string $record)
@@ -116,6 +118,6 @@ class PortalController extends Controller
         $ok = DB::selectOne('SELECT app_revoke_partner(?::uuid,?::uuid,?::boolean) AS allowed', [$record, (string) Str::uuid(), $request->is('partner-invitations/*') ? 'true' : 'false'])->allowed;
         abort_unless($ok, 404);
 
-        return $this->completed($request, ['message' => 'Access revoked.'], '/portal/enter');
+        return $this->completed($request, ['message' => $request->is('partner-invitations/*') ? 'Invitation revoked' : 'Partnership ended'], '/portal/enter');
     }
 }

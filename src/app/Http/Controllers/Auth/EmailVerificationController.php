@@ -14,7 +14,7 @@ class EmailVerificationController extends Controller
     {
         $request->fulfill();
 
-        return $this->completed($request, ['message' => 'Email verified.'], ($request->session()->has('portal') || $request->user()->registration_workspace_id || $request->session()->has('partnership_token')) ? '/portal/enter' : '/workspaces');
+        return $this->completed($request, ['message' => 'Email verified'], ($request->session()->has('portal') || $request->user()->registration_workspace_id || $request->session()->has('partnership_token')) ? '/portal/enter' : '/workspaces');
     }
 
     public function send(Request $request): JsonResponse|RedirectResponse
@@ -23,6 +23,6 @@ class EmailVerificationController extends Controller
             $request->user()->sendEmailVerificationNotification();
         }
 
-        return $this->completed($request, ['message' => 'Verification link requested.'], '/verify-email');
+        return $this->completed($request, ['message' => 'Verification link requested'], '/verify-email');
     }
 }

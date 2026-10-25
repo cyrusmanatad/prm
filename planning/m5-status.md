@@ -2,6 +2,10 @@
 
 Status: **partner and onboarding invitation slices complete; local automated gates passed; milestone incomplete**. The original slice was prepared on `m5/durable-automation` on 2026-10-23. M5-01 follows on `m5/onboarding-invitation-email`, based on `ce2d9bd`.
 
+**Confirmed D27 priority (2026-10-25):** implement required platform administration ADM-01–ADM-07 before further milestone advancement. ADM-01 authorization/MFA/bootstrap is next; see the [administration contract](platform-administration-contract.md). After this package, return to UI-07, broader UI-05 acceptance and M5-02. M5 notification/automation requirements remain open; this order does not waive them.
+
+**UI review (2026-10-25):** [UI-07](remaining-tasks.md) requires queued/requested invitation copy instead of claiming “sent” before delivery, plus current global toast acceptance. UI-02 now has [passing repair evidence](evidence/pipeline-repair-2026-10-25/README.md); UI-06 now has [passing CRM repair evidence](evidence/crm-repair-2026-10-25/README.md); finish UI-07 and broader UI-05 reference/deviation acceptance before resuming M5-02; invitation outbox implementation and M5-09 provider acceptance retain their existing disposition. See the [latest UI review](evidence/ui-plan-review-2026-10-25/README.md).
+
 The [first-slice contract](m5-notification-contract.md) covers the durable PostgreSQL notification outbox, Redis dispatcher/worker, scheduler, explicit partner invitation email, delivery/cancellation feedback and conservative handling of ambiguous sends. See [email requirements](m5-email-notifications.md) for the full inventory.
 
 ## M5-01 onboarding invitation email

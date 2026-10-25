@@ -30,6 +30,14 @@ Owners/admins/managers/members can write; viewers read only. RLS separately enfo
 
 Leads with onboarding history are retained: deletion returns a conflict explaining how to revoke invitation access. The immutable submission retention/deletion workflow remains a release decision.
 
+## Pipeline UI repair (2026-10-25)
+
+The partner board queries the existing server listing for search, stage/Repeat Client/Lost segments and due filters. “All leads” includes all seven stored stages; the five main columns remain Lead/Pitched/Negotiating/Onboarded/Active, with separate labelled Repeat Client/Lost sections. Choosing a filter resets the cursor; page navigation and opening/closing a drawer preserve the current URL context. Browser history restores the controls and cancels an unsubmitted debounced search.
+
+Stage counts and matching non-lost headline totals retain the all-matching-pages semantics above. Column money is explicitly labelled **Page value**; no cross-currency addition or false whole-workspace total is implied. A stage with matching rows elsewhere shows its all-page count and an other-pages placeholder. The shared SelectField replaces the board-only dropdown; PipelineColumn reuses the same card/placeholder presentation for all seven stages.
+
+Mutations optionally accept `pipeline_filters` with only `q`, `stage` and `due`, validated before writing. Success redirects retain these filters and the selected lead, restarting at the first matching page because a moved/deleted cursor may no longer match. No caller-supplied tenant, cursor or redirect URL is accepted in this context. Existing JSON results, authorization, versions, stage values and storage remain unchanged. See [repair evidence](evidence/pipeline-repair-2026-10-25/README.md).
+
 ## Follow-on scope
 
 Embedded contact fields are not reusable contact management. Dedicated reminders/completion remain M2 work. The separate [manual outreach template slice](m2-outreach-template-contract.md) is implemented and linked from the pipeline. Notifications, delivery scheduling, and durable external actions remain M5. See [M2 status](m2-status.md).

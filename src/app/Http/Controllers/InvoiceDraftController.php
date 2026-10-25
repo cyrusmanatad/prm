@@ -53,6 +53,12 @@ class InvoiceDraftController extends Controller
         }
         $id = $drafts->command((int) $request->user()->id, $org, $key, $action, $data, $invoice);
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Draft '.$action.' completed.'], '/finance/invoices/'.$id, $action === 'create' ? 201 : 200);
+        $message = match ($action) {
+            'create' => 'Draft created',
+            'void' => 'Draft voided',
+            default => 'Draft saved',
+        };
+
+        return $this->completed($request, ['id' => $id, 'message' => $message], '/finance/invoices/'.$id, $action === 'create' ? 201 : 200);
     }
 }

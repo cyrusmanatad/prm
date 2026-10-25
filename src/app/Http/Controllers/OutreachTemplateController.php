@@ -31,21 +31,21 @@ class OutreachTemplateController extends Controller
     {
         $id = $templates->save((int) $request->user()->id, $request->session()->get('active_org_id'), $this->details($request));
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Template created.'], '/partner/outreach-templates', 201);
+        return $this->completed($request, ['id' => $id, 'message' => 'Template created'], '/partner/outreach-templates', 201);
     }
 
     public function update(Request $request, OutreachTemplates $templates, string $template): JsonResponse|RedirectResponse
     {
         $templates->save((int) $request->user()->id, $request->session()->get('active_org_id'), $this->details($request), $template, $this->version($request));
 
-        return $this->completed($request, ['message' => 'Template saved.'], '/partner/outreach-templates');
+        return $this->completed($request, ['message' => 'Template saved'], '/partner/outreach-templates');
     }
 
     public function destroy(Request $request, OutreachTemplates $templates, string $template): JsonResponse|RedirectResponse
     {
         $templates->delete((int) $request->user()->id, $request->session()->get('active_org_id'), $template, $this->version($request));
 
-        return $this->completed($request, ['message' => 'Template deleted.'], '/partner/outreach-templates');
+        return $this->completed($request, ['message' => 'Template deleted'], '/partner/outreach-templates');
     }
 
     private function details(Request $request): array

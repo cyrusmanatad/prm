@@ -1,6 +1,6 @@
 # M2 Creator CRM Status
 
-**Current revision exception (2026-10-24):** the new uncommitted pipeline board regresses server-backed filtering, pagination counts and stage presentation; shared select keyboard behavior also needs repair. Track UI-02/UI-03 and the cross-screen UI-04/UI-05 acceptance work in the [register](remaining-tasks.md), with [review evidence](evidence/ui-review-2026-10-24/README.md). The completion and passing evidence below describe earlier revisions.
+**Current UI disposition (2026-10-25):** UI-02 pipeline correctness and UI-05 mobile capture/save/pagination, production fixture and stale-assertion repairs now have local passing evidence. Shared-control repairs UI-03/UI-04 retain their scoped acceptance. UI-06 CRM filters/reuse now has scoped local passing [CRM repair evidence](evidence/crm-repair-2026-10-25/README.md). UI-07 feedback remains open, along with broader UI-05 reference/deviation acceptance and inherited manual release gates. See [current repair evidence](evidence/pipeline-repair-2026-10-25/README.md) and the [register](remaining-tasks.md). Historical milestone evidence below applies to its recorded revisions.
 
 Outstanding reviews, clipboard verification and M5 reminder delivery remain indexed in [remaining tasks](remaining-tasks.md). See the [current handoff](implementation-handoff.md); historical evidence below does not close later release gates.
 

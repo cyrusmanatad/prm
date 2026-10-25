@@ -109,8 +109,6 @@ defineExpose({ clearPasswords });
                 <span class="wd-eyebrow">{{ portal ? `${portal} account` : 'Your account' }}</span>
                 <h1 id="auth-title">{{ content.title }}</h1>
                 <p class="wd-description">{{ content.description }}</p>
-                <p v-if="status" class="wd-status" role="status">{{ status }}</p>
-                <p v-if="errors.general" class="wd-field-error" role="alert">{{ errors.general }}</p>
                 <form :aria-busy="processing" @submit.prevent="submit">
                     <fieldset :disabled="processing" class="wd-fields">
                         <legend class="wd-sr-only">{{ content.title }}</legend>

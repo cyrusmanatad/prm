@@ -1,0 +1,28 @@
+[
+    {
+        "width": 1440,
+        "check": "Completed segment before distant Apply filters",
+        "selected": "true",
+        "pendingStillVisible": true,
+        "url": "http://localhost:8000/partner/contacts"
+    },
+    {
+        "width": 1440,
+        "check": "CRM editor Escape focus restoration",
+        "focusedText": "New contact",
+        "overflow": false
+    },
+    {
+        "width": 390,
+        "check": "Completed segment before distant Apply filters",
+        "selected": "true",
+        "pendingStillVisible": true,
+        "url": "http://localhost:8000/partner/contacts"
+    },
+    {
+        "width": 390,
+        "check": "CRM editor Escape focus restoration",
+        "focusedText": "New contact",
+        "overflow": false
+    }
+]

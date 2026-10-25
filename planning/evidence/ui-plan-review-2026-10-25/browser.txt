@@ -1,0 +1,275 @@
+
+> test:browser
+> playwright test ui-refinement.spec.ts crm.spec.ts pipeline.spec.ts onboarding.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-ui-review-20261025 --reporter=list
+
+
+Running 12 tests using 1 worker
+
+(node:2050622) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (22.0s)
+  ✓   2 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (18.7s)
+  ✘   3 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (27.5s)
+(node:2052617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (13.4s)
+  ✓   5 [desktop] › tests/Browser/pipeline.spec.ts:94:1 › viewer reads private workspace pipeline and revocation blocks further page access (6.2s)
+  ✓   6 [desktop] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths (18.8s)
+(node:2053884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (28.6s)
+  ✓   8 [mobile] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (24.6s)
+  ✘   9 [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (27.1s)
+(node:2055644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (2.0m)
+(node:2057653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › tests/Browser/pipeline.spec.ts:94:1 › viewer reads private workspace pipeline and revocation blocks further page access (6.7s)
+  ✘  12 [mobile] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths (3.0m)
+
+
+  1) [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /Inbound Studio/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: /Inbound Studio/ }) with timeout 15000ms
+      - waiting for getByRole('link', { name: /Inbound Studio/ })
+
+
+      203 |     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
+      204 |     await page.getByRole('link', { name: 'My leads', exact: true }).click();
+    > 205 |     await expect(page.getByRole('link', { name: /Inbound Studio/ })).toBeVisible();
+          |                                                                      ^
+      206 |     await context.close();
+      207 | });
+      208 |
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding.spec.ts:205:70
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /Inbound Studio/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: /Inbound Studio/ }) with timeout 15000ms
+      - waiting for getByRole('link', { name: /Inbound Studio/ })
+
+
+      203 |     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
+      204 |     await page.getByRole('link', { name: 'My leads', exact: true }).click();
+    > 205 |     await expect(page.getByRole('link', { name: /Inbound Studio/ })).toBeVisible();
+          |                                                                      ^
+      206 |     await context.close();
+      207 | });
+      208 |
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding.spec.ts:205:70
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/error-context.md
+
+    attachment #7: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-20261025/onboarding-media-kit-publi-11749--are-explicit-and-revocable-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Browser logs:
+
+    <launching> /home/cyrusadmin/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-OHcy62 --remote-debugging-pipe --no-startup-window
+    <launched> pid=2055663
+    [pid=2055663][err] [1025/105053.214138:WARNING:media/gpu/vaapi/vaapi_wrapper.cc:1655] drmGetDevices2() has not found any devices
+    [pid=2055663][err] [1025/105053.216698:WARNING:sandbox/policy/linux/sandbox_linux.cc:405] InitializeSandbox() called with multiple threads in process gpu-process.
+    [pid=2055663] <gracefully close start>
+    Call log:
+      - waiting for getByRole('button', { name: 'Save lead', exact: true })
+        - locator resolved to <button type="submit" data-v-730c6314="" data-slot="button" form="lead-edit-form" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-i…>Save lead</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" data-v-730c6314="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Cancel</button> intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <section data-v-730c6314="" class="drawer-section">…</section> from <div data-v-730c6314="" class="drawer-body">…</div> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        54 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <section data-v-730c6314="" class="drawer-section">…</section> from <div data-v-730c6314="" class="drawer-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <button type="button" data-v-730c6314="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Cancel</button> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <section data-v-730c6314="" class="drawer-section">…</section> from <div data-v-730c6314="" class="drawer-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <section data-v-730c6314="" class="drawer-section">…</section> from <div data-v-730c6314="" class="drawer-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <section data-v-730c6314="" class="drawer-section">…</section> from <div data-v-730c6314="" class="drawer-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <button type="button" data-v-730c6314="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Cancel</button> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      23 |     for (const stage of ['pitched', 'negotiating', 'onboarded', 'active', 'repeat-client', 'lost', 'lead']) {
+      24 |         await page.locator('#lead-stage').selectOption(stage);
+    > 25 |         await page.getByRole('button', { name: 'Save lead', exact: true }).click();
+         |                                                                            ^
+      26 |         await expect(page.getByRole('status').filter({ hasText: 'Stage updated to' })).toBeVisible();
+      27 |         await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeEnabled();
+      28 |         await page.reload();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/pipeline.spec.ts:25:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-20261025/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-20261025/pipeline-private-pipeline--40b68-nooze-activity-and-deletion-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [mobile] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.click: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Capture lead', exact: true })
+        - locator resolved to <button type="submit" data-v-730c6314="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Capture lead</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <textarea rows="3" maxlength="5000" id="create-notes" aria-invalid="false"></textarea> from <div class="wd-field">…</div> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <textarea rows="3" maxlength="5000" id="create-notes" aria-invalid="false"></textarea> from <div class="wd-field">…</div> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        291 × waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <textarea rows="3" maxlength="5000" id="create-notes" aria-invalid="false"></textarea> from <div class="wd-field">…</div> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+
+
+      63 |     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
+      64 |     await page.getByLabel('Brand name', { exact: true }).fill('UI review studio');
+    > 65 |     await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+         |                                                                           ^
+      66 |     const drawer = page.getByRole('dialog', { name: 'UI review studio', exact: true });
+      67 |     await expect(drawer).toBeVisible();
+      68 |     const disclosure = drawer.locator('summary').filter({ hasText: 'Delete lead' });
+        at /home/cyrusadmin/weavdash/src/tests/Browser/ui-refinement.spec.ts:65:75
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/ui-refinement-shared-contr-ec755-dapt-across-viewport-widths-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-ui-review-20261025/ui-refinement-shared-contr-ec755-dapt-across-viewport-widths-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-ui-review-20261025/ui-refinement-shared-contr-ec755-dapt-across-viewport-widths-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-ui-review-20261025/ui-refinement-shared-contr-ec755-dapt-across-viewport-widths-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+    [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+    [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+    [mobile] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths
+  8 passed (8.5m)

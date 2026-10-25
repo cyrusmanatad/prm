@@ -17,7 +17,7 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await page.getByLabel('Subject', { exact: true }).fill('Hello {{brand_name}}');
     await page.getByLabel('Template body', { exact: true }).fill('Hi {{contact_name}}, from {{creator_name}}.');
     await page.getByRole('button', { name: 'Create template', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Template created.');
+    await expect(page.getByRole('status').filter({ hasText: 'Template created' })).toBeVisible();
     await page.getByRole('button', { name: 'Personal pitch', exact: true }).click();
     const stale = await page.context().newPage();
     await stale.goto('/outreach-templates');
@@ -25,7 +25,7 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await stale.getByLabel('Template body', { exact: true }).fill('Unsaved stale pitch');
     await page.getByLabel('Template name', { exact: true }).fill('Latest pitch');
     await page.getByRole('button', { name: 'Save template', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Template saved.');
+    await expect(page.getByRole('status').filter({ hasText: 'Template saved' })).toBeVisible();
     await stale.getByRole('button', { name: 'Save template', exact: true }).click();
     await expect(stale.getByRole('alert')).toContainText('changed in another session');
     await expect(stale.getByLabel('Template body', { exact: true })).toHaveValue('Unsaved stale pitch');
@@ -55,7 +55,7 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
         });
     });
     await page.getByRole('button', { name: 'Copy draft', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Draft copied.' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Draft copied' })).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as { copied: string }).copied)).toBe(
         'Hello <b>Studio</b>\n\nEdited manual draft.',
     );
@@ -75,7 +75,7 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
         'Delete template',
         info,
     );
-    await expect(page.getByRole('status')).toContainText('Template deleted.');
+    await expect(page.getByRole('status').filter({ hasText: 'Template deleted' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Latest pitch', exact: true })).toHaveCount(0);
     changeRole(email, 'viewer');
     await page.reload();

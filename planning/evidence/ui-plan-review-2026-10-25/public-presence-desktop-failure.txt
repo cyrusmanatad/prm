@@ -1,0 +1,211 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: onboarding.spec.ts >> media kit publication and inbound lead links are explicit and revocable
+- Location: tests/Browser/onboarding.spec.ts:140:1
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole('link', { name: /Inbound Studio/ })
+Expected: visible
+Timeout: 15000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByRole('link', { name: /Inbound Studio/ }) with timeout 15000ms
+  - waiting for getByRole('link', { name: /Inbound Studio/ })
+
+```
+
+```yaml
+- link "Skip to main content":
+  - /url: "#main-content"
+- banner:
+  - img "WeavDash logo"
+  - text: WeavDash Partner
+  - navigation "Main":
+    - link "My leads":
+      - /url: /partner/leads
+    - text: Inbox Campaigns
+    - link "Media kit":
+      - /url: /partner/media-kit
+    - text: Earnings Autopilot
+  - text: Search leads
+  - searchbox "Search leads"
+  - 'button "Account menu: Browser Creator m1-browser-presence-1792896484535@example.test BC"'
+- main:
+  - paragraph: Sunday 25 October
+  - heading "Magandang umaga, Browser" [level=1]
+  - paragraph: Your private leads and explicit brand partnerships, in one place.
+  - button "Share my lead link"
+  - button "+ Add lead"
+  - region "Summary": Open pipeline PHP 0.00 Stored estimates, separated by currency Expected this month Unavailable Not yet measured Commissions earned Unavailable Not yet measured Reply rate Unavailable Not yet measured
+  - heading "Today's next best actions" [level=2]
+  - paragraph: AI ranking and suggested drafts are unavailable.
+  - link "View contacts and due reminders →":
+    - /url: /partner/contacts?state=due
+  - region "My pipeline":
+    - heading "My pipeline" [level=2]
+    - text: Automation unavailable
+    - paragraph: Open a lead to edit it, move its stage or start onboarding.
+    - text: Pipeline value PHP 0.00 1 leads · excludes Lost
+    - group "Lead segment":
+      - button "All active 1" [pressed]
+      - button "Repeat clients 0"
+      - button "Lost 0"
+    - searchbox "Search brands"
+    - combobox "Stage filter": All stages
+    - region "Five-stage pipeline":
+      - region "Lead":
+        - heading "Lead" [level=3]
+        - text: 1 PHP 0.00
+        - button "Open Inbound Studio PHP 0.00"
+      - region "Pitched":
+        - heading "Pitched" [level=3]
+        - text: 0 PHP 0.00 No leads
+      - region "Negotiating":
+        - heading "Negotiating" [level=3]
+        - text: 0 PHP 0.00 No leads
+      - region "Onboarded":
+        - heading "Onboarded" [level=3]
+        - text: 0 PHP 0.00 No leads
+      - region "Active":
+        - heading "Active" [level=3]
+        - text: 0 PHP 0.00 No leads
+  - complementary:
+    - heading "Autopilot" [level=2]
+    - paragraph: Automation is unavailable. Start onboarding explicitly from a lead; only non-sensitive business details are collected.
+    - text: Smart follow-ups
+    - 'button "Smart follow-ups: unavailable" [disabled]'
+    - text: Onboarding automation
+    - 'button "Onboarding automation: unavailable" [disabled]'
+    - text: Invoice automation
+    - 'button "Invoice automation: unavailable" [disabled]'
+    - text: Automatic payouts
+    - 'button "Automatic payouts: unavailable" [disabled]'
+    - text: Seasonal re-pitch
+    - 'button "Seasonal re-pitch: unavailable" [disabled]'
+    - text: Earnings digest
+    - 'button "Earnings digest: unavailable" [disabled]'
+    - heading "From your brand partners" [level=2]
+    - paragraph: No active partnerships. Accept a brand invitation to connect.
+- navigation "Account"
+```
+
+# Test source
+
+```ts
+  105 |     await expect(brand.getByRole('status').filter({ hasText: 'Form submitted for review' })).toBeVisible();
+  106 |     await page.reload();
+  107 |     await expect(page.locator('summary').filter({ hasText: 'Submission version' })).toHaveCount(2);
+  108 |     await page.locator('summary').filter({ hasText: 'Submission version' }).last().click();
+  109 |     await expect(page.getByText('A first brief.', { exact: true })).toBeVisible();
+  110 |     await scan(page, info, 'onboarding-review');
+  111 |     // WebKit can finish the redirect near the assertion timeout on a busy host.
+  112 |     // Synchronize with the actual review response before checking the rendered result.
+  113 |     await Promise.all([
+  114 |         page.waitForResponse(
+  115 |             (response) =>
+  116 |                 response.url() === ownerUrl && response.request().method() === 'GET' && response.status() === 200,
+  117 |         ),
+  118 |         page.getByRole('button', { name: 'Accept submission', exact: true }).click(),
+  119 |     ]);
+  120 |     await expect(page.getByRole('status').filter({ hasText: 'Onboarding accepted' })).toBeVisible();
+  121 |     await confirmMutation(
+  122 |         page,
+  123 |         page.getByRole('button', { name: 'Create replacement invitation', exact: true }),
+  124 |         'Create replacement invitation',
+  125 |         info,
+  126 |     );
+  127 |     await expect(page.getByRole('alert').filter({ hasText: 'Previous sessions are closed' })).toBeVisible();
+  128 |     expect((await brand.reload())?.status()).toBe(403);
+  129 |     await confirmMutation(
+  130 |         page,
+  131 |         page.getByRole('button', { name: 'Revoke invitation access', exact: true }),
+  132 |         'Revoke invitation access',
+  133 |         info,
+  134 |     );
+  135 |     await expect(page.getByRole('status').filter({ hasText: 'Onboarding invitation revoked' })).toBeVisible();
+  136 |     expect((await brand.reload())?.status()).toBe(403);
+  137 |     await context.close();
+  138 | });
+  139 |
+  140 | test('media kit publication and inbound lead links are explicit and revocable', async ({ page, browser }, info) => {
+  141 |     test.setTimeout(90_000);
+  142 |     const email = `m1-browser-presence-${Date.now()}@example.test`;
+  143 |     fixture('seed-workspaces', email);
+  144 |     await login(page, email);
+  145 |     await page.getByRole('button', { name: /Role test workspace/ }).click();
+  146 |     await page.getByRole('link', { name: 'Open partner portal' }).click();
+  147 |     await page.getByRole('link', { name: 'Media kit', exact: true }).click();
+  148 |     await page.getByLabel('Public title', { exact: true }).fill('A public creator kit');
+  149 |     await page.getByLabel('Public introduction', { exact: true }).fill('A public introduction.');
+  150 |     await page.getByRole('button', { name: 'Add social account', exact: true }).click();
+  151 |     await page.getByLabel('Account 1 name', { exact: true }).fill('Creator channel');
+  152 |     await page.getByLabel('Account 1 URL', { exact: true }).fill('https://example.test/channel');
+  153 |     await page.getByLabel('Publish this media kit', { exact: true }).check();
+  154 |     await page.getByLabel('I agree to publish this title', { exact: false }).check();
+  155 |     await page.getByRole('button', { name: 'Save media kit', exact: true }).click();
+  156 |     await expect(page.getByRole('status').filter({ hasText: 'Media kit saved' })).toBeVisible();
+  157 |     const href = await page.getByRole('link', { name: 'Open public media kit', exact: true }).getAttribute('href');
+  158 |     const context = await browser.newContext({
+  159 |         viewport: page.viewportSize() ?? { width: 390, height: 844 },
+  160 |     });
+  161 |     const publicPage = await context.newPage();
+  162 |     await publicPage.goto(new URL(href!, page.url()).href);
+  163 |     await expect(publicPage.getByRole('heading', { name: 'A public creator kit', exact: true })).toBeVisible();
+  164 |     await expect(publicPage.getByRole('link', { name: 'Creator channel', exact: true })).toHaveAttribute(
+  165 |         'href',
+  166 |         'https://example.test/channel',
+  167 |     );
+  168 |     await scan(publicPage, info, 'media-kit');
+  169 |     await page.getByRole('button', { name: 'Create lead link', exact: true }).click();
+  170 |     const leadLink = await page.getByLabel('Lead link (copy now)').inputValue();
+  171 |     await scan(page, info, 'public-presence');
+  172 |     await publicPage.goto(leadLink);
+  173 |     expect(
+  174 |         (
+  175 |             await publicPage.request.post(new URL('/lead', leadLink).href, {
+  176 |                 headers: { Accept: 'application/json' },
+  177 |                 data: {},
+  178 |             })
+  179 |         ).status(),
+  180 |     ).toBe(419);
+  181 |     await publicPage.getByLabel('Business name', { exact: true }).fill('Inbound Studio');
+  182 |     await publicPage.getByLabel('Contact name', { exact: true }).fill('Inbound Contact');
+  183 |     await publicPage.getByLabel('Business email', { exact: true }).fill('contact@example.test');
+  184 |     await publicPage.getByLabel('I agree to share these details', { exact: false }).check();
+  185 |     await scan(publicPage, info, 'lead-form');
+  186 |     await publicPage.getByRole('button', { name: 'Share contact details', exact: true }).click();
+  187 |     await expect(publicPage.getByRole('status').filter({ hasText: 'Contact details shared' })).toBeVisible();
+  188 |     await confirmMutation(
+  189 |         page,
+  190 |         page.getByRole('button', { name: 'Revoke lead link', exact: true }),
+  191 |         'Revoke lead link',
+  192 |         info,
+  193 |     );
+  194 |     await expect(page.getByRole('status').filter({ hasText: 'Lead link revoked' })).toBeVisible();
+  195 |     await page.getByLabel('Publish this media kit', { exact: true }).uncheck();
+  196 |     await confirmMutation(
+  197 |         page,
+  198 |         page.getByRole('button', { name: 'Save media kit', exact: true }),
+  199 |         'Unpublish media kit',
+  200 |         info,
+  201 |     );
+  202 |     await expect(page.getByRole('status').filter({ hasText: 'Media kit saved' })).toBeVisible();
+  203 |     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
+  204 |     await page.getByRole('link', { name: 'My leads', exact: true }).click();
+> 205 |     await expect(page.getByRole('link', { name: /Inbound Studio/ })).toBeVisible();
+      |                                                                      ^ Error: expect(locator).toBeVisible() failed
+  206 |     await context.close();
+  207 | });
+  208 |
+```

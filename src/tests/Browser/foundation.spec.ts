@@ -20,7 +20,7 @@ test('registration, verification, workspace errors, create, and settings', async
     await page.getByRole('button', { name: 'Create account', exact: true }).click();
     await expect(page).toHaveURL(/\/verify-email$/);
     await page.getByRole('button', { name: 'Resend verification email' }).click();
-    await expect(page.getByRole('status')).toContainText('Verification link requested');
+    await expect(page.getByRole('status').filter({ hasText: 'Verification link requested' })).toBeVisible();
     await page.goto(fixture('verify', email).url);
     await expect(page).toHaveURL(/\/workspaces$/);
     const create = page.getByRole('region', { name: 'Start something new.' });
@@ -63,7 +63,7 @@ test('recovery, invalid login, and revocation of two real database sessions', as
     await page.goto('/forgot-password');
     await page.getByLabel('Email address').fill(email);
     await page.getByRole('button', { name: 'Send reset link' }).click();
-    await expect(page.getByRole('status')).toContainText('If the account exists');
+    await expect(page.getByRole('status').filter({ hasText: 'If the account exists' })).toBeVisible();
     await page.goto(fixture('reset', email).url);
     await expect(page.getByLabel('Email address')).toHaveValue(email);
     await page.getByLabel('Password', { exact: true }).fill('reset-password-456');

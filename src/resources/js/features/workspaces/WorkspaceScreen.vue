@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { confirmAction } from '../../composables/useConfirmation';
 import { computed, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
+import AccountSecurity from '../../components/AccountSecurity.vue';
+import ActionGroup from '../../components/ActionGroup.vue';
 import SelectField from '../../components/SelectField.vue';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 import FoundationShell from '../../layouts/FoundationShell.vue';
@@ -83,8 +84,6 @@ defineExpose({
             <p v-if="accessRevoked" class="wd-field-error wd-banner" role="alert">
                 Your access to the previous workspace has changed. Choose an available workspace below.
             </p>
-            <p v-if="status" class="wd-status" role="status">{{ status }}</p>
-            <p v-if="errors.general" class="wd-field-error wd-banner" role="alert">{{ errors.general }}</p>
             <div class="wd-workspace-grid">
                 <section class="wd-card" aria-labelledby="workspace-list-title" :aria-busy="pendingAction === 'select'">
                     <h2 id="workspace-list-title">Your spaces</h2>
@@ -158,10 +157,10 @@ defineExpose({
                         :href="selected.kind === 'brand' ? '/brand' : '/partner/leads'"
                         >Open {{ selected.kind === 'brand' ? 'brand hub' : 'partner portal' }}</Link
                     >
-                    <p v-if="selected.role === 'owner'">
-                        <Link class="wd-link" href="/finance/invoices">Private finance records</Link> ·
+                    <ActionGroup v-if="selected.role === 'owner'">
+                        <Link class="wd-link" href="/finance/invoices">Private finance records</Link>
                         <Link class="wd-link" href="/workspace/entitlements">Pilot entitlements</Link>
-                    </p>
+                    </ActionGroup>
                     <p v-if="!canEdit" class="wd-description">
                         Your {{ selected.role }} role does not include workspace settings changes.
                     </p>
@@ -182,73 +181,24 @@ defineExpose({
                         </fieldset>
                     </form>
                 </section>
-                <details class="wd-card wd-security-card">
-                    <summary>Account security</summary>
-                    <p class="wd-description">
-                        Sign out every session, including this one. Enter your current password to continue.
-                    </p>
-                    <form
-                        :aria-busy="pendingAction === 'revoke-sessions'"
-                        @submit.prevent="
-                            confirmAction(
-                                'Sign out all sessions',
-                                `Sign out every session for ${account.name}, including this one? You will need to sign in again.`,
-                                () => revoke(),
-                                $event,
-                                { tone: 'danger' },
-                            )
-                        "
-                    >
-                        <fieldset class="wd-fields" :disabled="busy">
-                            <legend class="wd-sr-only">Revoke account sessions</legend>
-                            <FormField
-                                id="revoke_password"
-                                v-model="password"
-                                label="Current password"
-                                type="password"
-                                autocomplete="current-password"
-                                :error="errors.password"
-                            />
-                            <Button type="submit" class="wd-button wd-button-danger">{{
-                                pendingAction === 'revoke-sessions' ? 'Signing out…' : 'Sign out all sessions'
-                            }}</Button>
-                        </fieldset>
-                    </form>
-                </details>
+                <AccountSecurity
+                    v-model="password"
+                    :account-name="account.name"
+                    :busy="busy"
+                    :pending="pendingAction === 'revoke-sessions'"
+                    :error="errors.password"
+                    @revoke="revoke"
+                />
             </div>
-            <details v-else class="wd-card wd-security-card">
-                <summary>Account security</summary>
-                <p class="wd-description">
-                    Sign out every session, including this one. Enter your current password to continue.
-                </p>
-                <form
-                    :aria-busy="pendingAction === 'revoke-sessions'"
-                    @submit.prevent="
-                        confirmAction(
-                            'Sign out all sessions',
-                            `Sign out every session for ${account.name}, including this one? You will need to sign in again.`,
-                            () => revoke(),
-                            $event,
-                            { tone: 'danger' },
-                        )
-                    "
-                >
-                    <fieldset class="wd-fields" :disabled="busy">
-                        <legend class="wd-sr-only">Revoke account sessions</legend>
-                        <FormField
-                            id="revoke_password"
-                            v-model="password"
-                            label="Current password"
-                            type="password"
-                            autocomplete="current-password"
-                            :error="errors.password"
-                        />
-                        <Button type="submit" class="wd-button wd-button-danger">{{
-                            pendingAction === 'revoke-sessions' ? 'Signing out…' : 'Sign out all sessions'
-                        }}</Button>
-                    </fieldset>
-                </form>
-            </details>
+            <AccountSecurity
+                v-else
+                v-model="password"
+                :account-name="account.name"
+                :busy="busy"
+                :pending="pendingAction === 'revoke-sessions'"
+                :error="errors.password"
+                @revoke="revoke"
+            />
         </div>
     </FoundationShell>
 </template>

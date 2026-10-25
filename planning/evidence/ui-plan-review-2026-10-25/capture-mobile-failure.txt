@@ -1,0 +1,289 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: ui-refinement.spec.ts >> shared controls preserve keyboard intent and layouts adapt across viewport widths
+- Location: tests/Browser/ui-refinement.spec.ts:5:1
+
+# Error details
+
+```
+Test timeout of 180000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 180000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture lead', exact: true })
+    - locator resolved to <button type="submit" data-v-730c6314="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Capture lead</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <textarea rows="3" maxlength="5000" id="create-notes" aria-invalid="false"></textarea> from <div class="wd-field">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <textarea rows="3" maxlength="5000" id="create-notes" aria-invalid="false"></textarea> from <div class="wd-field">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    291 × waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <textarea rows="3" maxlength="5000" id="create-notes" aria-invalid="false"></textarea> from <div class="wd-field">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=f30e1]:
+  - generic [ref=f30e3]:
+    - link "Skip to main content" [ref=f30e4] [cursor=pointer]:
+      - /url: "#main-content"
+    - banner [ref=f30e5]:
+      - generic [ref=f30e6]:
+        - generic [ref=f30e7]:
+          - img "WeavDash logo" [ref=f30e8]
+          - generic [ref=f30e14]: WeavDash
+          - generic [ref=f30e15]: Partner
+        - navigation "Main" [ref=f30e16]:
+          - link "My leads" [ref=f30e17] [cursor=pointer]:
+            - /url: /partner/leads
+          - generic "Unavailable in this milestone" [ref=f30e18]: Inbox
+          - generic "Unavailable in this milestone" [ref=f30e19]: Campaigns
+          - link "Media kit" [ref=f30e20] [cursor=pointer]:
+            - /url: /partner/media-kit
+          - generic "Unavailable in this milestone" [ref=f30e21]: Earnings
+          - generic "Unavailable in this milestone" [ref=f30e22]: Autopilot
+        - generic [ref=f30e23]:
+          - generic [ref=f30e24]: Search leads
+          - searchbox "Search leads" [ref=f30e25]
+          - 'button "Account menu: Browser Creator m1-browser-ui-refinement-mobile-1792896794966@example.test BC" [ref=f30e26] [cursor=pointer]':
+            - generic [ref=f30e27]: "Account menu:"
+            - generic [ref=f30e28]:
+              - generic [ref=f30e29]: Browser Creator
+              - generic [ref=f30e30]: m1-browser-ui-refinement-mobile-1792896794966@example.test
+            - generic [ref=f30e31]: BC
+    - main [ref=f30e32]:
+      - generic [ref=f30e33]:
+        - generic [ref=f30e34]:
+          - paragraph [ref=f30e35]: Sunday 25 October
+          - heading "Magandang umaga, Browser" [level=1] [ref=f30e36]
+          - paragraph [ref=f30e37]: Your private leads and explicit brand partnerships, in one place.
+        - generic [ref=f30e38]:
+          - button "Share my lead link" [ref=f30e39] [cursor=pointer]
+          - button "+ Add lead" [ref=f30e40] [cursor=pointer]
+      - region "Summary" [ref=f30e41]:
+        - generic [ref=f30e42]:
+          - generic [ref=f30e43]: Open pipeline
+          - generic [ref=f30e44]: No leads
+          - generic [ref=f30e45]: Stored estimates, separated by currency
+        - generic [ref=f30e46]:
+          - generic [ref=f30e47]: Expected this month
+          - generic [ref=f30e48]: Unavailable
+          - generic [ref=f30e49]: Not yet measured
+        - generic [ref=f30e50]:
+          - generic [ref=f30e51]: Commissions earned
+          - generic [ref=f30e52]: Unavailable
+          - generic [ref=f30e53]: Not yet measured
+        - generic [ref=f30e54]:
+          - generic [ref=f30e55]: Reply rate
+          - generic [ref=f30e56]: Unavailable
+          - generic [ref=f30e57]: Not yet measured
+      - generic [ref=f30e58]:
+        - generic [ref=f30e59]:
+          - generic [ref=f30e60]:
+            - heading "Today's next best actions" [level=2] [ref=f30e61]
+            - paragraph [ref=f30e62]: AI ranking and suggested drafts are unavailable.
+            - link "View contacts and due reminders →" [ref=f30e63] [cursor=pointer]:
+              - /url: /partner/contacts?state=due
+          - generic [ref=f30e64]:
+            - region [ref=f30e66]:
+              - generic [ref=f30e67]:
+                - generic [ref=f30e68]:
+                  - generic [ref=f30e69]:
+                    - heading "My pipeline" [level=2] [ref=f30e70]
+                    - generic [ref=f30e71]: Automation unavailable
+                  - paragraph [ref=f30e73]: Open a lead to edit it, move its stage or start onboarding.
+                - generic [ref=f30e74]:
+                  - generic [ref=f30e75]: Pipeline value
+                  - generic [ref=f30e76]: "0.00"
+                  - generic [ref=f30e77]: 0 leads · excludes Lost
+              - generic [ref=f30e78]:
+                - group "Lead segment" [ref=f30e79]:
+                  - button "All active 0" [pressed] [ref=f30e80] [cursor=pointer]:
+                    - text: All active
+                    - generic [ref=f30e81]: "0"
+                  - button "Repeat clients 0" [ref=f30e82] [cursor=pointer]:
+                    - text: Repeat clients
+                    - generic [ref=f30e83]: "0"
+                  - button "Lost 0" [ref=f30e84] [cursor=pointer]:
+                    - text: Lost
+                    - generic [ref=f30e85]: "0"
+                - generic [ref=f30e86]:
+                  - searchbox "Search brands" [ref=f30e88]
+                  - combobox "Stage filter" [ref=f30e90] [cursor=pointer]:
+                    - generic [ref=f30e91]: All stages
+              - status [ref=f30e94]:
+                - heading "No leads match these filters" [level=3] [ref=f30e95]
+                - paragraph [ref=f30e96]: Try a different brand name, stage or segment.
+            - dialog [ref=f30e97]:
+              - generic [ref=f30e98]:
+                - heading "Add lead" [level=2] [ref=f30e99]
+                - button "Close add lead" [ref=f30e100] [cursor=pointer]
+              - group "New lead" [ref=f30e105]:
+                - generic [ref=f30e107]:
+                  - generic [ref=f30e108]: Brand name
+                  - textbox "Brand name" [active] [ref=f30e109]: UI review studio
+                - generic [ref=f30e110]:
+                  - generic [ref=f30e111]: Contact name (optional)
+                  - textbox "Contact name (optional)" [ref=f30e112]
+                - generic [ref=f30e113]:
+                  - generic [ref=f30e114]: Contact email (optional)
+                  - textbox "Contact email (optional)" [ref=f30e115]
+                - generic [ref=f30e116]:
+                  - generic [ref=f30e117]: Currency code
+                  - textbox "Currency code" [ref=f30e118]: PHP
+                  - paragraph [ref=f30e119]: For example PHP, USD, or JPY. Totals stay separate for each currency.
+                - generic [ref=f30e120]:
+                  - generic [ref=f30e121]: Estimated value
+                  - textbox "Estimated value" [ref=f30e122]: "0"
+                - generic [ref=f30e123]:
+                  - generic [ref=f30e124]: Next action (optional, your local time)
+                  - textbox "Next action (optional, your local time)" [ref=f30e125]
+                - generic [ref=f30e126]:
+                  - generic [ref=f30e127]: Private notes (optional)
+                  - textbox "Private notes (optional)" [ref=f30e128]
+                - generic [ref=f30e129]:
+                  - button "Cancel" [ref=f30e130] [cursor=pointer]
+                  - button "Capture lead" [ref=f30e131] [cursor=pointer]
+        - complementary [ref=f30e132]:
+          - generic [ref=f30e133]:
+            - heading "Autopilot" [level=2] [ref=f30e134]
+            - paragraph [ref=f30e135]: Automation is unavailable. Start onboarding explicitly from a lead; only non-sensitive business details are collected.
+            - generic [ref=f30e136]:
+              - generic [ref=f30e137]: Smart follow-ups
+              - 'button "Smart follow-ups: unavailable" [disabled] [ref=f30e138]'
+            - generic [ref=f30e140]:
+              - generic [ref=f30e141]: Onboarding automation
+              - 'button "Onboarding automation: unavailable" [disabled] [ref=f30e142]'
+            - generic [ref=f30e144]:
+              - generic [ref=f30e145]: Invoice automation
+              - 'button "Invoice automation: unavailable" [disabled] [ref=f30e146]'
+            - generic [ref=f30e148]:
+              - generic [ref=f30e149]: Automatic payouts
+              - 'button "Automatic payouts: unavailable" [disabled] [ref=f30e150]'
+            - generic [ref=f30e152]:
+              - generic [ref=f30e153]: Seasonal re-pitch
+              - 'button "Seasonal re-pitch: unavailable" [disabled] [ref=f30e154]'
+            - generic [ref=f30e156]:
+              - generic [ref=f30e157]: Earnings digest
+              - 'button "Earnings digest: unavailable" [disabled] [ref=f30e158]'
+          - generic [ref=f30e160]:
+            - heading "From your brand partners" [level=2] [ref=f30e161]
+            - paragraph [ref=f30e162]: No active partnerships. Accept a brand invitation to connect.
+  - navigation "Account"
+```
+
+# Test source
+
+```ts
+  1  | import AxeBuilder from '@axe-core/playwright';
+  2  | import { test, expect } from '@playwright/test';
+  3  | import { fixture, login } from './helpers';
+  4  |
+  5  | test('shared controls preserve keyboard intent and layouts adapt across viewport widths', async ({ page }, info) => {
+  6  |     test.setTimeout(180_000);
+  7  |     const email = `m1-browser-ui-refinement-${info.project.name}-${Date.now()}@example.test`;
+  8  |     fixture('seed-workspaces', email);
+  9  |     await login(page, email);
+  10 |     await page.locator('#workspace-kind-trigger').click();
+  11 |     await page.locator('#workspace-kind-search').press('Tab');
+  12 |     await page.keyboard.press('Tab');
+  13 |     await expect(page.getByRole('option', { name: 'Brand', exact: true })).toBeFocused();
+  14 |     await page.keyboard.press('Enter');
+  15 |     await expect(page.locator('#workspace-kind-trigger')).toHaveText('Brand');
+  16 |     await expect(page.locator('#workspace-kind-trigger')).toBeFocused();
+  17 |     await page.getByRole('button', { name: /Role test workspace/ }).click();
+  18 |     await expect(page.getByRole('link', { name: 'Open partner portal', exact: true })).toBeVisible();
+  19 |
+  20 |     for (const width of [1440, 1024, 768, 390, 320]) {
+  21 |         await page.setViewportSize({ width, height: 1000 });
+  22 |         for (const [name, path] of [
+  23 |             ['workspaces', '/workspaces'],
+  24 |             ['crm', '/partner/contacts'],
+  25 |             ['templates', '/partner/outreach-templates'],
+  26 |             ['invoices', '/finance/invoices'],
+  27 |             ['payments', '/finance/payments'],
+  28 |         ]) {
+  29 |             await page.goto(path!);
+  30 |             await expect(page.getByRole('heading', { name: 'Choose an available workspace to continue.' })).toHaveCount(
+  31 |                 0,
+  32 |             );
+  33 |             await expect(page.locator('h1')).toBeVisible();
+  34 |             await page.evaluate(() => document.fonts.ready);
+  35 |             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  36 |             if (width === 768 && name === 'payments') {
+  37 |                 const cards = page.locator('.wd-finance-columns > section');
+  38 |                 const first = await cards.nth(0).boundingBox();
+  39 |                 const second = await cards.nth(1).boundingBox();
+  40 |                 expect(second!.y).toBeGreaterThanOrEqual(first!.y + first!.height);
+  41 |             }
+  42 |             await page.screenshot({ path: info.outputPath(`${name}-${width}.png`), fullPage: true });
+  43 |         }
+  44 |         await page.goto('/partner/leads');
+  45 |         const trigger = page.getByRole('button', { name: '+ Add lead', exact: true });
+  46 |         await trigger.click();
+  47 |         const dialog = page.getByRole('dialog', { name: 'Add lead', exact: true });
+  48 |         await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeVisible();
+  49 |         const background = async (name: string) =>
+  50 |             dialog
+  51 |                 .getByRole('button', { name, exact: true })
+  52 |                 .evaluate((button) => getComputedStyle(button).backgroundColor);
+  53 |         expect(await background('Cancel')).not.toBe(await background('Capture lead'));
+  54 |         await expect(page.getByLabel('Brand name', { exact: true })).toBeFocused();
+  55 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  56 |         await page.screenshot({ path: info.outputPath(`add-lead-${width}.png`), fullPage: true });
+  57 |         await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+  58 |         await expect(dialog).not.toBeVisible();
+  59 |         await expect(trigger).toBeFocused();
+  60 |     }
+  61 |
+  62 |     await page.setViewportSize({ width: 390, height: 844 });
+  63 |     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
+  64 |     await page.getByLabel('Brand name', { exact: true }).fill('UI review studio');
+> 65 |     await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+     |                                                                           ^ Error: locator.click: Test timeout of 180000ms exceeded.
+  66 |     const drawer = page.getByRole('dialog', { name: 'UI review studio', exact: true });
+  67 |     await expect(drawer).toBeVisible();
+  68 |     const disclosure = drawer.locator('summary').filter({ hasText: 'Delete lead' });
+  69 |     await disclosure.focus();
+  70 |     await page.keyboard.press('Tab');
+  71 |     await expect(drawer.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+  72 |     await disclosure.click();
+  73 |     await disclosure.focus();
+  74 |     await page.keyboard.press('Tab');
+  75 |     await expect(drawer.getByRole('button', { name: 'Delete this lead', exact: true })).toBeFocused();
+  76 |     await page.keyboard.press('Shift+Tab');
+  77 |     await expect(disclosure).toBeFocused();
+  78 |     await drawer.getByRole('button', { name: 'Close lead', exact: true }).click();
+  79 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  80 |     await page.screenshot({ path: info.outputPath('pipeline-populated-390.png'), fullPage: true });
+  81 | });
+  82 |
+```

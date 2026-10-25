@@ -14,6 +14,9 @@ interface Props extends PrimitiveProps {
     class?: HTMLAttributes['class'];
     type?: 'button' | 'submit' | 'reset';
     disabled?: boolean;
+    form?: string;
+    ariaLabel?: string;
+    'aria-pressed'?: HTMLAttributes['aria-pressed'];
 }
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>();
@@ -25,21 +28,28 @@ const props = withDefaults(defineProps<Props>(), {
 // Forward native attributes as a binding to retain strict template checks.
 const nativeProps = computed(() => ({
     'data-slot': 'button',
+    'aria-label': props.ariaLabel,
+    'aria-pressed': props['aria-pressed'],
     'data-variant': props.variant,
     'data-size': props.size,
     type: props.type,
     disabled: props.disabled,
+    ...(props.form ? { form: props.form } : {}),
     onClick: (event: MouseEvent) => emit('click', event),
 }));
+// Foundation buttons already supply their semantic colors. Applying the default
+// utility variant as well would override secondary and danger-outline styles.
+const classes = computed(() => {
+    const foundation = cn(props.class).split(/\s+/).includes('wd-button');
+    return cn(
+        buttonVariants({ variant: props.variant ?? (foundation ? null : undefined), size: props.size }),
+        props.class,
+    );
+});
 </script>
 
 <template>
-    <Primitive
-        v-bind="nativeProps"
-        :as="as"
-        :as-child="asChild"
-        :class="cn(buttonVariants({ variant, size }), props.class)"
-    >
+    <Primitive v-bind="nativeProps" :as="as" :as-child="asChild" :class="classes">
         <slot />
     </Primitive>
 </template>

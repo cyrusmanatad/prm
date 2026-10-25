@@ -18,6 +18,12 @@ Every update/delete/command requires the displayed record's positive integer `ve
 
 A contact can be linked to several leads. Its latest details appear everywhere it is linked. Unlinking preserves the contact; deleting a linked contact is rejected until all links are removed. A same-owner composite foreign key protects each link and related reminder. Deleting a lead removes its links and related reminders, preserving reusable contacts.
 
+## Browser filter context
+
+**UI-06 (2026-10-25):** `/partner/contacts` is the canonical browser page; legacy `/crm` browser visits redirect with their query preserved. Reminder segment clicks immediately request server results. The returned filter state controls pressed buttons and synchronizes search/Back/Forward; filter changes restart paging. Local drafts survive ordinary filter visits. Counts and reminder summary badges explicitly cover the current page, and notes are private to authorized workspace readers.
+
+Browser mutations may supply optional validated `crm_filters` containing only `q` and `state`, plus optional `entry`. Context validation happens before any write. Successful mutations preserve this context in a canonical redirect and drop cursors; callers omitting context retain the existing default redirect/JSON contract. Explicit stale-record reload also preserves filters and resets paging. Stale drafts remain intact with accessible, persistent editor feedback until the user copies changes and reloads. No schema or permissions change. See [verification and screenshots](evidence/crm-repair-2026-10-25/README.md).
+
 ## Lists and UI
 
 The pipeline links to the directory and to a selected lead's contact/reminder view. The selected view shows existing links and offers linking from the directory; it does not copy shared contacts into the lead's legacy embedded contact fields.

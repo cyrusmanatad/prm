@@ -1,0 +1,35 @@
+
+> test:browser
+> playwright test pipeline-filtering.spec.ts pipeline.spec.ts ui-refinement.spec.ts partner-navigation.spec.ts onboarding.spec.ts portals.spec.ts confirmation-errors.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-pipeline-final-browser --reporter=list
+
+
+Running 22 tests using 1 worker
+
+(node:2091204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (5.3s)
+  ✓   2 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (22.5s)
+  ✓   3 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (14.5s)
+  ✓   4 [desktop] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (8.9s)
+  ✓   5 [desktop] › tests/Browser/pipeline-filtering.spec.ts:5:1 › pipeline filters query every page and preserve stages, money, URL and drawer history (12.9s)
+  ✓   6 [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (16.4s)
+  ✓   7 [desktop] › tests/Browser/pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access (6.5s)
+  ✓   8 [desktop] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (5.3s)
+  ✓   9 [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (18.6s)
+  ✓  10 [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (15.8s)
+  ✓  11 [desktop] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths (53.5s)
+(node:2095805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [mobile] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (6.5s)
+  ✓  13 [mobile] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (24.2s)
+  ✓  14 [mobile] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (15.7s)
+  ✓  15 [mobile] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (8.0s)
+  ✓  16 [mobile] › tests/Browser/pipeline-filtering.spec.ts:5:1 › pipeline filters query every page and preserve stages, money, URL and drawer history (14.2s)
+  ✓  17 [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (18.4s)
+  ✓  18 [mobile] › tests/Browser/pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access (28.9s)
+  ✓  19 [mobile] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (4.8s)
+  ✓  20 [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (16.8s)
+  ✓  21 [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (4.4s)
+  ✓  22 [mobile] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths (32.1s)
+
+  22 passed (6.0m)

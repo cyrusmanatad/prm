@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { ClipboardList, ContactRound, FileText } from '@lucide/vue';
 import { router } from '@inertiajs/vue3';
 import AccountMenu, { type AccountMenuLink } from '../../components/AccountMenu.vue';
@@ -22,6 +22,12 @@ const initials = computed(() =>
               .join(''),
 );
 const search = ref(props.searchValue ?? '');
+watch(
+    () => props.searchValue,
+    (value) => {
+        search.value = value ?? '';
+    },
+);
 const accountLinks: AccountMenuLink[] = [
     { href: '/partner/contacts', label: 'Contacts and reminders', icon: ContactRound },
     { href: '/partner/outreach-templates', label: 'Outreach templates', icon: FileText },
@@ -99,14 +105,14 @@ function searchLeads(): void {
                         >Autopilot</span
                     >
                 </nav>
-                <div class="flex items-center gap-3">
+                <div class="flex min-w-0 max-w-full flex-wrap items-center gap-3">
                     <label for="q" class="sr-only">Search leads</label>
                     <input
                         id="q"
                         v-model="search"
                         type="search"
                         placeholder="Search brands, contacts…"
-                        class="w-[220px] rounded-lg bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
+                        class="w-[220px] min-w-0 flex-[1_1_180px] rounded-lg bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
                         @keydown.enter="searchLeads"
                     />
                     <AccountMenu

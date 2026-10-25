@@ -72,19 +72,17 @@ function pick(event: Event): void {
                     Progress is saved when you choose Save draft. Return to this page in the same browser to resume.
                 </p>
             </div>
-            <p v-if="status" role="status" class="wd-status">{{ status }}</p>
             <p class="wd-hint">Status: {{ form.status }}</p>
-            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
-                <p v-for="(message, k) in errors" :key="k">{{ message }}</p>
+            <div v-if="errors?.version" role="alert" class="wd-banner">
+                <p>{{ errors.version }}</p>
                 <button
-                    v-if="errors.version"
                     type="button"
                     class="wd-link"
                     @click="router.get(`/onboarding/form/${form.id}`, {}, { preserveState: false })"
                 >
                     Reload latest form
                 </button>
-                <p v-if="errors.version">Copy unsaved changes before reloading.</p>
+                <p>Copy unsaved changes before reloading.</p>
             </div>
             <p v-if="form.correction_note" class="wd-warning">Requested correction: {{ form.correction_note }}</p>
             <form
@@ -126,7 +124,17 @@ function pick(event: Event): void {
                     />
                     <div class="wd-field">
                         <label for="onboard-brief">Collaboration brief</label
-                        ><textarea id="onboard-brief" v-model="draft.brief" rows="6" maxlength="5000" />
+                        ><textarea
+                            id="onboard-brief"
+                            v-model="draft.brief"
+                            rows="6"
+                            maxlength="5000"
+                            :aria-invalid="errors?.brief ? true : undefined"
+                            :aria-describedby="errors?.brief ? 'onboard-brief-error' : undefined"
+                        />
+                        <p v-if="errors?.brief" id="onboard-brief-error" class="wd-field-error" role="alert">
+                            {{ errors.brief }}
+                        </p>
                     </div>
                     <p class="wd-hint">
                         Keep tax IDs, permits, shipping addresses and other sensitive details out of this form.
@@ -182,8 +190,13 @@ function pick(event: Event): void {
                             type="file"
                             accept=".pdf,.png,.jpg,.jpeg,.txt"
                             :disabled="busy || !!errors?.version"
+                            :aria-invalid="errors?.file ? true : undefined"
+                            :aria-describedby="errors?.file ? 'reference-file-error' : undefined"
                             @change="pick"
                         />
+                        <p v-if="errors?.file" id="reference-file-error" class="wd-field-error" role="alert">
+                            {{ errors.file }}
+                        </p>
                     </div>
                     <Button
                         type="submit"
@@ -195,9 +208,18 @@ function pick(event: Event): void {
             </section>
             <section v-if="editable" class="wd-card wd-fields" aria-label="Submit for review">
                 <label class="wd-checkbox"
-                    ><input v-model="consent" type="checkbox" />I agree to share this form and its reference files with
-                    the requesting creator for this collaboration.</label
-                ><Button
+                    ><input
+                        v-model="consent"
+                        type="checkbox"
+                        :aria-invalid="errors?.consent ? true : undefined"
+                        :aria-describedby="errors?.consent ? 'onboard-consent-error' : undefined"
+                    />I agree to share this form and its reference files with the requesting creator for this
+                    collaboration.</label
+                >
+                <p v-if="errors?.consent" id="onboard-consent-error" class="wd-field-error" role="alert">
+                    {{ errors.consent }}
+                </p>
+                <Button
                     type="button"
                     class="wd-button wd-button-primary"
                     :disabled="!consent || busy || !!errors?.version"

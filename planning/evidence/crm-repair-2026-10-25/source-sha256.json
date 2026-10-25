@@ -1,0 +1,38 @@
+[
+    {
+        "path": "src/resources/js/pages/Crm.vue",
+        "sha256": "1492623a650043b241be3e904e14cf188ab49f1ddbb429aad312e8d08da0bd3e"
+    },
+    {
+        "path": "src/resources/js/components/ContentSection.vue",
+        "sha256": "bbffbcc577e42d7910f45a76dc64720daf87d88680d93e7dddfb698142b366b3"
+    },
+    {
+        "path": "src/resources/js/components/ui/button/Button.vue",
+        "sha256": "3abe92a5f43944bd865cf4733888f5d8bb55b0270c4cfce75687f473230bcd66"
+    },
+    {
+        "path": "src/app/Http/Controllers/CrmController.php",
+        "sha256": "e9d19a634d7396ee08c8f6b9642a6b0878b999e362a9cc9508207e66c0b079b9"
+    },
+    {
+        "path": "src/tests/Frontend/Crm.test.ts",
+        "sha256": "5f4fdc88768b39714fcc4437e46bb88a91244d018cb132b37a95b9ff9c55e53b"
+    },
+    {
+        "path": "src/tests/Frontend/Button.test.ts",
+        "sha256": "3cc8f7759136e20440254269b4e24bbd3f3e9799898211bb19114d9aa92e9588"
+    },
+    {
+        "path": "src/tests/Integration/CrmTest.php",
+        "sha256": "12347fd1969d007433ef210ac6b84ae0e9acfac8d01c5d83449d259d7e6cd98f"
+    },
+    {
+        "path": "src/tests/Browser/crm.spec.ts",
+        "sha256": "84e2288891a6811331cf8f99c9ccc572a891578b0d565e2bf9736c29c730936f"
+    },
+    {
+        "path": "src/public/build/manifest.json",
+        "sha256": "cab89dacc3b9495f4cdb5cb9a21077bca5c798e6a1986d0dd286af85576ad92c"
+    }
+]

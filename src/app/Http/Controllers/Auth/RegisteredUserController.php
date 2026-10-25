@@ -25,6 +25,6 @@ class RegisteredUserController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return $this->completed($request, ['message' => 'Check your email to verify your account.'], '/verify-email', 201);
+        return $this->completed($request, ['message' => 'Check your email to verify your account'], '/verify-email', 201);
     }
 }
