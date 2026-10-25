@@ -15,6 +15,7 @@ interface Props extends PrimitiveProps {
     type?: 'button' | 'submit' | 'reset';
     disabled?: boolean;
     form?: string;
+    ariaLabel?: string;
     'aria-pressed'?: HTMLAttributes['aria-pressed'];
 }
 
@@ -27,6 +28,7 @@ const props = withDefaults(defineProps<Props>(), {
 // Forward native attributes as a binding to retain strict template checks.
 const nativeProps = computed(() => ({
     'data-slot': 'button',
+    'aria-label': props.ariaLabel,
     'aria-pressed': props['aria-pressed'],
     'data-variant': props.variant,
     'data-size': props.size,

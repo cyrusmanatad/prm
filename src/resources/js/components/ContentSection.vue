@@ -7,10 +7,12 @@ const generatedHeadingId = useId();
 
 <template>
     <section class="wd-card wd-content-section" :aria-labelledby="headingId ?? generatedHeadingId">
-        <header>
-            <h2 :id="headingId ?? generatedHeadingId">{{ title }}</h2>
-            <p v-if="description" class="wd-description">{{ description }}</p>
-        </header>
+        <slot name="header">
+            <header>
+                <h2 :id="headingId ?? generatedHeadingId">{{ title }}</h2>
+                <p v-if="description" class="wd-description">{{ description }}</p>
+            </header>
+        </slot>
         <slot />
     </section>
 </template>

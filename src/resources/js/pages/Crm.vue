@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Calendar, Check, Link as LinkIcon, Lock, Search } from '@lucide/vue';
+import { ArrowLeft, Calendar, Check, Link as LinkIcon, Lock } from '@lucide/vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
+import ActionGroup from '../components/ActionGroup.vue';
+import ContentSection from '../components/ContentSection.vue';
+import { Button } from '../components/ui/button';
 import DialogClose from '../components/DialogClose.vue';
 import { containDialogFocus } from '../composables/useDialogFocus';
 import { useValidationFocus } from '../composables/useValidationFocus';
@@ -53,7 +56,13 @@ const reminder = ref({
     version: 0,
 });
 const q = ref(props.filters.q);
-const state = ref(props.filters.state);
+const state = computed(() => props.filters.state);
+watch(
+    () => props.filters,
+    (filters) => {
+        q.value = filters.q;
+    },
+);
 const snooze = ref('');
 const addTab = ref<'reminder' | 'contact'>('reminder');
 const editorOpen = ref(false);
@@ -87,6 +96,14 @@ watch(
     },
     { flush: 'pre', immediate: true },
 );
+watch(
+    () => errors.value.version,
+    async (error) => {
+        if (!error) return;
+        await nextTick();
+        if (editorDialog.value?.open) editorDialog.value.querySelector<HTMLElement>('#crm-editor-conflict')?.focus();
+    },
+);
 watch(editorOpen, async (open) => {
     await nextTick();
     const dialog = editorDialog.value;
@@ -108,7 +125,7 @@ function act(method: 'post' | 'patch' | 'delete', path: string, data: Record<str
     if (busy.value || errors.value.version) return;
     router.visit(path, {
         method,
-        data: { ...data, entry: props.entry?.id ?? null },
+        data: { ...data, entry: props.entry?.id ?? null, crm_filters: props.filters },
         preserveState: true,
         preserveScroll: true,
         onStart: () => {
@@ -138,16 +155,27 @@ function act(method: 'post' | 'patch' | 'delete', path: string, data: Record<str
         },
     });
 }
-function list(cursor?: string, kind?: string): void {
+function list(cursor?: string, kind?: string, selectedState = state.value): void {
+    if (busy.value) return;
+    const filtersChanged = q.value !== props.filters.q || selectedState !== state.value;
     router.get(
         '/partner/contacts',
         {
             q: q.value,
-            state: state.value,
+            state: selectedState,
             ...(props.entry ? { entry: props.entry.id } : {}),
-            ...(cursor && kind ? { [`${kind}_cursor`]: cursor } : {}),
+            ...(!filtersChanged && cursor && kind ? { [`${kind}_cursor`]: cursor } : {}),
         },
-        { preserveState: false },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onStart: () => {
+                busy.value = true;
+            },
+            onFinish: () => {
+                busy.value = false;
+            },
+        },
     );
 }
 const localDate = (value: string): string => {
@@ -279,20 +307,33 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                 <button
                     type="button"
                     class="crm-text-button"
-                    @click="router.get('/partner/contacts', entry ? { entry: entry.id } : {}, { preserveState: false })"
+                    @click="
+                        router.get(
+                            '/partner/contacts',
+                            { ...filters, ...(entry ? { entry: entry.id } : {}) },
+                            { preserveState: false },
+                        )
+                    "
                 >
                     Reload latest records
                 </button>
                 <p>Copy unsaved changes before reloading.</p>
             </div>
             <p v-if="!canWrite" class="crm-hint">Viewer access is read only.</p>
-            <div class="crm-columns">
+            <div class="crm-columns" :aria-busy="busy">
                 <div class="crm-col-main">
-                    <section v-if="entry" class="crm-card crm-card-padded" aria-labelledby="linked-title">
-                        <header class="crm-card-head">
-                            <h2 id="linked-title">Linked to {{ entry.brand_name }}</h2>
-                            <span class="crm-pill crm-pill-success">{{ contactCount(linked.length) }}</span>
-                        </header>
+                    <ContentSection
+                        v-if="entry"
+                        class="crm-linked-section"
+                        :title="`Linked to ${entry.brand_name}`"
+                        heading-id="linked-title"
+                    >
+                        <template #header>
+                            <header class="crm-card-head">
+                                <h2 id="linked-title">Linked to {{ entry.brand_name }}</h2>
+                                <span class="crm-pill crm-pill-success">{{ contactCount(linked.length) }}</span>
+                            </header>
+                        </template>
                         <p v-if="!linked.length" class="crm-empty">No linked contacts.</p>
                         <ul v-else class="crm-linked">
                             <li v-for="row in linked" :key="row.id" class="crm-person">
@@ -314,21 +355,21 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                         </p>
                                     </div>
                                 </div>
-                                <div v-if="canWrite" class="crm-actions">
-                                    <button
+                                <ActionGroup v-if="canWrite">
+                                    <Button
                                         v-if="contactRecord(row.id)"
                                         type="button"
-                                        class="crm-btn crm-btn-secondary"
-                                        :aria-label="`Edit ${row.name}`"
+                                        class="wd-button wd-button-secondary"
+                                        :ariaLabel="`Edit ${row.name}`"
                                         :disabled="blocked"
                                         @click="editLinked(row.id)"
                                     >
                                         Edit
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         type="button"
-                                        class="crm-btn crm-btn-unlink"
-                                        :aria-label="`Unlink ${row.name}`"
+                                        class="wd-button wd-button-danger-outline"
+                                        :ariaLabel="`Unlink ${row.name}`"
                                         :disabled="blocked"
                                         @click="
                                             confirmAction(
@@ -345,47 +386,45 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                         "
                                     >
                                         Unlink
-                                    </button>
-                                </div>
+                                    </Button>
+                                </ActionGroup>
                             </li>
                         </ul>
-                    </section>
-                    <section class="crm-card" aria-labelledby="contacts-title">
-                        <div class="crm-card-block">
-                            <header class="crm-card-head">
-                                <div class="crm-card-title">
-                                    <h2 id="contacts-title">Reusable contacts</h2>
-                                    <p class="crm-count">{{ contacts.items.length }} saved</p>
-                                </div>
-                                <button
-                                    v-if="canWrite"
-                                    type="button"
-                                    class="crm-btn crm-btn-primary"
-                                    @click="newContact"
-                                >
-                                    New contact
-                                </button>
-                            </header>
-                            <form
-                                class="crm-search-row"
-                                aria-label="Filter contacts and reminders"
-                                @submit.prevent="list()"
-                            >
-                                <div class="crm-search">
-                                    <label class="wd-sr-only" for="crm-search">Search contacts</label>
-                                    <Search class="crm-search-icon" :size="18" aria-hidden="true" />
-                                    <input
-                                        id="crm-search"
-                                        v-model="q"
-                                        name="crm-search"
-                                        type="text"
-                                        maxlength="160"
-                                        placeholder="Search by name, company or email"
-                                    />
-                                </div>
-                                <button type="submit" class="crm-btn crm-btn-outline">Apply filters</button>
-                            </form>
-                        </div>
+                    </ContentSection>
+                    <ContentSection class="crm-section" title="Reusable contacts" heading-id="contacts-title">
+                        <template #header>
+                            <div class="crm-card-block">
+                                <header class="crm-card-head">
+                                    <div class="crm-card-title">
+                                        <h2 id="contacts-title">Reusable contacts</h2>
+                                        <p class="crm-count">{{ contacts.items.length }} on this page</p>
+                                    </div>
+                                    <Button
+                                        v-if="canWrite"
+                                        type="button"
+                                        class="wd-button wd-button-primary"
+                                        :disabled="blocked"
+                                        @click="newContact"
+                                    >
+                                        New contact
+                                    </Button>
+                                </header>
+                                <form class="crm-search-row" aria-label="Filter contacts" @submit.prevent="list()">
+                                    <div class="crm-search">
+                                        <FormField
+                                            id="crm-search"
+                                            v-model="q"
+                                            label="Search contacts"
+                                            :required="false"
+                                            :maxlength="160"
+                                        />
+                                    </div>
+                                    <Button type="submit" class="wd-button wd-button-secondary" :disabled="busy"
+                                        >Apply filters</Button
+                                    >
+                                </form>
+                            </div>
+                        </template>
                         <p v-if="!contacts.items.length" class="crm-empty">
                             No contacts match. Create a contact in the editor.
                         </p>
@@ -412,16 +451,16 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                             </p>
                                         </div>
                                     </div>
-                                    <div v-if="canWrite" class="crm-actions">
-                                        <button
+                                    <ActionGroup v-if="canWrite">
+                                        <Button
                                             type="button"
-                                            class="crm-btn crm-btn-secondary"
-                                            :aria-label="`Edit ${row.name}`"
+                                            class="wd-button wd-button-secondary"
+                                            :ariaLabel="`Edit ${row.name}`"
                                             :disabled="blocked"
                                             @click="editContact(row)"
                                         >
                                             Edit
-                                        </button>
+                                        </Button>
                                         <button
                                             v-if="entry && !linked.some((item) => item.id === row.id)"
                                             type="button"
@@ -438,7 +477,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                             <LinkIcon :size="16" aria-hidden="true" />
                                             Link
                                         </button>
-                                    </div>
+                                    </ActionGroup>
                                 </div>
                             </li>
                         </ul>
@@ -446,49 +485,54 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             v-if="contacts.nextCursor"
                             type="button"
                             class="crm-more"
+                            :disabled="busy"
                             @click="list(contacts.nextCursor, 'contacts')"
                         >
                             More contacts
                         </button>
-                    </section>
+                    </ContentSection>
                 </div>
                 <div class="crm-col-side">
-                    <section class="crm-card" aria-labelledby="reminders-title">
-                        <div class="crm-card-block">
-                            <header class="crm-card-head">
-                                <div class="crm-card-title">
-                                    <h2 id="reminders-title">Reminders</h2>
-                                    <p class="crm-count">Private · your local time</p>
+                    <ContentSection class="crm-section" title="Reminders" heading-id="reminders-title">
+                        <template #header>
+                            <div class="crm-card-block">
+                                <header class="crm-card-head">
+                                    <div class="crm-card-title">
+                                        <h2 id="reminders-title">Reminders</h2>
+                                        <p class="crm-count">Workspace private · your local time</p>
+                                    </div>
+                                    <Button
+                                        v-if="canWrite"
+                                        type="button"
+                                        class="wd-button wd-button-primary"
+                                        :disabled="blocked"
+                                        @click="newReminder"
+                                    >
+                                        New reminder
+                                    </Button>
+                                </header>
+                                <div v-if="reminderCounts.overdue || reminderCounts.today" class="crm-summary">
+                                    <span v-if="reminderCounts.overdue" class="crm-pill crm-pill-danger"
+                                        >{{ reminderCounts.overdue }} overdue on this page</span
+                                    >
+                                    <span v-if="reminderCounts.today" class="crm-pill crm-pill-warning"
+                                        >{{ reminderCounts.today }} due today on this page</span
+                                    >
                                 </div>
-                                <button
-                                    v-if="canWrite"
-                                    type="button"
-                                    class="crm-btn crm-btn-primary"
-                                    @click="newReminder"
-                                >
-                                    New reminder
-                                </button>
-                            </header>
-                            <div v-if="reminderCounts.overdue || reminderCounts.today" class="crm-summary">
-                                <span v-if="reminderCounts.overdue" class="crm-pill crm-pill-danger"
-                                    >{{ reminderCounts.overdue }} overdue</span
-                                >
-                                <span v-if="reminderCounts.today" class="crm-pill crm-pill-warning"
-                                    >{{ reminderCounts.today }} due today</span
-                                >
+                                <div class="crm-segment crm-segment-filter" role="group" aria-label="Reminder filter">
+                                    <button
+                                        v-for="option in reminderFilters"
+                                        :key="option.value"
+                                        type="button"
+                                        :aria-pressed="state === option.value"
+                                        :disabled="busy"
+                                        @click="list(undefined, undefined, option.value)"
+                                    >
+                                        {{ option.label }}
+                                    </button>
+                                </div>
                             </div>
-                            <div class="crm-segment crm-segment-filter" role="group" aria-label="Reminder filter">
-                                <button
-                                    v-for="option in reminderFilters"
-                                    :key="option.value"
-                                    type="button"
-                                    :aria-pressed="state === option.value"
-                                    @click="state = option.value"
-                                >
-                                    {{ option.label }}
-                                </button>
-                            </div>
-                        </div>
+                        </template>
                         <p v-if="!reminders.items.length" class="crm-empty">No reminders match.</p>
                         <ul v-else class="crm-list crm-reminders">
                             <li v-for="row in reminders.items" :key="row.id">
@@ -565,11 +609,12 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             v-if="reminders.nextCursor"
                             type="button"
                             class="crm-more"
+                            :disabled="busy"
                             @click="list(reminders.nextCursor, 'reminders')"
                         >
                             More reminders
                         </button>
-                    </section>
+                    </ContentSection>
                 </div>
             </div>
             <dialog
@@ -592,6 +637,9 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                         Contact
                     </button>
                 </div>
+                <p v-if="errors.version" id="crm-editor-conflict" role="alert" tabindex="-1" class="wd-banner">
+                    {{ errors.version }} Copy your unsaved changes, close this editor and reload the latest records.
+                </p>
                 <form v-show="addTab === 'reminder'" :aria-busy="busy" @submit.prevent="saveReminder">
                     <fieldset class="crm-fields" :disabled="blocked">
                         <legend class="wd-sr-only">{{ reminder.id ? 'Edit reminder' : 'New reminder' }}</legend>
@@ -610,7 +658,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             :hint="entry ? `New reminders here relate to ${entry.brand_name}.` : undefined"
                             :error="errors.due_at"
                         />
-                        <button type="submit" class="crm-btn crm-btn-primary crm-save">Save reminder</button>
+                        <Button type="submit" class="wd-button wd-button-primary crm-save">Save reminder</Button>
                         <template v-if="reminder.id">
                             <FormField
                                 id="reminder-snooze"
@@ -619,9 +667,9 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                 type="datetime-local"
                                 :required="false"
                             />
-                            <button
+                            <Button
                                 type="button"
-                                class="crm-btn crm-btn-secondary crm-save"
+                                class="wd-button wd-button-secondary crm-save"
                                 :disabled="!snooze"
                                 @click="
                                     act('post', `/reminders/${reminder.id}/snooze`, {
@@ -631,10 +679,10 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                 "
                             >
                                 Snooze reminder
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="button"
-                                class="crm-btn crm-btn-danger crm-save"
+                                class="wd-button wd-button-danger-outline crm-save"
                                 @click="
                                     confirmAction(
                                         'Delete reminder',
@@ -649,7 +697,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                 "
                             >
                                 Delete reminder
-                            </button>
+                            </Button>
                         </template>
                     </fieldset>
                 </form>
@@ -692,16 +740,18 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                     errors.notes ? 'contact-notes-hint contact-notes-error' : 'contact-notes-hint'
                                 "
                             />
-                            <p id="contact-notes-hint" class="crm-hint">Only you can see these notes.</p>
+                            <p id="contact-notes-hint" class="crm-hint">
+                                Visible to authorized members of this workspace.
+                            </p>
                             <p v-if="errors.notes" id="contact-notes-error" class="wd-field-error" role="alert">
                                 {{ errors.notes }}
                             </p>
                         </div>
-                        <button type="submit" class="crm-btn crm-btn-primary crm-save">Save contact</button>
-                        <button
+                        <Button type="submit" class="wd-button wd-button-primary crm-save">Save contact</Button>
+                        <Button
                             v-if="contact.id"
                             type="button"
-                            class="crm-btn crm-btn-danger crm-save"
+                            class="wd-button wd-button-danger-outline crm-save"
                             @click="
                                 confirmAction(
                                     'Delete contact',
@@ -713,7 +763,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             "
                         >
                             Delete contact
-                        </button>
+                        </Button>
                     </fieldset>
                 </form>
             </dialog>
@@ -847,17 +897,12 @@ const blocked = computed(() => busy.value || !!errors.value.version);
 .crm-col-side {
     flex: 1 1 400px;
 }
-.crm-card {
-    min-width: 0;
-    border: 1px solid var(--wd-line);
-    border-radius: 16px;
-    background: var(--wd-surface);
+.crm-section {
+    padding: 0;
+    gap: 0;
 }
-.crm-card-padded {
-    display: flex;
-    flex-direction: column;
+.crm-linked-section {
     gap: 14px;
-    padding: 20px 24px;
 }
 .crm-card-head {
     display: flex;
@@ -992,6 +1037,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
 }
 .crm-search-row {
     display: flex;
+    align-items: flex-end;
     flex-wrap: wrap;
     gap: 10px;
     min-width: 0;
@@ -1000,54 +1046,6 @@ const blocked = computed(() => busy.value || !!errors.value.version);
     position: relative;
     flex: 1 1 220px;
     min-width: 0;
-}
-.crm-search-icon {
-    position: absolute;
-    top: 13px;
-    left: 14px;
-    color: var(--wd-muted);
-    pointer-events: none;
-}
-.crm-search input,
-.wd-crm :deep(.wd-field input),
-.wd-crm :deep(.wd-field textarea) {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    border: 1px solid var(--wd-control-line);
-    border-radius: 10px;
-    background: var(--wd-paper);
-    color: var(--wd-ink);
-    font: inherit;
-    font-size: 15px;
-}
-.crm-search input,
-.wd-crm :deep(.wd-field input) {
-    height: 44px;
-    padding: 0 14px;
-}
-.crm-search input {
-    padding-left: 40px;
-}
-.wd-crm :deep(.wd-field textarea) {
-    min-height: 96px;
-    padding: 12px 14px;
-    resize: vertical;
-}
-.crm-search input::placeholder,
-.wd-crm :deep(.wd-field input::placeholder),
-.wd-crm :deep(.wd-field textarea::placeholder) {
-    color: var(--wd-muted);
-}
-.wd-crm :deep(.wd-field) {
-    gap: 6px;
-    min-width: 0;
-}
-.wd-crm :deep(.wd-field label),
-.wd-crm .wd-field label {
-    color: var(--wd-ink);
-    font-size: 13px;
-    font-weight: 600;
 }
 .crm-list,
 .crm-linked {
@@ -1158,67 +1156,6 @@ const blocked = computed(() => busy.value || !!errors.value.version);
     color: white;
     font-size: 13px;
 }
-.crm-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-}
-.crm-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.2;
-}
-.crm-btn-primary {
-    border-color: var(--wd-brand);
-    background: var(--wd-brand);
-    color: white;
-    font-weight: 600;
-}
-.crm-btn-primary:hover:not(:disabled) {
-    background: var(--wd-brand-hover);
-    border-color: var(--wd-brand-hover);
-}
-.crm-btn-secondary {
-    border-color: var(--wd-control-line);
-    background: var(--wd-surface);
-    color: var(--wd-ink);
-}
-.crm-btn-secondary:hover:not(:disabled) {
-    background: var(--wd-paper);
-}
-.crm-btn-outline,
-.crm-btn-unlink {
-    border-color: var(--wd-brand);
-    background: var(--wd-surface);
-    color: var(--wd-brand);
-    font-weight: 600;
-}
-.crm-btn-unlink {
-    border-color: color-mix(in srgb, var(--wd-brand) 42%, white);
-}
-.crm-btn-outline:hover:not(:disabled),
-.crm-btn-unlink:hover:not(:disabled) {
-    background: var(--color-blush);
-}
-.crm-btn-danger {
-    border-color: var(--wd-danger-border);
-    background: var(--wd-surface);
-    color: var(--wd-danger);
-    font-weight: 600;
-}
-.crm-btn-danger:hover:not(:disabled) {
-    background: var(--wd-danger-bg);
-}
 .crm-save {
     width: 100%;
     min-height: 48px;
@@ -1232,7 +1169,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
     font-size: 15px;
     text-align: center;
 }
-.crm-card-padded .crm-empty {
+.crm-linked-section .crm-empty {
     padding: 8px 0 0;
 }
 .crm-more,

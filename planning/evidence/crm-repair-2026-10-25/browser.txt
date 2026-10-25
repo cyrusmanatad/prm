@@ -1,0 +1,19 @@
+
+> test:browser
+> playwright test crm.spec.ts ui-refinement.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-crm-final-browser --reporter=list
+
+
+Running 6 tests using 1 worker
+
+(node:2151853) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (23.6s)
+  ✓  2 [desktop] › tests/Browser/crm.spec.ts:106:1 › CRM filters reset paged lists, restore history and retain actionable stale errors (8.4s)
+  ✓  3 [desktop] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths (19.5s)
+(node:2153236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/Browser/crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen (25.3s)
+  ✓  5 [mobile] › tests/Browser/crm.spec.ts:106:1 › CRM filters reset paged lists, restore history and retain actionable stale errors (8.8s)
+  ✓  6 [mobile] › tests/Browser/ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths (31.6s)
+
+  6 passed (2.0m)
