@@ -17,19 +17,18 @@ void createInertiaApp({
         return page();
     },
     setup({ el, App, props, plugin }) {
-        registerFlashToasts(props.initialPage.props);
         createApp({ render: () => [h(App, props), h(ConfirmationDialog)] })
             .use(plugin)
             .use(Vue3Toastify, {
                 autoClose: 3500,
                 position: 'top-right',
                 theme: 'auto',
-                limit: 3,
                 newestOnTop: true,
                 hideProgressBar: false,
                 pauseOnHover: true,
             } as ToastContainerOptions)
             .mount(el);
+        registerFlashToasts(props.initialPage.props);
     },
     progress: { color: '#8e1650' },
 });

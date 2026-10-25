@@ -28,9 +28,20 @@ export async function confirmMutation(page: Page, trigger: Locator, title: strin
         const cancel = dialog.getByRole('button', { name: 'Cancel', exact: true });
         const submit = dialog.getByRole('button', { name: title, exact: true });
         await page.keyboard.press('Shift+Tab');
-        await expect(submit).toBeFocused();
+        // Live notifications belong to the modal while it is open. Include their
+        // close controls in the focus loop instead of assuming only two buttons.
+        await expect(dialog.getByRole('button').last()).toBeFocused();
         await page.keyboard.press('Tab');
         await expect(cancel).toBeFocused();
+        // Contrast must be measured after entrance opacity settles; timer bars
+        // are descendants and are deliberately excluded from this animation wait.
+        await page.locator('.Toastify__toast').evaluateAll(async (toasts) => {
+            await Promise.all(
+                toasts.flatMap((toast) =>
+                    toast.getAnimations().map((animation) => animation.finished.catch(() => undefined)),
+                ),
+            );
+        });
         const scan = await new AxeBuilder({ page }).analyze();
         expect(scan.violations).toEqual([]);
         if (info)

@@ -1,10 +1,13 @@
+import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
 import { changeRole, fixture, login } from './helpers';
 
 test('private templates persist, reject stale edits, merge drafts, copy and delete', async ({ page }, info) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
+    const clientErrors: string[] = [];
+    page.on('pageerror', (error) => clientErrors.push(error.message));
     const email = `m1-browser-template-${info.project.name}-${Date.now()}@example.test`;
     fixture('seed-workspaces', email);
     await login(page, email);
@@ -59,6 +62,28 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     expect(await page.evaluate(() => (window as unknown as { copied: string }).copied)).toBe(
         'Hello <b>Studio</b>\n\nEdited manual draft.',
     );
+    // A second immediate copy must also settle, even while the first toast remains visible.
+    await page.getByRole('button', { name: 'Copy draft', exact: true }).click();
+    await expect(page.locator('.Toastify__toast').filter({ hasText: 'Draft copied' })).toHaveCount(2);
+    await page.evaluate(() => {
+        Object.defineProperty(navigator, 'clipboard', {
+            configurable: true,
+            value: {
+                writeText: async () => {
+                    throw new Error('Clipboard denied');
+                },
+            },
+        });
+    });
+    await page.getByRole('button', { name: 'Copy draft', exact: true }).click();
+    const copyError = page.locator('.wd-field-error').filter({ hasText: "Couldn't copy draft" });
+    await expect(copyError).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Copy draft', exact: true })).toBeEnabled();
+    // Dismissing transient notifications must preserve the manual-copy recovery guidance.
+    await dismissNotifications(page);
+    await expect(copyError).toBeVisible();
+    await expect(page.getByLabel('Draft body', { exact: true })).toHaveValue('Edited manual draft.');
+    expect(clientErrors).toEqual([]);
     const scan = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'])
         .analyze();

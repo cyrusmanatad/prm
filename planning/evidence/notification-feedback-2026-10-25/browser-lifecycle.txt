@@ -1,0 +1,15 @@
+
+> test:browser
+> playwright test flash-feedback.spec.ts notifications.spec.ts outreach-templates.spec.ts onboarding.spec.ts --grep repeated actions|explicit invitation|private templates|creator invites --project=desktop --output=/tmp/weavdash-notification-feedback-lifecycle --reporter=list
+
+
+Running 4 tests using 1 worker
+
+(node:2284978) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback (15.1s)
+  ✓  2 [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (17.9s)
+  ✓  3 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (45.3s)
+  ✓  4 [desktop] › tests/Browser/outreach-templates.spec.ts:7:1 › private templates persist, reject stale edits, merge drafts, copy and delete (44.8s)
+
+  4 passed (2.1m)

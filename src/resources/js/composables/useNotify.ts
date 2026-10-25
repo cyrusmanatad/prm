@@ -30,18 +30,38 @@ function announce(kind: 'success' | 'info' | 'warning' | 'error', message: strin
     liftToastContainer();
 }
 
+let layerObserver: MutationObserver | undefined;
+let layeredContainer: HTMLElement | null = null;
+
 function liftToastContainer(): void {
     if (typeof document === 'undefined' || typeof requestAnimationFrame !== 'function') return;
+    if (!layerObserver && typeof MutationObserver !== 'undefined') {
+        layerObserver = new MutationObserver(() => liftToastContainer());
+        layerObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['open'],
+        });
+    }
     requestAnimationFrame(() => {
-        const container = document.querySelector<HTMLElement>('.Toastify__toast-container');
+        const container =
+            document.querySelector<HTMLElement>('.Toastify__toast-container') ??
+            (layeredContainer?.parentElement?.tagName === 'DIALOG' ? layeredContainer : null);
         if (!container) return;
+        layeredContainer = container;
+        // A top-layer popover outside a modal is still inert. Keep feedback inside
+        // the active dialog so its announcements and close button remain usable.
+        const dialogs = document.querySelectorAll<HTMLDialogElement>('dialog:modal');
+        const parent = dialogs.item(dialogs.length - 1) ?? document.body;
+        if (container.parentElement !== parent) parent.append(container);
         container.setAttribute('role', 'region');
         container.setAttribute('aria-label', 'Notifications');
         if (typeof container.showPopover !== 'function') return;
         container.setAttribute('popover', 'manual');
         try {
-            if (container.matches(':popover-open')) container.hidePopover();
-            container.showPopover();
+            // Reopening on every DOM update cancels Toastify's lifecycle animations.
+            if (!container.matches(':popover-open')) container.showPopover();
         } catch {
             // The popover API is unavailable while the container is mid-transition.
         }
@@ -49,16 +69,17 @@ function liftToastContainer(): void {
 }
 
 export function flashTone(message: string): 'success' | 'info' | 'warning' {
+    if (message.startsWith('All sessions revoked') || message.includes('Previous sessions are closed')) {
+        return 'warning';
+    }
     if (
         message.startsWith('If the account exists') ||
         message.startsWith('Check your email') ||
         message === 'Signed out' ||
-        message === 'Invitation opened'
+        message === 'Invitation opened' ||
+        message.includes('email queued for')
     ) {
         return 'info';
-    }
-    if (message.startsWith('All sessions revoked') || message.includes('Previous sessions are closed')) {
-        return 'warning';
     }
     return 'success';
 }
@@ -75,6 +96,8 @@ export function actionError(key: string, reason: string): string | null {
     const detail = reason.replace(/\s+/g, ' ').trim().replace(/\.$/, '');
     return detail ? `Couldn't ${action}. ${detail}.` : `Couldn't ${action}.`;
 }
+
+let promiseSequence = 0;
 
 export function useNotify() {
     return {
@@ -102,7 +125,7 @@ export function useNotify() {
             messages: { pending: string; success: string; error: string },
             toastId?: Id,
         ): Promise<T> {
-            const id = stableId(toastId ?? toastIdFor('promise', messages.pending));
+            const id = stableId(`promise-${++promiseSequence}-${toastId ?? messages.pending}`);
             let opened!: () => void;
             const mounted = new Promise<void>((resolve) => {
                 opened = resolve;

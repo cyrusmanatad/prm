@@ -31,6 +31,8 @@ const values = ref<MergeValues>({ brand_name: '', contact_name: '', creator_name
 const draftSubject = ref('');
 const draftBody = ref('');
 const generated = ref(false);
+const copying = ref(false);
+const copyError = ref('');
 const notify = useNotify();
 const errors = computed(() => props.errors ?? {});
 useValidationFocus(
@@ -64,6 +66,7 @@ watch(
     [subject, body, values],
     () => {
         generated.value = false;
+        copyError.value = '';
     },
     { deep: true },
 );
@@ -105,18 +108,30 @@ function generate(): void {
     draftBody.value = merged.value.body.text;
     generated.value = true;
 }
-function copy(): void {
+async function copy(): Promise<void> {
+    if (copying.value) return;
+    copying.value = true;
+    copyError.value = '';
     const text = `${draftSubject.value}\n\n${draftBody.value}`;
-    const writing = navigator.clipboard?.writeText(text) ?? Promise.reject(new Error('Clipboard unavailable'));
-    void notify.promise(
-        writing,
-        {
-            pending: 'Copying draft',
-            success: 'Draft copied',
-            error: "Couldn't copy draft. Select the draft text and copy it manually.",
-        },
-        'outreach-copy',
-    );
+    const writing = Promise.resolve().then(() => {
+        if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+        return navigator.clipboard.writeText(text);
+    });
+    try {
+        await notify.promise(
+            writing,
+            {
+                pending: 'Copying draft',
+                success: 'Draft copied',
+                error: "Couldn't copy draft. Select the draft text and copy it manually.",
+            },
+            'outreach-copy',
+        );
+    } catch {
+        copyError.value = "Couldn't copy draft. Select the draft text and copy it manually.";
+    } finally {
+        copying.value = false;
+    }
 }
 </script>
 
@@ -269,7 +284,10 @@ function copy(): void {
                         Review and edit before copying. Draft edits stay on this page and do not change the saved
                         template.
                     </p>
-                    <Button class="wd-button wd-button-primary" type="button" @click="copy">Copy draft</Button>
+                    <p v-if="copyError" role="alert" class="wd-field-error">{{ copyError }}</p>
+                    <Button class="wd-button wd-button-primary" type="button" :disabled="copying" @click="copy">{{
+                        copying ? 'Copying…' : 'Copy draft'
+                    }}</Button>
                 </div>
             </ContentSection>
         </div>

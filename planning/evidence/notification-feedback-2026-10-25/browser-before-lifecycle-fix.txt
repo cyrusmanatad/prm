@@ -1,0 +1,183 @@
+
+> test:browser
+> playwright test flash-feedback.spec.ts notifications.spec.ts onboarding-notifications.spec.ts outreach-templates.spec.ts foundation.spec.ts finance.spec.ts onboarding.spec.ts confirmation-errors.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-notification-feedback-final --reporter=list
+
+
+Running 22 tests using 1 worker
+
+(node:2276733) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (9.7s)
+  ✓   2 [desktop] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (16.2s)
+  ✓   3 [desktop] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (21.9s)
+  ✓   4 [desktop] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback (15.8s)
+  ✓   5 [desktop] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (6.5s)
+  ✓   6 [desktop] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (16.3s)
+  ✘   7 [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (9.5s)
+(node:2278962) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (24.0s)
+  ✘   9 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (34.1s)
+(node:2280304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (21.8s)
+  ✘  11 [desktop] › tests/Browser/outreach-templates.spec.ts:7:1 › private templates persist, reject stale edits, merge drafts, copy and delete (2.0m)
+(node:2282578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [mobile] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (7.7s)
+  ✓  13 [mobile] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (16.9s)
+  ✓  14 [mobile] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (30.0s)
+  ✓  15 [mobile] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback (15.3s)
+  ✓  16 [mobile] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (7.8s)
+  ✘  17 [mobile] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (3.0s)
+
+
+  1) [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      54 |             return toast.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2));
+      55 |         }),
+    > 56 |     ).toBe(true);
+         |       ^
+      57 |     await page.screenshot({ path: info.outputPath(`notification-queued-${info.project.name}.png`), fullPage: true });
+      58 |     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
+      59 |     await expect(page.getByRole('dialog')).not.toBeVisible();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/notifications.spec.ts:56:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-final/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-final/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'File removed' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'File removed' }) with timeout 15000ms
+      - waiting for getByRole('status').filter({ hasText: 'File removed' })
+
+
+      87 |         info,
+      88 |     );
+    > 89 |     await expect(brand.getByRole('status').filter({ hasText: 'File removed' })).toBeVisible();
+         |                                                                                 ^
+      90 |     await expect(brand.getByRole('link', { name: 'Download remove-me.txt', exact: true })).toHaveCount(0);
+      91 |     await scan(brand, info, 'onboarding-form');
+      92 |     await brand.getByLabel('I agree to share this form and its reference files', { exact: false }).check();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding.spec.ts:89:81
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/onboarding-creator-invites-c0e37-nd-corrects-creator-revokes-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/onboarding-creator-invites-c0e37-nd-corrects-creator-revokes-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-final/onboarding-creator-invites-c0e37-nd-corrects-creator-revokes-desktop/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/onboarding-creator-invites-c0e37-nd-corrects-creator-revokes-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-final/onboarding-creator-invites-c0e37-nd-corrects-creator-revokes-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/Browser/outreach-templates.spec.ts:7:1 › private templates persist, reject stale edits, merge drafts, copy and delete
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.Toastify__toast').first().getByRole('button', { name: 'close', exact: true })
+
+
+       at feedback.ts:7
+
+       5 |     while (await notifications.count()) {
+       6 |         const count = await notifications.count();
+    >  7 |         await notifications.first().getByRole('button', { name: 'close', exact: true }).click();
+         |                                                                                         ^
+       8 |         await expect(notifications).toHaveCount(count - 1);
+       9 |     }
+      10 | }
+        at dismissNotifications (/home/cyrusadmin/weavdash/src/tests/Browser/feedback.ts:7:89)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/outreach-templates.spec.ts:83:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/outreach-templates-private-c8512-erge-drafts-copy-and-delete-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-final/outreach-templates-private-c8512-erge-drafts-copy-and-delete-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/outreach-templates-private-c8512-erge-drafts-copy-and-delete-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-final/outreach-templates-private-c8512-erge-drafts-copy-and-delete-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [mobile] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: 'Send reset link' })
+        - locator resolved to <button type="submit" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 h…>Send reset link</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      63 |     await page.goto('/forgot-password');
+      64 |     await page.getByLabel('Email address').fill(email);
+    > 65 |     await page.getByRole('button', { name: 'Send reset link' }).click();
+         |                                                                 ^
+      66 |     await expect(page.getByRole('status').filter({ hasText: 'If the account exists' })).toBeVisible();
+      67 |     await page.goto(fixture('reset', email).url);
+      68 |     await expect(page.getByLabel('Email address')).toHaveValue(email);
+        at /home/cyrusadmin/weavdash/src/tests/Browser/foundation.spec.ts:65:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/foundation-recovery-invali-a1512--two-real-database-sessions-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-final/foundation-recovery-invali-a1512--two-real-database-sessions-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-final/foundation-recovery-invali-a1512--two-real-database-sessions-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-final/foundation-recovery-invali-a1512--two-real-database-sessions-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+    [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes
+    [desktop] › tests/Browser/outreach-templates.spec.ts:7:1 › private templates persist, reject stale edits, merge drafts, copy and delete
+  1 interrupted
+    [mobile] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions
+  5 did not run
+  13 passed (6.6m)

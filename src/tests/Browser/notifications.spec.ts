@@ -44,6 +44,23 @@ test('explicit invitation email shows queue capture and cancellation without ext
     await page.screenshot({ path: info.outputPath(`notification-dialog-${info.project.name}.png`), fullPage: true });
     await page.getByRole('button', { name: 'Create and email invitation', exact: true }).click();
     await expect(page.getByRole('dialog', { name: 'Copy invitation link', exact: true })).toBeVisible();
+    const queued = page.locator('.Toastify__toast').filter({ hasText: 'Invitation email queued for' });
+    await expect(queued).toBeVisible();
+    await expect(queued).not.toContainText('sent');
+    await expect(page.getByLabel('Invitation link', { exact: true })).toBeFocused();
+    await expect
+        .poll(
+            () =>
+                queued.evaluate((toast) => {
+                    const box = toast.getBoundingClientRect();
+                    return toast.contains(
+                        document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2),
+                    );
+                }),
+            { timeout: 3000 },
+        )
+        .toBe(true);
+    await page.screenshot({ path: info.outputPath(`notification-queued-${info.project.name}.png`), fullPage: true });
     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
     const history = page.getByRole('region', { name: 'Invitation history' });

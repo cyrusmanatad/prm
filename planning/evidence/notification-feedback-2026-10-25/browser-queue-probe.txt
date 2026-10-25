@@ -1,0 +1,15 @@
+
+> test:browser
+> playwright test notification-lifecycle-probe.spec.ts --project=desktop --repeat-each=2 --output=/tmp/weavdash-toast-queue-probe --reporter=list
+
+
+Running 2 tests using 1 worker
+
+(node:2304460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/notification-lifecycle-probe.spec.ts:18:1 › diagnose document removal notification lifecycle (25.5s)
+(node:2305257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/Browser/notification-lifecycle-probe.spec.ts:18:1 › diagnose document removal notification lifecycle (22.5s)
+
+  2 passed (50.5s)

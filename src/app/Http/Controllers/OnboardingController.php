@@ -40,7 +40,7 @@ class OnboardingController extends Controller
         $data = $request->validate(['pipeline_entry_id' => ['required', 'uuid'], 'label' => ['required', 'string', 'max:160']]);
         $recipient = $this->recipient($request);
         $result = $service->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data['pipeline_entry_id'], $data['label'], $recipient);
-        $message = $recipient ? 'Onboarding invitation sent to '.$recipient : 'Invitation link created';
+        $message = $recipient ? 'Onboarding invitation email queued for '.$recipient : 'Invitation link created';
 
         return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result, 201) : redirect('/partner/onboarding?request='.$result['id'])->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
     }
@@ -51,7 +51,7 @@ class OnboardingController extends Controller
         if ($action === 'renew') {
             $recipient = $this->recipient($request);
             $result = $service->renew((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $recipient);
-            $message = $recipient ? 'Onboarding invitation sent to '.$recipient : 'Invitation replaced. Previous sessions are closed';
+            $message = 'Invitation replaced. Previous sessions are closed'.($recipient ? '. Replacement invitation email queued for '.$recipient : '');
 
             return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result) : redirect('/partner/onboarding?request='.$record)->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
         }
