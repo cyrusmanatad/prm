@@ -1,0 +1,12 @@
+
+> test:browser
+> playwright test flash-feedback.spec.ts --project=mobile --output=/tmp/weavdash-flash-mobile-queue-fix --reporter=list
+
+
+Running 1 test using 1 worker
+
+(node:2304697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [mobile] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback (14.5s)
+
+  1 passed (16.9s)

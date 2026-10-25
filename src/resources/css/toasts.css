@@ -18,13 +18,15 @@
 
 .Toastify__toast-container:popover-open {
     inset: unset;
-    width: auto;
+    width: min(var(--toastify-toast-width), calc(100vw - 2em));
     height: auto;
     margin: 0;
     border: 0;
     padding: 0;
     background: transparent;
-    overflow: visible;
+    max-height: calc(100dvh - 2em);
+    overflow-y: auto;
+    overflow-x: hidden;
     color: inherit;
 }
 
@@ -66,6 +68,11 @@
     color: var(--wd-brand-hover);
 }
 
+.Toastify__toast-body {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .Toastify__toast-icon svg {
     fill: currentColor;
 }
@@ -93,9 +100,37 @@
     .Toastify__zoom-exit,
     .Toastify__flip-enter,
     .Toastify__flip-exit,
-    .Toastify__spinner,
-    .Toastify__progress-bar--animated {
-        animation: none !important;
+    .Toastify__spinner {
+        animation-name: wd-toast-lifetime !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
         transition: none !important;
+    }
+
+    .Toastify__toast[class*='-exit'] {
+        animation-name: wd-toast-dismiss !important;
+    }
+
+    @keyframes wd-toast-dismiss {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Toastify uses animationend as its dismissal timer. Keep time without motion. */
+    .Toastify__progress-bar--animated {
+        animation-name: wd-toast-lifetime !important;
+    }
+
+    @keyframes wd-toast-lifetime {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 1;
+        }
     }
 }

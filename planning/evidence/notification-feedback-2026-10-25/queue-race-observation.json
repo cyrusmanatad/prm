@@ -1,0 +1,1006 @@
+{
+  "scope": "Temporary synthetic diagnostic; capped-queue revision before final fix. Toast content only; no form or capability data.",
+  "events": [
+    {
+      "label": "mutation",
+      "time": 280.80000001192093,
+      "containers": []
+    },
+    {
+      "label": "success:Draft saved",
+      "time": 851.2000000178814,
+      "containers": []
+    },
+    {
+      "label": "mutation",
+      "time": 852.8000000119209,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIV",
+          "open": false,
+          "toasts": []
+        }
+      ]
+    },
+    {
+      "label": "after-0:Draft saved",
+      "time": 855.8000000119209,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIV",
+          "open": false,
+          "toasts": []
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 860.5,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIV",
+          "open": false,
+          "toasts": [
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-20:Draft saved",
+      "time": 871.7000000178814,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIV",
+          "open": false,
+          "toasts": [
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 912.5,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-100:Draft saved",
+      "time": 956.9000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-500:Draft saved",
+      "time": 1351.800000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "success:Upload received",
+      "time": 1515.300000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-0:Upload received",
+      "time": 1521.5,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 1528.6000000238419,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-20:Upload received",
+      "time": 1545.800000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-100:Upload received",
+      "time": 1615.7000000178814,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 1649.800000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-1000:Draft saved",
+      "time": 1853.1000000238419,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-500:Upload received",
+      "time": 2015.5,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 2246.300000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "success:Upload received",
+      "time": 2387.5,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-0:Upload received",
+      "time": 2395.100000023842,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 2399.7000000178814,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-20:Upload received",
+      "time": 2419,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-100:Upload received",
+      "time": 2491.300000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-1000:Upload received",
+      "time": 2516.4000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 2610,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIALOG",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-500:Upload received",
+      "time": 2889.2000000178814,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIALOG",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 2998.9000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 3197.9000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIALOG",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 3253.7000000178814,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 3394.100000023842,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIALOG",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-1000:Upload received",
+      "time": 3405.800000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIALOG",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "success:File removed",
+      "time": 6266.9000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIALOG",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-0:File removed",
+      "time": 6280,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "DIALOG",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 6289.9000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-20:File removed",
+      "time": 6298.9000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-100:File removed",
+      "time": 6367.300000011921,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-500:File removed",
+      "time": 6767.600000023842,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "after-1000:File removed",
+      "time": 7267.4000000059605,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 9919.5,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 9919.90000000596,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 9920.40000000596,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-1",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Draft saved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 11029.90000000596,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Upload received"
+            },
+            {
+              "id": "flash-2",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Upload received"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 11030.90000000596,
+      "containers": [
+        {
+          "className": "Toastify__toast-container Toastify__toast-container--top-right ",
+          "parent": "BODY",
+          "open": true,
+          "toasts": [
+            {
+              "id": "flash-3",
+              "className": "Toastify__toast Toastify__toast-theme--light Toastify__toast--success Toastify--animate Toastify__bounce-enter--top-right Toastify--animate Toastify__bounce-exit--top-right",
+              "text": "Upload received"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "mutation",
+      "time": 11033.300000011921,
+      "containers": []
+    }
+  ]
+}

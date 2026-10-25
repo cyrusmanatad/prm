@@ -1,0 +1,217 @@
+
+> test:browser
+> playwright test flash-feedback.spec.ts notifications.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-notification-feedback-focused --reporter=list
+
+
+Running 6 tests using 1 worker
+
+(node:2272714) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback (24.6s)
+(node:2273411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (42.8s)
+(node:2274353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (49.4s)
+(node:2275293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 [mobile] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback (24.9s)
+(node:2275806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (9.7s)
+
+
+  1) [desktop] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: /Role test workspace/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: /Role test workspace/ }) with timeout 15000ms
+      - waiting for getByRole('region', { name: /Role test workspace/ })
+
+
+      26 |     await page.getByRole('link', { name: 'Private finance records', exact: true }).click();
+      27 |     await page.goBack();
+    > 28 |     await expect(workspace).toBeVisible();
+         |                             ^
+      29 |     await expect(saved).toHaveCount(0);
+      30 |     // Abort a mutation before it reaches the server; keep advice until recovery.
+      31 |     await page.route('**/workspace', (route) => route.abort('failed'));
+        at /home/cyrusadmin/weavdash/src/tests/Browser/flash-feedback.spec.ts:28:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('dialog', { name: 'Revoke invitation?', exact: true }).getByRole('button', { name: 'Revoke invitation', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('dialog', { name: 'Revoke invitation?', exact: true }).getByRole('button', { name: 'Revoke invitation', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Revoke invitation?', exact: true }).getByRole('button', { name: 'Revoke invitation', exact: true })
+        33 × locator resolved to <button type="submit" data-v-ee0e37c1="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Revoke invitation</button>
+           - unexpected value "inactive"
+
+
+       at confirmations.ts:31
+
+      29 |         const submit = dialog.getByRole('button', { name: title, exact: true });
+      30 |         await page.keyboard.press('Shift+Tab');
+    > 31 |         await expect(submit).toBeFocused();
+         |                              ^
+      32 |         await page.keyboard.press('Tab');
+      33 |         await expect(cancel).toBeFocused();
+      34 |         const scan = await new AxeBuilder({ page }).analyze();
+        at confirmMutation (/home/cyrusadmin/weavdash/src/tests/Browser/confirmations.ts:31:30)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/notifications.spec.ts:73:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-focused/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-focused/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('dialog', { name: 'Revoke invitation access?', exact: true }).getByRole('button', { name: 'Revoke invitation access', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('dialog', { name: 'Revoke invitation access?', exact: true }).getByRole('button', { name: 'Revoke invitation access', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Revoke invitation access?', exact: true }).getByRole('button', { name: 'Revoke invitation access', exact: true })
+        33 × locator resolved to <button type="submit" data-v-ee0e37c1="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Revoke invitation access</button>
+           - unexpected value "inactive"
+
+
+       at confirmations.ts:31
+
+      29 |         const submit = dialog.getByRole('button', { name: title, exact: true });
+      30 |         await page.keyboard.press('Shift+Tab');
+    > 31 |         await expect(submit).toBeFocused();
+         |                              ^
+      32 |         await page.keyboard.press('Tab');
+      33 |         await expect(cancel).toBeFocused();
+      34 |         const scan = await new AxeBuilder({ page }).analyze();
+        at confirmMutation (/home/cyrusadmin/weavdash/src/tests/Browser/confirmations.ts:31:30)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding-notifications.spec.ts:85:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-focused/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-focused/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [mobile] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: /Role test workspace/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: /Role test workspace/ }) with timeout 15000ms
+      - waiting for getByRole('region', { name: /Role test workspace/ })
+
+
+      26 |     await page.getByRole('link', { name: 'Private finance records', exact: true }).click();
+      27 |     await expect(page).toHaveURL(/\/finance\/invoices$/);
+    > 28 |     await page.goBack();
+         |                         ^
+      29 |     await expect(workspace).toBeVisible();
+      30 |     await expect(saved).toHaveCount(0);
+      31 |     // Abort a mutation before it reaches the server; keep advice until recovery.
+        at /home/cyrusadmin/weavdash/src/tests/Browser/flash-feedback.spec.ts:28:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-focused/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      54 |             return toast.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2));
+      55 |         }),
+    > 56 |     ).toBe(true);
+         |       ^
+      57 |     await page.screenshot({ path: info.outputPath(`notification-queued-${info.project.name}.png`), fullPage: true });
+      58 |     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
+      59 |     await expect(page.getByRole('dialog')).not.toBeVisible();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/notifications.spec.ts:56:7
+
+    Error: End of central directory record signature not found. Either not a zip file, or file is truncated.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-focused/notifications-explicit-inv-66dc3-ation-without-external-mail-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-focused/notifications-explicit-inv-66dc3-ation-without-external-mail-mobile/error-context.md
+
+  5 failed
+    [desktop] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback
+    [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+    [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+    [mobile] › tests/Browser/flash-feedback.spec.ts:6:1 › repeated actions, history and network recovery retain honest accessible feedback
+    [mobile] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+  1 did not run

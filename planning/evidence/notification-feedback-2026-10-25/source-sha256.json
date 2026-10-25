@@ -1,0 +1,21 @@
+{
+  "base": "396b0e5",
+  "branch": "fix/notification-feedback",
+  "files": {
+    "src/app/Http/Controllers/OnboardingController.php": "486a63e47dffb5a8ec292ffb2c86e46577a07d91a65936b555162de17403f523",
+    "src/app/Http/Controllers/PortalController.php": "d37fbb693044d77de6788676cc373d338e538d6c6572cb77aee4ad837e980f46",
+    "src/resources/css/toasts.css": "da17f6f3fe0a1aba5ff8fb5bd069b2e48e762622604927da952efe28ca5ee571",
+    "src/resources/js/app.ts": "ad3e6fbe78f5c5c2cfc8e21ea593f88d4a2d99a4d1fb6a2e56dc65b496146d49",
+    "src/resources/js/composables/useFlashToast.ts": "cef259685a2e4cf9a48edb4d4404a0200832d682705cb87148f3a94d913c1227",
+    "src/resources/js/composables/useNotify.ts": "05d3ba8b2628cd2a87ad65ea55289d02203a3905e39636be679f8816e63bbd25",
+    "src/resources/js/pages/OutreachTemplates.vue": "57da5333685c22859f76607a52bd50f76ba305d560e7615876f331c560f846df",
+    "src/tests/Browser/confirmations.ts": "a94f4434647ebda3695a46b5a298c980ddf6b752976de1aa3190500be0bf8cce",
+    "src/tests/Browser/notifications.spec.ts": "b4ee80974b452a435382838120a8d2cee61df253a689275e3324b87c60553bbe",
+    "src/tests/Browser/onboarding-notifications.spec.ts": "475ed80a862c56950c9b0c6a6311a72cc27cf237879b4fa1fcd2d4691106b52e",
+    "src/tests/Browser/outreach-templates.spec.ts": "5847794490cb45a41867473fab41e13d14e537f73f3548af20705dc63cd84224",
+    "src/tests/Frontend/useNotify.test.ts": "306efde6492a05c558b929f14505ad3bec12a68e7581b91f75f64ae0cde100f2",
+    "src/tests/Frontend/useFlashToast.test.ts": "23c3111c15bc3ac79a023bd39eb18520aa50608803c521779e73eaebc3b36def",
+    "src/tests/Browser/flash-feedback.spec.ts": "d06f10f53dcddd8c87423d703445387fc58a18bbaf9978fbceb527deeb61f7de",
+    "src/tests/Browser/feedback.ts": "1486ba0c7d9db1dcfdd34095e043bb59934057305fbb25b6d8db395aa096f50b"
+  }
+}

@@ -25,6 +25,12 @@ describe('notification copy', () => {
         expect(flashTone('All sessions revoked. Sign in again.')).toBe('warning');
         expect(flashTone('Invitation replaced. Previous sessions are closed')).toBe('warning');
         expect(flashTone('Lead saved')).toBe('success');
+        expect(flashTone('Invitation email queued for partner@example.test')).toBe('info');
+        expect(
+            flashTone(
+                'Invitation replaced. Previous sessions are closed. Replacement invitation email queued for partner@example.test',
+            ),
+        ).toBe('warning');
     });
 
     it('prefixes action failures and leaves field errors alone', () => {
@@ -100,8 +106,21 @@ describe('useNotify', () => {
                 success: expect.objectContaining({ render: 'Draft copied', role: 'status' }),
                 error: expect.objectContaining({ role: 'alert', autoClose: 6000 }),
             }),
-            expect.objectContaining({ toastId: 'promise-copying-draft' }),
+            expect.objectContaining({ toastId: expect.stringMatching(/^promise-\d+-copying-draft$/) }),
         );
         expect(JSON.stringify(toast.promise.mock.calls[0])).not.toContain('dangerouslyHTMLString":true');
     });
+});
+
+it('uses separate pending notifications for repeated clipboard operations', async () => {
+    const notify = useNotify();
+    const messages = { pending: 'Copying', success: 'Copied', error: 'Copy failed' };
+    notify.promise(Promise.resolve('first'), messages, 'copy');
+    notify.promise(Promise.resolve('second'), messages, 'copy');
+    const calls = toast.promise.mock.calls;
+    expect(calls[0]![2]).not.toEqual(calls[1]![2]);
+    for (const [feedback, options] of calls) {
+        (options as { pending: { onOpen: () => void } }).pending.onOpen();
+        await feedback;
+    }
 });

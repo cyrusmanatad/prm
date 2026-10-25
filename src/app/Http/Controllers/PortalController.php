@@ -97,7 +97,7 @@ class PortalController extends Controller
         }
 
         // Encrypted at rest in the session; consumed on the next browser portal render.
-        $message = ! empty($data['send_email']) ? 'Invitation sent to '.$data['email'] : 'Invitation link created';
+        $message = ! empty($data['send_email']) ? 'Invitation email queued for '.$data['email'] : 'Invitation link created';
 
         return redirect('/brand')->with('partner_invite_url', encrypt($url))->with('status', $message);
     }

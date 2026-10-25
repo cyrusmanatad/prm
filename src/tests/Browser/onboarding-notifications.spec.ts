@@ -46,9 +46,14 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     await page.getByLabel('Invitation recipient email').fill('recipient@example.test');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({ path: info.outputPath('onboarding-email-controls.png'), fullPage: true });
-    await page.getByRole('button', { name: 'Start onboarding and email invitation', exact: true }).click();
+    await page.getByRole('button', { name: 'Start onboarding', exact: true }).click();
     const history = page.getByRole('region', { name: 'Onboarding email history' });
     await expect(history).toContainText('Email pending');
+    await expect(
+        page
+            .locator('.Toastify__toast')
+            .filter({ hasText: 'Onboarding invitation email queued for recipient@example.test' }),
+    ).toBeVisible();
     const link = await page.getByLabel('Private invitation link (copy now)').inputValue();
     deliver(email);
     await page.reload();
@@ -70,6 +75,9 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
         info,
     );
     await expect(history).toContainText('Email pending');
+    await expect(
+        page.locator('.Toastify__toast').filter({ hasText: 'Invitation replaced. Previous sessions are closed' }),
+    ).toContainText('Replacement invitation email queued for replacement@example.test');
     await expect(page.getByLabel('Email this onboarding invitation')).not.toBeChecked();
     expect((await recipientPage.goto(formUrl))?.status()).toBe(403);
     const replacement = await page.getByLabel('Private invitation link (copy now)').inputValue();

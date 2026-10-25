@@ -8,7 +8,7 @@ The [Claude Design handoff](platform-administration-design-handoff.md) is the se
 
 ## Priority and scope
 
-Implement this package next, starting with ADM-01. Then resume UI-07, broader UI-05 reference/deviation acceptance and M5-02–M5-10. Do not advance to the next milestone or declare launch readiness before the required administration gates pass. Existing UI-06 changes are checkpointed in `2aaeca1`; all unfinished tasks remain preserved. This planning update implements no administrator account, dashboard, permission, MFA or cleanup behavior.
+Implement this package next, starting with ADM-01. Then resume broader UI-05 reference/deviation acceptance and M5-02–M5-10. UI-07 was locally verified during the user’s session-specific hold on administrator implementation; see [notification feedback evidence](evidence/notification-feedback-2026-10-25/README.md). Administration itself remains unimplemented. Do not advance to the next milestone or declare launch readiness before the required administration gates pass. Existing UI-06 changes are checkpointed in `2aaeca1`; all unfinished tasks remain preserved. This planning update implements no administrator account, dashboard, permission, MFA or cleanup behavior.
 
 Required outcomes are a platform-owner/super-admin access path, account/workspace management, plan/entitlement administration, notification/job diagnostics, audit review and controlled support access. The initial real platform-owner account must survive test-data cleanup and be provisioned separately from synthetic fixtures. Platform administration remains distinct from tenant Owner/Admin membership.
 

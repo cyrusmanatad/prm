@@ -18,7 +18,7 @@ Status: stack approved (Laravel, Vue/Inertia, PostgreSQL, Redis/Laravel queues, 
 
 ## Current priority: platform administration
 
-**Confirmed D27:** platform-owner/super-admin administration is a required launch feature. Bring its M6 identity/operations work forward into **ADM-01–ADM-07**, starting next with authorization, MFA and protected real-owner bootstrap. Complete this package before advancing to the next milestone; then resume UI-07, remaining UI-05 acceptance and unfinished M5 work. Existing milestone numbers and predecessor gates remain unchanged.
+**Confirmed D27:** platform-owner/super-admin administration is a required launch feature. Bring its M6 identity/operations work forward into **ADM-01–ADM-07**, starting next with authorization, MFA and protected real-owner bootstrap. Complete this package before advancing to the next milestone; then resume remaining UI-05 acceptance and unfinished M5 work. UI-07 has scoped local passing evidence from the session-specific administrator hold; see [notification feedback verification](evidence/notification-feedback-2026-10-25/README.md). Existing milestone numbers and predecessor gates remain unchanged.
 
 The [administration contract](platform-administration-contract.md) defines account/workspace management, entitlement administration, notification/job diagnostics, audit review, controlled support access and safe synthetic-data cleanup. Platform ownership is separate from tenant roles and grants no automatic access to private CRM/documents. Cleanup must preserve the independently provisioned real owner and required records. Track implementation and evidence in the [register](remaining-tasks.md); this planning update does not create an administrator or delete data.
 

@@ -1,0 +1,2 @@
+Gitleaks synthetic positive control passed.
+Gitleaks source scan passed: 743 reviewable files; no findings.

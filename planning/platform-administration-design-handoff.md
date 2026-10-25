@@ -1,7 +1,5 @@
 # WeavDash Administration — Claude Design Handoff
 
-Prepared: 2026-10-25. Audience: Claude Design and the later Laravel/Vue implementation session. This file is self-contained: give Claude the whole document. Optional screenshots and source links at the end provide additional visual context.
-
 ## 1. Instruction to Claude Design
 
 Design a complete, responsive **WeavDash Administration** interface for the owner and authorized operators of a multi-tenant creator/brand collaboration application. Deliver connected screens and interaction states that engineers can later implement in the existing application. Prioritize a coherent, usable administration console with realistic tables, details, forms, security flows and confirmations.

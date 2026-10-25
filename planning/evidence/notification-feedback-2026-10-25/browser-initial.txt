@@ -1,0 +1,171 @@
+
+> test:browser
+> playwright test flash-feedback.spec.ts notifications.spec.ts onboarding-notifications.spec.ts outreach-templates.spec.ts foundation.spec.ts finance.spec.ts onboarding.spec.ts confirmation-errors.spec.ts --project=desktop --project=mobile --output=/tmp/weavdash-notification-feedback-browser --reporter=list
+
+
+Running 22 tests using 1 worker
+
+(node:2264396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors (8.6s)
+  ✓   2 [desktop] › tests/Browser/finance.spec.ts:8:1 › private draft exact money, edit and terminal void (16.2s)
+  ✓   3 [desktop] › tests/Browser/finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility (21.6s)
+  ✘   4 [desktop] › tests/Browser/flash-feedback.spec.ts:5:1 › repeated actions, history and network recovery retain honest accessible feedback (20.9s)
+(node:2266280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (8.5s)
+  ✓   6 [desktop] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (16.7s)
+  ✘   7 [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail (10.6s)
+(node:2267361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (2.1m)
+(node:2269300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (34.1s)
+  ✘  10 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (2.4s)
+
+
+  1) [desktop] › tests/Browser/flash-feedback.spec.ts:5:1 › repeated actions, history and network recovery retain honest accessible feedback
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.Toastify__toast')
+    Expected: 0
+    Received: 3
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.Toastify__toast') with timeout 15000ms
+      - waiting for locator('.Toastify__toast')
+        33 × locator resolved to 3 elements
+           - unexpected value "3"
+
+
+      20 |     await save.click();
+      21 |     await expect(saved).toHaveCount(2);
+    > 22 |     expect(await saved.last().evaluate((node) => getComputedStyle(node).animationName)).toBe('none');
+         |                                                    ^
+      23 |     for (const close of await page.locator('.Toastify__close-button').all()) await close.click();
+      24 |     await expect(page.locator('.Toastify__toast')).toHaveCount(0);
+      25 |     await page.getByRole('link', { name: 'Private finance records', exact: true }).click();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/flash-feedback.spec.ts:22:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-browser/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-browser/flash-feedback-repeated-ac-b44a7--honest-accessible-feedback-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      54 |             return toast.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2));
+      55 |         }),
+    > 56 |     ).toBe(true);
+         |       ^
+      57 |     await page.screenshot({ path: info.outputPath(`notification-queued-${info.project.name}.png`), fullPage: true });
+      58 |     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
+      59 |     await expect(page.getByRole('dialog')).not.toBeVisible();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/notifications.spec.ts:56:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-browser/notifications-explicit-inv-66dc3-ation-without-external-mail-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Start onboarding and email invitation', exact: true })
+
+
+      47 |     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      48 |     await page.screenshot({ path: info.outputPath('onboarding-email-controls.png'), fullPage: true });
+    > 49 |     await page.getByRole('button', { name: 'Start onboarding and email invitation', exact: true }).click();
+         |                                                                                                    ^
+      50 |     const history = page.getByRole('region', { name: 'Onboarding email history' });
+      51 |     await expect(history).toContainText('Email pending');
+      52 |     await expect(
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding-notifications.spec.ts:49:100
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-browser/onboarding-notifications-o-17bb6--safely-replaced-or-revoked-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+
+    Test was interrupted.
+
+    Error: locator.fill: Test ended.
+    Call log:
+      - waiting for getByLabel('Email address')
+
+
+       at helpers.ts:23
+
+      21 | export async function login(page: Page, email: string, password = 'browser-password-123') {
+      22 |     await page.goto('/login');
+    > 23 |     await page.getByLabel('Email address').fill(email);
+         |                                            ^
+      24 |     await page.getByLabel('Password', { exact: true }).fill(password);
+      25 |     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+      26 |     await expect(page).toHaveURL(/\/workspaces$/);
+        at login (/home/cyrusadmin/weavdash/src/tests/Browser/helpers.ts:23:44)
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding.spec.ts:144:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-notification-feedback-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-notification-feedback-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-notification-feedback-browser/onboarding-media-kit-publi-11749--are-explicit-and-revocable-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [desktop] › tests/Browser/flash-feedback.spec.ts:5:1 › repeated actions, history and network recovery retain honest accessible feedback
+    [desktop] › tests/Browser/notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+    [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+  1 interrupted
+    [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+  12 did not run
+  6 passed (4.6m)
