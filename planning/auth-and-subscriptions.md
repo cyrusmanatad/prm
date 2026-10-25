@@ -8,6 +8,12 @@ MVP identity acceptance: verified email signup/login through Laravel, recovery, 
 
 Use Laravel session authentication with secure HttpOnly cookies, explicit SameSite policy, CSRF protection, short session lifetimes with rotation, and server-side revocation. If OIDC is used, validate issuer/audience/state/nonce with a maintained client. Account linking requires verification; matching email alone must not silently merge identities. Audit sensitive login and access changes without storing secrets.
 
+## Required platform administration
+
+**Confirmed D27:** provide platform-owner/super-admin administration before advancing milestones, as specified in the [administration contract](platform-administration-contract.md). ADM-01 authorization/MFA/bootstrap is next. Global platform grants are distinct from workspace memberships; no public registration, tenant Owner/Admin role or hard-coded email may confer platform authority. A real initial owner must be explicitly provisioned, MFA-enrolled and protected during synthetic-data cleanup. Administrative UI/API, delegation, revocation and recovery require authorization and audit; no admin feature is implemented by this document.
+
+Preserve the existing support privacy boundary below: platform ownership does not grant default access to tenant-private CRM, files or message content. Any support access is scoped, time-limited, justified and audited. Exact platform grant/schema/recovery mechanics remain implementation design work under ADM-01; M1-04 still covers production MFA for workspace owners as well as operators.
+
 ## Organization permissions
 
 Proposed MVP policy uses the PDF roles with explicit capabilities. Laravel policies/gates and Form Requests enforce them for web actions and JSON endpoints; PostgreSQL RLS provides the independent database boundary:

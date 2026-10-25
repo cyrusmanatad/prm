@@ -22,6 +22,10 @@ These details beyond the confirmed objective are scope proposals. The PDF Phase 
 
 **Confirmed D25:** required transactional email notifications must work without Gmail/Outlook mailbox syncing. M5 includes closing the existing invitation/onboarding notification gaps and supporting required scheduled notifications. Mailbox syncing remains a future enhancement. See [M5 email requirements](m5-email-notifications.md) for current implementation gaps and delivery acceptance.
 
+## Required platform administration (D27)
+
+**Confirmed:** platform-owner/super-admin administration is required before launch and is prioritized before advancing to the next milestone. Scope includes account/workspace management, plans/entitlements, notification/job diagnostics, audit review and controlled support access, with MFA and protected real-owner provisioning. ADM-01 is the next implementation task. See the [administration contract](platform-administration-contract.md) for acceptance and safe synthetic-data cleanup. Existing tenant privacy, commercial and launch gates remain unchanged.
+
 ## Explicit future enhancements
 
 - Full campaign scheduling, draft/proof-of-post approvals and deal rooms; integrated contract/e-signature evidence.

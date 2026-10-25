@@ -2,6 +2,8 @@
 
 Status: **preparation started; operational implementation and acceptance pending** on 2026-10-23. M5's first slice is committed as `efd4fd6`; required M5 work remains open. The user's conditional request to advance toward M6 permits this preparation without changing the roadmap's predecessor/release gates.
 
+**Confirmed D27 priority (2026-10-25):** required platform-owner/super-admin administration is brought forward as ADM-01–ADM-07 before advancing milestones. Start ADM-01 authorization/MFA/bootstrap, then the remaining [administration contract](platform-administration-contract.md). No admin feature or real owner account is implemented yet; no test data has been removed. M5 remains incomplete and its required work is preserved.
+
 ## Prepared
 
 - [M6 readiness contract](m6-readiness-contract.md): work packages, dependencies, evidence requirements and completion boundary.
@@ -12,7 +14,7 @@ This is planning/handoff progress. No M6 restore drill, monitoring implementatio
 
 ## Next work and dependencies
 
-M5-01 onboarding invitation/replacement email is implemented with [local verification](evidence/m5/onboarding-email/README.md). Resume required **M5-02** onboarding lifecycle notification work, then the remaining M5 scheduling, approval and delivery/recovery tasks. Independent synthetic recovery/runbook/monitoring preparation can begin under **M6-01/M6-03/M6-04**. The [register](remaining-tasks.md) contains all other required and deferred tasks; completing this short next-step list does not close them.
+M5-01 onboarding invitation/replacement email is implemented with [local verification](evidence/m5/onboarding-email/README.md). D27 makes **ADM-01–ADM-07** the next implementation package. After it passes, resume UI-07, broader UI-05 reference/deviation acceptance, then required **M5-02** onboarding lifecycle notification work and the remaining M5 scheduling, approval and delivery/recovery tasks. Independent synthetic recovery/runbook/monitoring preparation can begin under **M6-01/M6-03/M6-04**. The [register](remaining-tasks.md) contains all other required and deferred tasks; completing this short next-step list does not close them.
 
 M6 acceptance requires implemented required predecessor workflows plus applicable manual, identity, data/privacy, recovery, hosting, security, pilot/UAT and commercial gates. User/provider/reviewer decisions remain open until recorded. Optional AI/mailbox integration and future M7–M9 scope are tracked without becoming mandatory M6 features.
 
