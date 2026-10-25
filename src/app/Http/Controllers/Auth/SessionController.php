@@ -36,6 +36,6 @@ class SessionController extends Controller
 
         Inertia::clearHistory();
 
-        return $this->completed($request, ['message' => 'Signed out.'], '/login');
+        return $this->completed($request, ['message' => 'Signed out'], '/login');
     }
 }

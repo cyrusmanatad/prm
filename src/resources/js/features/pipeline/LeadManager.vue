@@ -2,7 +2,7 @@
 import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { Link, router } from '@inertiajs/vue3';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
 import SelectField from '../../components/SelectField.vue';
@@ -12,6 +12,7 @@ import EntryFields from './EntryFields.vue';
 import PipelineBoard from './PipelineBoard.vue';
 import { fromMinor, money, toMinor } from './money';
 import type { EntryDetail, LeadForm, PipelineWorkspace } from './types';
+import { useNotify } from '../../composables/useNotify';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 
 const props = defineProps<
@@ -71,6 +72,24 @@ const formAction = ref('');
 const loadedVersion = ref(0);
 const formErrors = ref<Record<string, string>>({});
 const errors = computed(() => ({ ...(props.errors ?? {}), ...formErrors.value }));
+const notify = useNotify();
+function versionMessage(value: unknown): string {
+    if (typeof value === 'string') return value.trim();
+    if (Array.isArray(value) && typeof value[0] === 'string') return value[0].trim();
+    return '';
+}
+const stopVersionToast = router.on('error', (event) => {
+    const message = versionMessage(event.detail.errors.version);
+    if (message) notify.error(message, { persist: true, toastId: 'lead-version' });
+});
+const stopVersionDismiss = router.on('success', () => {
+    notify.dismiss('lead-version');
+});
+onUnmounted(() => {
+    stopVersionToast();
+    stopVersionDismiss();
+    notify.dismiss('lead-version');
+});
 useValidationFocus(
     root,
     () => errors.value,
@@ -368,17 +387,10 @@ function reloadSelected(): void {
 
 <template>
     <div ref="root" class="wd-pipeline">
-        <template v-if="!active"
-            ><p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <div v-if="errors.version" class="wd-banner" role="alert">
-                <p>{{ errors.version }}</p>
-                <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
-                <p class="wd-hint">Copy any unsaved changes before reloading.</p>
-            </div>
-            <ul v-if="Object.keys(errors).some((key) => key !== 'version')" class="wd-field-error" role="alert">
-                <li v-for="(message, field) in errors" :key="field">{{ message }}</li>
-            </ul></template
-        >
+        <div v-if="!active && errors.version" class="wd-banner">
+            <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
+            <p class="wd-hint">Copy any unsaved changes before reloading.</p>
+        </div>
         <p v-if="!canWrite" class="wd-hint">Your viewer role provides read-only access to this pipeline.</p>
         <PipelineBoard
             :entries="entries"
@@ -392,7 +404,7 @@ function reloadSelected(): void {
         />
         <dialog
             ref="dialog"
-            :class="['lead-dialog', { 'lead-drawer': selected }]"
+            :class="['wd-dialog', 'lead-dialog', { 'lead-drawer': selected }]"
             aria-labelledby="lead-dialog-title"
             @cancel.prevent="close"
             @keydown="containDialogFocus($event, dialog)"
@@ -473,15 +485,10 @@ function reloadSelected(): void {
                     </div>
                 </header>
                 <div class="drawer-body">
-                    <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-                    <div v-if="errors.version" class="wd-banner" role="alert">
-                        <p>{{ errors.version }}</p>
+                    <div v-if="errors.version" class="wd-banner">
                         <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
                         <p class="wd-hint">Copy any unsaved changes before reloading.</p>
                     </div>
-                    <ul v-if="Object.keys(errors).some((key) => key !== 'version')" class="wd-field-error" role="alert">
-                        <li v-for="(message, field) in errors" :key="field">{{ message }}</li>
-                    </ul>
                     <div
                         v-if="drawerTab === 'details'"
                         id="lead-details"
@@ -817,17 +824,12 @@ function reloadSelected(): void {
             <template v-else>
                 <div class="wd-dialog-header">
                     <h2 id="lead-dialog-title">Add lead</h2>
-                    <DialogClose label="Cancel" :disabled="busy" @click="close" />
+                    <DialogClose label="Close add lead" :disabled="busy" @click="close" />
                 </div>
-                <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-                <div v-if="errors.version" class="wd-banner" role="alert">
-                    <p>{{ errors.version }}</p>
+                <div v-if="errors.version" class="wd-banner">
                     <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
                     <p class="wd-hint">Copy any unsaved changes before reloading.</p>
                 </div>
-                <ul v-if="Object.keys(errors).some((key) => key !== 'version')" class="wd-field-error" role="alert">
-                    <li v-for="(message, field) in errors" :key="field">{{ message }}</li>
-                </ul>
                 <form v-if="creating && canWrite" :aria-busy="busy" @submit.prevent="create">
                     <fieldset class="wd-fields" :disabled="busy || !!errors.version">
                         <legend class="wd-sr-only">New lead</legend>
@@ -836,9 +838,12 @@ function reloadSelected(): void {
                             prefix="create"
                             :errors="formAction === 'create' ? errors : {}"
                         />
-                        <Button type="submit" class="wd-button wd-button-primary">{{
-                            busy ? 'Saving…' : 'Capture lead'
-                        }}</Button>
+                        <div class="wd-dialog-footer">
+                            <Button type="button" class="wd-button wd-button-secondary" @click="close">Cancel</Button>
+                            <Button type="submit" class="wd-button wd-button-primary">{{
+                                busy ? 'Saving…' : 'Capture lead'
+                            }}</Button>
+                        </div>
                     </fieldset>
                 </form>
             </template>
@@ -847,18 +852,7 @@ function reloadSelected(): void {
 </template>
 <style scoped>
 .lead-dialog {
-    position: fixed;
-    inset: 0;
-    margin: auto;
     width: min(640px, calc(100% - 32px));
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
-    padding: 24px;
-    border: 1px solid var(--wd-line);
-    border-radius: 16px;
-    background: var(--wd-surface);
-    color: var(--wd-ink);
-    overscroll-behavior: contain;
 }
 .lead-dialog.lead-drawer {
     inset: 0 0 0 auto;
@@ -872,9 +866,6 @@ function reloadSelected(): void {
     overflow: clip;
     border-width: 0 0 0 1px;
     border-radius: 0;
-}
-.lead-dialog::backdrop {
-    background: rgb(0 0 0 / 45%);
 }
 .lead-drawer :focus-visible {
     outline: 2px solid var(--wd-brand);

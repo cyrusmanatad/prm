@@ -38,22 +38,32 @@ class OnboardingController extends Controller
     public function store(Request $request, Onboarding $service): mixed
     {
         $data = $request->validate(['pipeline_entry_id' => ['required', 'uuid'], 'label' => ['required', 'string', 'max:160']]);
-        $result = $service->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data['pipeline_entry_id'], $data['label'], $this->recipient($request));
+        $recipient = $this->recipient($request);
+        $result = $service->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data['pipeline_entry_id'], $data['label'], $recipient);
+        $message = $recipient ? 'Onboarding invitation sent to '.$recipient : 'Invitation link created';
 
-        return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result, 201) : redirect('/partner/onboarding?request='.$result['id'])->with('issued_link', Crypt::encryptString($result['url']))->with('status', 'Invitation link created. Copy it now; it is shown once.');
+        return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result, 201) : redirect('/partner/onboarding?request='.$result['id'])->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
     }
 
     public function review(Request $request, Onboarding $service, string $record, string $action): mixed
     {
         $d = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646'], 'note' => [$action === 'correct' ? 'required' : 'nullable', 'string', 'max:2000']]);
         if ($action === 'renew') {
-            $result = $service->renew((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $this->recipient($request));
+            $recipient = $this->recipient($request);
+            $result = $service->renew((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $recipient);
+            $message = $recipient ? 'Onboarding invitation sent to '.$recipient : 'Invitation replaced. Previous sessions are closed';
 
-            return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result) : redirect('/partner/onboarding?request='.$record)->with('issued_link', Crypt::encryptString($result['url']))->with('status', 'New invitation created. Previous sessions are closed.');
+            return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result) : redirect('/partner/onboarding?request='.$record)->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
         }
         $service->review((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $action, $d['note'] ?? '');
+        $message = match ($action) {
+            'correct' => 'Correction requested',
+            'accept' => 'Onboarding accepted',
+            'revoke' => 'Onboarding invitation revoked',
+            default => 'Onboarding updated',
+        };
 
-        return $this->completed($request, ['message' => 'Onboarding '.$action.' saved.'], '/partner/onboarding?request='.$record);
+        return $this->completed($request, ['message' => $message], '/partner/onboarding?request='.$record);
     }
 
     public function exchange(Request $request, Onboarding $service): mixed
@@ -64,7 +74,7 @@ class OnboardingController extends Controller
         $request->session()->regenerate();
         $request->session()->put('onboarding.'.$id, Crypt::encryptString($secret));
 
-        return $this->completed($request, ['message' => 'Invitation opened.', 'id' => $id], '/onboarding/form/'.$id);
+        return $this->completed($request, ['message' => 'Invitation opened', 'id' => $id], '/onboarding/form/'.$id);
     }
 
     public function form(Request $request, Onboarding $service, string $record): mixed
@@ -80,7 +90,7 @@ class OnboardingController extends Controller
         return $this->scoped($request, $service, $record, function ($org, $id) use ($request, $service, $data, $version) {
             $service->save($org, $id, $data, $version);
 
-            return $this->completed($request, ['message' => 'Draft saved.'], '/onboarding/form/'.$id);
+            return $this->completed($request, ['message' => 'Draft saved'], '/onboarding/form/'.$id);
         });
     }
 
@@ -93,7 +103,7 @@ class OnboardingController extends Controller
         return $this->scoped($request, $service, $record, function ($org, $id) use ($request, $service, $data, $version, $key) {
             $submission = $service->submit($org, $id, $version, $key, $data);
 
-            return $this->completed($request, ['message' => 'Form submitted for review.', 'submission_id' => $submission], '/onboarding/form/'.$id);
+            return $this->completed($request, ['message' => 'Form submitted for review', 'submission_id' => $submission], '/onboarding/form/'.$id);
         });
     }
 
@@ -105,7 +115,7 @@ class OnboardingController extends Controller
         return $this->scoped($request, $service, $record, function ($org, $id) use ($request, $docs, $version) {
             $doc = $docs->upload($org, $id, $version, $request->file('file'));
 
-            return $this->completed($request, ['message' => 'Upload received. Check its scan status before submitting.', 'id' => $doc], '/onboarding/form/'.$id, 201);
+            return $this->completed($request, ['message' => 'Upload received', 'id' => $doc], '/onboarding/form/'.$id, 201);
         });
     }
 
@@ -121,7 +131,7 @@ class OnboardingController extends Controller
         return $this->scoped($request, $service, $record, function ($org, $id) use ($request, $docs, $document, $version) {
             $docs->remove($org, $id, $document, $version);
 
-            return $this->completed($request, ['message' => 'File removed.'], '/onboarding/form/'.$id);
+            return $this->completed($request, ['message' => 'File removed'], '/onboarding/form/'.$id);
         });
     }
 
@@ -132,7 +142,7 @@ class OnboardingController extends Controller
             abort_unless($pipeline->canWrite((int) $request->user()->id, $org), 403);
             $docs->scan($org, $record, $document);
 
-            return $this->completed($request, ['message' => 'Scan attempted.'], '/partner/onboarding?request='.$record);
+            return $this->completed($request, ['message' => 'Scan attempted'], '/partner/onboarding?request='.$record);
         }
 
         return $this->download($docs, $org, $record, $document);

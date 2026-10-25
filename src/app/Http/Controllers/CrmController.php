@@ -35,21 +35,21 @@ class CrmController extends Controller
     {
         $id = $crm->save((int) $request->user()->id, $request->session()->get('active_org_id'), $kind, $this->details($request, $kind));
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Record created.'], $this->destination($request), 201);
+        return $this->completed($request, ['id' => $id, 'message' => $this->recordLabel($kind).' created'], $this->destination($request), 201);
     }
 
     public function update(Request $request, Crm $crm, string $kind, string $record): mixed
     {
         $crm->save((int) $request->user()->id, $request->session()->get('active_org_id'), $kind, $this->details($request, $kind), $record, $this->version($request));
 
-        return $this->completed($request, ['message' => 'Record saved.'], $this->destination($request));
+        return $this->completed($request, ['message' => $this->recordLabel($kind).' saved'], $this->destination($request));
     }
 
     public function destroy(Request $request, Crm $crm, string $kind, string $record): mixed
     {
         $crm->delete((int) $request->user()->id, $request->session()->get('active_org_id'), $kind, $record, $this->version($request));
 
-        return $this->completed($request, ['message' => 'Record deleted.'], $this->destination($request));
+        return $this->completed($request, ['message' => $this->recordLabel($kind).' deleted'], $this->destination($request));
     }
 
     public function command(Request $request, Crm $crm, string $record, string $action): mixed
@@ -61,7 +61,14 @@ class CrmController extends Controller
         }
         $crm->command((int) $request->user()->id, $request->session()->get('active_org_id'), $record, $this->version($request), $action, $due);
 
-        return $this->completed($request, ['message' => 'Reminder '.$action.' saved.'], $this->destination($request));
+        $message = match ($action) {
+            'snooze' => 'Reminder snoozed until '.Carbon::parse((string) $due)->format('M j'),
+            'complete' => 'Reminder completed',
+            'reopen' => 'Reminder reopened',
+            default => 'Reminder updated',
+        };
+
+        return $this->completed($request, ['message' => $message], $this->destination($request));
     }
 
     public function link(Request $request, Crm $crm, string $entry): mixed
@@ -69,7 +76,7 @@ class CrmController extends Controller
         $contact = $request->validate(['contact_id' => ['required', 'uuid']])['contact_id'];
         $crm->link((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, $contact, $this->version($request), $request->isMethod('post'));
 
-        return $this->completed($request, ['message' => 'Contact links saved.'], '/partner/contacts?entry='.$entry);
+        return $this->completed($request, ['message' => $request->isMethod('post') ? 'Contact linked' : 'Contact unlinked'], '/partner/contacts?entry='.$entry);
     }
 
     private function details(Request $request, string $kind): array
@@ -87,6 +94,11 @@ class CrmController extends Controller
     private function version(Request $request): int
     {
         return (int) $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']])['version'];
+    }
+
+    private function recordLabel(string $kind): string
+    {
+        return $kind === 'contacts' ? 'Contact' : 'Reminder';
     }
 
     private function destination(Request $request): string

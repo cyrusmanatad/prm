@@ -47,6 +47,14 @@ class ManualPaymentController extends Controller
         }
         $id = $payments->command((int) $request->user()->id, $org, $key, $action, $data, $payment);
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Manual record '.$action.' completed.'], '/finance/payments', $action === 'record' ? 201 : 200);
+        $message = match ($action) {
+            'record' => 'Payment recorded',
+            'allocate' => 'Payment allocated',
+            'reverse' => 'Allocation reversed',
+            'void' => 'Payment voided',
+            default => 'Payment saved',
+        };
+
+        return $this->completed($request, ['id' => $id, 'message' => $message], '/finance/payments', $action === 'record' ? 201 : 200);
     }
 }

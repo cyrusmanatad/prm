@@ -102,11 +102,16 @@ function choose(option: SelectOption): void {
     setValue(option.value);
     close();
 }
+function highlight(index: number): void {
+    active.value = index;
+    const option = document.getElementById(optionId(filtered.value[active.value]?.value ?? ''));
+    option?.scrollIntoView({ block: 'nearest' });
+    if (document.activeElement?.getAttribute('role') === 'option') option?.focus();
+}
 function move(delta: number): void {
     if (!filtered.value.length) return;
     const count = filtered.value.length;
-    active.value = (active.value + delta + count) % count;
-    document.getElementById(optionId(filtered.value[active.value]?.value ?? ''))?.scrollIntoView({ block: 'nearest' });
+    highlight((active.value + delta + count) % count);
 }
 function onTriggerKey(event: KeyboardEvent): void {
     if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
@@ -121,15 +126,16 @@ function onPanelKey(event: KeyboardEvent): void {
     } else if (event.key === 'ArrowUp') {
         event.preventDefault();
         move(-1);
-    } else if (event.key === 'Home') {
+    } else if (event.key === 'Home' && event.target !== search.value) {
         event.preventDefault();
-        active.value = 0;
-    } else if (event.key === 'End') {
+        highlight(0);
+    } else if (event.key === 'End' && event.target !== search.value) {
         event.preventDefault();
-        active.value = Math.max(filtered.value.length - 1, 0);
+        highlight(Math.max(filtered.value.length - 1, 0));
     } else if (event.key === 'Enter') {
         event.preventDefault();
-        const option = filtered.value[active.value];
+        const focused = event.target instanceof HTMLElement ? event.target.id : '';
+        const option = filtered.value.find((item) => optionId(item.value) === focused) ?? filtered.value[active.value];
         if (option) choose(option);
     } else if (event.key === 'Escape') {
         event.preventDefault();
@@ -209,8 +215,12 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
                     class="wd-select-search"
                     :class="{ 'has-icon': showSearchIcon }"
                     type="search"
+                    role="combobox"
                     :aria-label="searchAria"
                     :aria-controls="listId"
+                    aria-expanded="true"
+                    aria-autocomplete="list"
+                    :aria-activedescendant="activeId"
                     autocomplete="off"
                     :placeholder="searchPlaceholder"
                     v-model="query"
@@ -227,6 +237,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
                         role="option"
                         :aria-selected="option.value === value ? 'true' : 'false'"
                         @mouseenter="active = index"
+                        @focus="active = index"
                         @click="choose(option)"
                     >
                         <span class="wd-select-option-copy">

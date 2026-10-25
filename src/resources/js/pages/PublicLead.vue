@@ -53,12 +53,9 @@ function submit(): void {
                     Share your business contact details with the creator who provided this link.
                 </p>
             </div>
-            <p v-if="status || done" role="status" class="wd-status">
-                {{ status || 'Contact details shared. The creator who sent this link can now follow up.' }}
+            <p v-if="status || done" class="wd-description">
+                Contact details shared. The creator who sent this link can now follow up.
             </p>
-            <ul v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
-                <li v-for="(message, k) in errors" :key="k">{{ message }}</li>
-            </ul>
             <form v-if="!done" class="wd-card wd-fields" :aria-busy="busy" @submit.prevent="submit">
                 <FormField
                     id="lead-code"
@@ -73,7 +70,13 @@ function submit(): void {
                     label="Business name"
                     :maxlength="160"
                     :error="errors?.brand_name"
-                /><FormField id="lead-contact" v-model="name" label="Contact name" :maxlength="120" /><FormField
+                /><FormField
+                    id="lead-contact"
+                    v-model="name"
+                    label="Contact name"
+                    :maxlength="120"
+                    :error="errors?.contact_name"
+                /><FormField
                     id="lead-email"
                     v-model="email"
                     label="Business email"
@@ -81,9 +84,18 @@ function submit(): void {
                     :maxlength="255"
                     :error="errors?.email"
                 /><label class="wd-checkbox"
-                    ><input v-model="consent" type="checkbox" required />I agree to share these details with this
-                    creator for this conversation.</label
-                ><Button type="submit" class="wd-button wd-button-primary" :disabled="busy"
+                    ><input
+                        v-model="consent"
+                        type="checkbox"
+                        required
+                        :aria-invalid="errors?.consent ? true : undefined"
+                        :aria-describedby="errors?.consent ? 'lead-consent-error' : undefined"
+                    />I agree to share these details with this creator for this conversation.</label
+                >
+                <p v-if="errors?.consent" id="lead-consent-error" class="wd-field-error" role="alert">
+                    {{ errors.consent }}
+                </p>
+                <Button type="submit" class="wd-button wd-button-primary" :disabled="busy"
                     >Share contact details</Button
                 >
             </form>

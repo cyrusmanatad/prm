@@ -469,9 +469,9 @@ function nextPage(): void {
                                 :key="lead.id"
                                 type="button"
                                 class="lead-card"
-                                :aria-label="`Open ${lead.brand}`"
                                 @click="emit('open', lead.id)"
                             >
+                                <span class="wd-sr-only">Open </span>
                                 <span class="lead-brand">{{ lead.brand }}</span>
                                 <span class="lead-amount">{{ lead.amountText }}</span>
                                 <span v-if="lead.hasTags" class="lead-tags">

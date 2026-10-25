@@ -3,7 +3,13 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 import OnboardingForm from '../../resources/js/pages/OnboardingForm.vue';
 import PublicPresence from '../../resources/js/pages/PublicPresence.vue';
 import Pipeline from '../../resources/js/features/pipeline/LeadManager.vue';
-const api = vi.hoisted(() => ({ visit: vi.fn(), put: vi.fn(), post: vi.fn(), get: vi.fn() }));
+const api = vi.hoisted(() => ({
+    visit: vi.fn(),
+    put: vi.fn(),
+    post: vi.fn(),
+    get: vi.fn(),
+    on: vi.fn(() => () => {}),
+}));
 vi.mock('@inertiajs/vue3', () => ({
     router: api,
     Head: { template: '<span />' },
@@ -99,6 +105,7 @@ it('preserves the pipeline draft version across an activity redirect containing 
     });
     wrappers.push(wrapper);
     await wrapper.get('#edit-notes').setValue('Unsaved private draft');
+    await wrapper.get('#lead-tab-activity').trigger('click');
     await wrapper.get('#activity-body').setValue('Logged activity');
     await wrapper
         .findAll('form')
@@ -106,6 +113,7 @@ it('preserves the pipeline draft version across an activity redirect containing 
         .trigger('submit');
     await wrapper.setProps({ selected: { ...selected, notes: 'Another writer', version: 3 } });
     success(api.visit.mock.calls[0]!);
+    await wrapper.get('#lead-tab-details').trigger('click');
     await wrapper
         .findAll('form')
         .find((form) => form.find('#edit-brand').exists())!

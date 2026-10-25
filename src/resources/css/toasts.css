@@ -1,0 +1,101 @@
+:root {
+    --toastify-font-family: var(--wd-font-body);
+    --toastify-toast-width: 360px;
+    --toastify-z-index: 9999;
+    --toastify-color-success: var(--wd-success);
+    --toastify-color-error: var(--wd-danger);
+    --toastify-color-warning: var(--wd-warning);
+    --toastify-color-info: var(--wd-brand);
+    --toastify-icon-color-success: var(--wd-success);
+    --toastify-icon-color-error: var(--wd-danger);
+    --toastify-icon-color-warning: var(--wd-warning);
+    --toastify-icon-color-info: var(--wd-brand);
+    --toastify-color-progress-success: var(--wd-success);
+    --toastify-color-progress-error: var(--wd-danger);
+    --toastify-color-progress-warning: var(--wd-warning);
+    --toastify-color-progress-info: var(--wd-brand);
+}
+
+.Toastify__toast-container:popover-open {
+    inset: unset;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+    color: inherit;
+}
+
+.Toastify__toast-container--top-right:popover-open {
+    top: 1em;
+    right: 1em;
+    bottom: auto;
+    left: auto;
+}
+
+.Toastify__toast {
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    box-shadow: none;
+    font-family: var(--wd-font-body);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.Toastify__toast--success {
+    background: var(--wd-success-bg);
+    color: var(--wd-success);
+}
+
+.Toastify__toast--error {
+    background: var(--wd-danger-bg);
+    color: var(--wd-danger);
+}
+
+.Toastify__toast--warning {
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+}
+
+.Toastify__toast--info,
+.Toastify__toast--default {
+    background: #f6e3ec;
+    color: var(--wd-brand-hover);
+}
+
+.Toastify__toast-icon svg {
+    fill: currentColor;
+}
+
+.Toastify__toast .Toastify__close-button {
+    color: currentColor;
+    opacity: 1;
+}
+
+.Toastify__toast .Toastify__close-button:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .Toastify__toast,
+    .Toastify--animate,
+    .Toastify--animate-icon,
+    .Toastify__bounce-enter,
+    .Toastify__bounce-exit,
+    .Toastify__slide-enter,
+    .Toastify__slide-exit,
+    .Toastify__zoom-enter,
+    .Toastify__zoom-exit,
+    .Toastify__flip-enter,
+    .Toastify__flip-exit,
+    .Toastify__spinner,
+    .Toastify__progress-bar--animated {
+        animation: none !important;
+        transition: none !important;
+    }
+}

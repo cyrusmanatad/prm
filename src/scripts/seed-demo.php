@@ -1,6 +1,6 @@
 <?php
 
-// Explicit local demo fixture. Run after migrate:fresh and runtime-grants.sql.
+// Explicit local demo fixture in Philippine pesos (PHP). Requires an empty migrated database and runtime grants.
 use App\Enums\PipelineStage;
 use App\Models\User;
 use App\Services\Crm;
@@ -64,7 +64,7 @@ function populate(int $actor, string $org, string $name, int $count): void
         $crm = app(Crm::class);
         for ($i = 1; $i <= $count; $i++) {
             $email = "contact-$i-".substr($org, 0, 8).'@example.test';
-            $entry = $pipeline->create($actor, $org, ['brand_name' => ['Cedar Studio', 'Aurora Goods', 'Summit Outdoors', 'Harbor Coffee', 'Bloom Skincare', 'Atlas Travel', 'Willow Home', 'Orbit Tech', 'Solstice Fitness', 'Meadow Foods'][$i - 1], 'contact_name' => "Campaign Manager $i", 'contact_email' => $email, 'currency' => 'USD', 'value_minor' => 50000 + $i * 15000, 'notes' => 'Synthetic campaign opportunity: short-form video and product photography.', 'next_action_due' => now()->addDays($i - 4)]);
+            $entry = $pipeline->create($actor, $org, ['brand_name' => ['Cedar Studio', 'Aurora Goods', 'Summit Outdoors', 'Harbor Coffee', 'Bloom Skincare', 'Atlas Travel', 'Willow Home', 'Orbit Tech', 'Solstice Fitness', 'Meadow Foods'][$i - 1], 'contact_name' => "Campaign Manager $i", 'contact_email' => $email, 'currency' => 'PHP', 'value_minor' => 50000 + $i * 15000, 'notes' => 'Synthetic campaign opportunity: short-form video and product photography.', 'next_action_due' => now()->addDays($i - 4)]);
             $pipeline->change($actor, $org, $entry, 1, 'stage', ['stage' => PipelineStage::cases()[($i - 1) % 7]->value]);
             $pipeline->addActivity($actor, $org, $entry, 2, 'note', 'Discussed campaign scope, timeline and creative direction.');
             $contact = $crm->save($actor, $org, 'contacts', ['name' => "Campaign Manager $i", 'email' => $email, 'company' => "Demo prospect $i", 'notes' => 'Prefers an initial creative brief before a call.']);
@@ -97,13 +97,13 @@ function populate(int $actor, string $org, string $name, int $count): void
         $GLOBALS['links'][] = "$name lead capture: ".$link['url'];
         $GLOBALS['links'][] = "$name media kit: http://localhost:8000/kits/".DB::table('media_kits')->where('org_id', $org)->value('id');
         for ($i = 1; $i <= 3; $i++) {
-            $invoice = app(InvoiceDrafts::class)->command($actor, $org, (string) Str::uuid(), 'create', ['recipient_name' => "Demo campaign client $i", 'currency' => 'USD', 'due_date' => now()->addDays(14)->toDateString(), 'lines' => [['description' => 'Campaign content package', 'quantity' => 2, 'unit_price_minor' => '75000'], ['description' => 'Usage rights', 'quantity' => 1, 'unit_price_minor' => '25000']]], null);
+            $invoice = app(InvoiceDrafts::class)->command($actor, $org, (string) Str::uuid(), 'create', ['recipient_name' => "Demo campaign client $i", 'currency' => 'PHP', 'due_date' => now()->addDays(14)->toDateString(), 'lines' => [['description' => 'Campaign content package', 'quantity' => 2, 'unit_price_minor' => '75000'], ['description' => 'Usage rights', 'quantity' => 1, 'unit_price_minor' => '25000']]], null);
             if ($i === 3) {
                 app(InvoiceDrafts::class)->command($actor, $org, (string) Str::uuid(), 'void', ['version' => 1], $invoice);
 
                 continue;
             }
-            $payment = app(ManualPayments::class)->command($actor, $org, (string) Str::uuid(), 'record', ['currency' => 'USD', 'amount_minor' => $i === 1 ? '175000' : '50000', 'received_on' => now()->subDays($i)->toDateString(), 'evidence_reference' => "DEMO-$org-$i", 'correction_of' => null], null);
+            $payment = app(ManualPayments::class)->command($actor, $org, (string) Str::uuid(), 'record', ['currency' => 'PHP', 'amount_minor' => $i === 1 ? '175000' : '50000', 'received_on' => now()->subDays($i)->toDateString(), 'evidence_reference' => "DEMO-$org-$i", 'correction_of' => null], null);
             app(ManualPayments::class)->command($actor, $org, (string) Str::uuid(), 'allocate', ['version' => 1, 'invoice_id' => $invoice, 'invoice_version' => 1, 'amount_minor' => $i === 1 ? '175000' : '50000'], $payment);
         }
     });

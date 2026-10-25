@@ -81,17 +81,16 @@ function save(): void {
                 <h1>Media kit</h1>
                 <p class="wd-description">Choose exactly what to share publicly.</p>
             </div>
-            <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
-                <p v-for="(msg, k) in errors" :key="k">{{ msg }}</p>
+            <div v-if="errors?.version" role="alert" class="wd-banner">
+                <p>{{ errors.version }}</p>
                 <button
-                    v-if="errors.version"
                     type="button"
                     class="wd-link"
                     @click="router.get('/partner/media-kit', {}, { preserveState: false })"
                 >
                     Reload latest kit
                 </button>
+                <p class="wd-hint">Copy unsaved changes before reloading.</p>
             </div>
             <form class="wd-card" :aria-busy="busy" @submit.prevent="requestSave($event)">
                 <fieldset class="wd-fields" :disabled="!canWrite || busy || !!errors?.version">
@@ -105,7 +104,17 @@ function save(): void {
                     />
                     <div class="wd-field">
                         <label for="kit-bio">Public introduction</label
-                        ><textarea id="kit-bio" v-model="bio" rows="5" maxlength="5000" />
+                        ><textarea
+                            id="kit-bio"
+                            v-model="bio"
+                            rows="5"
+                            maxlength="5000"
+                            :aria-invalid="errors?.bio ? true : undefined"
+                            :aria-describedby="errors?.bio ? 'kit-bio-error' : undefined"
+                        />
+                        <p v-if="errors?.bio" id="kit-bio-error" class="wd-field-error" role="alert">
+                            {{ errors.bio }}
+                        </p>
                     </div>
                     <FormField
                         id="kit-website"
@@ -150,9 +159,18 @@ function save(): void {
                     <label class="wd-checkbox"
                         ><input v-model="published" type="checkbox" />Publish this media kit</label
                     ><label v-if="published" class="wd-checkbox"
-                        ><input v-model="consent" type="checkbox" />I agree to publish this title, introduction, website
-                        and social links for anyone with the public URL.</label
-                    ><Button type="submit" class="wd-button wd-button-primary">Save media kit</Button>
+                        ><input
+                            v-model="consent"
+                            type="checkbox"
+                            :aria-invalid="errors?.consent ? true : undefined"
+                            :aria-describedby="errors?.consent ? 'kit-consent-error' : undefined"
+                        />I agree to publish this title, introduction, website and social links for anyone with the
+                        public URL.</label
+                    >
+                    <p v-if="errors?.consent" id="kit-consent-error" class="wd-field-error" role="alert">
+                        {{ errors.consent }}
+                    </p>
+                    <Button type="submit" class="wd-button wd-button-primary">Save media kit</Button>
                 </fieldset>
                 <p v-if="kit" class="wd-hint">{{ kit.views }} aggregate views. No individual viewer tracking.</p>
                 <a

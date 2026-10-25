@@ -115,11 +115,9 @@ function review(action: string): void {
                 <h1>Onboarding requests</h1>
                 <p class="wd-description">Submitted requests below are ready for your review.</p>
             </div>
-            <p v-if="status" role="status" class="wd-status">{{ status }}</p>
-            <div v-if="errors && Object.keys(errors).length" role="alert" class="wd-banner">
-                <p v-for="(msg, k) in errors" :key="k">{{ msg }}</p>
+            <div v-if="errors?.version" role="alert" class="wd-banner">
+                <p>{{ errors.version }}</p>
                 <button
-                    v-if="errors.version"
                     type="button"
                     class="wd-link"
                     @click="
@@ -130,6 +128,7 @@ function review(action: string): void {
                 >
                     Reload latest request
                 </button>
+                <p class="wd-hint">Copy unsaved changes before reloading.</p>
             </div>
             <div v-if="issuedLink" class="wd-card">
                 <label for="issued-invite">Private invitation link (copy now)</label
@@ -188,6 +187,7 @@ function review(action: string): void {
                             label="Correction request"
                             :maxlength="2000"
                             :required="false"
+                            :error="errors?.note"
                         />
                         <div class="wd-toolbar">
                             <Button

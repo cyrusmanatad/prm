@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import FinanceLayout from '../components/FinanceLayout.vue';
 import ContentSection from '../components/ContentSection.vue';
+import ActionGroup from '../components/ActionGroup.vue';
 import FieldGroup from '../components/FieldGroup.vue';
 type Line = { description: string; quantity: number; unit_price_minor: string };
 type Invoice = {
@@ -150,15 +151,17 @@ function submit(action: 'save' | 'void'): void {
                             Remove line {{ index + 1 }}
                         </button>
                     </fieldset>
-                    <button
-                        class="wd-button wd-button-secondary"
-                        v-if="form.lines.length < 50"
-                        type="button"
-                        @click="form.lines.push({ description: '', quantity: 1, unit_price_minor: '0' })"
-                    >
-                        Add line
-                    </button>
-                    <button class="wd-button wd-button-primary" type="submit">Save draft</button>
+                    <ActionGroup>
+                        <button
+                            class="wd-button wd-button-secondary"
+                            v-if="form.lines.length < 50"
+                            type="button"
+                            @click="form.lines.push({ description: '', quantity: 1, unit_price_minor: '0' })"
+                        >
+                            Add line
+                        </button>
+                        <button class="wd-button wd-button-primary" type="submit">Save draft</button>
+                    </ActionGroup>
                 </fieldset>
             </form>
         </ContentSection>

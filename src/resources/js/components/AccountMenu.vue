@@ -45,17 +45,13 @@ function signOut(): void {
 <template>
     <DropdownMenuRoot :modal="false">
         <DropdownMenuTrigger as-child>
-            <button
-                type="button"
-                class="wd-account-trigger"
-                :class="{ 'wd-account-trigger-light': tone === 'light' }"
-                aria-label="Account menu"
-            >
-                <span class="wd-account-identity" aria-hidden="true">
+            <button type="button" class="wd-account-trigger" :class="{ 'wd-account-trigger-light': tone === 'light' }">
+                <span class="wd-sr-only">Account menu: </span>
+                <span class="wd-account-identity">
                     <span class="wd-account-name">{{ accountName }}</span>
                     <span v-if="accountEmail" class="wd-account-email">{{ accountEmail }}</span>
                 </span>
-                <span class="wd-avatar" aria-hidden="true">{{ letters }}</span>
+                <span class="wd-avatar">{{ letters }}</span>
             </button>
         </DropdownMenuTrigger>
         <DropdownMenuPortal>

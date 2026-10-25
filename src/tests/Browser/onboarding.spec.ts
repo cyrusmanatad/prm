@@ -54,21 +54,21 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
     await brand.getByLabel('Business name', { exact: true }).fill('Brand business');
     await brand.getByLabel('Contact name', { exact: true }).fill('Brand Contact');
     await brand.getByRole('button', { name: 'Save draft', exact: true }).click();
-    await expect(brand.getByRole('status')).toContainText('Draft saved.');
+    await expect(brand.getByRole('status').filter({ hasText: 'Draft saved' })).toBeVisible();
     await brand.reload();
     await expect(brand.getByLabel('Business name', { exact: true })).toHaveValue('Brand business');
     await brand.getByLabel('Business email', { exact: true }).fill('brand@example.test');
     await brand.getByLabel('Collaboration brief', { exact: true }).fill('A first brief.');
     await brand.getByRole('button', { name: 'Save draft', exact: true }).focus();
     await brand.keyboard.press('Enter');
-    await expect(brand.getByRole('status')).toContainText('Draft saved.');
+    await expect(brand.getByRole('status').filter({ hasText: 'Draft saved' })).toBeVisible();
     await brand.getByLabel('Choose reference file').setInputFiles({
         name: 'brief.txt',
         mimeType: 'text/plain',
         buffer: Buffer.from('A synthetic non-sensitive collaboration reference.'),
     });
     await brand.getByRole('button', { name: 'Upload reference', exact: true }).click();
-    await expect(brand.getByRole('status')).toContainText('Upload received.');
+    await expect(brand.getByRole('status').filter({ hasText: 'Upload received' })).toBeVisible();
     await expect(brand.getByRole('link', { name: 'Download brief.txt', exact: true })).toBeVisible();
     const downloadEvent = brand.waitForEvent('download');
     await brand.getByRole('link', { name: 'Download brief.txt', exact: true }).click();
@@ -86,23 +86,23 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
         'Remove document',
         info,
     );
-    await expect(brand.getByRole('status')).toContainText('File removed.');
+    await expect(brand.getByRole('status').filter({ hasText: 'File removed' })).toBeVisible();
     await expect(brand.getByRole('link', { name: 'Download remove-me.txt', exact: true })).toHaveCount(0);
     await scan(brand, info, 'onboarding-form');
     await brand.getByLabel('I agree to share this form and its reference files', { exact: false }).check();
     await brand.getByRole('button', { name: 'Submit for review', exact: true }).click();
-    await expect(brand.getByRole('status')).toContainText('Form submitted for review.');
+    await expect(brand.getByRole('status').filter({ hasText: 'Form submitted for review' })).toBeVisible();
     await page.goto(ownerUrl);
     await expect(page.getByText('Awaiting review', { exact: true })).toBeVisible();
     await page.getByLabel('Correction request', { exact: true }).fill('Please add timing.');
     await page.getByRole('button', { name: 'Request correction', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Onboarding correct saved.');
+    await expect(page.getByRole('status').filter({ hasText: 'Correction requested' })).toBeVisible();
     await brand.goto(formUrl);
     await expect(brand.getByText('Requested correction: Please add timing.', { exact: true })).toBeVisible();
     await brand.getByLabel('Collaboration brief', { exact: true }).fill('A corrected brief with timing.');
     await brand.getByLabel('I agree to share this form and its reference files', { exact: false }).check();
     await brand.getByRole('button', { name: 'Submit for review', exact: true }).click();
-    await expect(brand.getByRole('status')).toContainText('Form submitted for review.');
+    await expect(brand.getByRole('status').filter({ hasText: 'Form submitted for review' })).toBeVisible();
     await page.reload();
     await expect(page.locator('summary').filter({ hasText: 'Submission version' })).toHaveCount(2);
     await page.locator('summary').filter({ hasText: 'Submission version' }).last().click();
@@ -117,14 +117,14 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
         ),
         page.getByRole('button', { name: 'Accept submission', exact: true }).click(),
     ]);
-    await expect(page.getByRole('status')).toContainText('Onboarding accept saved.');
+    await expect(page.getByRole('status').filter({ hasText: 'Onboarding accepted' })).toBeVisible();
     await confirmMutation(
         page,
         page.getByRole('button', { name: 'Create replacement invitation', exact: true }),
         'Create replacement invitation',
         info,
     );
-    await expect(page.getByRole('status')).toContainText('Previous sessions are closed.');
+    await expect(page.getByRole('alert').filter({ hasText: 'Previous sessions are closed' })).toBeVisible();
     expect((await brand.reload())?.status()).toBe(403);
     await confirmMutation(
         page,
@@ -132,7 +132,7 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
         'Revoke invitation access',
         info,
     );
-    await expect(page.getByRole('status')).toContainText('Onboarding revoke saved.');
+    await expect(page.getByRole('status').filter({ hasText: 'Onboarding invitation revoked' })).toBeVisible();
     expect((await brand.reload())?.status()).toBe(403);
     await context.close();
 });
@@ -153,7 +153,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     await page.getByLabel('Publish this media kit', { exact: true }).check();
     await page.getByLabel('I agree to publish this title', { exact: false }).check();
     await page.getByRole('button', { name: 'Save media kit', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Media kit saved.');
+    await expect(page.getByRole('status').filter({ hasText: 'Media kit saved' })).toBeVisible();
     const href = await page.getByRole('link', { name: 'Open public media kit', exact: true }).getAttribute('href');
     const context = await browser.newContext({
         viewport: page.viewportSize() ?? { width: 390, height: 844 },
@@ -184,14 +184,14 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     await publicPage.getByLabel('I agree to share these details', { exact: false }).check();
     await scan(publicPage, info, 'lead-form');
     await publicPage.getByRole('button', { name: 'Share contact details', exact: true }).click();
-    await expect(publicPage.getByRole('status')).toContainText('Your details were received.');
+    await expect(publicPage.getByRole('status').filter({ hasText: 'Contact details shared' })).toBeVisible();
     await confirmMutation(
         page,
         page.getByRole('button', { name: 'Revoke lead link', exact: true }),
         'Revoke lead link',
         info,
     );
-    await expect(page.getByRole('status')).toContainText('Lead link revoked.');
+    await expect(page.getByRole('status').filter({ hasText: 'Lead link revoked' })).toBeVisible();
     await page.getByLabel('Publish this media kit', { exact: true }).uncheck();
     await confirmMutation(
         page,
@@ -199,7 +199,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
         'Unpublish media kit',
         info,
     );
-    await expect(page.getByRole('status')).toContainText('Media kit saved.');
+    await expect(page.getByRole('status').filter({ hasText: 'Media kit saved' })).toBeVisible();
     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
     await page.getByRole('link', { name: 'My leads', exact: true }).click();
     await expect(page.getByRole('link', { name: /Inbound Studio/ })).toBeVisible();

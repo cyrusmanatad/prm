@@ -20,6 +20,28 @@ afterEach(() => {
 });
 
 describe('SelectField', () => {
+    it('selects the keyboard-focused option rather than the previously highlighted option', async () => {
+        const wrapper = field();
+        await wrapper.get('#workspace-kind-trigger').trigger('click');
+        const brand = wrapper.get('#workspace-kind-option-brand');
+        (brand.element as HTMLButtonElement).focus();
+        await brand.trigger('keydown', { key: 'Enter' });
+        expect(wrapper.emitted('update:modelValue')).toEqual([['brand']]);
+        expect(document.activeElement).toBe(wrapper.get('#workspace-kind-trigger').element);
+    });
+
+    it('exposes the active option on the focused search and preserves text-navigation keys', async () => {
+        const wrapper = field();
+        await wrapper.get('#workspace-kind-trigger').trigger('click');
+        const search = wrapper.get('#workspace-kind-search');
+        await search.setValue('brand');
+        expect(search.attributes('aria-activedescendant')).toBe('workspace-kind-option-brand');
+        expect(search.attributes('role')).toBe('combobox');
+        const event = new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true });
+        search.element.dispatchEvent(event);
+        expect(event.defaultPrevented).toBe(false);
+    });
+
     it('keeps a native select in sync for forms', async () => {
         const wrapper = field();
         const select = wrapper.get('#workspace-kind');

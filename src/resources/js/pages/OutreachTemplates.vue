@@ -4,8 +4,11 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
+import ActionGroup from '../components/ActionGroup.vue';
+import ContentSection from '../components/ContentSection.vue';
 import { Button } from '../components/ui/button';
 import { mergeText, type MergeValues } from '../features/outreach/merge';
+import { useNotify } from '../composables/useNotify';
 import { useValidationFocus } from '../composables/useValidationFocus';
 
 type Template = { id: string; name: string; subject: string; body: string; version: number };
@@ -28,7 +31,7 @@ const values = ref<MergeValues>({ brand_name: '', contact_name: '', creator_name
 const draftSubject = ref('');
 const draftBody = ref('');
 const generated = ref(false);
-const copyStatus = ref('');
+const notify = useNotify();
 const errors = computed(() => props.errors ?? {});
 useValidationFocus(
     root,
@@ -61,13 +64,9 @@ watch(
     [subject, body, values],
     () => {
         generated.value = false;
-        copyStatus.value = '';
     },
     { deep: true },
 );
-watch([draftSubject, draftBody], () => {
-    copyStatus.value = '';
-});
 function save(): void {
     if (busy.value || errors.value.version) return;
     router.visit(selected.value ? `/outreach-templates/${selected.value}` : '/outreach-templates', {
@@ -105,29 +104,32 @@ function generate(): void {
     draftSubject.value = merged.value.subject.text;
     draftBody.value = merged.value.body.text;
     generated.value = true;
-    copyStatus.value = '';
 }
-async function copy(): Promise<void> {
-    try {
-        await navigator.clipboard.writeText(`${draftSubject.value}\n\n${draftBody.value}`);
-        copyStatus.value = 'Draft copied.';
-    } catch {
-        copyStatus.value = 'Copy unavailable. Select the draft text and copy it manually.';
-    }
+function copy(): void {
+    const text = `${draftSubject.value}\n\n${draftBody.value}`;
+    const writing = navigator.clipboard?.writeText(text) ?? Promise.reject(new Error('Clipboard unavailable'));
+    void notify.promise(
+        writing,
+        {
+            pending: 'Copying draft',
+            success: 'Draft copied',
+            error: "Couldn't copy draft. Select the draft text and copy it manually.",
+        },
+        'outreach-copy',
+    );
 }
 </script>
 
 <template>
     <Head title="Outreach templates" />
     <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
-        <div ref="root" class="wd-workspace-content">
+        <div ref="root" class="wd-workspace-content wd-section-stack">
             <nav aria-label="Workspace"><Link class="wd-link" href="/partner/leads">Back to leads</Link></nav>
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
                 <h1>Outreach templates</h1>
                 <p class="wd-description">Prepare a personal draft, review it, and copy it when ready.</p>
             </div>
-            <p v-if="status" role="status" class="wd-status">{{ status }}</p>
             <div v-if="errors.version" role="alert" class="wd-banner">
                 <p>{{ errors.version }}</p>
                 <p>Copy unsaved changes before reloading.</p>
@@ -139,9 +141,6 @@ async function copy(): Promise<void> {
                     Reload latest templates
                 </button>
             </div>
-            <ul v-if="Object.keys(errors).some((key) => key !== 'version')" role="alert" class="wd-field-error">
-                <li v-for="(message, field) in errors" :key="field">{{ message }}</li>
-            </ul>
             <div class="wd-split">
                 <section class="wd-card" aria-labelledby="saved-title">
                     <h2 id="saved-title">Saved templates</h2>
@@ -189,40 +188,46 @@ async function copy(): Promise<void> {
                                 rows="6"
                                 maxlength="5000"
                                 :required="canWrite"
+                                :aria-invalid="errors.body ? true : undefined"
+                                :aria-describedby="errors.body ? 'template-body-error' : undefined"
                             />
+                            <p v-if="errors.body" id="template-body-error" class="wd-field-error" role="alert">
+                                {{ errors.body }}
+                            </p>
                         </div>
                         <p class="wd-hint">
                             Plain text. Available placeholders:
                             <code v-pre>{{ brand_name }}, {{ contact_name }}, {{ creator_name }}</code
                             >.
                         </p>
-                        <Button v-if="canWrite" class="wd-button wd-button-primary" type="submit">{{
-                            selected ? 'Save template' : 'Create template'
-                        }}</Button>
-                        <Button
-                            v-if="canWrite && selected"
-                            class="wd-button wd-button-danger"
-                            type="button"
-                            :disabled="busy || !!errors.version"
-                            @click="
-                                confirmAction(
-                                    'Delete template',
-                                    `Permanently delete ${name}? It will no longer be available for outreach drafts.`,
-                                    () => remove(),
-                                    $event,
-                                    { tone: 'danger' },
-                                )
-                            "
-                            >Delete template</Button
-                        >
+                        <ActionGroup>
+                            <Button v-if="canWrite" class="wd-button wd-button-primary" type="submit">{{
+                                selected ? 'Save template' : 'Create template'
+                            }}</Button>
+                            <Button
+                                v-if="canWrite && selected"
+                                class="wd-button wd-button-secondary wd-button-danger-outline"
+                                type="button"
+                                :disabled="busy || !!errors.version"
+                                @click="
+                                    confirmAction(
+                                        'Delete template',
+                                        `Permanently delete ${name}? It will no longer be available for outreach drafts.`,
+                                        () => remove(),
+                                        $event,
+                                        { tone: 'danger' },
+                                    )
+                                "
+                                >Delete template</Button
+                            >
+                        </ActionGroup>
                         <p v-if="!canWrite" class="wd-hint">
                             Viewer access: you can prepare a local draft; saving templates requires an editing role.
                         </p>
                     </fieldset>
                 </form>
             </div>
-            <section class="wd-card" aria-labelledby="draft-title">
-                <h2 id="draft-title">Prepare a draft</h2>
+            <ContentSection title="Prepare a draft" heading-id="draft-title">
                 <div class="wd-fields">
                     <FormField
                         id="merge-brand"
@@ -265,9 +270,8 @@ async function copy(): Promise<void> {
                         template.
                     </p>
                     <Button class="wd-button wd-button-primary" type="button" @click="copy">Copy draft</Button>
-                    <p v-if="copyStatus" role="status">{{ copyStatus }}</p>
                 </div>
-            </section>
+            </ContentSection>
         </div>
     </FoundationShell>
 </template>

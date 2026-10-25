@@ -8,7 +8,9 @@ function screen(mode: 'login' | 'register' | 'forgot-password' | 'reset-password
     wrappers.push(wrapper);
     return wrapper;
 }
-afterEach(() => { wrappers.splice(0).forEach((wrapper) => wrapper.unmount()); });
+afterEach(() => {
+    wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+});
 
 describe('authentication screens', () => {
     it('submits login credentials without unrelated registration fields', async () => {
@@ -16,9 +18,15 @@ describe('authentication screens', () => {
         await wrapper.get('#email').setValue('creator@example.test');
         await wrapper.get('#password').setValue('safe-password-123');
         await wrapper.get('form').trigger('submit');
-        expect(wrapper.emitted('submit')).toEqual([[{
-            mode: 'login', email: 'creator@example.test', password: 'safe-password-123',
-        }]]);
+        expect(wrapper.emitted('submit')).toEqual([
+            [
+                {
+                    mode: 'login',
+                    email: 'creator@example.test',
+                    password: 'safe-password-123',
+                },
+            ],
+        ]);
         expect(wrapper.get('#password').attributes('autocomplete')).toBe('current-password');
     });
 
@@ -29,10 +37,17 @@ describe('authentication screens', () => {
         await wrapper.get('#password').setValue('safe-password-123');
         await wrapper.get('#password_confirmation').setValue('safe-password-123');
         await wrapper.get('form').trigger('submit');
-        expect(wrapper.emitted('submit')).toEqual([[{
-            mode: 'register', name: 'Creator', email: 'creator@example.test',
-            password: 'safe-password-123', password_confirmation: 'safe-password-123',
-        }]]);
+        expect(wrapper.emitted('submit')).toEqual([
+            [
+                {
+                    mode: 'register',
+                    name: 'Creator',
+                    email: 'creator@example.test',
+                    password: 'safe-password-123',
+                    password_confirmation: 'safe-password-123',
+                },
+            ],
+        ]);
         expect(wrapper.get('#password').attributes('aria-describedby')).toBe('password-hint');
         expect(wrapper.get('#password-hint').text()).toContain('12 characters');
     });
@@ -78,7 +93,8 @@ describe('authentication screens', () => {
         const wrapper = screen('verify-email');
         await wrapper.setProps({ email: 'creator@example.test', status: 'A fresh verification link was requested.' });
         expect(wrapper.find('input').exists()).toBe(false);
-        expect(wrapper.get('[role="status"]').text()).toContain('verification link');
+        expect(wrapper.find('.wd-status').exists()).toBe(false);
+        expect(wrapper.text()).toContain('creator@example.test');
         await wrapper.get('form').trigger('submit');
         expect(wrapper.emitted('resendVerification')).toEqual([[]]);
         expect(wrapper.emitted('submit')).toBeUndefined();

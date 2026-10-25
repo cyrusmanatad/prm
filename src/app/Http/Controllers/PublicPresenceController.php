@@ -38,21 +38,21 @@ class PublicPresenceController extends Controller
             'social_links.*.label' => ['required', 'string', 'max:60'], 'social_links.*.url' => ['required', 'url:http,https', 'max:500'], 'version' => ['required', 'integer', 'min:0', 'max:2147483646']]);
         $presence->saveKit((int) $request->user()->id, $request->session()->get('active_org_id'), ['title' => $d['title'], 'bio' => $d['bio'] ?? '', 'website' => $d['website'] ?? '', 'published' => (bool) $d['published'], 'social_links' => json_encode($d['social_links'] ?? [], JSON_THROW_ON_ERROR)], (int) $d['version']);
 
-        return $this->completed($request, ['message' => 'Media kit saved.'], '/partner/media-kit');
+        return $this->completed($request, ['message' => 'Media kit saved'], '/partner/media-kit');
     }
 
     public function createLink(Request $request, PublicPresence $presence): mixed
     {
         $link = $presence->leadLink((int) $request->user()->id, $request->session()->get('active_org_id'));
 
-        return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($link, 201) : redirect('/partner/media-kit')->with('issued_link', Crypt::encryptString($link['url']))->with('status', 'Lead link created. Copy it now; it is shown once.');
+        return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($link, 201) : redirect('/partner/media-kit')->with('issued_link', Crypt::encryptString($link['url']))->with('status', 'Lead link created');
     }
 
     public function revoke(Request $request, PublicPresence $presence, string $record): mixed
     {
         $presence->revoke((int) $request->user()->id, $request->session()->get('active_org_id'), $record);
 
-        return $this->completed($request, ['message' => 'Lead link revoked.'], '/partner/media-kit');
+        return $this->completed($request, ['message' => 'Lead link revoked'], '/partner/media-kit');
     }
 
     public function kit(string $record): mixed
@@ -71,6 +71,6 @@ class PublicPresenceController extends Controller
             'brand_name' => ['required', 'string', 'max:160'], 'contact_name' => ['required', 'string', 'max:120'], 'email' => ['required', 'email', 'max:255'], 'consent' => ['required', 'accepted']]);
         $presence->capture($d['token'], $d['idempotency_key'], ['brand_name' => $d['brand_name'], 'contact_name' => $d['contact_name'], 'email' => $d['email']]);
 
-        return $this->completed($request, ['message' => 'Your details were received.'], '/lead');
+        return $this->completed($request, ['message' => 'Contact details shared'], '/lead');
     }
 }

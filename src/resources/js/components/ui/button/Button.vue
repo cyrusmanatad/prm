@@ -33,15 +33,19 @@ const nativeProps = computed(() => ({
     ...(props.form ? { form: props.form } : {}),
     onClick: (event: MouseEvent) => emit('click', event),
 }));
+// Foundation buttons already supply their semantic colors. Applying the default
+// utility variant as well would override secondary and danger-outline styles.
+const classes = computed(() => {
+    const foundation = cn(props.class).split(/\s+/).includes('wd-button');
+    return cn(
+        buttonVariants({ variant: props.variant ?? (foundation ? null : undefined), size: props.size }),
+        props.class,
+    );
+});
 </script>
 
 <template>
-    <Primitive
-        v-bind="nativeProps"
-        :as="as"
-        :as-child="asChild"
-        :class="cn(buttonVariants({ variant, size }), props.class)"
-    >
+    <Primitive v-bind="nativeProps" :as="as" :as-child="asChild" :class="classes">
         <slot />
     </Primitive>
 </template>
