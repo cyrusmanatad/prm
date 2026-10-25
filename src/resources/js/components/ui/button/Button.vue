@@ -15,6 +15,7 @@ interface Props extends PrimitiveProps {
     type?: 'button' | 'submit' | 'reset';
     disabled?: boolean;
     form?: string;
+    'aria-pressed'?: HTMLAttributes['aria-pressed'];
 }
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>();
@@ -26,6 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 // Forward native attributes as a binding to retain strict template checks.
 const nativeProps = computed(() => ({
     'data-slot': 'button',
+    'aria-pressed': props['aria-pressed'],
     'data-variant': props.variant,
     'data-size': props.size,
     type: props.type,

@@ -1,0 +1,10 @@
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.pgsql.xml
+
+.......                                                             7 / 7 (100%)
+
+Time: 00:13.444, Memory: 48.50 MB
+
+OK (7 tests, 132 assertions)

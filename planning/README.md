@@ -2,7 +2,9 @@
 
 Current resume point: [implementation handoff](implementation-handoff.md). All unfinished, in-progress and deferred work is retained in the [remaining-task register](remaining-tasks.md). M5 is partially implemented; [M6 preparation](m6-status.md) has started with its dependencies and release gates still open.
 
-**Latest UI review (2026-10-25):** shared keyboard/accessibility repairs pass their scoped checks. The complete update also adds a CRM redesign and global toast/controller feedback; [review evidence](evidence/ui-plan-review-2026-10-25/README.md) adds **UI-06/UI-07** for CRM filter behavior/component reuse and truthful queued-email feedback. **UI-02 is next**, followed by UI-05–UI-07 acceptance work, then M5-02. The UI revision remains pending acceptance.
+**Pipeline repair (2026-10-25):** UI-02 filtering/pagination/count/stage repairs and UI-05 mobile capture/save/fixture engineering repairs are implemented with local verification. The real production board now appears in the visual fixture. See [repair evidence](evidence/pipeline-repair-2026-10-25/README.md). **UI-06 CRM filters/component reuse is next**, followed by UI-07 notification feedback. Broader UI-05 reference acceptance and inherited release gates remain open; M5-02 follows the remaining UI work.
+
+**Historical UI review (2026-10-25):** shared keyboard/accessibility repairs pass their scoped checks. The complete update also adds a CRM redesign and global toast/controller feedback; [review evidence](evidence/ui-plan-review-2026-10-25/README.md) adds **UI-06/UI-07** for CRM filter behavior/component reuse and truthful queued-email feedback. **UI-02 is next**, followed by UI-05–UI-07 acceptance work, then M5-02. The UI revision remains pending acceptance.
 
 **UI refinement (2026-10-25):** the user-approved frontend-only refinement improves shared actions, dialogs, keyboard accessibility, section spacing and responsive forms. See the [audit and verification evidence](evidence/ui-refinement-2026-10-25/README.md). Pipeline filtering/count/stage repairs and full production-board fixture acceptance remain open; the earlier review below is retained as historical evidence.
 

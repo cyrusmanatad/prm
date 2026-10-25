@@ -41,3 +41,9 @@
 .portal-ui {
     --muted: #6b5f70;
 }
+
+/* Keep wide tables inside their scrollport. Without containment, mobile
+   Chromium can enlarge its layout viewport and misplace pointer targets. */
+.portal-ui .overflow-x-auto {
+    contain: inline-size layout paint;
+}

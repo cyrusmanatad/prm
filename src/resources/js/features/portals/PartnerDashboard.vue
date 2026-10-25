@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import LeadManager from '../pipeline/LeadManager.vue';
+import PipelineBoard from '../pipeline/PipelineBoard.vue';
 import PartnerChrome from './PartnerChrome.vue';
 import { money } from '../pipeline/money';
 import type { PortalData } from './types';
@@ -17,8 +18,10 @@ function open(path: string): void {
 const summary = computed(() => [
     {
         label: 'Open pipeline',
-        value: props.data.pipeline?.totals.map((t) => money(t.amount_minor, t.currency)).join(' · ') || 'No leads',
-        hint: 'Stored estimates, separated by currency',
+        value:
+            props.data.pipeline?.totals.map((t) => money(t.amount_minor, t.currency)).join(' · ') ||
+            'No non-lost value',
+        hint: 'Matching non-lost estimates, separated by currency',
     },
     ...['Expected this month', 'Commissions earned', 'Reply rate'].map((label) => ({
         label,
@@ -258,139 +261,14 @@ const summary = computed(() => [
                         >
                     </section>
 
-                    <section v-if="fixture" class="rounded-2xl border border-line bg-white p-5">
-                        <div class="mb-3.5 flex flex-wrap items-center justify-between gap-2">
-                            <h2 class="font-display text-[18px] font-bold">My pipeline</h2>
-                            <span class="text-[12px] text-muted"
-                                >Drag a card to move stage · stage changes fire automations</span
-                            >
-                        </div>
-                        <div class="overflow-x-auto">
-                            <div class="grid min-w-[900px] grid-cols-[repeat(5,minmax(170px,1fr))] gap-3">
-                                <div class="flex flex-col gap-2 rounded-xl bg-cream p-2.5">
-                                    <div class="flex items-center justify-between px-1 py-0.5">
-                                        <span class="text-[13px] font-bold">Lead</span>
-                                        <span class="text-[12px] text-muted">4 · ₱52k</span>
-                                    </div>
-                                    <div class="rounded-[10px] border border-line bg-white px-3 py-2.5">
-                                        <div class="text-[14px] font-bold">Alon Swimwear</div>
-                                        <div class="mt-0.5 text-[12px] text-muted">₱18k · Lead link</div>
-                                        <div class="mt-2 flex items-center justify-between">
-                                            <span
-                                                class="rounded-full bg-mint-soft px-[7px] py-[3px] text-[11px] font-bold text-mint-ink"
-                                                >Fit 86</span
-                                            >
-                                            <span class="text-[11px] text-muted">Today</span>
-                                        </div>
-                                    </div>
-                                    <div class="rounded-[10px] border border-line bg-white px-3 py-2.5">
-                                        <div class="text-[14px] font-bold">Tala Tea Co.</div>
-                                        <div class="mt-0.5 text-[12px] text-muted">₱12k · Discovery</div>
-                                        <div class="mt-2 flex items-center justify-between">
-                                            <span
-                                                class="rounded-full bg-mint-soft px-[7px] py-[3px] text-[11px] font-bold text-mint-ink"
-                                                >Fit 74</span
-                                            >
-                                            <span class="text-[11px] text-muted">Mon</span>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="rounded-lg border border-dashed border-line-strong px-2 py-1.5 text-[11px] text-ink-soft"
-                                    >
-                                        <strong>Auto:</strong> New lead → fit score + first reply draft
-                                    </div>
-                                </div>
-                                <div class="flex flex-col gap-2 rounded-xl bg-cream p-2.5">
-                                    <div class="flex items-center justify-between px-1 py-0.5">
-                                        <span class="text-[13px] font-bold">Pitched</span>
-                                        <span class="text-[12px] text-muted">3 · ₱38k</span>
-                                    </div>
-                                    <div class="rounded-[10px] border border-line bg-white px-3 py-2.5">
-                                        <div class="text-[14px] font-bold">Sari Snacks</div>
-                                        <div class="mt-0.5 text-[12px] text-muted">₱15k · Cold pitch</div>
-                                        <div class="mt-2 flex items-center justify-between">
-                                            <span
-                                                class="rounded-full bg-mint-soft px-[7px] py-[3px] text-[11px] font-bold text-mint-ink"
-                                                >Opened 2×</span
-                                            >
-                                            <span class="text-[11px] text-muted">Tue</span>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="rounded-lg border border-dashed border-line-strong px-2 py-1.5 text-[11px] text-ink-soft"
-                                    >
-                                        <strong>Auto:</strong> 3 days no reply → follow-up draft
-                                    </div>
-                                </div>
-                                <div class="flex flex-col gap-2 rounded-xl bg-cream p-2.5">
-                                    <div class="flex items-center justify-between px-1 py-0.5">
-                                        <span class="text-[13px] font-bold">Negotiating</span>
-                                        <span class="text-[12px] text-muted">2 · ₱63k</span>
-                                    </div>
-                                    <div class="rounded-[10px] border border-line bg-white px-3 py-2.5">
-                                        <div class="text-[14px] font-bold">Luntian Skincare</div>
-                                        <div class="mt-0.5 text-[12px] text-muted">₱45k · Referral</div>
-                                        <div class="mt-2 flex items-center justify-between">
-                                            <span
-                                                class="rounded-full bg-mint-soft px-[7px] py-[3px] text-[11px] font-bold text-mint-ink"
-                                                >Hot</span
-                                            >
-                                            <span class="text-[11px] text-muted">Today</span>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="rounded-lg border border-dashed border-line-strong px-2 py-1.5 text-[11px] text-ink-soft"
-                                    >
-                                        <strong>Auto:</strong> Rate range suggested from comparables
-                                    </div>
-                                </div>
-                                <div class="flex flex-col gap-2 rounded-xl bg-cream p-2.5">
-                                    <div class="flex items-center justify-between px-1 py-0.5">
-                                        <span class="text-[13px] font-bold">Onboarded</span>
-                                        <span class="text-[12px] text-muted">2 · ₱36k</span>
-                                    </div>
-                                    <div class="rounded-[10px] border border-line bg-white px-3 py-2.5">
-                                        <div class="text-[14px] font-bold">Kape Kultura</div>
-                                        <div class="mt-0.5 text-[12px] text-muted">₱28k · Inbound</div>
-                                        <div class="mt-2 flex items-center justify-between">
-                                            <span
-                                                class="rounded-full bg-mint-soft px-[7px] py-[3px] text-[11px] font-bold text-mint-ink"
-                                                >Signed</span
-                                            >
-                                            <span class="text-[11px] text-muted">Today</span>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="rounded-lg border border-dashed border-line-strong px-2 py-1.5 text-[11px] text-ink-soft"
-                                    >
-                                        <strong>Auto:</strong> Form done → contract sent for e-sign
-                                    </div>
-                                </div>
-                                <div class="flex flex-col gap-2 rounded-xl bg-cream p-2.5">
-                                    <div class="flex items-center justify-between px-1 py-0.5">
-                                        <span class="text-[13px] font-bold">Active</span>
-                                        <span class="text-[12px] text-muted">3 · ₱74k</span>
-                                    </div>
-                                    <div class="rounded-[10px] border border-line bg-white px-3 py-2.5">
-                                        <div class="text-[14px] font-bold">Habi Home</div>
-                                        <div class="mt-0.5 text-[12px] text-muted">₱60k · Repeat</div>
-                                        <div class="mt-2 flex items-center justify-between">
-                                            <span
-                                                class="rounded-full bg-mint-soft px-[7px] py-[3px] text-[11px] font-bold text-mint-ink"
-                                                >Code HABIBEA</span
-                                            >
-                                            <span class="text-[11px] text-muted">Posting Thu</span>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="rounded-lg border border-dashed border-line-strong px-2 py-1.5 text-[11px] text-ink-soft"
-                                    >
-                                        <strong>Auto:</strong> Approved → invoice → payout
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                    <PipelineBoard
+                        v-if="fixture && data.pipeline"
+                        :entries="data.pipeline.entries"
+                        :counts="data.pipeline.counts"
+                        :totals="data.pipeline.totals"
+                        :filters="data.pipeline.filters"
+                        :next-cursor="data.pipeline.nextCursor"
+                    />
                     <LeadManager
                         v-else-if="data.pipeline"
                         ref="leadManager"

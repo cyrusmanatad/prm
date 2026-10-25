@@ -63,6 +63,25 @@ class PipelineTest extends TestCase
         $this->assertNull(DB::selectOne('SELECT app_org() AS org')->org);
     }
 
+    public function test_web_mutations_preserve_validated_filters_restart_paging_and_reject_redirect_overrides_before_writing(): void
+    {
+        [$actor, $org] = $this->workspace();
+        $filters = ['q' => 'Private', 'stage' => 'lead', 'due' => true];
+        $created = $this->post('/pipeline', [...$this->lead(), 'pipeline_filters' => $filters])->assertRedirect();
+        parse_str(parse_url($created->headers->get('Location'), PHP_URL_QUERY), $query);
+        $id = $query['entry'];
+        $destination = '/partner/leads?q=Private&stage=lead&due=1&entry='.$id;
+        $created->assertRedirect($destination);
+        $this->patch('/pipeline/'.$id, [...$this->lead(), 'version' => 1, 'pipeline_filters' => $filters])->assertRedirect($destination);
+        $this->post('/pipeline/'.$id.'/stage', ['stage' => 'lost', 'version' => 2, 'pipeline_filters' => $filters])->assertRedirect($destination);
+        $this->post('/pipeline/'.$id.'/snooze', ['next_action_due' => now()->addDay()->toIso8601String(), 'version' => 3, 'pipeline_filters' => $filters])->assertRedirect($destination);
+        $this->post('/pipeline/'.$id.'/activities', ['kind' => 'note', 'body' => 'Private update', 'version' => 4, 'pipeline_filters' => ['q' => '0', 'due' => '0']])->assertRedirect('/partner/leads?q=0&entry='.$id);
+        $this->postJson('/pipeline', [...$this->lead(), 'pipeline_filters' => ['redirect' => 'https://example.test', 'org_id' => (string) Str::uuid()]])->assertUnprocessable();
+        $this->postJson('/pipeline', [...$this->lead(), 'pipeline_filters' => ['q' => str_repeat('x', 161)]])->assertUnprocessable();
+        app(TenantContext::class)->run($actor->id, $org, fn () => $this->assertSame(1, DB::table('pipeline_entries')->count()));
+        $this->delete('/pipeline/'.$id, ['version' => 5, 'pipeline_filters' => $filters])->assertRedirect('/partner/leads?q=Private&stage=lead&due=1');
+    }
+
     public function test_stale_commands_reject_without_overwriting_or_appending_activity_and_web_errors_redirect(): void
     {
         [$actor, $org] = $this->workspace();

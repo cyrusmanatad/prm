@@ -74,3 +74,9 @@ Tiers, commissions, registered leads, health and performance belong to the relev
 | Accessibility | Keyboard/focus, readable contrast, zoom, mobile interaction and accessible alternatives; carry forward screen-reader/native Safari release reviews |
 
 No intentional visual deviation passes silently. Record the affected reference, reason, screenshot and explicit acceptance before calling it exact. **Assumption / Open:** a numerical image-difference threshold is not agreed; establish it after controlling rendering variation, with human review of material differences. Existing M2/M3 screenshots demonstrate historical functionality, not acceptance against these references.
+
+## Pipeline repair reconciliation (2026-10-25)
+
+**Confirmed D22/D24:** retain five primary columns and all seven stored stages, records and aggregate semantics. The [current repair](evidence/pipeline-repair-2026-10-25/README.md) restores server-backed filtering/history and truthful counts/totals, exposes Repeat Client/Lost in separate labelled sections, and uses the real production board in the visual fixture. It retains the approved fonts/palette and shared controls; the newer pipeline mockup does not approve alternate storage/lifecycle rules or an always-unfiltered headline. Mobile board/table overflow is contained within each scroll region, and capture/edit dialogs remain reachable with ordinary pointer input.
+
+**Assumption / Open:** functional filters, honest automation state, explicit page-value labels and supplemental-stage sections intentionally differ from the original static reference. Current desktop/tablet/mobile screenshots and comparison notes are retained, but broader explicit reference/deviation acceptance remains UI-05; no exact-parity claim replaces that gate. UI-06 CRM and UI-07 feedback implementation remain next, with inherited manual accessibility/native Safari/zoom reviews separate.

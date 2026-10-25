@@ -21,7 +21,13 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await expect(page.locator('.pipeline-card')).toContainText('PHP 1,234.56');
     const leadUrl = page.url();
     for (const stage of ['pitched', 'negotiating', 'onboarded', 'active', 'repeat-client', 'lost', 'lead']) {
-        await page.locator('#lead-stage').selectOption(stage);
+        await page.getByRole('combobox', { name: 'Stage', exact: true }).click();
+        await page
+            .getByRole('option', {
+                name: stage === 'repeat-client' ? 'Repeat Client' : stage.charAt(0).toUpperCase() + stage.slice(1),
+                exact: true,
+            })
+            .click();
         await page.getByRole('button', { name: 'Save lead', exact: true }).click();
         await expect(page.getByRole('status').filter({ hasText: 'Stage updated to' })).toBeVisible();
         await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeEnabled();
@@ -75,11 +81,10 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.screenshot({ path: info.outputPath('pipeline-detail.png'), fullPage: true });
     await page.getByRole('button', { name: 'Close lead', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Close lead', exact: true })).toHaveCount(0);
-    await page.getByRole('combobox', { name: 'Stage filter', exact: true }).click();
-    await page.getByRole('button', { name: 'Due next actions', exact: true }).click();
-    await page.keyboard.press('Escape');
+    await page.getByRole('checkbox', { name: 'Due next actions', exact: true }).check();
     await expect(page.getByRole('heading', { name: 'No leads match these filters', exact: true })).toBeVisible();
     await page.goto(leadUrl);
+    await expect(page.getByRole('button', { name: /Open Latest studio/ })).toHaveCount(1);
     await page.getByText('Delete lead', { exact: true }).click();
     await confirmMutation(
         page,
@@ -88,7 +93,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
         info,
     );
     await expect(page.getByRole('status').filter({ hasText: 'Lead deleted' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Latest studio', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Open Latest studio/ })).toHaveCount(0);
 });
 
 test('viewer reads private workspace pipeline and revocation blocks further page access', async ({ page }) => {

@@ -1,0 +1,21 @@
+initial {
+  inner: 980,
+  client: 390,
+  scroll: 980,
+  body: {
+    x: 0,
+    y: 0,
+    width: 390,
+    height: 4923.453125,
+    top: 0,
+    right: 390,
+    bottom: 4923.453125,
+    left: 0
+  }
+}
+nextClick locator.click: Timeout 3000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Next 25 leads', exact: true })
+    - locator resolved to <button type="button" data-v-56dfda67="" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destruct…>Next 25 leads</button>
+containment { inner: 390, client: 390, scroll: 390 }
+containedClick true

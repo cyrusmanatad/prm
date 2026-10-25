@@ -11,6 +11,7 @@ import OnboardingEmailFields from '../../components/OnboardingEmailFields.vue';
 import EntryFields from './EntryFields.vue';
 import PipelineBoard from './PipelineBoard.vue';
 import { fromMinor, money, toMinor } from './money';
+import { pipelineStages } from './stages';
 import type { EntryDetail, LeadForm, PipelineWorkspace } from './types';
 import { useNotify } from '../../composables/useNotify';
 import { useValidationFocus } from '../../composables/useValidationFocus';
@@ -136,15 +137,7 @@ const currencyCodes = [
     'AED',
 ];
 const currencyNames = new Intl.DisplayNames(['en'], { type: 'currency' });
-const stageDots: Record<string, string> = {
-    lead: '#8FA3B8',
-    pitched: '#C9A24B',
-    negotiating: '#D9803B',
-    onboarded: '#5F9C84',
-    active: '#8A1148',
-    'repeat-client': '#8A1148',
-    lost: '#6b5f70',
-};
+const stageDots = Object.fromEntries(pipelineStages.map((stage) => [stage.value, stage.dot]));
 const activityLabels: Record<string, string> = {
     note: 'Note',
     call: 'Call',
@@ -216,7 +209,7 @@ function visit(
     let succeeded = false;
     router.visit(path, {
         method,
-        data,
+        data: { ...data, pipeline_filters: props.filters },
         preserveScroll: true,
         preserveState: true,
         onStart: () => {
@@ -353,11 +346,23 @@ function openLead(id: string): void {
     params.set('entry', id);
     router.get('/partner/leads', Object.fromEntries(params), { preserveScroll: true });
 }
+const pipelineLoading = ref(false);
+let listingVisit = 0;
 function loadPage(params: Record<string, string>): void {
-    router.get('/partner/leads', params, { preserveScroll: true, preserveState: true });
+    const currentVisit = ++listingVisit;
+    router.get('/partner/leads', params, {
+        preserveScroll: true,
+        preserveState: true,
+        onStart: () => {
+            pipelineLoading.value = true;
+        },
+        onFinish: () => {
+            if (currentVisit === listingVisit) pipelineLoading.value = false;
+        },
+    });
 }
 function resetPipeline(): void {
-    router.get('/partner/leads', {}, { preserveScroll: true });
+    loadPage({});
 }
 function startOnboarding(): void {
     if (busy.value || errors.value.version || !props.selected) return;
@@ -398,6 +403,8 @@ function reloadSelected(): void {
             :totals="totals"
             :filters="filters"
             :next-cursor="nextCursor"
+            :loading="pipelineLoading"
+            :error="errors.q || errors.stage || errors.due || errors.cursor"
             @open="openLead"
             @load="loadPage"
             @reset="resetPipeline"
@@ -852,13 +859,15 @@ function reloadSelected(): void {
 </template>
 <style scoped>
 .lead-dialog {
-    width: min(640px, calc(100% - 32px));
+    width: min(640px, calc(100dvw - 32px));
+    max-width: calc(100dvw - 32px);
 }
 .lead-dialog.lead-drawer {
     inset: 0 0 0 auto;
     display: flex;
     flex-direction: column;
-    width: min(480px, 100%);
+    width: min(480px, 100dvw);
+    max-width: 100dvw;
     height: 100dvh;
     max-height: 100dvh;
     margin: 0;
@@ -1285,5 +1294,16 @@ function reloadSelected(): void {
     padding: 16px 24px;
     border-top: 1px solid var(--wd-divider);
     background: var(--wd-surface);
+}
+/* A mobile layout viewport can widen after focus/scroll inside a native dialog.
+   Anchor to the device viewport so pointer coordinates still reach its controls. */
+@media (max-width: 640px) {
+    .lead-dialog {
+        inset: 16px auto auto 16px;
+        margin: 0;
+    }
+    .lead-dialog.lead-drawer {
+        inset: 0 auto 0 0;
+    }
 }
 </style>

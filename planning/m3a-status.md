@@ -1,6 +1,6 @@
 # M3A Connected Portals Status
 
-**Current revision exception (2026-10-25):** the portal redesign still needs pipeline correctness and production visual-fixture/reference acceptance (UI-02/UI-05), plus newer CRM/notification work (UI-06/UI-07). Shared keyboard/accessibility repairs UI-03/UI-04 have scoped local passing evidence, including both portal shells; historical account/card name failures are repaired for that scope. See the [latest review](evidence/ui-plan-review-2026-10-25/README.md) and [register](remaining-tasks.md). Earlier reference screenshots do not certify this revision.
+**Current UI disposition (2026-10-25):** UI-02 pipeline correctness is locally verified; UI-05 mobile interaction, shared tokens, production-component visual fixture and stale browser assertions are repaired. Both portal fixtures have 1440/1024/390px evidence and bounded horizontal scrolling. Broader reference/deviation acceptance remains pending; exact parity is not claimed for the functional pipeline additions. UI-06/UI-07 and inherited release gates remain open. See [repair evidence](evidence/pipeline-repair-2026-10-25/README.md) and the [register](remaining-tasks.md).
 
 See the [current handoff](implementation-handoff.md) and [remaining tasks](remaining-tasks.md) for today's checkpoint and carried-forward reviews/future PRM work. Statements below about later milestones not yet starting describe their historical verification period.
 
