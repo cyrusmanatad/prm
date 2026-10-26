@@ -1,0 +1,53 @@
+
+> test:browser
+> playwright test onboarding-lifecycle.spec.ts onboarding-notifications.spec.ts onboarding.spec.ts --project=desktop --output=/tmp/weavdash-lifecycle-browser --reporter=list
+
+
+Running 4 tests using 1 worker
+
+(node:2604994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/Browser/onboarding-lifecycle.spec.ts:30:1 › desktop onboarding lifecycle controls queue explicit outcomes and open fresh scoped return links (2.5m)
+(node:2607422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (14.7s)
+  ✓  3 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (20.6s)
+  ✓  4 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (13.4s)
+
+
+  1) [desktop] › tests/Browser/onboarding-lifecycle.spec.ts:30:1 › desktop onboarding lifecycle controls queue explicit outcomes and open fresh scoped return links
+
+    Test timeout of 150000ms exceeded.
+
+    Error: browserContext.close: Target page, context or browser has been closed
+
+      109 |         await page.screenshot({ path: info.outputPath('lifecycle-history-desktop.png'), fullPage: true });
+      110 |     } finally {
+    > 111 |         await context.close();
+          |         ^
+      112 |     }
+      113 | });
+      114 |
+        at /home/cyrusadmin/weavdash/src/tests/Browser/onboarding-lifecycle.spec.ts:111:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-lifecycle-browser/onboarding-lifecycle-deskt-1bccd-n-fresh-scoped-return-links-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-lifecycle-browser/onboarding-lifecycle-deskt-1bccd-n-fresh-scoped-return-links-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-lifecycle-browser/onboarding-lifecycle-deskt-1bccd-n-fresh-scoped-return-links-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-lifecycle-browser/onboarding-lifecycle-deskt-1bccd-n-fresh-scoped-return-links-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-lifecycle-browser/onboarding-lifecycle-deskt-1bccd-n-fresh-scoped-return-links-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/Browser/onboarding-lifecycle.spec.ts:30:1 › desktop onboarding lifecycle controls queue explicit outcomes and open fresh scoped return links
+  3 passed (3.5m)

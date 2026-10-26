@@ -8,6 +8,7 @@ import FormField from '../../components/FormField.vue';
 import SelectField from '../../components/SelectField.vue';
 import DialogClose from '../../components/DialogClose.vue';
 import OnboardingEmailFields from '../../components/OnboardingEmailFields.vue';
+import OnboardingSubmissionNotice from '../../components/OnboardingSubmissionNotice.vue';
 import EntryFields from './EntryFields.vue';
 import PipelineBoard from './PipelineBoard.vue';
 import { fromMinor, money, toMinor } from './money';
@@ -62,11 +63,13 @@ function close(): void {
 const busy = ref(false);
 const sendOnboardingEmail = ref(false);
 const onboardingRecipient = ref('');
+const notifySubmission = ref(false);
 watch(
     () => props.selected?.id,
     () => {
         sendOnboardingEmail.value = false;
         onboardingRecipient.value = '';
+        notifySubmission.value = false;
     },
 );
 const formAction = ref('');
@@ -373,6 +376,7 @@ function startOnboarding(): void {
             label: `Onboarding for ${props.selected.brand_name}`.slice(0, 160),
             send_email: sendOnboardingEmail.value,
             recipient_email: onboardingRecipient.value,
+            notify_submission: notifySubmission.value,
         },
         {
             onStart: () => {
@@ -681,6 +685,11 @@ function reloadSelected(): void {
                                 <Button type="submit" class="wd-button wd-button-secondary drawer-outline-brand"
                                     >Start onboarding</Button
                                 >
+                                <OnboardingSubmissionNotice
+                                    prefix="start-onboarding"
+                                    v-model="notifySubmission"
+                                    :error="errors.notify_submission"
+                                />
                             </fieldset>
                         </form>
                         <details v-if="canWrite" class="drawer-delete">

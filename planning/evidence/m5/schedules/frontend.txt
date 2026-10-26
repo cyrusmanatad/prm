@@ -1,0 +1,9 @@
+Commands run from src/ against the final frontend sources:
+
+npm run format:changed — 6 supported frontend files formatted
+npm run format:check:changed — 6 files pass
+npm run typecheck — pass
+npm test — 13 files, 51 tests pass
+npm run build — pass, Vite 8.3.5, 3214 modules
+
+No new component-only tests were added; the desktop browser journey covers persisted preferences, timezone, schedule consent and shared modal behavior.

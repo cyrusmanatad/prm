@@ -1,0 +1,7 @@
+ Container weavdash-app-run-0b4e0b54f164 Creating
+ Container weavdash-app-run-0b4e0b54f164 Created
+
+  ..............................
+
+  Tests:    30 passed (265 assertions)
+  Duration: 5.55s

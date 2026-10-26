@@ -1,0 +1,4 @@
+python3 src/scripts/check-postgres-schema.py
+PostgreSQL schema/DDL checks passed. Runtime RLS enforcement is NOT verified by this check.
+
+The real PostgreSQL catalog check is recorded separately in catalog.txt; runtime denial is in acceptance-full.txt and acceptance-after-reapply.txt.

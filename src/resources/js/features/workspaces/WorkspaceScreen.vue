@@ -157,6 +157,9 @@ defineExpose({
                         :href="selected.kind === 'brand' ? '/brand' : '/partner/leads'"
                         >Open {{ selected.kind === 'brand' ? 'brand hub' : 'partner portal' }}</Link
                     >
+                    <Link class="wd-link inline-flex min-h-11 items-center" href="/automation"
+                        >Automation preferences</Link
+                    >
                     <ActionGroup v-if="selected.role === 'owner'">
                         <Link class="wd-link" href="/finance/invoices">Private finance records</Link>
                         <Link class="wd-link" href="/workspace/entitlements">Pilot entitlements</Link>

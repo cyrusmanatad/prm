@@ -1,5 +1,7 @@
 # WeavDash Planning
 
+**Current backend checkpoint (2026-10-26, D28):** M5-03 persistent schedules, timezones, preferences and consent are implemented with local backend/desktop verification; see the [contract](m5-schedules-contract.md) and [evidence](evidence/m5/schedules/README.md). Named versioned rules, explicit opt-in, current authorization/entitlement checks and PostgreSQL/Redis recovery are in place. Scheduled email delivery remains M5-04. **Next backend slice: M5-04 reminders and digest/review notifications.** Codex continues backend/necessary desktop work; Claude owns administration and small-screen testing/refinement. UI-05, mobile/provider and inherited release gates remain open; M5 is incomplete. M5-02 lifecycle email retains its [contract](m5-onboarding-lifecycle-contract.md) and [evidence](evidence/m5/onboarding-lifecycle/README.md). Earlier priority snapshots below are historical.
+
 **Confirmed session scope (2026-10-25):** the user held administrator implementation for this session and then authorized continuing development. UI-07 notification feedback was completed under that session scope while ADM-01–ADM-07 remain unimplemented and required; this does not waive D27's launch priority or advance M5/M6 acceptance.
 
 Current resume point: [implementation handoff](implementation-handoff.md). All unfinished, in-progress and deferred work is retained in the [remaining-task register](remaining-tasks.md). M5 is partially implemented; [M6 preparation](m6-status.md) has started with its dependencies and release gates still open.

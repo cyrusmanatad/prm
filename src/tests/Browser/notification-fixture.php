@@ -20,7 +20,11 @@ if (PHP_SAPI !== 'cli' || ! $app->environment(['local', 'testing']) || config('m
 $user = User::where('email', $email)->firstOrFail();
 $org = app(TenantContext::class)->run($user->id, null, fn () => DB::table('memberships')->where('user_id', $user->id)->where('role', 'owner')->value('org_id'));
 $rows = app(TenantContext::class)->run($user->id, $org, fn () => DB::table('notification_outbox')->where('state', 'pending')->get());
+$links = [];
 foreach ($rows as $row) {
+    if (($argv[2] ?? '') === '--lifecycle-links' && in_array($row->kind, ['onboarding.corrected', 'onboarding.accepted'], true)) {
+        $links[$row->kind] = decrypt($row->encrypted_payload)['url'];
+    }
     $queue = 'browser-notification-'.$row->id;
     try {
         Queue::connection('redis')->push((new DeliverNotification($user->id, $org, $row->id))->onQueue($queue), '', $queue);
@@ -29,4 +33,4 @@ foreach ($rows as $row) {
         Queue::connection('redis')->clear($queue);
     }
 }
-echo json_encode(['processed' => count($rows)]);
+echo json_encode(['processed' => count($rows), ...(($argv[2] ?? '') === '--lifecycle-links' ? ['links' => $links] : [])]);

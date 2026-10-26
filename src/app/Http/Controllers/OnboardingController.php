@@ -29,7 +29,7 @@ class OnboardingController extends Controller
         $id = $request->validate(['request' => ['nullable', 'uuid']])['request'] ?? null;
         $payload['selected'] = $id ? $service->detail($org, $id) : null;
         $payload['emails'] = $id ? DB::table('notification_outbox')->where('org_id', $org)->where('onboarding_request_id', $id)
-            ->orderByDesc('created_at')->orderByDesc('id')->limit(20)->get(['id', 'state', 'created_at'])->all() : [];
+            ->orderByDesc('created_at')->orderByDesc('id')->limit(20)->get(['id', 'kind', 'state', 'created_at'])->all() : [];
         $payload['submissions'] = $id ? DB::table('onboarding_submissions')->where('org_id', $org)->where('request_id', $id)->orderByDesc('revision')->get(['id', 'revision', 'snapshot', 'consent_at'])->map(fn ($r) => [...(array) $r, 'snapshot' => json_decode($r->snapshot, true)])->all() : [];
 
         return $this->page($request, 'OnboardingAdmin', $payload);
@@ -39,7 +39,8 @@ class OnboardingController extends Controller
     {
         $data = $request->validate(['pipeline_entry_id' => ['required', 'uuid'], 'label' => ['required', 'string', 'max:160']]);
         $recipient = $this->recipient($request);
-        $result = $service->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data['pipeline_entry_id'], $data['label'], $recipient);
+        $notify = $this->notifySubmission($request);
+        $result = $service->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data['pipeline_entry_id'], $data['label'], $recipient, $notify);
         $message = $recipient ? 'Onboarding invitation email queued for '.$recipient : 'Invitation link created';
 
         return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result, 201) : redirect('/partner/onboarding?request='.$result['id'])->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
@@ -50,18 +51,23 @@ class OnboardingController extends Controller
         $d = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646'], 'note' => [$action === 'correct' ? 'required' : 'nullable', 'string', 'max:2000']]);
         if ($action === 'renew') {
             $recipient = $this->recipient($request);
-            $result = $service->renew((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $recipient);
+            $notify = $this->notifySubmission($request);
+            $result = $service->renew((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $recipient, $notify);
             $message = 'Invitation replaced. Previous sessions are closed'.($recipient ? '. Replacement invitation email queued for '.$recipient : '');
 
             return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result) : redirect('/partner/onboarding?request='.$record)->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
         }
-        $service->review((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $action, $d['note'] ?? '');
+        $recipient = in_array($action, ['correct', 'accept'], true) ? $this->recipient($request) : null;
+        $service->review((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $action, $d['note'] ?? '', $recipient);
         $message = match ($action) {
             'correct' => 'Correction requested',
             'accept' => 'Onboarding accepted',
             'revoke' => 'Onboarding invitation revoked',
             default => 'Onboarding updated',
         };
+        if ($recipient !== null) {
+            $message .= '. Outcome email queued for '.$recipient;
+        }
 
         return $this->completed($request, ['message' => $message], '/partner/onboarding?request='.$record);
     }
@@ -195,6 +201,11 @@ class OnboardingController extends Controller
         ]);
 
         return ($data['send_email'] ?? false) ? $data['recipient_email'] : null;
+    }
+
+    private function notifySubmission(Request $request): bool
+    {
+        return (bool) ($request->validate(['notify_submission' => ['sometimes', 'boolean']])['notify_submission'] ?? false);
     }
 
     private function page(Request $request, string $page, array $props): mixed

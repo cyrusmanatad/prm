@@ -1,0 +1,26 @@
+ phase  | reminders | pipeline | notifications
+--------+-----------+----------+---------------
+ before |         7 |      107 |            70
+(1 row)
+
+ Container weavdash-migrate-run-a9711bcc8e4a Creating
+ Container weavdash-migrate-run-a9711bcc8e4a Created
+
+   INFO  Rolling back migrations.
+
+  2026_10_26_000002_create_automation_schedules ................. 17.99ms DONE
+
+ Container weavdash-migrate-run-d6c8ef0697e4 Creating
+ Container weavdash-migrate-run-d6c8ef0697e4 Created
+
+   INFO  Running migrations.
+
+  2026_10_26_000002_create_automation_schedules ................. 99.83ms DONE
+
+ Container weavdash-migrate-run-2550a92c51b7 Creating
+ Container weavdash-migrate-run-2550a92c51b7 Created
+Runtime privileges applied.
+ phase | reminders | pipeline | notifications
+-------+-----------+----------+---------------
+ after |         7 |      107 |            70
+(1 row)

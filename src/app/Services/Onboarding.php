@@ -12,26 +12,26 @@ class Onboarding
 {
     public function __construct(private Pipeline $pipeline, private Audit $audit, private TenantContext $context) {}
 
-    public function create(int $actor, string $org, string $entry, string $label, ?string $recipient = null): array
+    public function create(int $actor, string $org, string $entry, string $label, ?string $recipient = null, bool $notifySubmission = false): array
     {
         abort_unless($this->pipeline->canWrite($actor, $org), 403);
         abort_unless(DB::table('pipeline_entries')->where('org_id', $org)->where('id', $entry)->lockForUpdate()->first(), 404);
         $id = (string) Str::uuid();
         $token = bin2hex(random_bytes(32));
-        DB::table('onboarding_requests')->insert(['id' => $id, 'org_id' => $org, 'pipeline_entry_id' => $entry, 'label' => $label, 'token_hash' => hash('sha256', $token), 'expires_at' => now()->addDays(7)]);
+        DB::table('onboarding_requests')->insert(['id' => $id, 'org_id' => $org, 'pipeline_entry_id' => $entry, 'label' => $label, 'token_hash' => hash('sha256', $token), 'expires_at' => now()->addDays(7), 'submission_notify_user_id' => $notifySubmission ? $actor : null]);
         $this->audit->record($actor, $org, 'onboarding.started', $id);
 
         return $this->invitation($actor, $org, $id, $token, $recipient);
     }
 
-    public function renew(int $actor, string $org, string $id, int $version, ?string $recipient = null): array
+    public function renew(int $actor, string $org, string $id, int $version, ?string $recipient = null, bool $notifySubmission = false): array
     {
         abort_unless($this->pipeline->canWrite($actor, $org), 403);
         $row = $this->locked($org, $id, $version);
         abort_if($row->status === 'revoked', 409);
         $token = bin2hex(random_bytes(32));
         DB::table('onboarding_sessions')->where('org_id', $org)->where('request_id', $id)->delete();
-        DB::table('onboarding_requests')->where('org_id', $org)->where('id', $id)->update(['token_hash' => hash('sha256', $token), 'consumed_at' => null, 'expires_at' => now()->addDays(7), 'version' => $version + 1]);
+        DB::table('onboarding_requests')->where('org_id', $org)->where('id', $id)->update(['token_hash' => hash('sha256', $token), 'consumed_at' => null, 'expires_at' => now()->addDays(7), 'version' => $version + 1, 'submission_notify_user_id' => $notifySubmission ? $actor : null]);
         $this->audit->record($actor, $org, 'onboarding.renewed', $id);
 
         return $this->invitation($actor, $org, $id, $token, $recipient);
@@ -51,6 +51,9 @@ class Onboarding
     {
         $session = bin2hex(random_bytes(32));
         $ok = DB::selectOne('SELECT app_exchange_onboarding(?,?,?::uuid) AS ok', [hash('sha256', $token), hash('sha256', $session), (string) Str::uuid()]);
+        if (! $ok?->ok) {
+            $ok = DB::selectOne('SELECT app_exchange_onboarding_return(?,?,?::uuid) AS ok', [hash('sha256', $token), hash('sha256', $session), (string) Str::uuid()]);
+        }
         abort_unless($ok?->ok, 404);
 
         return $session;
@@ -110,22 +113,29 @@ class Onboarding
             'idempotency_key' => $key, 'payload_hash' => $hash]);
         $query->update([...$data, 'status' => 'submitted', 'version' => $version + 1]);
         $this->event($org, $id, 'submitted');
+        DB::select('SELECT app_queue_onboarding_submitted(?::uuid,?::uuid)', [$id, (string) Str::uuid()]);
 
         return $submission;
     }
 
-    public function review(int $actor, string $org, string $id, int $version, string $action, string $note): void
+    public function review(int $actor, string $org, string $id, int $version, string $action, string $note, ?string $recipient = null): void
     {
         abort_unless($this->pipeline->canWrite($actor, $org), 403);
         $r = $this->locked($org, $id, $version);
         if ($action !== 'revoke') {
             abort_unless($r->status === 'submitted', 409);
         }
+        if ($recipient !== null && now()->gte($r->expires_at)) {
+            throw ValidationException::withMessages(['recipient_email' => 'This invitation expired. Replace it before requesting an outcome email.']);
+        }
         DB::table('onboarding_requests')->where('org_id', $org)->where('id', $id)->update(['status' => match ($action) {
             'revoke' => 'revoked','correct' => 'correction','accept' => 'accepted'
         }, 'correction_note' => $note, 'version' => $version + 1]);
         $this->event($org, $id, $action);
         $this->audit->record($actor, $org, 'onboarding.'.$action, $id);
+        if ($recipient !== null && in_array($action, ['correct', 'accept'], true)) {
+            app(NotificationOutbox::class)->onboardingOutcome($actor, $org, $id, $version + 1, $action, $r->token_hash, $r->expires_at, $recipient);
+        }
     }
 
     public function locked(string $org, string $id, int $version): object

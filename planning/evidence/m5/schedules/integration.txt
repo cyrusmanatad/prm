@@ -1,0 +1,12 @@
+ Container weavdash-app-run-42c70e7dda83 Creating
+ Container weavdash-app-run-42c70e7dda83 Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.pgsql.xml
+
+.............................                                     29 / 29 (100%)
+
+Time: 00:07.941, Memory: 58.50 MB
+
+OK (29 tests, 528 assertions)

@@ -1,0 +1,15 @@
+before rollback requests=139
+ Container weavdash-migrate-run-1ddf1c6fb1bb Creating
+ Container weavdash-migrate-run-1ddf1c6fb1bb Created
+
+   INFO  Rolling back migrations.
+
+  2026_10_26_000001_add_onboarding_lifecycle_notifications ...... 32.81ms DONE
+
+after rollback requests=139
+ Container weavdash-migrate-run-002cde5403d7 Creating
+ Container weavdash-migrate-run-002cde5403d7 Created
+
+   INFO  Running migrations.
+
+  2026_10_26_000001_add_onboarding_lifecycle_notifications ...... 53.67ms DONE

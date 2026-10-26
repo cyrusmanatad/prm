@@ -1,8 +1,10 @@
 # M5 Durable Automation and Notifications Status
 
+**Current session (2026-10-26, D28):** M5-03 scheduling foundation is implemented and backend/desktop verified in the working tree based on `258136f`. See the [schedules/consent contract](m5-schedules-contract.md) and [evidence/screenshots](evidence/m5/schedules/README.md). Named versioned rules, per-person/workspace IANA timezone and opt-in preferences, append-only consent, durable run reconstruction, atomic execution and current membership/verification/entitlement/subject checks are in place. **Next backend task: M5-04 reminder and digest/review delivery.** No scheduled email consumer or external delivery is claimed. M5-02 lifecycle email remains locally verified under its [contract](m5-onboarding-lifecycle-contract.md). Claude owns administration and small-screen verification/refinement. UI-05, small-screen/provider and inherited release gates remain open; M5 is incomplete.
+
 **Confirmed session scope (2026-10-25):** the user held administrator implementation for this session and then authorized continuing development. UI-07 notification feedback was completed under that session scope while ADM-01–ADM-07 remain unimplemented and required; this does not waive D27's launch priority or advance M5/M6 acceptance.
 
-Status: **partner and onboarding invitation slices complete; local automated gates passed; milestone incomplete**. The original slice was prepared on `m5/durable-automation` on 2026-10-23. M5-01 follows on `m5/onboarding-invitation-email`, based on `ce2d9bd`.
+Status: **invitation, onboarding lifecycle and scheduling foundation slices locally verified; milestone incomplete**. The original slice was prepared on `m5/durable-automation` on 2026-10-23. M5-01 follows on `m5/onboarding-invitation-email`, based on `ce2d9bd`.
 
 **UI-07 (2026-10-25):** queued-email copy, repeated/initial/history feedback, modal notification accessibility, reduced-motion dismissal and persistent clipboard recovery are implemented and locally verified. Formatting/types/build, 51 component tests, PHP 29/256 and all 22 distinct affected desktop/mobile journeys have passing evidence across the broad run and two-test accessibility follow-up. See [notification feedback evidence](evidence/notification-feedback-2026-10-25/README.md). Administration remains held for this session only; ADM-01–ADM-07 are still required and unimplemented. Broader UI-05 reference/deviation acceptance and M5-02 remain open.
 
@@ -18,7 +20,7 @@ Explicit optional email now accompanies Start onboarding and confirmed replaceme
 
 Verification on the working tree based on `ce2d9bd`: **53 PostgreSQL acceptance tests / 1,142 assertions** in a fresh synthetic database, **27 integration tests / 503 assertions**, **29 identity tests / 256 assertions**, 26 component tests, formatting/types/build/Pint/source scan, migration rollback/reapply and catalog checks passed. All **8 affected Chromium desktop/mobile journeys** pass across the broad run and corrected two-test follow-up, with clean embedded Axe checks and inspected screenshots. The first full fresh-database run needed the documented runtime grants; the rerun passed. The browser correction matched the existing revoked-link error message. See [commands and evidence](evidence/m5/onboarding-email/README.md).
 
-Provider delivery remains M5-09; no real email was sent. M5-02 lifecycle notifications and M5-03–M5-10 remain open, as do inherited release reviews.
+Provider delivery remains M5-09; no real email was sent. M5-02/M5-03 backend/desktop verification is now recorded above; their small-screen gates, M5-04–M5-10 and inherited release reviews remain open.
 
 ## Original first-slice verification
 
@@ -30,8 +32,8 @@ Frontend formatting, type checking, **21 Vitest tests**, production build and PH
 
 The [remaining-task register](remaining-tasks.md#m5-required-implementation-and-delivery-work) tracks these under **M5-01–M5-10**, with dependencies and completion evidence. The first slice is committed as `efd4fd6`. See the [current handoff](implementation-handoff.md) and [M6 preparation](m6-status.md); M6 acceptance does not waive the remaining M5 work.
 
-1. Specify and implement M5-02 submitted/correction/accepted notifications with scoped recipients and usable return links after the existing 24-hour session expires. M5-01 invitation recipient/send controls are complete locally.
-2. Implement persisted scheduling, timezone/preferences/consent, reminders and digest.
+1. M5-02 backend/desktop implementation is locally verified. Carry its small-screen checks to Claude and provider receipt to M5-09; preserve the [recipient/access contract](m5-onboarding-lifecycle-contract.md). M5-01 remains locally verified.
+2. M5-03 backend/desktop foundation is locally verified; carry small-screen checks to Claude. Implement M5-04 reminder/digest consumers and notification delivery using the [persisted schedule contract](m5-schedules-contract.md).
 3. Add approval inbox, follow-up drafts, logged-reply cancellation and approval invalidation, plus rate budgets and optional AI off-path behavior.
 4. Complete crash/restart/outage, DST, operator reconciliation and external recipient-controlled delivery acceptance. Preserve M1–M4 release gates and the mandatory UI standards.
 
