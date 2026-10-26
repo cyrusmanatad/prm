@@ -69,7 +69,14 @@ function pick(event: Event): void {
                 <span class="wd-eyebrow">Private onboarding</span>
                 <h1>{{ form.label }}</h1>
                 <p class="wd-description">
-                    Progress is saved when you choose Save draft. Return to this page in the same browser to resume.
+                    <template v-if="editable"
+                        >Progress is saved when you choose Save draft. Return to this page in the same browser to
+                        resume.</template
+                    >
+                    <template v-else
+                        >This form is read-only. You can review the submitted details and current status
+                        below.</template
+                    >
                 </p>
             </div>
             <p class="wd-hint">Status: {{ form.status }}</p>

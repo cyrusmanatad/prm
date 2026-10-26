@@ -1,5 +1,7 @@
 # M6 Pilot and Production Readiness Status
 
+**Current execution scope (2026-10-26, D28):** Codex continues M5 backend/desktop work; Claude owns administration implementation and small-screen UI verification/refinements. M5-02 has [local backend/desktop evidence](evidence/m5/onboarding-lifecycle/README.md), with mobile/provider acceptance pending; M5-03 is next for backend work. This does not advance M6 or waive D27 administration and inherited release gates.
+
 Status: **preparation started; operational implementation and acceptance pending** on 2026-10-23. M5's first slice is committed as `efd4fd6`; required M5 work remains open. The user's conditional request to advance toward M6 permits this preparation without changing the roadmap's predecessor/release gates.
 
 **Confirmed D27 priority (2026-10-25):** required platform-owner/super-admin administration is brought forward as ADM-01–ADM-07 before advancing milestones. Start ADM-01 authorization/MFA/bootstrap, then the remaining [administration contract](platform-administration-contract.md). No admin feature or real owner account is implemented yet; no test data has been removed. M5 remains incomplete and its required work is preserved.

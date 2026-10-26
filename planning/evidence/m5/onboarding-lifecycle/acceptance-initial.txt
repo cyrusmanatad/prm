@@ -1,0 +1,204 @@
+ Container weavdash-acceptance-run-d15433f5cdb1 Creating
+ Container weavdash-acceptance-run-d15433f5cdb1 Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.acceptance.xml
+
+FFFFFFFFF                                                           9 / 9 (100%)
+
+Time: 00:00.944, Memory: 48.50 MB
+
+There were 9 failures:
+
+1) Tests\Acceptance\OnboardingLifecycleTest::test_submission_opt_in_current_recipient_minimal_content_and_idempotency
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:70
+
+2) Tests\Acceptance\OnboardingLifecycleTest::test_outcome_requires_explicit_address_and_preserves_state_on_validation_failure
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:98
+
+3) Tests\Acceptance\OnboardingLifecycleTest::test_fresh_return_link_survives_old_session_expiry_is_single_use_and_scoped
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:118
+
+4) Tests\Acceptance\OnboardingLifecycleTest::test_obsolete_notifications_and_links_are_cancelled_for_current_state_and_authorization
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:161
+
+5) Tests\Acceptance\OnboardingLifecycleTest::test_reconciliation_alone_cancels_stale_outcomes_and_submitted_notices
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:191
+
+6) Tests\Acceptance\OnboardingLifecycleTest::test_capability_and_foreign_workspace_cannot_read_or_forge_lifecycle_intent
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:205
+
+7) Tests\Acceptance\OnboardingLifecycleTest::test_review_and_submission_intent_roll_back_with_their_events
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:235
+
+8) Tests\Acceptance\OnboardingLifecycleTest::test_writer_roles_and_current_revocation_protect_submitted_notifications
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:270
+
+9) Tests\Acceptance\OnboardingLifecycleTest::test_redis_loss_replay_and_uncertain_delivery_reuse_durable_semantics
+Expected response status code [201] but received 422.
+Failed asserting that 422 is identical to 201.
+
+The following errors occurred during the last request:
+
+{
+    "message": "The value minor field is required.",
+    "errors": {
+        "value_minor": [
+            "The value minor field is required."
+        ]
+    }
+}
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:46
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:183
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:27
+/var/www/html/tests/Acceptance/OnboardingLifecycleTest.php:288
+
+FAILURES!
+Tests: 9, Assertions: 27, Failures: 9.

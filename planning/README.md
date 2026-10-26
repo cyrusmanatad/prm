@@ -1,5 +1,7 @@
 # WeavDash Planning
 
+**Confirmed session scope (2026-10-26, D28):** Codex continues M5 backend work and necessary desktop/large-screen UI. Administration implementation and small-screen UI testing, optimization and responsive refinements are assigned to Claude. UI-05 visual deviation acceptance remains open; it does not block this authorized backend continuation. M5-02 lifecycle email is implemented with local backend/desktop verification; see the [contract](m5-onboarding-lifecycle-contract.md) and [evidence](evidence/m5/onboarding-lifecycle/README.md). **Next backend slice: M5-03 schedules/timezone/preferences/consent.** M5 remains incomplete; small-screen/provider and inherited gates remain. Earlier session holds and priority snapshots below are historical.
+
 **Confirmed session scope (2026-10-25):** the user held administrator implementation for this session and then authorized continuing development. UI-07 notification feedback was completed under that session scope while ADM-01–ADM-07 remain unimplemented and required; this does not waive D27's launch priority or advance M5/M6 acceptance.
 
 Current resume point: [implementation handoff](implementation-handoff.md). All unfinished, in-progress and deferred work is retained in the [remaining-task register](remaining-tasks.md). M5 is partially implemented; [M6 preparation](m6-status.md) has started with its dependencies and release gates still open.

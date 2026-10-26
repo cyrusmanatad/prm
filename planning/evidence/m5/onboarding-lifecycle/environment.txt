@@ -1,0 +1,12 @@
+NAME                   IMAGE                                                                                          COMMAND                  SERVICE     CREATED         STATUS                   PORTS
+weavdash-app-1         weavdash-app                                                                                   "docker-php-entrypoi…"   app         4 minutes ago   Up 4 minutes (healthy)   127.0.0.1:8000->8000/tcp
+weavdash-clamav-1      clamav/clamav:stable@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6   "/init"                  clamav      2 days ago      Up 45 hours (healthy)    3310/tcp, 7357/tcp
+weavdash-postgres-1    postgres:16-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4   "docker-entrypoint.s…"   postgres    45 hours ago    Up 45 hours (healthy)    127.0.0.1:5433->5432/tcp
+weavdash-redis-1       redis:7.4-bookworm@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85     "docker-entrypoint.s…"   redis       2 days ago      Up 45 hours (healthy)    6379/tcp
+weavdash-scheduler-1   weavdash-scheduler                                                                             "docker-php-entrypoi…"   scheduler   1 second ago    Up 1 second
+weavdash-worker-1      weavdash-worker                                                                                "docker-php-entrypoi…"   worker      1 second ago    Up Less than a second
+3270e56fc7979fe1403c40a6a52b9eaffb566af2476bab1f6c98c3fcd2ba1b89  app/Services/Onboarding.php
+57430a40f00dc29d2872d5d8de8e620567c2fb3b772b5f1e11a6354278cb4517  app/Services/NotificationOutbox.php
+765ef964186cccb44efd79b1bbfb99c7a78f8f5ac32cde502c1491709258b3d8  resources/js/pages/OnboardingAdmin.vue
+46b3c2785ea092a442853db24236efaad2b0a673de08f0d2662224ad5db164dd  resources/js/pages/OnboardingForm.vue
+6ba835a5838f656f790cc3f660eba96639a944645c0ef1c7a20e781af921a527  public/build/manifest.json

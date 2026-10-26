@@ -1,0 +1,79 @@
+{
+    "baseRevision": "4f90c3e",
+    "branch": "m5/onboarding-lifecycle-email",
+    "state": "verified implementation snapshot; mounted acceptance test is included",
+    "files": [
+        {
+            "path": "src/app/Http/Controllers/OnboardingController.php",
+            "sha256": "57bb9b16c0eb7e2b19eebec7760e7ba2829a41003a1b255c540f619dd7c6df18"
+        },
+        {
+            "path": "src/app/Services/Onboarding.php",
+            "sha256": "3270e56fc7979fe1403c40a6a52b9eaffb566af2476bab1f6c98c3fcd2ba1b89"
+        },
+        {
+            "path": "src/app/Services/NotificationOutbox.php",
+            "sha256": "57430a40f00dc29d2872d5d8de8e620567c2fb3b772b5f1e11a6354278cb4517"
+        },
+        {
+            "path": "src/app/Mail/OnboardingLifecycle.php",
+            "sha256": "27918865965c5acf9722655f1f064090d84541f5bb3962416c714d290c5f8f5e"
+        },
+        {
+            "path": "src/database/migrations/2026_10_26_000001_add_onboarding_lifecycle_notifications.php",
+            "sha256": "9b96397f283342d98177eb78d95fb249e331e9c44ba629f19e06d8b70dd9a0c7"
+        },
+        {
+            "path": "src/database/sql/onboarding-lifecycle.sql",
+            "sha256": "1fced8c695579a8787da2ebf5c27a08b5b61d86c4ed5f7685e95c276749b9925"
+        },
+        {
+            "path": "src/database/sql/onboarding-lifecycle-down.sql",
+            "sha256": "e44c14d74bf06982ee409097d46209b4c1dac260060e9d5d129fdd80efd91bc7"
+        },
+        {
+            "path": "src/resources/js/components/OnboardingEmailFields.vue",
+            "sha256": "328b46db1c26090a16ec3e2679e4df5783f9490be2a5ce126148f990bee52515"
+        },
+        {
+            "path": "src/resources/js/components/OnboardingSubmissionNotice.vue",
+            "sha256": "fb251faa07fa8347e47ecf9d146e2d0040a32dc8dff0841bcdf9c1b58a77ef81"
+        },
+        {
+            "path": "src/resources/js/features/pipeline/LeadManager.vue",
+            "sha256": "f7054a9387f42c1c30a4cb2cb5ff3f942dff530a11962361b4853d3a472bb9c2"
+        },
+        {
+            "path": "src/resources/js/pages/OnboardingAdmin.vue",
+            "sha256": "765ef964186cccb44efd79b1bbfb99c7a78f8f5ac32cde502c1491709258b3d8"
+        },
+        {
+            "path": "src/resources/js/pages/OnboardingForm.vue",
+            "sha256": "46b3c2785ea092a442853db24236efaad2b0a673de08f0d2662224ad5db164dd"
+        },
+        {
+            "path": "src/resources/views/mail/onboarding-lifecycle.blade.php",
+            "sha256": "722cc3e1e7027aa3aa0cb15b66a5078945218367d7a590996c75acbeac74656b"
+        },
+        {
+            "path": "src/tests/Acceptance/OnboardingLifecycleTest.php",
+            "sha256": "01b9b89cb192411a0649846fb705bf92dd124753ee669587f464926df41af81e"
+        },
+        {
+            "path": "src/scripts/check-postgres-schema.py",
+            "sha256": "2719d2bb84b8a4f74c49381f8b50dff807c16238d2ce7999905116524e1d3021"
+        },
+        {
+            "path": "src/tests/Fixtures/notification-schema-check.sql",
+            "sha256": "cc247cfc079c3cef431ac000e869ee0bd500a023b2ab944ad1557792c6319120"
+        },
+        {
+            "path": "src/tests/Browser/notification-fixture.php",
+            "sha256": "4860c8cdb85fba473e9199117fda7c7e4f7294949b6b9ea37e365781476acee7"
+        },
+        {
+            "path": "src/tests/Browser/onboarding-lifecycle.spec.ts",
+            "sha256": "8257b343c97e767a17c5247b2704c58a7b0c78ca9350249fd45723ba45ab901f"
+        }
+    ]
+}

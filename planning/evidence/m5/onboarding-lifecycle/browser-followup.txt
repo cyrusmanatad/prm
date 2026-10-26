@@ -1,0 +1,12 @@
+
+> test:browser
+> playwright test onboarding-lifecycle.spec.ts --project=desktop --output=/tmp/weavdash-lifecycle-browser-followup --reporter=list
+
+
+Running 1 test using 1 worker
+
+(node:2609528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/onboarding-lifecycle.spec.ts:30:1 › desktop onboarding lifecycle controls queue explicit outcomes and open fresh scoped return links (25.0s)
+
+  1 passed (26.2s)

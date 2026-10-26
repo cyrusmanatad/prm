@@ -5,6 +5,7 @@ import { ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
 import OnboardingEmailFields from '../components/OnboardingEmailFields.vue';
+import OnboardingSubmissionNotice from '../components/OnboardingSubmissionNotice.vue';
 import ContentSection from '../components/ContentSection.vue';
 import { emailStates } from '../features/notifications/emailStates';
 import { Button } from '../components/ui/button';
@@ -33,7 +34,7 @@ const props = defineProps<{
         pipeline_entry_id: string;
     }[];
     selected: Detail | null;
-    emails: { id: string; state: string; created_at: string }[];
+    emails: { id: string; kind: string; state: string; created_at: string }[];
     submissions: {
         id: string;
         revision: number;
@@ -55,12 +56,26 @@ const note = ref('');
 const busy = ref(false);
 const sendEmail = ref(false);
 const recipient = ref('');
+const notifySubmission = ref(false);
+const sendOutcome = ref(false);
+const outcomeRecipient = ref('');
+const reviewForm = ref<HTMLFormElement>();
+const emailKinds: Record<string, string> = {
+    'onboarding.invitation': 'Invitation',
+    'onboarding.submitted': 'Submission alert',
+    'onboarding.corrected': 'Correction request',
+    'onboarding.accepted': 'Acceptance',
+};
 const replacementForm = ref<HTMLFormElement>();
 watch(
     () => props.selected?.id,
     () => {
         sendEmail.value = false;
         recipient.value = '';
+        notifySubmission.value = false;
+        sendOutcome.value = false;
+        outcomeRecipient.value = '';
+        note.value = '';
     },
 );
 function replace(event: Event): void {
@@ -75,12 +90,22 @@ function replace(event: Event): void {
 }
 function review(action: string): void {
     if (!props.selected || busy.value || props.errors?.version) return;
+    if (['correct', 'accept'].includes(action) && !reviewForm.value?.reportValidity()) return;
     router.post(
         `/onboarding-requests/${props.selected.id}/${action}`,
         {
             version: props.selected.version,
             note: note.value,
-            ...(action === 'renew' ? { send_email: sendEmail.value, recipient_email: recipient.value } : {}),
+            ...(action === 'renew'
+                ? {
+                      send_email: sendEmail.value,
+                      recipient_email: recipient.value,
+                      notify_submission: notifySubmission.value,
+                  }
+                : {}),
+            ...(['correct', 'accept'].includes(action)
+                ? { send_email: sendOutcome.value, recipient_email: outcomeRecipient.value }
+                : {}),
         },
         {
             preserveState: true,
@@ -89,7 +114,11 @@ function review(action: string): void {
                 if (action === 'renew') {
                     sendEmail.value = false;
                     recipient.value = '';
+                    notifySubmission.value = false;
                 }
+                sendOutcome.value = false;
+                outcomeRecipient.value = '';
+                note.value = '';
             },
             onStart: () => {
                 busy.value = true;
@@ -180,7 +209,13 @@ function review(action: string): void {
                     </li>
                 </ul>
                 <template v-if="canWrite"
-                    ><div v-if="selected.status === 'submitted'" class="wd-fields">
+                    ><form
+                        v-if="selected.status === 'submitted'"
+                        ref="reviewForm"
+                        class="wd-fields"
+                        :aria-busy="busy"
+                        @submit.prevent
+                    >
                         <FormField
                             id="correction-note"
                             v-model="note"
@@ -188,6 +223,13 @@ function review(action: string): void {
                             :maxlength="2000"
                             :required="false"
                             :error="errors?.note"
+                        />
+                        <OnboardingEmailFields
+                            prefix="review-outcome"
+                            purpose="outcome"
+                            v-model:send-email="sendOutcome"
+                            v-model:recipient="outcomeRecipient"
+                            :errors="errors"
                         />
                         <div class="wd-toolbar">
                             <Button
@@ -204,7 +246,7 @@ function review(action: string): void {
                                 >Accept submission</Button
                             >
                         </div>
-                    </div>
+                    </form>
                     <form
                         v-if="selected.status !== 'revoked'"
                         ref="replacementForm"
@@ -218,6 +260,11 @@ function review(action: string): void {
                                 v-model:send-email="sendEmail"
                                 v-model:recipient="recipient"
                                 :errors="errors"
+                            />
+                            <OnboardingSubmissionNotice
+                                prefix="replacement"
+                                v-model="notifySubmission"
+                                :error="errors?.notify_submission"
                             />
                             <Button type="submit" class="wd-button wd-button-secondary"
                                 >Create replacement invitation</Button
@@ -272,12 +319,13 @@ function review(action: string): void {
             </section>
             <ContentSection v-if="selected && canWrite" title="Onboarding email history">
                 <p class="wd-hint">
-                    Refresh this page to check delivery progress. Replacing or revoking an invitation cancels pending
-                    delivery; mail already sending cannot be recalled.
+                    Refresh this page to check delivery progress. Newer edits or outcomes, replacement and revocation
+                    cancel obsolete pending notices; mail already sending cannot be recalled.
                 </p>
-                <p v-if="!emails.length">Link only; email not requested.</p>
+                <p v-if="!emails.length">No email requested or queued for this request.</p>
                 <ul v-else>
                     <li v-for="email in emails" :key="email.id">
+                        {{ emailKinds[email.kind] ?? 'Onboarding notice' }} ·
                         {{ new Date(email.created_at).toLocaleString() }} · {{ emailStates[email.state] }}
                     </li>
                 </ul>

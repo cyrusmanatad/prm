@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import FormField from './FormField.vue';
-defineProps<{ prefix: string; errors?: Record<string, string> }>();
+withDefaults(defineProps<{ prefix: string; errors?: Record<string, string>; purpose?: 'invitation' | 'outcome' }>(), {
+    purpose: 'invitation',
+});
 const sendEmail = defineModel<boolean>('sendEmail', { default: false });
 const recipient = defineModel<string>('recipient', { default: '' });
 </script>
@@ -15,17 +17,25 @@ const recipient = defineModel<string>('recipient', { default: '' });
                 class="shrink-0 accent-[var(--wd-brand)]"
                 :aria-describedby="`${prefix}-email-hint`"
             />
-            Email this onboarding invitation
+            {{ purpose === 'outcome' ? 'Email this review outcome' : 'Email this onboarding invitation' }}
         </label>
         <p :id="`${prefix}-email-hint`" class="wd-hint">
-            Optional. Anyone with this private link can open the form once. Choose the intended recipient carefully.
+            <template v-if="purpose === 'outcome'"
+                >Optional. Send a fresh private return link with this outcome. Choose the intended recipient explicitly;
+                the submitted business email is not selected for you. The link ends when the invitation
+                expires.</template
+            >
+            <template v-else
+                >Optional. Anyone with this private link can open the form once. Choose the intended recipient
+                carefully.</template
+            >
         </p>
         <p v-if="errors?.send_email" class="wd-field-error" role="alert">{{ errors.send_email }}</p>
         <FormField
             v-if="sendEmail"
             :id="`${prefix}-recipient-email`"
             v-model="recipient"
-            label="Invitation recipient email"
+            :label="purpose === 'outcome' ? 'Outcome recipient email' : 'Invitation recipient email'"
             type="email"
             autocomplete="email"
             :maxlength="255"

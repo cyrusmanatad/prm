@@ -1,5 +1,7 @@
 # M5 Durable Automation and Notifications Status
 
+**Current session (2026-10-26, D28):** M5-02 onboarding lifecycle email is implemented under the [recipient/access contract](m5-onboarding-lifecycle-contract.md), with local backend/desktop [verification and screenshots](evidence/m5/onboarding-lifecycle/README.md). Opt-in submission alerts, explicit correction/acceptance email and fresh single-use return links reuse the durable outbox, current authorization and tenant isolation. Desktop controls reuse shared fields/sections/buttons; accepted forms now explain read-only access. **Next backend task: M5-03** schedules/timezones/preferences/consent. Codex may continue while carrying UI-05 acceptance forward; Claude owns administration and small-screen verification/refinements. M5, mobile/provider and inherited release acceptance remain incomplete; no real email was sent.
+
 **Confirmed session scope (2026-10-25):** the user held administrator implementation for this session and then authorized continuing development. UI-07 notification feedback was completed under that session scope while ADM-01–ADM-07 remain unimplemented and required; this does not waive D27's launch priority or advance M5/M6 acceptance.
 
 Status: **partner and onboarding invitation slices complete; local automated gates passed; milestone incomplete**. The original slice was prepared on `m5/durable-automation` on 2026-10-23. M5-01 follows on `m5/onboarding-invitation-email`, based on `ce2d9bd`.
@@ -30,7 +32,7 @@ Frontend formatting, type checking, **21 Vitest tests**, production build and PH
 
 The [remaining-task register](remaining-tasks.md#m5-required-implementation-and-delivery-work) tracks these under **M5-01–M5-10**, with dependencies and completion evidence. The first slice is committed as `efd4fd6`. See the [current handoff](implementation-handoff.md) and [M6 preparation](m6-status.md); M6 acceptance does not waive the remaining M5 work.
 
-1. Specify and implement M5-02 submitted/correction/accepted notifications with scoped recipients and usable return links after the existing 24-hour session expires. M5-01 invitation recipient/send controls are complete locally.
+1. M5-02 backend/desktop implementation is locally verified. Carry its small-screen checks to Claude and provider receipt to M5-09; preserve the [recipient/access contract](m5-onboarding-lifecycle-contract.md). M5-01 remains locally verified.
 2. Implement persisted scheduling, timezone/preferences/consent, reminders and digest.
 3. Add approval inbox, follow-up drafts, logged-reply cancellation and approval invalidation, plus rate budgets and optional AI off-path behavior.
 4. Complete crash/restart/outage, DST, operator reconciliation and external recipient-controlled delivery acceptance. Preserve M1–M4 release gates and the mandatory UI standards.

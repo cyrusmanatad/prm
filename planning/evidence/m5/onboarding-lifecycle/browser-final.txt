@@ -1,0 +1,15 @@
+
+> test:browser
+> playwright test onboarding-lifecycle.spec.ts onboarding-notifications.spec.ts onboarding.spec.ts --project=desktop --output=/tmp/weavdash-lifecycle-browser-final --reporter=list
+
+
+Running 4 tests using 1 worker
+
+(node:2614774) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/onboarding-lifecycle.spec.ts:30:1 › desktop onboarding lifecycle controls queue explicit outcomes and open fresh scoped return links (14.7s)
+  ✓  2 [desktop] › tests/Browser/onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked (12.4s)
+  ✓  3 [desktop] › tests/Browser/onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes (24.7s)
+  ✓  4 [desktop] › tests/Browser/onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable (13.8s)
+
+  4 passed (1.1m)
