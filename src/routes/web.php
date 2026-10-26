@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\RevokeSessionsController;
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\AutomationController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\InvoiceDraftController;
 use App\Http\Controllers\ManualPaymentController;
@@ -72,6 +73,12 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/portal/enter', [PortalController::class, 'enter']);
 
         Route::middleware(WorkspaceContext::class)->group(function (): void {
+            Route::get('/automation', [AutomationController::class, 'index']);
+            Route::put('/automation/preferences', [AutomationController::class, 'preferences']);
+            Route::post('/automation/schedules', [AutomationController::class, 'save']);
+            Route::patch('/automation/schedules/{schedule}', [AutomationController::class, 'save'])->whereUuid('schedule');
+            Route::delete('/automation/schedules/{schedule}', [AutomationController::class, 'revoke'])->whereUuid('schedule');
+
             Route::get('/workspace/entitlements', [InvoiceDraftController::class, 'entitlements']);
             Route::get('/finance/payments', [ManualPaymentController::class, 'index']);
             Route::post('/finance/payments', [ManualPaymentController::class, 'mutate']);

@@ -1,0 +1,5 @@
+DO
+           ?column?
+-------------------------------
+ SCHEDULE_SCHEMA_CHECKS_PASSED
+(1 row)

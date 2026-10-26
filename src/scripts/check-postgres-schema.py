@@ -40,8 +40,10 @@ INSERT INTO users(email_verified_at) VALUES (now()), (now());
     sql += (root / 'database/sql/notification-outbox.sql').read_text()
     sql += (root / 'database/sql/onboarding-notifications.sql').read_text()
     sql += (root / 'database/sql/onboarding-lifecycle.sql').read_text()
+    sql += (root / 'database/sql/automation-schedules.sql').read_text()
     sql += (root / 'database/sql/runtime-grants.sql').read_text()
     sql += (root / 'tests/Fixtures/notification-schema-check.sql').read_text()
+    sql += (root / 'tests/Fixtures/schedule-schema-check.sql').read_text()
     sql += """
 RESET ROLE;
 DO $$ BEGIN

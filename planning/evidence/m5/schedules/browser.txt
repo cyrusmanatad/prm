@@ -1,0 +1,14 @@
+
+> test:browser
+> playwright test automation.spec.ts foundation.spec.ts --project=desktop --output=/tmp/weavdash-schedules-browser-final --reporter=list
+
+
+Running 3 tests using 1 worker
+
+(node:2710851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/automation.spec.ts:5:1 › desktop automation preferences persist consent and timezone with confirmed withdrawal (10.1s)
+  ✓  2 [desktop] › tests/Browser/foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings (4.3s)
+  ✓  3 [desktop] › tests/Browser/foundation.spec.ts:60:1 › recovery, invalid login, and revocation of two real database sessions (10.5s)
+
+  3 passed (26.3s)

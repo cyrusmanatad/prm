@@ -1,0 +1,13 @@
+ Container weavdash-acceptance-run-d0b3d08fc5b3 Creating
+ Container weavdash-acceptance-run-d0b3d08fc5b3 Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.acceptance.xml
+
+................................................................. 65 / 74 ( 87%)
+.........                                                         74 / 74 (100%)
+
+Time: 01:52.694, Memory: 66.50 MB
+
+OK (74 tests, 1617 assertions)

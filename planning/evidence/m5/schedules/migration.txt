@@ -1,0 +1,32 @@
+ Container weavdash-migrate-run-2cbf04dce805 Creating
+ Container weavdash-migrate-run-2cbf04dce805 Created
+
+   INFO  Preparing database.
+
+  Creating migration table ...................................... 29.51ms DONE
+
+   INFO  Running migrations.
+
+  0001_01_01_000000_create_users_table .......................... 70.97ms DONE
+  0001_01_01_000001_create_cache_table .......................... 40.81ms DONE
+  0001_01_01_000002_create_jobs_table ........................... 53.30ms DONE
+  2026_10_17_000001_create_workspace_foundation ................. 44.72ms DONE
+  2026_10_17_000002_lock_active_memberships ...................... 3.73ms DONE
+  2026_10_18_000001_create_pipeline ............................. 51.96ms DONE
+  2026_10_18_000002_create_outreach_templates ................... 20.78ms DONE
+  2026_10_18_000003_create_crm ................................. 102.49ms DONE
+  2026_10_18_000004_create_onboarding .......................... 157.21ms DONE
+  2026_10_18_000005_add_public_social_profiles ................... 5.16ms DONE
+  2026_10_21_000001_create_portals .............................. 40.40ms DONE
+  2026_10_21_000002_add_registration_workspace_intent ............ 4.53ms DONE
+  2026_10_23_000001_create_invoice_drafts ....................... 35.82ms DONE
+  2026_10_23_000002_create_manual_payments ...................... 65.92ms DONE
+  2026_10_23_000003_create_pilot_entitlements ................... 43.88ms DONE
+  2026_10_23_000004_create_notification_outbox .................. 35.94ms DONE
+  2026_10_23_000005_add_onboarding_notifications ................ 12.87ms DONE
+  2026_10_26_000001_add_onboarding_lifecycle_notifications ...... 40.47ms DONE
+  2026_10_26_000002_create_automation_schedules ................. 58.39ms DONE
+
+ Container weavdash-migrate-run-214519eb340b Creating
+ Container weavdash-migrate-run-214519eb340b Created
+Runtime privileges applied.

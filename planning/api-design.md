@@ -67,3 +67,7 @@ Subsequent M2 contracts cover [contacts/reminders](m2-crm-contract.md) and [manu
 ### Partner page URLs (D24)
 
 Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. The old `/partner`, `/pipeline`, `/crm`, `/outreach-templates`, `/onboarding-requests` and `/public-presence` page URLs redirect with their query strings. Existing JSON clients and mutation/document endpoints remain compatible; the URL consolidation does not change authorization or storage. Inbox/Campaigns/Earnings/Autopilot URLs are reserved and not implemented. See the [partner route contract](m3a-portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
+
+## M5-03 implemented automation settings
+
+Authenticated verified members use selected-workspace `GET /automation`, `PUT /automation/preferences`, `POST /automation/schedules`, and versioned `PATCH`/`DELETE /automation/schedules/{id}`. Editing roles may manage only their own settings and schedules. DELETE withdraws consent and retains history. The [implemented contract](m5-schedules-contract.md#api-and-database) specifies named rules, explicit opt-in, timezone and date formats, server-owned versions and stale-write behavior. These are session/CSRF-protected web/JSON routes; scheduled email consumers remain M5-04.
