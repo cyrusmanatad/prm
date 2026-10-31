@@ -1,0 +1,15 @@
+
+> test:browser
+> playwright test logged-reply.spec.ts pipeline.spec.ts follow-up-drafts.spec.ts --grep-invert scheduled preparation --project=desktop --reporter=list --output=/tmp/weavdash-m5-reply-browser
+
+
+Running 4 tests using 1 worker
+
+(node:92239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/follow-up-drafts.spec.ts:6:1 › manual follow-up approval, download, edit invalidation and confirmed discard (10.8s)
+  ✓  2 [desktop] › tests/Browser/logged-reply.spec.ts:5:1 › confirmed reply clears next action and cancels approved follow-up history (13.1s)
+  ✓  3 [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (17.6s)
+  ✓  4 [desktop] › tests/Browser/pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access (6.0s)
+
+  4 passed (49.0s)

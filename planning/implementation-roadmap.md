@@ -1,5 +1,7 @@
 # Implementation Roadmap
 
+**M5-06 checkpoint (2026-10-31, D28):** explicit logged replies now atomically clear the lead next-action date and cancel existing private follow-up drafts, approvals, schedules and ready runs across workspace members without disclosing their content. See the [reply/cancellation contract](m5-logged-reply-contract.md) and [local verification/screenshots](evidence/m5/logged-reply/README.md), based on `fb67cfb`. Unrelated reminders remain active; fresh explicit follow-ups remain possible. **Next backend task: M5-07 approval-basis invalidation/reconciliation.** Claude retains small-screen acceptance; administration, UI-05, M5-08 delivery/operator/budget, provider and inherited release gates remain open. M5/M6 are incomplete; the existing source-scan evidence-checksum false positive remains documented. Older checkpoints retain their tested scope.
+
 Status: stack approved (Laravel, Vue/Inertia, PostgreSQL, Redis/Laravel queues, Docker Compose, GitHub Actions); milestone-by-milestone implementation is now authorized (D13). Development may precede pilot recruitment (D14); see [M0 delivery backlog](m0-backlog.md) for remaining gates. Estimates require team size, availability, measured hosting needs, and validation status. Dependencies, not the PDF's illustrative month numbers, control sequencing.
 
 | Milestone | Dependencies and deliverables | Acceptance criteria | Required testing |

@@ -1,0 +1,8 @@
+MATCH app/Services/Pipeline.php
+MATCH app/Services/FollowUpDrafts.php
+MATCH app/Http/Controllers/PipelineController.php
+MATCH database/migrations/2026_10_31_000003_add_logged_reply_cancellation.php
+MATCH database/sql/logged-reply-cancellation.sql
+MATCH resources/js/features/pipeline/LeadManager.vue
+MATCH resources/js/features/automation/ApprovalInbox.vue
+MATCH resources/js/features/automation/follow-up-types.ts

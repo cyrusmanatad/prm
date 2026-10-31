@@ -12,7 +12,7 @@ Approval is an explicit action on the displayed version, recipient and content, 
 
 The download endpoint requires authentication, verified email, current editing membership and entitlement, exact approved version, an unchanged active lead, and (for scheduled drafts) the current consent/preferences/schedule/run/rule basis. It returns a private, noncached text attachment with To/Subject/body. Downloads never send email. A previously downloaded file cannot be recalled; the user must review their email client before sending. An approval in history describes a recorded decision; it is not proof that the current download basis still permits handoff.
 
-**Remaining required scope:** M5-06 adds logged-reply cancellation; M5-07 completes invalidation/reconciliation and concurrency acceptance across all changed approval bases. M5-08 must define and implement any application-sent approved outreach, follow-up review email recipient/consent/content, rate budgets and operator reconciliation before enabling that transport. M5-09 retains actual provider receipt and M5-10 broad recovery acceptance. The existing reminder/digest/lifecycle/invitation transactional paths remain required and unchanged. Manual handoff does not substitute for those email requirements or mark M5 complete.
+**Remaining required scope:** M5-06 now implements [logged-reply cancellation](m5-logged-reply-contract.md); M5-07 completes invalidation/reconciliation and concurrency acceptance across all changed approval bases. M5-08 must define and implement any application-sent approved outreach, follow-up review email recipient/consent/content, rate budgets and operator reconciliation before enabling that transport. M5-09 retains actual provider receipt and M5-10 broad recovery acceptance. The existing reminder/digest/lifecycle/invitation transactional paths remain required and unchanged. Manual handoff does not substitute for those email requirements or mark M5 complete.
 
 ## Durable scheduled preparation
 
@@ -20,7 +20,7 @@ Existing `follow_up_draft` schedules require explicit preference enablement, sch
 
 `automation:dispatch` materializes durable runs. New `automation:drafts`, scheduled each minute with overlap protection, discovers up to 100 ready follow-up run routing IDs and dispatches `PrepareFollowUp` jobs containing scalar IDs only. `BusinessSchedules::execute` locks/rechecks current membership, entitlement, preferences, schedule and subject versions. Draft creation, audit and run completion commit together. Failures roll back together; a unique run constraint and completed-run check prevent replay duplicates. PostgreSQL routing reconstructs lost queued work. Reminder/digest consumers still exclude follow-up runs.
 
-A changed/revoked schedule prevents obsolete preparation and blocks scheduled-draft approval/download. Re-enabling preferences alone does not restore consent. After an invalidated scheduled basis, write a fresh manual draft or create a new schedule. Reply cancellation and automatic marking of stale approvals remain the named later tasks above.
+A changed/revoked schedule prevents obsolete preparation and blocks scheduled-draft approval/download. Re-enabling preferences alone does not restore consent. After an invalidated scheduled basis, write a fresh manual draft or create a new schedule. Reply cancellation is implemented under M5-06; general automatic marking of stale approvals remains M5-07.
 
 ## Persistence and UI
 

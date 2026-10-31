@@ -6,6 +6,6 @@ export type FollowUpDraft = {
     subject: string;
     body: string;
     version: number;
-    state: 'draft' | 'approved' | 'discarded';
+    state: 'draft' | 'approved' | 'discarded' | 'cancelled';
     schedule_run_id: string | null;
 };

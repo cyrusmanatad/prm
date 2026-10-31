@@ -43,6 +43,7 @@ INSERT INTO users(email_verified_at) VALUES (now()), (now());
     sql += (root / 'database/sql/automation-schedules.sql').read_text()
     sql += (root / 'database/sql/scheduled-notifications.sql').read_text()
     sql += (root / 'database/sql/follow-up-drafts.sql').read_text()
+    sql += (root / 'database/sql/logged-reply-cancellation.sql').read_text()
     sql += (root / 'database/sql/runtime-grants.sql').read_text()
     sql += (root / 'tests/Fixtures/notification-schema-check.sql').read_text()
     sql += (root / 'tests/Fixtures/schedule-schema-check.sql').read_text()
@@ -77,6 +78,10 @@ DO $$ BEGIN
     END IF;
     IF NOT has_function_privilege('weavdash_app','app_ready_follow_up_drafts()','EXECUTE') THEN
         RAISE EXCEPTION 'missing draft routing grant';
+    END IF;
+    IF has_function_privilege('weavdash_app','app_cancel_logged_reply()','EXECUTE')
+       OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='logged_reply_cancellation' AND NOT tgisinternal) THEN
+        RAISE EXCEPTION 'missing or exposed reply cancellation trigger';
     END IF;
 END $$;
 SELECT 'SCHEMA_CHECKS_PASSED';

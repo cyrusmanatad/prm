@@ -32,7 +32,7 @@ function transition(draft: FollowUpDraft, kind: 'approve' | 'discard', event: Ev
 <template>
     <ContentSection
         title="Approval inbox"
-        description="Your latest 50 private drafts, including discarded history. No AI or mailbox connection is needed."
+        description="Your latest 50 private drafts, including discarded and cancelled history. No AI or mailbox connection is needed."
     >
         <p class="wd-hint">
             Approval permits downloading a plain-text message to send yourself. WeavDash does not send follow-up email
@@ -55,13 +55,15 @@ function transition(draft: FollowUpDraft, kind: 'approve' | 'discard', event: Ev
                         ? 'Approved for manual sending'
                         : draft.state === 'discarded'
                           ? 'Discarded'
-                          : 'Needs review'
+                          : draft.state === 'cancelled'
+                            ? 'Cancelled after a reply'
+                            : 'Needs review'
                 }}
                 · Version {{ draft.version }}
             </p>
             <p>To: {{ draft.recipient || 'Enter a recipient before approval' }}</p>
             <p class="whitespace-pre-wrap break-words">{{ draft.body }}</p>
-            <ActionGroup v-if="canWrite && draft.state !== 'discarded'">
+            <ActionGroup v-if="canWrite && (draft.state === 'draft' || draft.state === 'approved')">
                 <Button
                     class="wd-button wd-button-secondary"
                     type="button"

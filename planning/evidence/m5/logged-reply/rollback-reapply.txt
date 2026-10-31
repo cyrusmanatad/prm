@@ -1,0 +1,13 @@
+ Container weavdash-migrate-run-cc9db763032e Creating
+ Container weavdash-migrate-run-cc9db763032e Created
+
+   INFO  Rolling back migrations.
+
+  2026_10_31_000003_add_logged_reply_cancellation ................ 7.74ms DONE
+
+ Container weavdash-migrate-run-f9b7d55aed20 Creating
+ Container weavdash-migrate-run-f9b7d55aed20 Created
+
+   INFO  Running migrations.
+
+  2026_10_31_000003_add_logged_reply_cancellation ................ 7.43ms DONE

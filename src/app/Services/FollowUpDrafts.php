@@ -40,12 +40,13 @@ class FollowUpDrafts
         abort_if($id && ! $old, 404);
         if ($old) {
             $this->version($old, $data['version']);
-            abort_if($old->state === 'discarded', 422, 'Discarded drafts cannot be edited.');
+            abort_if(in_array($old->state, ['discarded', 'cancelled'], true), 422, 'Discarded or cancelled drafts cannot be edited.');
         }
         $entry = DB::table('pipeline_entries')->where('id', $old?->pipeline_entry_id ?? $data['pipeline_entry_id'])->lockForUpdate()->first();
         if ($old) {
             $old = $this->lock($id);
             $this->version($old, $data['version']);
+            abort_if(in_array($old->state, ['discarded', 'cancelled'], true), 422, 'Discarded or cancelled drafts cannot be edited.');
         }
         abort_unless($entry, 404);
         abort_if($entry->stage === 'lost', 422, 'Choose an active lead.');
@@ -74,7 +75,7 @@ class FollowUpDrafts
         $entry = DB::table('pipeline_entries')->where('id', $routing->pipeline_entry_id)->lockForUpdate()->first();
         $d = $this->lock($id);
         $this->version($d, $version);
-        abort_if($d->state === 'discarded', 422, 'This draft was discarded.');
+        abort_if(in_array($d->state, ['discarded', 'cancelled'], true), 422, 'This draft was discarded or cancelled after a reply.');
         if (in_array($action, ['approve', 'handoff'], true)) {
             if (! $entry || $entry->stage === 'lost' || $entry->version !== $d->subject_version || ($d->schedule_run_id && (! $schedule || $schedule->kind !== 'follow_up_draft' || $schedule->subject_id !== $d->pipeline_entry_id || $run->rule_version !== $schedule->rule_version || $run->schedule_version !== $schedule->version || $run->preference_version !== $schedule->preference_version || $run->state !== 'completed'))) {
                 throw ValidationException::withMessages(['version' => 'The lead or schedule changed. Save a fresh manual draft before approval.'])->status(409);
