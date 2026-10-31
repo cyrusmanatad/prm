@@ -1,0 +1,12 @@
+
+> test:browser
+> playwright test follow-up-drafts.spec.ts --grep manual follow-up --project=desktop --reporter=list --output=/tmp/weavdash-m5-drafts-screenshots
+
+
+Running 1 test using 1 worker
+
+(node:76440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/follow-up-drafts.spec.ts:6:1 › manual follow-up approval, download, edit invalidation and confirmed discard (11.3s)
+
+  1 passed (12.5s)

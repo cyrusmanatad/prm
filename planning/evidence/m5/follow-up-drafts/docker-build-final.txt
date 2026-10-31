@@ -1,0 +1,229 @@
+ Image weavdash-worker Building
+ Image weavdash-app Building
+ Image weavdash-scheduler Building
+ Image weavdash-acceptance Building
+ Image weavdash-migrate Building
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.27kB done
+#1 DONE 0.0s
+
+#2 [acceptance internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.69kB done
+#2 DONE 0.0s
+
+#3 [app internal] load metadata for docker.io/library/php:8.5-cli-bookworm@sha256:819080ed413631f6ec564184dd9acd08d9425bd863b9f8b5876b5ea2147d55e7
+#3 DONE 0.1s
+
+#4 [app internal] load metadata for docker.io/library/composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac
+#4 DONE 0.1s
+
+#5 [worker internal] load metadata for docker.io/library/node:24-bookworm-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5
+#5 DONE 0.1s
+
+#6 [migrate internal] load .dockerignore
+#6 transferring context: 303B done
+#6 DONE 0.0s
+
+#7 [worker internal] load build context
+#7 DONE 0.0s
+
+#8 [worker stage-2 1/9] FROM docker.io/library/php:8.5-cli-bookworm@sha256:819080ed413631f6ec564184dd9acd08d9425bd863b9f8b5876b5ea2147d55e7
+#8 resolve docker.io/library/php:8.5-cli-bookworm@sha256:819080ed413631f6ec564184dd9acd08d9425bd863b9f8b5876b5ea2147d55e7 0.1s done
+#8 resolve docker.io/library/php:8.5-cli-bookworm@sha256:819080ed413631f6ec564184dd9acd08d9425bd863b9f8b5876b5ea2147d55e7 0.1s done
+#8 DONE 0.1s
+
+#9 [scheduler composer 1/1] FROM docker.io/library/composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac
+#9 resolve docker.io/library/composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac 0.1s done
+#9 DONE 0.1s
+
+#10 [migrate frontend 1/5] FROM docker.io/library/node:24-bookworm-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5
+#10 resolve docker.io/library/node:24-bookworm-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5 0.1s done
+#10 DONE 0.1s
+
+#7 [scheduler internal] load build context
+#7 transferring context: 31.59kB 0.0s done
+#7 DONE 0.0s
+
+#11 [worker frontend 2/5] WORKDIR /build
+#11 CACHED
+
+#12 [migrate frontend 3/5] COPY package.json package-lock.json vite.config.ts tsconfig.json ./
+#12 CACHED
+
+#13 [worker stage-2 2/9] RUN apt-get update && apt-get install -y --no-install-recommends       git unzip libpq-dev     && docker-php-ext-install -j2 pdo_pgsql pcntl     && pecl install redis-6.3.0 && docker-php-ext-enable redis     && rm -rf /var/lib/apt/lists/*
+#13 CACHED
+
+#14 [worker stage-2 5/9] COPY composer.json composer.lock ./
+#14 CACHED
+
+#15 [worker stage-2 3/9] COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+#15 CACHED
+
+#16 [worker stage-2 4/9] WORKDIR /var/www/html
+#16 CACHED
+
+#17 [acceptance stage-2 6/9] RUN composer install --no-interaction --prefer-dist --no-scripts --no-progress
+#17 CACHED
+
+#18 [migrate stage-2 7/9] COPY . .
+#18 DONE 0.3s
+
+#19 [migrate frontend 4/5] COPY resources ./resources
+#19 DONE 0.2s
+
+#20 [worker frontend 5/5] RUN npm ci --ignore-scripts --no-audit --no-fund && npm run build
+#20 11.42 npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+#20 35.50
+#20 35.50 added 224 packages in 35s
+#20 36.59 npm notice
+#20 36.59 npm notice New major version of npm available! 11.19.1 -> 12.2.1
+#20 36.59 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+#20 36.59 npm notice To update run: npm install -g npm@12.2.1
+#20 36.59 npm notice
+#20 48.23
+#20 48.23 > build
+#20 48.23 > vite build
+#20 48.23
+#20 51.91 vite v8.3.5 building client environment for production...
+#20 52.03 transforming...
+#20 53.87 ✓ 3222 modules transformed.
+#20 54.02 rendering chunks...
+#20 54.16 computing gzip size...
+#20 54.16 public/build/manifest.json                                         11.63 kB │ gzip:  1.46 kB
+#20 54.16 public/build/assets/manrope-latin-ext-Ch3YOpNY.woff2               15.12 kB
+#20 54.16 public/build/assets/manrope-latin-DHIcAJRg.woff2                   24.83 kB
+#20 54.16 public/build/assets/bricolage-grotesque-latin-ext-IcJDqblK.woff2   30.73 kB
+#20 54.16 public/build/assets/bricolage-grotesque-latin-Cre6nC2_.woff2       76.88 kB
+#20 54.16 public/build/assets/OnboardingForm-Bsdk4k8g.css                     0.08 kB │ gzip:  0.09 kB
+#20 54.16 public/build/assets/PublicPresence-ry3nl1Z2.css                     0.12 kB │ gzip:  0.11 kB
+#20 54.16 public/build/assets/OnboardingAdmin-DcanI6gA.css                    0.16 kB │ gzip:  0.12 kB
+#20 54.16 public/build/assets/SelectField-BodgAT51.css                        0.63 kB │ gzip:  0.29 kB
+#20 54.16 public/build/assets/Crm-CqIYmEqC.css                                9.27 kB │ gzip:  1.95 kB
+#20 54.16 public/build/assets/Portal-BJzZiSOc.css                            13.07 kB │ gzip:  2.69 kB
+#20 54.16 public/build/assets/app-B4Q9mQ3i.css                               84.00 kB │ gzip: 18.18 kB
+#20 54.16 public/build/assets/useValidationFocus-Ckt6CgBs.js                  0.29 kB │ gzip:  0.25 kB
+#20 54.16 public/build/assets/ActionGroup-bngbRUPq.js                         0.31 kB │ gzip:  0.25 kB
+#20 54.16 public/build/assets/ContentSection-37YPyHST.js                      0.58 kB │ gzip:  0.37 kB
+#20 54.16 public/build/assets/DialogClose-CCUr6oOU.js                         0.59 kB │ gzip:  0.41 kB
+#20 54.16 public/build/assets/Error-rzzEzbkY.js                               0.65 kB │ gzip:  0.45 kB
+#20 54.16 public/build/assets/FieldGroup-BQXZsrUH.js                          0.70 kB │ gzip:  0.43 kB
+#20 54.16 public/build/assets/FormField-B_Bpk3iz.js                           1.30 kB │ gzip:  0.67 kB
+#20 54.16 public/build/assets/OpenInvitation-1JrNJxlg.js                      1.45 kB │ gzip:  0.84 kB
+#20 54.16 public/build/assets/FinanceLayout-DFwKe2g5.js                       1.68 kB │ gzip:  0.86 kB
+#20 54.16 public/build/assets/Entitlements-CtzpuAii.js                        1.96 kB │ gzip:  0.96 kB
+#20 54.16 public/build/assets/AcceptPartnership-qeCBhoqC.js                   2.32 kB │ gzip:  1.18 kB
+#20 54.16 public/build/assets/PublicLead-DsI1UkeV.js                          2.91 kB │ gzip:  1.32 kB
+#20 54.16 public/build/assets/emailStates-BCMBaToP.js                         3.13 kB │ gzip:  1.29 kB
+#20 54.16 public/build/assets/FoundationShell-Dn523a8b.js                     3.95 kB │ gzip:  1.80 kB
+#20 54.16 public/build/assets/Invoices-DiWemHRx.js                            5.95 kB │ gzip:  2.20 kB
+#20 54.16 public/build/assets/SelectField-CWfgDOOo.js                         6.39 kB │ gzip:  2.52 kB
+#20 54.16 public/build/assets/PublicPresence-DhaVZ8C7.js                      6.67 kB │ gzip:  2.68 kB
+#20 54.16 public/build/assets/PartnerChrome-D5PAwq5z.js                       6.90 kB │ gzip:  2.95 kB
+#20 54.16 public/build/assets/Auth-76qK4jUO.js                                6.94 kB │ gzip:  2.68 kB
+#20 54.16 public/build/assets/OnboardingForm-DjE1NqAz.js                      7.17 kB │ gzip:  2.71 kB
+#20 54.16 public/build/assets/Payments-BDetdyyh.js                            7.28 kB │ gzip:  2.46 kB
+#20 54.16 public/build/assets/OutreachTemplates-NifqghNB.js                   8.35 kB │ gzip:  3.20 kB
+#20 54.16 public/build/assets/OnboardingAdmin-BNiK_GPl.js                     8.83 kB │ gzip:  3.23 kB
+#20 54.16 public/build/assets/Workspaces-C7Dyw4Wr.js                          9.38 kB │ gzip:  3.43 kB
+#20 54.16 public/build/assets/Crm-LiwPiF46.js                                19.81 kB │ gzip:  6.15 kB
+#20 54.16 public/build/assets/Automation-CmniY85a.js                         21.69 kB │ gzip:  6.57 kB
+#20 54.16 public/build/assets/app-MUmOBRQq.js                                64.72 kB │ gzip: 22.29 kB
+#20 54.16 public/build/assets/Portal-CLc1FDKz.js                             77.92 kB │ gzip: 20.59 kB
+#20 54.16 public/build/assets/AccountMenu-ByWvmajN.js                        81.44 kB │ gzip: 26.88 kB
+#20 54.16 public/build/assets/_plugin-vue_export-helper-C2pQLMq2.js         222.80 kB │ gzip: 76.48 kB
+#20 54.16
+#20 54.16 ✓ built in 2.25s
+#20 DONE 54.4s
+
+#21 [migrate stage-2 8/9] COPY --from=frontend /build/public/build ./public/build
+#21 DONE 0.1s
+
+#22 [app stage-2 9/9] RUN touch .env && composer dump-autoload --optimize --no-interaction     && chown -R www-data:www-data storage bootstrap/cache
+#22 0.455 Generating optimized autoload files
+#22 2.620 > Illuminate\Foundation\ComposerScripts::postAutoloadDump
+#22 2.643 > @php artisan package:discover --ansi
+#22 2.832
+#22 2.832   [37;44m INFO [39;49m Discovering packages.
+#22 2.832
+#22 2.835   inertiajs/inertia-laravel [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#22 2.839   nesbot/carbon [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#22 2.839   nunomaduro/collision [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#22 2.839   nunomaduro/termwind [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#22 2.839
+#22 2.847 Generated optimized autoload files containing 6568 classes
+#22 DONE 3.0s
+
+#23 [scheduler] exporting to image
+#23 exporting layers
+#23 exporting layers 0.3s done
+#23 exporting manifest sha256:1fd405573221439671d585a2c8913b23f626500b79cde7765a183b1a075903f8 0.1s done
+#23 exporting config sha256:aff630bf86a2327ba998aff7b8229d605e511d6f69823c8b001579865b802e92 0.1s done
+#23 exporting attestation manifest sha256:eaf11c229100707d35135fb19d59ba5ffa197606813983558f3ae71d52980fce
+#23 exporting attestation manifest sha256:eaf11c229100707d35135fb19d59ba5ffa197606813983558f3ae71d52980fce 0.2s done
+#23 exporting manifest list sha256:287267f09e6522806ade5ffe5f94bc4b26bd2587edee2db7e33356aeb9f711e5
+#23 exporting manifest list sha256:287267f09e6522806ade5ffe5f94bc4b26bd2587edee2db7e33356aeb9f711e5 0.1s done
+#23 naming to docker.io/library/weavdash-scheduler:latest
+#23 naming to docker.io/library/weavdash-scheduler:latest 0.0s done
+#23 unpacking to docker.io/library/weavdash-scheduler:latest
+#23 unpacking to docker.io/library/weavdash-scheduler:latest 0.3s done
+#23 DONE 1.4s
+
+#24 [migrate] exporting to image
+#24 exporting layers 0.3s done
+#24 exporting manifest sha256:bd3c68cecd95757380b9a1794d18cc76b4bcd7c9a9cc63b38fe400f8f94d6bb8 0.1s done
+#24 exporting config sha256:65d6622e462e58f280431d86a4a304e847dcc0fee478f2565f525015c65a329d 0.1s done
+#24 exporting attestation manifest sha256:5634078a83c0441b763e077f8bacbc6f6726f17250974810ee59f606a2a46b80 0.2s done
+#24 exporting manifest list sha256:2f59110fde91c45e347efeb6c049ffa5f852b57006d02dfd615bcad93ca1b6f0 0.1s done
+#24 naming to docker.io/library/weavdash-migrate:latest 0.0s done
+#24 unpacking to docker.io/library/weavdash-migrate:latest 0.3s done
+#24 DONE 1.4s
+
+#25 [worker] exporting to image
+#25 exporting layers 0.3s done
+#25 exporting manifest sha256:47b8e7b0c16db6aa44d4d070b8bb53e4fa1a8ee210b59672a617f27f21e5d4de 0.1s done
+#25 exporting config sha256:d61dff637b4a9380c9516e4fbc45714b5a005afffe04fb4a44b351c2f587f223 0.1s done
+#25 exporting attestation manifest sha256:ac60a8957c914286bf04309e3c4a1923648b87ff137f415020013af7b3ebf91c 0.2s done
+#25 exporting manifest list sha256:a9d4448bdbf41bdec60d76bf6b60468b85a07580eef9b20682a11aeb8901a61b 0.1s done
+#25 naming to docker.io/library/weavdash-worker:latest 0.0s done
+#25 unpacking to docker.io/library/weavdash-worker:latest 0.3s done
+#25 DONE 1.4s
+
+#26 [acceptance] exporting to image
+#26 exporting layers 0.3s done
+#26 exporting manifest sha256:adab72fc623ab0b8f6fbe516cab524c27b94df31de8e2fab59f1a06413bcf274 0.1s done
+#26 exporting config sha256:92f58ed0a85ce8a1907ba9b70fc9c5f8eecd0e932cd353a76426f60337ef89c7 0.1s done
+#26 exporting attestation manifest sha256:93784d7c7cfc3479fc326838eec083ed209438dd22f8eab9db32ea17bb8aaeb9 0.2s done
+#26 exporting manifest list sha256:7ad61f42243e9a0fabdb0815b3d9579f987cfedd654666e2391a4e71240f1070 0.1s done
+#26 naming to docker.io/library/weavdash-acceptance:latest 0.0s done
+#26 unpacking to docker.io/library/weavdash-acceptance:latest 0.3s done
+#26 DONE 1.4s
+
+#27 [app] exporting to image
+#27 exporting layers 0.3s done
+#27 exporting manifest sha256:0735558182ebb4fcd9102151a250764d63b9f6c8b8207b40ae7cc3eccd8d2bff 0.1s done
+#27 exporting config sha256:37ef0c52444e5b2d4d19f1aa8a53b5973a7af33e06e42cb73f2ccc828d966ba1 0.1s done
+#27 exporting attestation manifest sha256:4c0b3182081a9b5e241e4dd157594d80fb56857f2074f9dd74756d1e1e20cb5e 0.2s done
+#27 exporting manifest list sha256:fd88a8712077e6337a0795ada9705003191ead57a4a50491e63083d1c10d543d 0.1s done
+#27 naming to docker.io/library/weavdash-app:latest 0.0s done
+#27 unpacking to docker.io/library/weavdash-app:latest 0.3s done
+#27 DONE 1.4s
+
+#28 [scheduler] resolving provenance for metadata file
+#28 DONE 0.3s
+
+#29 [acceptance] resolving provenance for metadata file
+#29 DONE 0.1s
+
+#30 [migrate] resolving provenance for metadata file
+#30 DONE 0.1s
+
+#31 [worker] resolving provenance for metadata file
+#31 DONE 0.2s
+
+#32 [app] resolving provenance for metadata file
+#32 DONE 0.0s
+ Image weavdash-migrate Built
+ Image weavdash-acceptance Built
+ Image weavdash-worker Built
+ Image weavdash-scheduler Built
+ Image weavdash-app Built

@@ -1,0 +1,46 @@
+
+> test:browser
+> playwright test automation.spec.ts scheduled-delivery.spec.ts --project=desktop --output=/tmp/weavdash-m5-04-browser --reporter=list
+
+
+Running 2 tests using 1 worker
+
+(node:13426) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/automation.spec.ts:5:1 › desktop automation preferences persist consent and timezone with confirmed withdrawal (14.9s)
+  ✘  2 [desktop] › tests/Browser/scheduled-delivery.spec.ts:16:1 › reminder email consent, scheduled capture, history and withdrawal (3.8s)
+
+
+  1) [desktop] › tests/Browser/scheduled-delivery.spec.ts:16:1 › reminder email consent, scheduled capture, history and withdrawal
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 409
+
+      27 |             due_at: new Date(Date.now() + 86400000).toISOString(),
+      28 |         }),
+    > 29 |     ).toBe(201);
+         |       ^
+      30 |     await page.goto('/automation');
+      31 |     await page.getByLabel('Reminder notices', { exact: true }).check();
+      32 |     await page.getByRole('button', { name: 'Save preferences', exact: true }).click();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/scheduled-delivery.spec.ts:29:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-m5-04-browser/scheduled-delivery-reminde-5547e-ture-history-and-withdrawal-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-m5-04-browser/scheduled-delivery-reminde-5547e-ture-history-and-withdrawal-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-m5-04-browser/scheduled-delivery-reminde-5547e-ture-history-and-withdrawal-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-m5-04-browser/scheduled-delivery-reminde-5547e-ture-history-and-withdrawal-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/Browser/scheduled-delivery.spec.ts:16:1 › reminder email consent, scheduled capture, history and withdrawal
+  1 passed (22.2s)

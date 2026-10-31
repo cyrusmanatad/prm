@@ -21,6 +21,10 @@ class AutomationController extends Controller
         $actor = (int) $request->user()->id;
         $payload = ['workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')],
             'preferences' => $schedules->preferences($actor, $org), 'schedules' => DB::table('business_schedules')->orderByDesc('created_at')->limit(100)->get(),
+            'reminders' => DB::table('reminders')->whereNull('completed_at')->orderBy('due_at')->orderBy('id')->limit(100)->get(['id', 'title', 'due_at']),
+            'notices' => DB::table('notification_outbox')->where('actor_id', $actor)->whereNotNull('schedule_run_id')->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(['id', 'kind', 'state', 'created_at']),
+            'drafts' => DB::table('follow_up_drafts')->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(),
+            'leads' => DB::table('pipeline_entries')->where('stage', '<>', 'lost')->orderByDesc('created_at')->orderByDesc('id')->limit(100)->get(['id', 'brand_name']),
             'canWrite' => $pipeline->canWrite($actor, $org), 'timezones' => DateTimeZone::listIdentifiers()];
 
         return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($payload) : Inertia::render('Automation', $payload);
@@ -46,7 +50,7 @@ class AutomationController extends Controller
             'due_at' => ['required_unless:kind,weekly_digest', 'nullable', 'date_format:Y-m-d\TH:i:sP', 'after:now', 'prohibited_if:kind,weekly_digest']]);
         $id = $schedules->save((int) $request->user()->id, $request->session()->get('active_org_id'), $data, $schedule);
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Schedule saved; notification delivery is not enabled yet'], '/automation', $schedule ? 200 : 201);
+        return $this->completed($request, ['id' => $id, 'message' => $data['kind'] === 'follow_up_draft' ? 'Schedule saved; a private draft will be prepared when due' : 'Schedule saved; email will be queued when due'], '/automation', $schedule ? 200 : 201);
     }
 
     public function revoke(Request $request, BusinessSchedules $schedules, string $schedule): JsonResponse|RedirectResponse

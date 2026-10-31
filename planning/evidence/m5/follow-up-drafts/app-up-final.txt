@@ -1,0 +1,4 @@
+ Container weavdash-app-1 Recreate
+ Container weavdash-app-1 Recreated
+ Container weavdash-app-1 Starting
+ Container weavdash-app-1 Started

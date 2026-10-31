@@ -1,7 +1,9 @@
 <?php
 
 use App\Services\BusinessSchedules;
+use App\Services\FollowUpDrafts;
 use App\Services\NotificationOutbox;
+use App\Services\ScheduledNotifications;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -16,3 +18,15 @@ Artisan::command('automation:dispatch', function (BusinessSchedules $schedules) 
 })->purpose('Reconstruct due business schedules from PostgreSQL');
 
 Schedule::command('automation:dispatch')->everyMinute()->withoutOverlapping(2);
+
+Artisan::command('automation:notify', function (ScheduledNotifications $notices) {
+    $this->info('Queued '.$notices->dispatch().' ready schedule notices.');
+})->purpose('Reconstruct reminder and weekly review email intent from durable runs');
+
+Schedule::command('automation:notify')->everyMinute()->withoutOverlapping(2);
+
+Artisan::command('automation:drafts', function (FollowUpDrafts $drafts) {
+    $this->info('Queued '.$drafts->dispatch().' ready follow-up drafts.');
+})->purpose('Reconstruct private follow-up drafts from durable runs');
+
+Schedule::command('automation:drafts')->everyMinute()->withoutOverlapping(2);

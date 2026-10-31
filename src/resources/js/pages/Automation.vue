@@ -11,13 +11,21 @@ import AutomationPreferences, { type Preferences } from '../features/automation/
 import { confirmAction } from '../composables/useConfirmation';
 import { useValidationFocus } from '../composables/useValidationFocus';
 
+import ReminderSchedule, { type ReminderOption } from '../features/automation/ReminderSchedule.vue';
+import NoticeHistory, { type Notice } from '../features/automation/NoticeHistory.vue';
 import SavedSchedules from '../features/automation/SavedSchedules.vue';
+import ApprovalInbox from '../features/automation/ApprovalInbox.vue';
+import type { FollowUpDraft, LeadOption } from '../features/automation/follow-up-types';
 import type { Schedule } from '../features/automation/types';
 const props = defineProps<{
     account: { name: string; email: string };
     workspace: { id: string; name: string };
     preferences: Preferences;
     schedules: Schedule[];
+    reminders: ReminderOption[];
+    drafts: FollowUpDraft[];
+    leads: LeadOption[];
+    notices: Notice[];
     timezones: string[];
     canWrite: boolean;
 }>();
@@ -86,7 +94,8 @@ function withdraw(s: Schedule, event: Event): void {
                 <p class="wd-description">Choose your timezone and consent for optional scheduled notices.</p>
             </div>
             <p class="wd-banner">
-                Scheduled email is not available yet. You can save your preferences and schedules now.
+                Reminder and weekly review emails go only to your verified account. Follow-up schedules prepare private
+                drafts for your review; approval does not send email.
             </p>
             <p v-if="!canWrite" class="wd-hint">Viewer access: scheduling requires an editing role.</p>
             <AutomationPreferences
@@ -172,6 +181,9 @@ function withdraw(s: Schedule, event: Event): void {
                     </fieldset>
                 </form>
             </ContentSection>
+            <ReminderSchedule :reminders="reminders" :can-write="canWrite" />
+            <ReminderSchedule :reminders="[]" :leads="leads" follow-up :can-write="canWrite" />
+            <ApprovalInbox :drafts="drafts" :leads="leads" :can-write="canWrite" />
             <SavedSchedules
                 :schedules="schedules"
                 :can-write="canWrite"
@@ -180,6 +192,7 @@ function withdraw(s: Schedule, event: Event): void {
                 @edit="choose"
                 @withdraw="withdraw"
             />
+            <NoticeHistory :notices="notices" />
         </div>
     </FoundationShell>
 </template>

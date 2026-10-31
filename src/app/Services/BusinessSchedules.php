@@ -159,7 +159,9 @@ class BusinessSchedules
             if (! $r || $r->state !== 'ready') {
                 return;
             }
-            if ($r->schedule_version !== $s->version || $r->preference_version !== $s->preference_version || $r->rule_version !== $s->rule_version) {
+            $superseded = $s->kind === 'weekly_digest' && DB::table('schedule_runs')->where('schedule_id', $s->id)
+                ->where('schedule_version', $s->version)->where('due_at', '>', $r->due_at)->where('state', '<>', 'cancelled')->exists();
+            if ($superseded || $r->schedule_version !== $s->version || $r->preference_version !== $s->preference_version || $r->rule_version !== $s->rule_version) {
                 DB::table('schedule_runs')->where('id', $run)->update(['state' => 'cancelled', 'completed_at' => now()]);
 
                 return;
@@ -175,23 +177,33 @@ class BusinessSchedules
             if (! DB::selectOne('SELECT app_lock_membership(?::uuid) AS allowed', [$org])->allowed) {
                 return;
             }
-            $this->entitlementLock($org);
-            // Consistent lock order serializes preference/consent changes against execution.
-            DB::table('automation_preferences')->where(['org_id' => $org, 'actor_id' => $actor])->lockForUpdate()->first();
-            $s = DB::table('business_schedules')->where('id', $id)->lockForUpdate()->first();
+            $s = $this->lockCurrent($actor, $org, $id);
             if (! $s) {
-                return;
-            }
-            if ($s->kind !== 'weekly_digest') {
-                DB::table($s->kind === 'reminder' ? 'reminders' : 'pipeline_entries')->where('id', $s->subject_id)->lockForUpdate()->first();
-            }
-            if (! DB::selectOne('SELECT app_schedule_current(?::uuid) AS ok', [$id])->ok) {
-                $this->cancelRuns($id);
-
                 return;
             }
             $callback($s);
         }, requireMembership: false);
+    }
+
+    /** Caller owns a tenant transaction and the current membership lock. Shared by consumption and send reservation. */
+    public function lockCurrent(int $actor, string $org, string $id): ?object
+    {
+        $this->entitlementLock($org);
+        DB::table('automation_preferences')->where(['org_id' => $org, 'actor_id' => $actor])->lockForUpdate()->first();
+        $s = DB::table('business_schedules')->where('id', $id)->lockForUpdate()->first();
+        if (! $s) {
+            return null;
+        }
+        if ($s->kind !== 'weekly_digest') {
+            DB::table($s->kind === 'reminder' ? 'reminders' : 'pipeline_entries')->where('id', $s->subject_id)->lockForUpdate()->first();
+        }
+        if (! DB::selectOne('SELECT app_schedule_current(?::uuid) AS ok', [$id])->ok) {
+            $this->cancelRuns($id);
+
+            return null;
+        }
+
+        return $s;
     }
 
     private function cancelRuns(string $id): void

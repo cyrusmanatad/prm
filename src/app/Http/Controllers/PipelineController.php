@@ -74,11 +74,11 @@ class PipelineController extends Controller
         $context = $this->listingContext($request);
         $data = $request->validate([
             'version' => ['required', 'integer', 'min:1', 'max:2147483646'],
-            'kind' => ['required', Rule::in(['note', 'email', 'chat', 'call'])], 'body' => ['required', 'string', 'max:5000'],
+            'kind' => ['required', Rule::in(['note', 'email', 'chat', 'call', 'reply'])], 'body' => ['required', 'string', 'max:5000'],
         ]);
         $pipeline->addActivity((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, (int) $data['version'], $data['kind'], $data['body']);
 
-        return $this->completed($request, ['message' => 'Activity recorded'], $this->destination($context, $entry), 201);
+        return $this->completed($request, ['message' => $data['kind'] === 'reply' ? 'Reply recorded; existing follow-ups cancelled and next action cleared' : 'Activity recorded'], $this->destination($context, $entry), 201);
     }
 
     public function destroy(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse

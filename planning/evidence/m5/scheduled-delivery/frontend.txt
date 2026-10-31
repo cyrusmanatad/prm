@@ -1,0 +1,18 @@
+Frontend verification, 2026-10-31, source based on f0f6066
+
+Commands run from src/:
+npm run format:changed
+npm run format:check:changed
+npm run typecheck
+npm test
+npm run build
+vendor/bin/pint --dirty
+vendor/bin/pint --test --dirty
+
+Results: final formatting checked four supported frontend files; vue-tsc passed;
+Vitest passed 13 files / 51 tests; host production build passed (3218 modules).
+The final Docker build repeated the frontend build after all product changes,
+and source hashes matched the running app image. The browser wait-only fix
+and final host-only schema/catalog script are newer than the image test copy.
+Final formatting/types/Pint logs are retained separately. The initial sandbox
+formatter failed with spawnSync git EPERM; normal escalation passed.

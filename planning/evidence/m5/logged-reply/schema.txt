@@ -1,0 +1,1 @@
+PostgreSQL schema/DDL checks passed. Runtime RLS enforcement is NOT verified by this check.

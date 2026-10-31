@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RevokeSessionsController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\AutomationController;
 use App\Http\Controllers\CrmController;
+use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\InvoiceDraftController;
 use App\Http\Controllers\ManualPaymentController;
 use App\Http\Controllers\OnboardingController;
@@ -73,6 +74,10 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/portal/enter', [PortalController::class, 'enter']);
 
         Route::middleware(WorkspaceContext::class)->group(function (): void {
+            Route::get('/automation/drafts/{draft}/handoff', [FollowUpController::class, 'handoff'])->whereUuid('draft');
+            Route::post('/automation/drafts', [FollowUpController::class, 'save']);
+            Route::patch('/automation/drafts/{draft}', [FollowUpController::class, 'save'])->whereUuid('draft');
+            Route::post('/automation/drafts/{draft}/{action}', [FollowUpController::class, 'transition'])->whereUuid('draft')->whereIn('action', ['approve', 'discard']);
             Route::get('/automation', [AutomationController::class, 'index']);
             Route::put('/automation/preferences', [AutomationController::class, 'preferences']);
             Route::post('/automation/schedules', [AutomationController::class, 'save']);

@@ -1,0 +1,98 @@
+
+> test:browser
+> playwright test follow-up-drafts.spec.ts automation.spec.ts scheduled-delivery.spec.ts --project=desktop --reporter=list --output=/tmp/weavdash-m5-drafts-browser
+
+
+Running 4 tests using 1 worker
+
+(node:37265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/automation.spec.ts:5:1 › desktop automation preferences persist consent and timezone with confirmed withdrawal (21.7s)
+  ✘  2 [desktop] › tests/Browser/follow-up-drafts.spec.ts:6:1 › manual follow-up approval, download, edit invalidation and confirmed discard (36.1s)
+(node:38792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/Browser/follow-up-drafts.spec.ts:70:1 › scheduled preparation produces a private draft requiring recipient review (44.2s)
+(node:44645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [desktop] › tests/Browser/scheduled-delivery.spec.ts:16:1 › reminder email consent, scheduled capture, history and withdrawal (59.3s)
+
+
+  1) [desktop] › tests/Browser/follow-up-drafts.spec.ts:6:1 › manual follow-up approval, download, edit invalidation and confirmed discard
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No follow-up drafts yet.')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No follow-up drafts yet.') with timeout 15000ms
+      - waiting for getByText('No follow-up drafts yet.')
+
+
+      21 |     ).toBe(201);
+      22 |     await page.reload();
+    > 23 |     await expect(page.getByText('No follow-up drafts yet.', { exact: false })).toBeVisible();
+         |                                                                                ^
+      24 |     await page.getByRole('combobox', { name: 'Lead', exact: true }).click();
+      25 |     await page.getByRole('option', { name: 'Synthetic draft lead', exact: true }).click();
+      26 |     await page.getByLabel('Recipient email', { exact: true }).fill('recipient@example.test');
+        at /home/cyrusadmin/weavdash/src/tests/Browser/follow-up-drafts.spec.ts:23:80
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-manual-fo-4312c-ation-and-confirmed-discard-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-manual-fo-4312c-ation-and-confirmed-discard-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-manual-fo-4312c-ation-and-confirmed-discard-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-manual-fo-4312c-ation-and-confirmed-discard-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/Browser/follow-up-drafts.spec.ts:70:1 › scheduled preparation produces a private draft requiring recipient review
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('The recipient field is required.', { exact: true })
+    Expected: visible
+    Error: strict mode violation: getByText('The recipient field is required.', { exact: true }) resolved to 2 elements:
+        1) <p>The recipient field is required.</p> aka locator('#main-content').getByText('The recipient field is')
+        2) <p data-v-ee0e37c1="">The recipient field is required.</p> aka getByRole('dialog').getByText('The recipient field is')
+
+    Call log:
+      - Expect "toBeVisible" getByText('The recipient field is required.', { exact: true }) with timeout 15000ms
+      - waiting for getByText('The recipient field is required.', { exact: true })
+
+
+      106 |     await page
+      107 |         .getByLabel('I consent to private follow-up draft preparation in this workspace.', { exact: true })
+    > 108 |         .check();
+          |                  ^
+      109 |     await page.getByRole('button', { name: 'Schedule follow-up draft', exact: true }).click();
+      110 |     await expect(page.getByRole('heading', { name: 'Prepare collaboration follow-up', exact: true })).toBeVisible();
+      111 |     compose(['run', '--rm', '-T', '--no-deps', 'migrate', 'php', 'tests/Browser/scheduled-notice-fixture.php', email]);
+        at /home/cyrusadmin/weavdash/src/tests/Browser/follow-up-drafts.spec.ts:108:87
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-scheduled-bf377--requiring-recipient-review-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-scheduled-bf377--requiring-recipient-review-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-scheduled-bf377--requiring-recipient-review-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-m5-drafts-browser/follow-up-drafts-scheduled-bf377--requiring-recipient-review-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › tests/Browser/follow-up-drafts.spec.ts:6:1 › manual follow-up approval, download, edit invalidation and confirmed discard
+    [desktop] › tests/Browser/follow-up-drafts.spec.ts:70:1 › scheduled preparation produces a private draft requiring recipient review
+  2 passed (2.9m)

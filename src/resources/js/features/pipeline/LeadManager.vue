@@ -119,7 +119,27 @@ const activityOptions = [
     { value: 'call', label: 'Call' },
     { value: 'email', label: 'Email' },
     { value: 'chat', label: 'Chat' },
+    { value: 'reply', label: 'Reply received' },
 ];
+function recordActivity(event: Event): void {
+    if (busy.value || errors.value.version) return;
+    const kind = activityKind.value;
+    const body = activityBody.value;
+    const save = () =>
+        command('activities', { kind, body }, () => {
+            activityBody.value = '';
+            if (kind === 'reply') editForm.value.next_action_due = '';
+        });
+    if (kind === 'reply') {
+        confirmAction(
+            'Record reply',
+            `Record a reply for “${props.selected?.brand_name}”? This clears its next-action date and permanently cancels existing follow-up schedules and drafts for everyone in this workspace. Other reminders stay active. Previously downloaded messages cannot be recalled.`,
+            save,
+            event,
+            { tone: 'danger' },
+        );
+    } else save();
+}
 const currencyCodes = [
     'PHP',
     'USD',
@@ -146,6 +166,7 @@ const activityLabels: Record<string, string> = {
     call: 'Call',
     email: 'Email',
     chat: 'Chat',
+    reply: 'Reply received',
     created: 'Created',
     updated: 'Updated',
     stage: 'Stage',
@@ -742,15 +763,7 @@ function reloadSelected(): void {
                         aria-labelledby="lead-tab-activity"
                         class="drawer-stack"
                     >
-                        <form
-                            v-if="canWrite"
-                            :aria-busy="busy"
-                            @submit.prevent="
-                                command('activities', { kind: activityKind, body: activityBody }, () => {
-                                    activityBody = '';
-                                })
-                            "
-                        >
+                        <form v-if="canWrite" :aria-busy="busy" @submit.prevent="recordActivity($event)">
                             <fieldset class="activity-fields" :disabled="busy || !!errors.version">
                                 <legend class="wd-sr-only">Log an activity</legend>
                                 <h3 class="drawer-heading">Log an activity</h3>
@@ -786,7 +799,11 @@ function reloadSelected(): void {
                                         "
                                     />
                                     <p id="activity-body-hint" class="wd-hint">
-                                        Records a past conversation or private note. No message is sent.
+                                        {{
+                                            activityKind === 'reply'
+                                                ? 'Cancels existing follow-ups and clears the next-action date after confirmation. Other reminders stay active.'
+                                                : 'Records a past conversation or private note. No message is sent.'
+                                        }}
                                     </p>
                                     <p
                                         v-if="formAction === 'activities' && errors.body"
