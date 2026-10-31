@@ -20,7 +20,7 @@ const form = useForm({ ...props.preferences });
 const choices = [
     ['reminders', 'Reminder notices'],
     ['weekly_digest', 'Weekly digest'],
-    ['follow_up_drafts', 'Follow-up draft review notices'],
+    ['follow_up_drafts', 'Follow-up drafts'],
 ] as const;
 const withdrawing = computed(() => choices.some(([key]) => props.preferences[key] && !form[key]));
 useValidationFocus(

@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\BusinessSchedules;
+use App\Services\FollowUpDrafts;
 use App\Services\NotificationOutbox;
 use App\Services\ScheduledNotifications;
 use Illuminate\Support\Facades\Artisan;
@@ -23,3 +24,9 @@ Artisan::command('automation:notify', function (ScheduledNotifications $notices)
 })->purpose('Reconstruct reminder and weekly review email intent from durable runs');
 
 Schedule::command('automation:notify')->everyMinute()->withoutOverlapping(2);
+
+Artisan::command('automation:drafts', function (FollowUpDrafts $drafts) {
+    $this->info('Queued '.$drafts->dispatch().' ready follow-up drafts.');
+})->purpose('Reconstruct private follow-up drafts from durable runs');
+
+Schedule::command('automation:drafts')->everyMinute()->withoutOverlapping(2);

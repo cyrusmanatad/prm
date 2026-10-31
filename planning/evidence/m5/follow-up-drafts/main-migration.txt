@@ -1,0 +1,6 @@
+ Container weavdash-migrate-run-18d812362d67 Creating
+ Container weavdash-migrate-run-18d812362d67 Created
+
+   INFO  Running migrations.
+
+  2026_10_31_000002_create_follow_up_drafts ..................... 31.30ms DONE

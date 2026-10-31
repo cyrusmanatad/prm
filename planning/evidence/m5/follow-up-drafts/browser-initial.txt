@@ -1,0 +1,8 @@
+
+> test:browser
+> playwright test follow-up-drafts.spec.ts automation.spec.ts scheduled-delivery.spec.ts --project=desktop
+
+Error: EACCES: permission denied, unlink '/home/cyrusadmin/weavdash/src/test-results/.last-run.json'
+
+Error: EACCES: permission denied, open '/home/cyrusadmin/weavdash/src/test-results/results.json'
+Error: EACCES: permission denied, open '/home/cyrusadmin/weavdash/src/test-results/.last-run.json'

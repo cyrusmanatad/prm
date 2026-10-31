@@ -1,0 +1,17 @@
+ Container weavdash-migrate-run-85e88acca4b4 Creating
+ Container weavdash-migrate-run-85e88acca4b4 Created
+
+   INFO  Rolling back migrations.
+
+  2026_10_31_000002_create_follow_up_drafts ..................... 18.40ms DONE
+
+ Container weavdash-migrate-run-dfd05db0b7e4 Creating
+ Container weavdash-migrate-run-dfd05db0b7e4 Created
+
+   INFO  Running migrations.
+
+  2026_10_31_000002_create_follow_up_drafts ..................... 33.89ms DONE
+
+ Container weavdash-migrate-run-fbb680c1c6a2 Creating
+ Container weavdash-migrate-run-fbb680c1c6a2 Created
+Runtime privileges applied.

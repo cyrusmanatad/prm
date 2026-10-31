@@ -1,0 +1,15 @@
+Host/running app source matches for all 14 selected M5-05 product files.
+app/Services/FollowUpDrafts.php
+app/Http/Controllers/FollowUpController.php
+app/Http/Controllers/AutomationController.php
+app/Jobs/PrepareFollowUp.php
+database/sql/follow-up-drafts.sql
+database/migrations/2026_10_31_000002_create_follow_up_drafts.php
+routes/web.php
+routes/console.php
+resources/js/pages/Automation.vue
+resources/js/features/automation/ApprovalInbox.vue
+resources/js/features/automation/FollowUpComposer.vue
+resources/js/features/automation/ReminderSchedule.vue
+resources/js/features/automation/AutomationPreferences.vue
+resources/js/features/automation/follow-up-types.ts

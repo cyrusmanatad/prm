@@ -1,0 +1,22 @@
+ Container weavdash-acceptance-run-b01ef49234b8 Creating
+ Container weavdash-acceptance-run-b01ef49234b8 Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.acceptance.xml
+
+................................................................. 65 / 91 ( 71%)
+.........................[41;37mF[0m                                        91 / 91 (100%)
+
+Time: 02:07.963, Memory: 66.50 MB
+
+There was 1 failure:
+
+1) Tests\Acceptance\WorkerCrashTest::test_sigkill_rolls_back_and_reserved_job_recovers_without_duplicate_committed_audit
+Worker did not reach the uncommitted-write barrier.
+
+/var/www/html/tests/Acceptance/AcceptanceCase.php:50
+/var/www/html/tests/Acceptance/WorkerCrashTest.php:31
+
+[37;41mFAILURES![0m
+[37;41mTests: 91[0m[37;41m, Assertions: 1992[0m[37;41m, Failures: 1[0m[37;41m.[0m
