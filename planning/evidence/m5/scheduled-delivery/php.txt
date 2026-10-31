@@ -1,0 +1,7 @@
+ Container weavdash-app-run-9e6482101827 Creating
+ Container weavdash-app-run-9e6482101827 Created
+
+  ..............................
+
+  Tests:    30 passed (265 assertions)
+  Duration: 6.31s

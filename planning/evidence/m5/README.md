@@ -1,5 +1,7 @@
 # M5 First-Slice Verification Evidence
 
+**M5-04 (2026-10-31):** [reminder and weekly digest/review delivery evidence](scheduled-delivery/README.md), including PostgreSQL/Redis/SMTP recovery, consent races, desktop screenshots and remaining acceptance gates.
+
 Status: local automated checks passed on 2026-10-23. Scope: durable outbox and explicitly requested partner invitation email only; full M5 remains incomplete. See the [contract](../../m5-notification-contract.md) and [status](../../m5-status.md).
 
 Subsequent M5-01 onboarding invitation/replacement email has its own [verification and screenshots](onboarding-email/README.md). Results below retain the original first-slice scope.

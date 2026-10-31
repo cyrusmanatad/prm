@@ -1,0 +1,12 @@
+
+> test:browser
+> playwright test scheduled-delivery.spec.ts --project=desktop --output=/tmp/weavdash-m5-04-browser-followup --reporter=list
+
+
+Running 1 test using 1 worker
+
+(node:14727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/scheduled-delivery.spec.ts:16:1 › reminder email consent, scheduled capture, history and withdrawal (33.1s)
+
+  1 passed (35.0s)

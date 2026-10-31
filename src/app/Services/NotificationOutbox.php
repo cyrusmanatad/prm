@@ -6,8 +6,10 @@ use App\Jobs\DeliverNotification;
 use App\Mail\OnboardingInvitation;
 use App\Mail\OnboardingLifecycle;
 use App\Mail\PartnerInvitation;
+use App\Mail\ScheduledNotice;
 use App\Models\User;
 use App\Tenancy\TenantContext;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -83,9 +85,26 @@ class NotificationOutbox
             if (! DB::selectOne('SELECT app_lock_membership(?::uuid) AS allowed', [$org])->allowed) {
                 return null;
             }
+            // Discover routing only, then use the same schedule-before-outbox lock order as the consumer.
+            $route = DB::table('notification_outbox')->where('id', $id)->where('actor_id', $actor)->first();
+            $schedule = null;
+            $run = null;
+            if ($route?->schedule_run_id) {
+                $run = DB::table('schedule_runs')->where('id', $route->schedule_run_id)->first();
+                $schedule = $run ? app(BusinessSchedules::class)->lockCurrent($actor, $org, $run->schedule_id) : null;
+            }
             $row = DB::table('notification_outbox')->where('id', $id)->where('org_id', $org)->lockForUpdate()->first();
             if (! $row || $row->actor_id !== $actor || $row->state !== 'pending') {
                 return null;
+            }
+            if ($row->schedule_run_id) {
+                if (! $schedule || ! DB::selectOne('SELECT app_schedule_notice_current(?::uuid) AS ok', [$id])->ok) {
+                    $this->finish($id, 'cancelled');
+
+                    return null;
+                }
+
+                return $this->reserveScheduled($row, $schedule, $run);
             }
             $onboarding = str_starts_with($row->kind, 'onboarding.');
             $lifecycle = $onboarding && $row->kind !== 'onboarding.invitation';
@@ -134,6 +153,28 @@ class NotificationOutbox
                 'state' => $state, 'encrypted_payload' => null, 'completed_at' => now(),
             ]);
         }, requireMembership: false);
+    }
+
+    private function reserveScheduled(object $row, object $schedule, object $run): ?array
+    {
+        $mailer = config('mail.default');
+        if (! in_array($mailer, ['smtp', 'array'], true) || ($mailer === 'array' && ! app()->environment(['local', 'testing']))) {
+            return null;
+        }
+        $user = User::findOrFail($row->actor_id);
+        if (! $user->hasVerifiedEmail()) {
+            $this->finish($row->id, 'cancelled');
+
+            return null;
+        }
+        $summary = $row->kind === 'schedule.weekly_digest' ? [
+            'dueReminders' => DB::table('reminders')->whereNull('completed_at')->where('due_at', '<=', now())->count(),
+            'onboardingReviews' => DB::table('onboarding_requests')->where('status', 'submitted')->where('expires_at', '>', now())->count(),
+        ] : [];
+        DB::table('notification_outbox')->where('id', $row->id)->update(['state' => 'sending', 'started_at' => now()]);
+
+        return [$user->email, new ScheduledNotice($row->kind, $schedule->timezone,
+            CarbonImmutable::parse($run->due_at)->setTimezone($schedule->timezone)->format('Y-m-d H:i P'), $row->org_id, $row->id, $summary), $mailer];
     }
 
     private function finish(string $id, string $state): void

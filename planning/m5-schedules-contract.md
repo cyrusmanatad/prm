@@ -1,5 +1,7 @@
 # M5-03 Persistent schedules, timezones, preferences and consent
 
+**M5-04 update (2026-10-31):** reminder and weekly review consumers/delivery are now implemented; see the [delivery contract](m5-scheduled-delivery-contract.md) and [evidence](evidence/m5/scheduled-delivery/README.md). The foundation-only descriptions below record M5-03’s original boundary.
+
 Status: **implemented; backend/desktop verified; small-screen acceptance pending**, based on `258136f`, 2026-10-26. [Evidence](evidence/m5/schedules/README.md).
 
 ## Scope and defaults
