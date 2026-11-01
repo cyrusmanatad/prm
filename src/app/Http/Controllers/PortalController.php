@@ -24,8 +24,8 @@ class PortalController extends Controller
             $request->session()->put('active_org_id', $id);
             $user->forceFill(['registration_workspace_id' => null, 'registration_workspace_kind' => null])->save();
         }
-        // An existing identity that signed in from an invitation receives a separate creator workspace for it.
-        if ($request->session()->pull('partnership_workspace') && ! $provisioned && PartnershipInvitation::recipient($request) === strtolower($user->email)) {
+        // An existing identity that signed in from an invitation or brand link receives a separate creator workspace for it.
+        if ($request->session()->pull('partnership_workspace') && ! $provisioned && PartnershipInvitation::pendingFor($request, $user)) {
             $request->session()->put('active_org_id', $workspaces->create((int) $user->id, $user->name, 'creator'));
         }
         $listing = $workspaces->listing((int) $request->user()->id);
@@ -41,7 +41,9 @@ class PortalController extends Controller
         $request->session()->put('active_org_id', $selected->id);
         $request->session()->regenerate();
 
-        return redirect($request->session()->has('partnership_token') && $selected->kind === 'creator' ? '/partnerships/accept' : ($selected->kind === 'brand' ? '/brand' : '/partner/leads'));
+        $pending = $selected->kind !== 'creator' ? null : ($request->session()->has('partnership_token') ? '/partnerships/accept' : ($request->session()->has('partnership_join') ? '/join' : null));
+
+        return redirect($pending ?? ($selected->kind === 'brand' ? '/brand' : '/partner/leads'));
     }
 
     public function acceptancePage(Request $request)
@@ -65,6 +67,7 @@ class PortalController extends Controller
 
             return back()->withErrors(['token' => $message]);
         }
+        $request->session()->forget('partnership_join');
         $request->session()->put('partnership_token', ['encrypted' => encrypt($data['token']), 'recipient' => encrypt($recipient), 'expires' => time() + 900]);
         $request->session()->put('portal', 'partner');
         if (! $request->user()) {
@@ -90,8 +93,10 @@ class PortalController extends Controller
             return redirect('/partner/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
         $relationships = DB::table('partnerships')->orderBy('accepted_at')->get(['id', 'brand_name', 'creator_name', 'status', 'accepted_at'])->all();
-        $data = ['portal' => $portal, 'workspace' => $workspace, 'relationships' => $relationships,
-            'canManage' => (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$org])->allowed,
+        $canManage = (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$org])->allowed;
+        $joinLink = $portal === 'brand' && $canManage ? DB::table('partner_join_links')->where('brand_org_id', $org)->whereNull('revoked_at')->first(['sealed_code', 'created_at']) : null;
+        $data = ['portal' => $portal, 'workspace' => $workspace, 'relationships' => $relationships, 'canManage' => $canManage,
+            'joinLink' => $joinLink ? [...PartnerJoinController::share(decrypt($joinLink->sealed_code)), 'created_at' => $joinLink->created_at] : null,
             'invitations' => DB::table('partner_invitations as i')->leftJoin('notification_outbox as n', 'n.subject_id', '=', 'i.id')
                 ->orderByDesc('i.created_at')->limit(100)->get(['i.id', 'i.status', 'i.expires_at', 'n.state as email_state'])->all(),
             'pipeline' => $portal === 'partner' ? app(PipelinePage::class)->data($request, $pipeline) : null];

@@ -102,6 +102,17 @@ describe('authentication screens', () => {
         expect(wrapper.text()).not.toContain('Brand sign in');
     });
 
+    it('names the brand for sign-up links while keeping both account choices', async () => {
+        const wrapper = screen('register');
+        await wrapper.setProps({ joining: 'Bughaw Collections' });
+        expect(wrapper.text()).toContain('Create your account to join Bughaw Collections.');
+        expect(wrapper.get('#email').attributes('readonly')).toBeUndefined();
+        expect(wrapper.text()).toContain('Back to sign in');
+        await wrapper.setProps({ mode: 'login' });
+        expect(wrapper.text()).toContain('Sign in to join Bughaw Collections.');
+        expect(wrapper.text()).toContain('Create an account');
+    });
+
     it('keeps verification resend and sign-out actions distinct', async () => {
         const wrapper = screen('verify-email');
         await wrapper.setProps({ email: 'creator@example.test', status: 'A fresh verification link was requested.' });

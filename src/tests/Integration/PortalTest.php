@@ -201,6 +201,58 @@ class PortalTest extends TestCase
         $this->assertCount(2, app(Workspaces::class)->listing($existing->id));
     }
 
+    public function test_brand_sign_up_link_registers_or_signs_in_partners_and_can_be_replaced_or_turned_off(): void
+    {
+        $this->withoutVite();
+        [$brand, $bo] = $this->workspace('brand');
+        [$existing, $eo] = $this->workspace('creator');
+        $this->select($existing, $eo)->postJson('/partner-join-link')->assertForbidden();
+        $link = $this->select($brand, $bo)->postJson('/partner-join-link')->assertOk()->json();
+        $this->assertMatchesRegularExpression('/^[0-9A-Z]{5}-[0-9A-Z]{5}$/', $link['code']);
+        $this->assertStringEndsWith('/join#'.$link['code'], $link['url']);
+        $this->getJson('/brand')->assertJsonPath('joinLink.code', $link['code'])->assertDontSee('sealed_code');
+        $this->post('/logout');
+        $this->postJson('/join/prepare', ['code' => 'AAAAA-AAAAA'])->assertNotFound();
+
+        // A new partner types the code loosely, registers any email and joins from the provisioned workspace.
+        $this->post('/join/prepare', ['code' => strtolower(str_replace('-', ' ', $link['code']))])->assertRedirect('/join');
+        $brandName = collect(app(Workspaces::class)->listing($brand->id))->firstWhere('id', $bo)->name;
+        $this->get('/join')->assertInertia(fn (Assert $page) => $page->component('JoinBrand')->where('brand', $brandName)->etc());
+        $this->get('/partner/register')->assertInertia(fn (Assert $page) => $page->where('joining', $brandName)->missing('invitation')->etc());
+        $email = 'joiner-'.Str::uuid().'@example.test';
+        $this->post('/partner/register', ['name' => 'Joiner', 'email' => $email, 'password' => 'secure-password-123', 'password_confirmation' => 'secure-password-123'])->assertRedirect('/verify-email');
+        $joiner = User::where('email', $email)->firstOrFail();
+        $joiner->markEmailAsVerified();
+        $this->actingAs($joiner->fresh())->get('/portal/enter')->assertRedirect('/join');
+        $this->assertCount(1, app(Workspaces::class)->listing($joiner->id));
+        $this->post('/join/accept', ['consent' => true])->assertRedirect('/partner/leads');
+        $this->getJson('/partner')->assertJsonCount(1, 'relationships')->assertJsonPath('relationships.0.brand_name', $brandName);
+        $this->post('/logout');
+
+        // An existing account signs in and joins from a newly added creator workspace.
+        $this->post('/join/prepare', ['code' => $link['code']])->assertRedirect('/join');
+        $this->post('/partner/login', ['email' => $existing->email, 'password' => 'password'])->assertRedirect('/portal/enter');
+        $this->get('/portal/enter')->assertRedirect('/join');
+        $this->assertCount(2, app(Workspaces::class)->listing($existing->id));
+        $this->post('/join/accept', ['consent' => true])->assertRedirect('/partner/leads');
+        $added = $this->getJson('/partner')->assertJsonCount(1, 'relationships')->json('workspace.id');
+        $this->assertNotSame($eo, $added);
+        $this->post('/join/prepare', ['code' => $link['code']]);
+        $this->postJson('/join/accept', ['consent' => true])->assertNotFound();
+        $this->post('/logout');
+
+        // Replacing and turning off the link stop new joins without ending existing partnerships.
+        $replacement = $this->select($brand, $bo)->postJson('/partner-join-link')->assertOk()->json();
+        $this->assertNotSame($link['code'], $replacement['code']);
+        $this->getJson('/brand')->assertJsonCount(2, 'relationships');
+        $this->deleteJson('/partner-join-link')->assertOk();
+        $this->getJson('/brand')->assertJsonPath('joinLink', null)->assertJsonCount(2, 'relationships');
+        $this->deleteJson('/partner-join-link')->assertNotFound();
+        $this->post('/logout');
+        $this->postJson('/join/prepare', ['code' => $link['code']])->assertNotFound();
+        $this->postJson('/join/prepare', ['code' => $replacement['code']])->assertNotFound();
+    }
+
     public function test_omitted_stages_keep_details_and_aggregate_semantics(): void
     {
         [$creator, $co] = $this->workspace('creator');

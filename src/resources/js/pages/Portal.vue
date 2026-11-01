@@ -5,6 +5,7 @@ import { Head, router, useForm } from '@inertiajs/vue3';
 import { nextTick, ref, watch } from 'vue';
 import PartnerDashboard from '../features/portals/PartnerDashboard.vue';
 import BrandDashboard from '../features/portals/BrandDashboard.vue';
+import JoinLinkPanel from '../features/portals/JoinLinkPanel.vue';
 import type { PortalData } from '../features/portals/types';
 import FormField from '../components/FormField.vue';
 import DialogClose from '../components/DialogClose.vue';
@@ -151,6 +152,7 @@ function endPartnership(id: string, trigger: HTMLElement): void {
                 }}</Button>
             </div>
         </form>
+        <JoinLinkPanel v-if="!invitationLink && canManage" class="mt-5" :join-link="joinLink ?? null" />
         <div v-if="invitationLink" class="grid gap-4">
             <p>Save this link now. It is shown once. Send it only to the intended recipient.</p>
             <input

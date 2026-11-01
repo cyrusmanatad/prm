@@ -12,11 +12,12 @@ const props = withDefaults(
         portal?: 'brand' | 'partner';
         email?: string;
         invitation?: boolean;
+        joining?: string;
         errors?: FieldErrors;
         processing?: boolean;
         status?: string;
     }>(),
-    { email: '', invitation: false, errors: () => ({}), processing: false, status: '' },
+    { email: '', invitation: false, joining: '', errors: () => ({}), processing: false, status: '' },
 );
 const emit = defineEmits<{
     submit: [submission: AuthSubmission];
@@ -38,19 +39,32 @@ const content = computed(
                           'This invitation email already has a WeavDash account. Sign in and we’ll add a new creator workspace for this partnership.',
                       action: 'Sign in',
                   }
-                : { title: 'Welcome back.', description: 'Sign in to your WeavDash workspace.', action: 'Sign in' },
-            register: props.invitation
+                : props.joining
+                  ? {
+                        title: `Sign in to join ${props.joining}.`,
+                        description: 'Sign in and we’ll add a new creator workspace for this partnership.',
+                        action: 'Sign in',
+                    }
+                  : { title: 'Welcome back.', description: 'Sign in to your WeavDash workspace.', action: 'Sign in' },
+            register: props.joining
                 ? {
-                      title: 'Create your account to accept.',
+                      title: `Create your account to join ${props.joining}.`,
                       description:
-                          'Create a new account with the invited email. We’ll set up its creator workspace, then you can review the partnership.',
+                          'We’ll set up your creator workspace after you verify your email, then you can confirm the partnership.',
                       action: 'Create account',
                   }
-                : {
-                      title: 'Make room for what’s next.',
-                      description: 'Create your account to start a workspace.',
-                      action: 'Create account',
-                  },
+                : props.invitation
+                  ? {
+                        title: 'Create your account to accept.',
+                        description:
+                            'Create a new account with the invited email. We’ll set up its creator workspace, then you can review the partnership.',
+                        action: 'Create account',
+                    }
+                  : {
+                        title: 'Make room for what’s next.',
+                        description: 'Create your account to start a workspace.',
+                        action: 'Create account',
+                    },
             'forgot-password': {
                 title: 'Find your way back.',
                 description: 'Enter your email and we’ll send a password reset link.',

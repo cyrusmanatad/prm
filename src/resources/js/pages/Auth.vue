@@ -10,11 +10,12 @@ const props = withDefaults(
         portal?: 'brand' | 'partner';
         email?: string;
         invitation?: boolean;
+        joining?: string;
         token?: string;
         status?: string;
         errors?: FieldErrors;
     }>(),
-    { email: '', invitation: false, token: '', status: '', errors: () => ({}) },
+    { email: '', invitation: false, joining: '', token: '', status: '', errors: () => ({}) },
 );
 const screen = ref<InstanceType<typeof AuthScreen>>();
 const processing = ref(false);
@@ -73,6 +74,7 @@ function navigate(mode: AuthMode): void {
         :portal="portal"
         :email="email"
         :invitation="invitation"
+        :joining="joining"
         :errors="errors"
         :status="status"
         :processing="processing"

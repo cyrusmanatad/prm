@@ -10,6 +10,7 @@ use App\Http\Controllers\InvoiceDraftController;
 use App\Http\Controllers\ManualPaymentController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OutreachTemplateController;
+use App\Http\Controllers\PartnerJoinController;
 use App\Http\Controllers\PipelineController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\PublicPresenceController;
@@ -23,6 +24,8 @@ use Inertia\Inertia;
 // Public pages exchange capabilities in POST bodies; fragment tokens never reach access logs.
 Route::get('/partnerships/accept', [PortalController::class, 'acceptancePage']);
 Route::post('/partnerships/prepare', [PortalController::class, 'prepare'])->middleware('throttle:10,1,partner-prepare:');
+Route::get('/join', [PartnerJoinController::class, 'page']);
+Route::post('/join/prepare', [PartnerJoinController::class, 'prepare'])->middleware('throttle:10,1,partner-join-prepare:');
 Route::get('/onboarding', fn () => Inertia::render('OpenInvitation'));
 Route::post('/onboarding/session', [OnboardingController::class, 'exchange'])->middleware('throttle:6,1,onboarding-exchange:');
 Route::get('/onboarding/form/{record}', [OnboardingController::class, 'form'])->whereUuid('record');
@@ -89,6 +92,9 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/brand', [PortalController::class, 'index']);
             Route::post('/partner-invitations', [PortalController::class, 'invite'])->middleware('throttle:10,1,partner-invite:');
             Route::post('/partnerships/accept', [PortalController::class, 'accept'])->middleware('throttle:6,1,partner-accept:');
+            Route::post('/join/accept', [PartnerJoinController::class, 'accept'])->middleware('throttle:6,1,partner-join:');
+            Route::post('/partner-join-link', [PartnerJoinController::class, 'issue'])->middleware('throttle:10,1,partner-join-link:');
+            Route::delete('/partner-join-link', [PartnerJoinController::class, 'disable']);
             Route::delete('/partner-invitations/{record}', [PortalController::class, 'revoke'])->whereUuid('record');
             Route::delete('/partnerships/{record}', [PortalController::class, 'revoke'])->whereUuid('record');
             Route::get('/partner/media-kit', [PublicPresenceController::class, 'index']);

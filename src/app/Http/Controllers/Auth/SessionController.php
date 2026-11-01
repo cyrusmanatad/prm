@@ -25,7 +25,7 @@ class SessionController extends Controller
         $request->session()->regenerate();
 
         return $this->completed($request, ['verified' => $request->user()->hasVerifiedEmail()],
-            $request->user()->hasVerifiedEmail() ? (($portal || $request->user()->registration_workspace_id || $request->session()->has('partnership_token')) ? '/portal/enter' : '/workspaces') : '/verify-email');
+            $request->user()->hasVerifiedEmail() ? (($portal || $request->user()->registration_workspace_id || $request->session()->has('partnership_token') || $request->session()->has('partnership_join')) ? '/portal/enter' : '/workspaces') : '/verify-email');
     }
 
     public function destroy(Request $request): JsonResponse|RedirectResponse

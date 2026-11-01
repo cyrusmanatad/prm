@@ -48,7 +48,7 @@ class WorkspaceController extends Controller
         $request->session()->put('active_org_id', $data['org_id']);
         $request->session()->regenerate();
 
-        return $this->completed($request, ['message' => 'Workspace selected'], $request->session()->has('partnership_token') ? '/partnerships/accept' : '/workspaces');
+        return $this->completed($request, ['message' => 'Workspace selected'], $request->session()->has('partnership_token') ? '/partnerships/accept' : ($request->session()->has('partnership_join') ? '/join' : '/workspaces'));
     }
 
     public function update(Request $request, Workspaces $workspaces): JsonResponse|RedirectResponse
