@@ -49,7 +49,10 @@ function searchLeads(): void {
     >
         <a class="wd-skip-link" href="#main-content">Skip to main content</a>
         <header class="bg-brand text-white">
-            <div class="mx-auto flex max-w-[1408px] items-center gap-6 px-6 py-3.5" :class="{ 'flex-wrap': fixture }">
+            <div
+                class="mx-auto flex max-w-[1408px] items-center px-6 py-3.5"
+                :class="fixture ? 'flex-wrap gap-6' : 'gap-3 sm:gap-6'"
+            >
                 <div class="flex items-center gap-2.5">
                     <svg viewBox="0 0 128 120" width="36" height="34" role="img" aria-label="WeavDash logo">
                         <circle cx="60" cy="60" r="52" fill="#E3C79A"></circle>
@@ -77,7 +80,11 @@ function searchLeads(): void {
                         ></path>
                     </svg>
                     <span class="font-display text-[20px] font-bold">WeavDash</span>
-                    <span class="rounded-full bg-white/12 px-2 py-[3px] text-[12px]">Professional</span>
+                    <span
+                        class="rounded-full bg-white/12 px-2 py-[3px] text-[12px]"
+                        :class="{ 'hidden sm:inline': !fixture }"
+                        >Professional</span
+                    >
                 </div>
                 <nav v-if="fixture" aria-label="Main" class="flex flex-auto flex-wrap gap-1">
                     <a
@@ -93,7 +100,7 @@ function searchLeads(): void {
                         >{{ label }}</span
                     >
                 </nav>
-                <nav v-else aria-label="Main" class="hidden flex-auto gap-1 md:flex">
+                <nav v-else aria-label="Main" class="hidden flex-auto gap-1 lg:flex">
                     <a
                         v-for="page in pages"
                         :key="page.key"
@@ -115,7 +122,7 @@ function searchLeads(): void {
                         type="search"
                         placeholder="Search brands, contacts…"
                         class="w-[220px] min-w-0 rounded-lg bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
-                        :class="fixture ? 'flex-[1_1_180px]' : 'hidden lg:block'"
+                        :class="fixture ? 'flex-[1_1_180px]' : 'hidden xl:block'"
                         @keydown.enter="searchLeads"
                     />
                     <AccountMenu
@@ -128,7 +135,7 @@ function searchLeads(): void {
                     <button
                         v-if="!fixture"
                         type="button"
-                        class="flex size-11 items-center justify-center rounded-lg text-white md:hidden"
+                        class="flex size-11 items-center justify-center rounded-lg text-white lg:hidden"
                         :aria-expanded="menuOpen"
                         aria-controls="portal-menu"
                         @click="menuOpen = !menuOpen"
@@ -138,7 +145,7 @@ function searchLeads(): void {
                     </button>
                 </div>
             </div>
-            <div v-if="!fixture && menuOpen" id="portal-menu" class="border-t border-white/15 px-6 pt-2 pb-4 md:hidden">
+            <div v-if="!fixture && menuOpen" id="portal-menu" class="border-t border-white/15 px-6 pt-2 pb-4 lg:hidden">
                 <nav aria-label="Main" class="flex flex-col gap-1">
                     <a
                         v-for="page in pages"

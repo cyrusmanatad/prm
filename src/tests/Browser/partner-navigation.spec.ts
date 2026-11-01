@@ -53,8 +53,7 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
     await page.goBack();
     await expect(page.getByRole('dialog')).not.toBeVisible();
     await expect(board.getByRole('button')).toHaveCount(2);
-    await expect(page.getByRole('navigation', { name: 'Main' }).getByText('Inbox', { exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Inbox', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('navigation', { name: 'Main' }).getByText('Campaigns', { exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Campaigns', exact: true })).toHaveCount(0);
+    // Unbuilt destinations stay out of navigation (D30).
+    await expect(page.getByText('Inbox', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('Campaigns', { exact: true })).toHaveCount(0);
 });

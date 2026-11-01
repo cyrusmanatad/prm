@@ -1,7 +1,7 @@
 import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
-import { fixture, login } from './helpers';
+import { fixture, login, portalNav } from './helpers';
 async function scan(page: Page, info: TestInfo, name: string): Promise<void> {
     const result = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'])
@@ -144,7 +144,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
     await page.getByRole('link', { name: 'Open Professional portal' }).click();
-    await page.getByRole('link', { name: 'Media kit', exact: true }).click();
+    await portalNav(page, 'Media kit');
     await page.getByLabel('Public title', { exact: true }).fill('A public creator kit');
     await page.getByLabel('Public introduction', { exact: true }).fill('A public introduction.');
     await page.getByRole('button', { name: 'Add social account', exact: true }).click();
@@ -201,7 +201,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     );
     await expect(page.getByRole('status').filter({ hasText: 'Media kit saved' })).toBeVisible();
     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
-    await page.getByRole('link', { name: 'My leads', exact: true }).click();
+    await portalNav(page, 'Leads');
     await expect(page.getByRole('button', { name: /Open Inbound Studio/ })).toBeVisible();
     await context.close();
 });

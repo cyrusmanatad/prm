@@ -92,6 +92,8 @@ export async function createWorkspace(page: Page, name: string, type: 'Business'
 // Professional portal pages sit behind the menu button on narrow viewports.
 export async function portalNav(page: Page, name: string) {
     const menu = page.getByRole('button', { name: 'Open menu' });
+    const link = page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name, exact: true });
+    await expect(link.or(menu)).toBeVisible();
     if (await menu.isVisible()) await menu.click();
-    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name, exact: true }).click();
+    await link.click();
 }

@@ -49,7 +49,7 @@ test('registration, verification, workspace errors, create, and settings', async
     const settings = page.getByRole('region', { name: 'Browser workspace', exact: true });
     await expect(settings).toBeVisible();
     await expect(create).toBeHidden();
-    await expect(create.getByLabel('Workspace name')).toHaveValue('');
+    await expect(page.locator('#workspace_name')).toHaveValue('');
     await settings.getByLabel('Workspace name').fill('Renamed browser workspace');
     await settings.getByRole('button', { name: 'Save name' }).click();
     await expect(page.getByRole('region', { name: 'Renamed browser workspace', exact: true })).toBeVisible();

@@ -83,7 +83,7 @@ test('same relationship appears in both portals, private leads survive removal, 
         await pp.getByLabel(/I accept this partnership/).check();
         await pp.getByRole('button', { name: 'Accept partnership', exact: true }).click();
         await expect(pp).toHaveURL(/\/pro\/leads$/);
-        await expect(pp.getByRole('heading', { name: 'From your brand partners' })).toBeVisible();
+        await expect(pp.getByRole('heading', { name: 'Brand partnerships' })).toBeVisible();
         await expect(pp.getByText('Habi Home', { exact: true })).toBeVisible();
         await expect(pp.getByRole('region', { name: 'Five-stage pipeline' })).toContainText('Private portal prospect');
         await expect(pp.getByRole('region', { name: 'Coming soon' })).toContainText('Autopilot');

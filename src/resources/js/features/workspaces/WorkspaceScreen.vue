@@ -231,49 +231,48 @@ defineExpose({
                     @revoke="revoke"
                 />
             </div>
-        </div>
-
-        <dialog
-            ref="createDialog"
-            class="wd-dialog"
-            aria-labelledby="workspace-create-title"
-            @keydown="containDialogFocus($event, createDialog)"
-        >
-            <div class="wd-dialog-header">
-                <h2 id="workspace-create-title">New workspace</h2>
-                <DialogClose label="Close new workspace dialog" @click="createDialog?.close()" />
-            </div>
-            <form id="workspace-create-form" :aria-busy="pendingAction === 'create'" @submit.prevent="create">
-                <fieldset class="wd-fields" :disabled="busy">
-                    <legend class="wd-sr-only">Create a workspace</legend>
-                    <fieldset class="wd-type-options">
-                        <legend>Workspace type</legend>
-                        <label v-for="type in kinds" :key="type.value" class="wd-type-option">
-                            <input v-model="kind" type="radio" name="workspace-kind" :value="type.value" />
-                            <span
-                                ><strong>{{ type.label }}</strong
-                                ><span>{{ type.description }}</span></span
-                            >
-                        </label>
+            <dialog
+                ref="createDialog"
+                class="wd-dialog"
+                aria-labelledby="workspace-create-title"
+                @keydown="containDialogFocus($event, createDialog)"
+            >
+                <div class="wd-dialog-header">
+                    <h2 id="workspace-create-title">New workspace</h2>
+                    <DialogClose label="Close new workspace dialog" @click="createDialog?.close()" />
+                </div>
+                <form id="workspace-create-form" :aria-busy="pendingAction === 'create'" @submit.prevent="create">
+                    <fieldset class="wd-fields" :disabled="busy">
+                        <legend class="wd-sr-only">Create a workspace</legend>
+                        <fieldset class="wd-type-options">
+                            <legend>Workspace type</legend>
+                            <label v-for="type in kinds" :key="type.value" class="wd-type-option">
+                                <input v-model="kind" type="radio" name="workspace-kind" :value="type.value" />
+                                <span
+                                    ><strong>{{ type.label }}</strong
+                                    ><span>{{ type.description }}</span></span
+                                >
+                            </label>
+                        </fieldset>
+                        <FormField
+                            id="workspace_name"
+                            v-model="newName"
+                            label="Workspace name"
+                            autocomplete="organization"
+                            :maxlength="120"
+                            :error="errors.create_name"
+                        />
+                        <div class="wd-dialog-footer">
+                            <button type="button" class="wd-button wd-button-secondary" @click="createDialog?.close()">
+                                Cancel
+                            </button>
+                            <Button type="submit" class="wd-button wd-button-primary">{{
+                                pendingAction === 'create' ? 'Creating…' : 'Create workspace'
+                            }}</Button>
+                        </div>
                     </fieldset>
-                    <FormField
-                        id="workspace_name"
-                        v-model="newName"
-                        label="Workspace name"
-                        autocomplete="organization"
-                        :maxlength="120"
-                        :error="errors.create_name"
-                    />
-                    <div class="wd-dialog-footer">
-                        <button type="button" class="wd-button wd-button-secondary" @click="createDialog?.close()">
-                            Cancel
-                        </button>
-                        <Button type="submit" class="wd-button wd-button-primary">{{
-                            pendingAction === 'create' ? 'Creating…' : 'Create workspace'
-                        }}</Button>
-                    </div>
-                </fieldset>
-            </form>
-        </dialog>
+                </form>
+            </dialog>
+        </div>
     </FoundationShell>
 </template>
