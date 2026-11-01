@@ -1,8 +1,10 @@
 # Current Implementation Handoff
 
-Updated: 2026-10-25. This is the current resume point; older milestone handoffs retain historical evidence and instructions for their original scope.
+Updated: 2026-11-01. This is the current resume point; older milestone handoffs retain historical evidence and instructions for their original scope.
 
 ## Checkpoint and milestone state
+
+- **Portal terminology and UI cleanup (2026-11-01), on `bel/initial` at `5df2ecf`:** D29 renames workspace types to Business and Professional and moves the leads portal to `/pro/*` with temporary `/partner/*` redirects. D30 cleans up production layouts (working-page navigation, one "Coming soon" strip per portal, Workspaces cards and New workspace dialog) and adds drag-and-drop pipeline stage moves. Formatting, types, 54 component tests, build, Pint, 31 PostgreSQL and 29 unit/feature tests, and 48 Chromium desktop/mobile browser journeys pass locally; WebKit, manual accessibility and touch drag remain unverified. See [UI cleanup evidence](evidence/ui-cleanup-2026-11-01/README.md). The Partner portal is a **Proposal** awaiting approval in its [contract](partner-portal-contract.md).
 
 - **D27 administration priority (2026-10-25):** the user requires platform-owner/super-admin administration and prioritizes it before advancing to the next milestone. Planning is captured in the [platform administration contract](platform-administration-contract.md) and ADM-01–ADM-07 in the register; implementation has not started. The [Claude Design handoff](platform-administration-design-handoff.md) now provides the full screen/entity/column/action brief for the user to obtain a visual reference; no returned admin design has been reviewed or accepted. **Next: ADM-01 authorization/MFA/bootstrap foundation**, then the remaining administration package, before UI-07 and subsequent M5 work. Preserve the UI-06 implementation/evidence checkpointed in `2aaeca1`. No real owner account has been provisioned and no test data has been deleted. Existing M1-04, M4-02, M5-08 and M6 dependencies remain explicit.
 
