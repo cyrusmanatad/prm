@@ -11,11 +11,12 @@ const props = withDefaults(
         mode: AuthMode;
         portal?: 'brand' | 'partner';
         email?: string;
+        invitation?: boolean;
         errors?: FieldErrors;
         processing?: boolean;
         status?: string;
     }>(),
-    { email: '', errors: () => ({}), processing: false, status: '' },
+    { email: '', invitation: false, errors: () => ({}), processing: false, status: '' },
 );
 const emit = defineEmits<{
     submit: [submission: AuthSubmission];
@@ -25,15 +26,31 @@ const emit = defineEmits<{
 }>();
 const root = ref<HTMLElement>();
 const fields = reactive({ name: '', email: props.email, password: '', password_confirmation: '' });
+// Invitation entry locks the email to the invited recipient and explains which workspace is created.
+const invited = computed(() => props.invitation && ['login', 'register'].includes(props.mode));
 const content = computed(
     () =>
         ({
-            login: { title: 'Welcome back.', description: 'Sign in to your WeavDash workspace.', action: 'Sign in' },
-            register: {
-                title: 'Make room for what’s next.',
-                description: 'Create your account to start a workspace.',
-                action: 'Create account',
-            },
+            login: props.invitation
+                ? {
+                      title: 'Sign in to accept.',
+                      description:
+                          'This invitation email already has a WeavDash account. Sign in and we’ll add a new creator workspace for this partnership.',
+                      action: 'Sign in',
+                  }
+                : { title: 'Welcome back.', description: 'Sign in to your WeavDash workspace.', action: 'Sign in' },
+            register: props.invitation
+                ? {
+                      title: 'Create your account to accept.',
+                      description:
+                          'Create a new account with the invited email. We’ll set up its creator workspace, then you can review the partnership.',
+                      action: 'Create account',
+                  }
+                : {
+                      title: 'Make room for what’s next.',
+                      description: 'Create your account to start a workspace.',
+                      action: 'Create account',
+                  },
             'forgot-password': {
                 title: 'Find your way back.',
                 description: 'Enter your email and we’ll send a password reset link.',
@@ -129,6 +146,8 @@ defineExpose({ clearPasswords });
                                 type="email"
                                 autocomplete="username"
                                 :maxlength="255"
+                                :readonly="invited"
+                                :hint="invited ? 'The brand sent your invitation to this address.' : undefined"
                                 :error="errors.email"
                             />
                             <FormField
@@ -168,7 +187,7 @@ defineExpose({ clearPasswords });
                 <nav class="wd-auth-navigation" aria-label="Account options">
                     <template v-if="mode === 'login'">
                         <a
-                            v-if="portal"
+                            v-if="portal && !invited"
                             class="wd-link"
                             :href="portal === 'brand' ? '/partner/login' : '/brand/login'"
                             >{{ portal === 'brand' ? 'Partner sign in' : 'Brand sign in' }}</a
@@ -181,7 +200,7 @@ defineExpose({ clearPasswords });
                         >
                             Forgot password?
                         </button>
-                        <p>
+                        <p v-if="!invited">
                             New here?
                             <button
                                 type="button"
@@ -203,7 +222,7 @@ defineExpose({ clearPasswords });
                         Sign out
                     </button>
                     <button
-                        v-else
+                        v-else-if="!invited"
                         type="button"
                         class="wd-link"
                         :disabled="processing"

@@ -89,6 +89,19 @@ describe('authentication screens', () => {
         expect((wrapper.get('#password').element as HTMLInputElement).value).toBe('');
     });
 
+    it('locks invitation registration and sign-in to the invited email', async () => {
+        const wrapper = screen('register');
+        await wrapper.setProps({ email: 'invitee@example.test', invitation: true });
+        expect(wrapper.get('#email').attributes('readonly')).toBeDefined();
+        expect((wrapper.get('#email').element as HTMLInputElement).value).toBe('invitee@example.test');
+        expect(wrapper.text()).toContain('Create your account to accept.');
+        expect(wrapper.find('nav button').exists()).toBe(false);
+        await wrapper.setProps({ mode: 'login' });
+        expect(wrapper.text()).toContain('add a new creator workspace');
+        expect(wrapper.text()).not.toContain('Create an account');
+        expect(wrapper.text()).not.toContain('Brand sign in');
+    });
+
     it('keeps verification resend and sign-out actions distinct', async () => {
         const wrapper = screen('verify-email');
         await wrapper.setProps({ email: 'creator@example.test', status: 'A fresh verification link was requested.' });

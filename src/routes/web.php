@@ -15,6 +15,7 @@ use App\Http\Controllers\PortalController;
 use App\Http\Controllers\PublicPresenceController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Middleware\WorkspaceContext;
+use App\Services\PartnershipInvitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,8 +38,8 @@ Route::get('/kits/{record}', [PublicPresenceController::class, 'kit'])->whereUui
 Route::get('/', fn (Request $request) => redirect($request->user()
     ? ($request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email') : '/login'));
 Route::middleware('guest')->group(function (): void {
-    Route::get('/{portal}/login', fn (string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal]))->whereIn('portal', ['brand', 'partner']);
-    Route::get('/{portal}/register', fn (string $portal) => Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal]))->whereIn('portal', ['brand', 'partner']);
+    Route::get('/{portal}/login', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'partner']);
+    Route::get('/{portal}/register', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'partner']);
     Route::post('/{portal}/login', [SessionController::class, 'store'])->whereIn('portal', ['brand', 'partner'])->middleware('throttle:20,1,login:');
     Route::post('/{portal}/register', RegisteredUserController::class)->whereIn('portal', ['brand', 'partner'])->middleware('throttle:5,1,register:');
     Route::get('/login', fn () => Inertia::render('Auth', ['mode' => 'login']))->name('login');

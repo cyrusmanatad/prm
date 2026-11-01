@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Queries\PipelinePage;
+use App\Models\User;
 use App\Services\NotificationOutbox;
+use App\Services\PartnershipInvitation;
 use App\Services\Pipeline;
 use App\Services\Workspaces;
 use Illuminate\Http\Request;
@@ -16,10 +18,15 @@ class PortalController extends Controller
     public function enter(Request $request, Workspaces $workspaces)
     {
         $user = $request->user();
-        if ($user->registration_workspace_id) {
+        $provisioned = (bool) $user->registration_workspace_id;
+        if ($provisioned) {
             $id = $workspaces->create((int) $user->id, $user->name, $user->registration_workspace_kind, $user->registration_workspace_id);
             $request->session()->put('active_org_id', $id);
             $user->forceFill(['registration_workspace_id' => null, 'registration_workspace_kind' => null])->save();
+        }
+        // An existing identity that signed in from an invitation receives a separate creator workspace for it.
+        if ($request->session()->pull('partnership_workspace') && ! $provisioned && PartnershipInvitation::recipient($request) === strtolower($user->email)) {
+            $request->session()->put('active_org_id', $workspaces->create((int) $user->id, $user->name, 'creator'));
         }
         $listing = $workspaces->listing((int) $request->user()->id);
         $preference = $request->session()->get('portal');
@@ -51,10 +58,24 @@ class PortalController extends Controller
     public function prepare(Request $request)
     {
         $data = $request->validate(['token' => ['required', 'string', 'regex:/^[a-f0-9]{64}$/'], 'choose' => ['sometimes', 'boolean']]);
-        $request->session()->put('partnership_token', ['encrypted' => encrypt($data['token']), 'expires' => time() + 900]);
-        $request->session()->put('portal', 'partner');
+        $recipient = DB::selectOne('SELECT app_partner_invitation_recipient(?::text) AS email', [hash('sha256', $data['token'])])->email;
+        if (! $recipient) {
+            $message = 'This invitation is expired, revoked or already accepted. Ask the brand to send a new invitation.';
+            abort_if($request->expectsJson() && ! $request->header('X-Inertia'), 404, $message);
 
-        return redirect($request->user() ? ($request->user()->hasVerifiedEmail() ? (! empty($data['choose']) ? '/workspaces' : '/portal/enter') : '/verify-email') : '/partner/login');
+            return back()->withErrors(['token' => $message]);
+        }
+        $request->session()->put('partnership_token', ['encrypted' => encrypt($data['token']), 'recipient' => encrypt($recipient), 'expires' => time() + 900]);
+        $request->session()->put('portal', 'partner');
+        if (! $request->user()) {
+            // Existing identities sign in and gain a new creator workspace; new recipients register a separate account.
+            $existing = User::whereRaw('lower(email) = ?', [$recipient])->exists();
+            $request->session()->put('partnership_workspace', $existing);
+
+            return redirect($existing ? '/partner/login' : '/partner/register');
+        }
+
+        return redirect($request->user()->hasVerifiedEmail() ? (! empty($data['choose']) ? '/workspaces' : '/portal/enter') : '/verify-email');
     }
 
     public function index(Request $request, Pipeline $pipeline)
@@ -106,7 +127,13 @@ class PortalController extends Controller
     {
         $data = $request->validate(['token' => ['required', 'string', 'regex:/^[a-f0-9]{64}$/'], 'consent' => ['accepted']]);
         $ok = DB::selectOne('SELECT app_accept_partner(?::text,?::uuid) AS allowed', [hash('sha256', $data['token']), (string) Str::uuid()])->allowed;
-        abort_unless($ok, 404, 'Invitation unavailable. Check your recipient account, creator workspace and invitation expiry.');
+        if (! $ok) {
+            $message = 'This invitation cannot be accepted by the signed-in account. Sign in with the verified email address the invitation was sent to and select a creator workspace you own or administer. Expired, revoked or already accepted invitations, or an existing partnership with this brand, also prevent acceptance.';
+            abort_if($request->expectsJson() && ! $request->header('X-Inertia'), 404, $message);
+
+            // Browser visits keep the form and explain the refusal instead of the generic 404 page.
+            return back()->withErrors(['token' => $message]);
+        }
 
         $request->session()->forget('partnership_token');
 

@@ -320,6 +320,10 @@ summary:focus-visible {
     color: var(--wd-ink);
     background: var(--wd-surface);
 }
+.wd-field input[readonly] {
+    color: var(--wd-body);
+    background: var(--wd-paper);
+}
 .wd-field input[aria-invalid='true'],
 .wd-field select[aria-invalid='true'],
 .wd-field textarea[aria-invalid='true'] {

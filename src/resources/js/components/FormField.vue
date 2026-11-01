@@ -9,6 +9,7 @@ withDefaults(
         error?: string;
         hint?: string;
         required?: boolean;
+        readonly?: boolean;
         maxlength?: number;
         minlength?: number;
         pattern?: string;
@@ -30,6 +31,7 @@ const value = defineModel<string>({ default: '' });
             :inputmode="inputmode"
             :autocomplete="autocomplete"
             :required="required"
+            :readonly="readonly"
             :maxlength="maxlength"
             :minlength="minlength"
             :pattern="pattern"

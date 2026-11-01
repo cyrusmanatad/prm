@@ -9,6 +9,7 @@ use App\Tenancy\TenantContext;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class PortalTest extends TestCase
@@ -67,6 +68,9 @@ class PortalTest extends TestCase
         $this->getJson('/brand')->assertJsonCount(0, 'relationships')->assertDontSee($creator->email)->assertDontSee('token_hash');
         $this->select($brand, $bo)->postJson('/partner-invitations', ['email' => $creator->email])->assertConflict();
         $this->accept($other, $oo, $invite)->assertNotFound();
+        // Browser visits explain the refusal on the acceptance form instead of a generic 404 page.
+        $this->select($other, $oo)->from('/partnerships/accept')->post('/partnerships/accept', ['token' => explode('#', $invite['url'])[1], 'consent' => true], ['X-Inertia' => 'true'])
+            ->assertRedirect('/partnerships/accept')->assertSessionHasErrors('token');
         $this->select($creator, $co)->postJson('/partnerships/accept', ['token' => explode('#', $invite['url'])[1], 'consent' => false])->assertUnprocessable();
         $this->accept($creator, $co, $invite)->assertOk();
         $this->accept($creator, $co, $invite)->assertNotFound();
@@ -153,6 +157,48 @@ class PortalTest extends TestCase
         $this->select($user, $listing[0]->id);
         $this->withSession(['portal' => 'partner'])->get('/portal/enter')->assertRedirect('/workspaces');
         $this->getJson('/partner')->assertRedirect('/workspaces');
+    }
+
+    public function test_invitation_registers_new_recipients_and_adds_a_workspace_for_existing_accounts(): void
+    {
+        $this->withoutVite();
+        [$brand, $bo] = $this->workspace('brand');
+        [$existing, $eo] = $this->workspace('creator');
+        $email = 'invitee-'.Str::uuid().'@example.test';
+        $token = explode('#', $this->invite($brand, $bo, $email)['url'])[1];
+        $existingToken = explode('#', $this->invite($brand, $bo, $existing->email)['url'])[1];
+        $this->post('/logout');
+        $this->postJson('/partnerships/prepare', ['token' => str_repeat('b', 64)])->assertNotFound();
+
+        // A new email registers a separate account locked to the invited recipient.
+        $this->post('/partnerships/prepare', ['token' => $token])->assertRedirect('/partner/register');
+        $this->get('/partner/register')->assertInertia(fn (Assert $page) => $page->component('Auth')->where('email', $email)->where('invitation', true)->etc());
+        $password = ['password' => 'secure-password-123', 'password_confirmation' => 'secure-password-123'];
+        $this->from('/partner/register')->post('/partner/register', ['name' => 'Elsewhere', 'email' => 'other-'.Str::uuid().'@example.test', ...$password])->assertSessionHasErrors('email');
+        $this->post('/partner/register', ['name' => 'Invitee', 'email' => $email, ...$password])->assertRedirect('/verify-email');
+        $invitee = User::where('email', $email)->firstOrFail();
+        $invitee->markEmailAsVerified();
+        $this->actingAs($invitee->fresh())->get('/portal/enter')->assertRedirect('/partnerships/accept');
+        $listing = app(Workspaces::class)->listing($invitee->id);
+        $this->assertCount(1, $listing);
+        $this->assertSame('creator', $listing[0]->kind);
+        $this->post('/partnerships/accept', ['token' => $token, 'consent' => true])->assertRedirect('/partner/leads');
+        $this->getJson('/partner')->assertJsonCount(1, 'relationships');
+        $this->post('/logout');
+
+        // An existing email signs in and gains a new creator workspace instead of reusing its current one.
+        $this->post('/partnerships/prepare', ['token' => $existingToken])->assertRedirect('/partner/login');
+        $this->get('/partner/login')->assertInertia(fn (Assert $page) => $page->where('email', $existing->email)->where('invitation', true)->etc());
+        $this->post('/partner/login', ['email' => $existing->email, 'password' => 'password'])->assertRedirect('/portal/enter');
+        $this->get('/portal/enter')->assertRedirect('/partnerships/accept');
+        $added = collect(app(Workspaces::class)->listing($existing->id))->firstWhere('id', '!=', $eo);
+        $this->assertCount(2, app(Workspaces::class)->listing($existing->id));
+        $this->assertSame('creator', $added->kind);
+        $this->post('/partnerships/accept', ['token' => $existingToken, 'consent' => true])->assertRedirect('/partner/leads');
+        $this->getJson('/partner')->assertJsonCount(1, 'relationships');
+        $this->select($existing, $eo)->getJson('/partner')->assertJsonCount(0, 'relationships');
+        $this->get('/portal/enter');
+        $this->assertCount(2, app(Workspaces::class)->listing($existing->id));
     }
 
     public function test_omitted_stages_keep_details_and_aggregate_semantics(): void

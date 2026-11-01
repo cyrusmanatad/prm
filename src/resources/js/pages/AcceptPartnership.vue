@@ -8,6 +8,8 @@ const form = useForm({ token: props.savedToken ?? '', consent: false, choose: fa
 onMounted(() => {
     if (window.location.hash) form.token = window.location.hash.slice(1);
     history.replaceState(null, '', window.location.pathname);
+    // Guests go straight to account creation, or sign-in when the invited email already has an account.
+    if (!props.account && form.token) form.post('/partnerships/prepare');
 });
 </script>
 <template>
@@ -17,7 +19,11 @@ onMounted(() => {
             <div class="wd-page-heading">
                 <h1>Accept brand invitation</h1>
                 <p class="wd-description">
-                    Sign in as the invited recipient, then select a creator workspace you own or administer.
+                    {{
+                        account
+                            ? 'Select a creator workspace you own or administer, then confirm the partnership.'
+                            : 'Create your account with the invited email, or sign in if it already has one. Then confirm the partnership.'
+                    }}
                 </p>
             </div>
             <section class="wd-card">
@@ -34,6 +40,7 @@ onMounted(() => {
                 </button>
                 <form
                     class="wd-fields"
+                    :aria-busy="form.processing"
                     @submit.prevent="form.post(account ? '/partnerships/accept' : '/partnerships/prepare')"
                 >
                     <FormField
@@ -47,18 +54,24 @@ onMounted(() => {
                         :error="form.errors.token"
                     />
                     <p class="wd-hint">
-                        Your invitation is retained securely for 15 minutes while you sign in and select a workspace.
+                        Your invitation is retained securely for 15 minutes while you create your account or sign in.
                     </p>
                     <label v-if="account" class="wd-checkbox" for="partnership-consent"
                         ><input id="partnership-consent" v-model="form.consent" type="checkbox" required /> I accept
                         this partnership and agree to share my workspace display name and relationship status with the
                         inviting brand. Private CRM data stays private.</label
                     >
-                    <p v-for="(error, key) in form.errors" :key="key" role="alert" class="wd-field-error">
+                    <p
+                        v-for="(error, key) in form.errors"
+                        v-show="key !== 'token'"
+                        :key="key"
+                        role="alert"
+                        class="wd-field-error"
+                    >
                         {{ error }}
                     </p>
                     <button class="wd-button wd-button-primary" :disabled="form.processing">
-                        {{ account ? 'Accept partnership' : 'Sign in to accept' }}
+                        {{ form.processing ? 'Please wait…' : account ? 'Accept partnership' : 'Continue' }}
                     </button>
                 </form>
             </section>
