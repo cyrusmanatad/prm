@@ -257,6 +257,30 @@ class PortalTest extends TestCase
         $this->postJson('/join/prepare', ['code' => $replacement['code']])->assertNotFound();
     }
 
+    public function test_professional_portal_lists_closed_deals_and_workspaces_page_manages_partnerships(): void
+    {
+        $this->withoutVite();
+        [$brand, $bo] = $this->workspace('brand');
+        [$creator, $co] = $this->workspace('creator');
+        $won = $this->select($creator, $co)->postJson('/pipeline', ['brand_name' => 'Won studio', 'currency' => 'PHP', 'value_minor' => '500'])->json('id');
+        $this->postJson('/pipeline', ['brand_name' => 'Open studio', 'currency' => 'PHP', 'value_minor' => '900'])->assertCreated();
+        $this->postJson('/pipeline/'.$won.'/stage', ['stage' => 'onboarded', 'version' => 1])->assertOk();
+        // Closed deals are won leads (Onboarded, Active, Repeat Client) across all pages, not partnerships (D31).
+        $this->getJson('/pro')->assertJsonPath('closedDeals.count', 1)->assertJsonCount(1, 'closedDeals.recent')
+            ->assertJsonPath('closedDeals.recent.0.brand_name', 'Won studio')->assertJsonPath('closedDeals.recent.0.value_minor', '500')
+            ->assertJsonPath('closedDeals.totals.0.amount_minor', '500');
+        $this->select($brand, $bo)->getJson('/brand')->assertJsonPath('closedDeals', null);
+
+        $brandName = collect(app(Workspaces::class)->listing($brand->id))->firstWhere('id', $bo)->name;
+        $this->accept($creator, $co, $this->invite($brand, $bo, $creator->email))->assertOk();
+        $this->select($creator, $co)->get('/workspaces')->assertInertia(fn (Assert $page) => $page
+            ->where('partnerships.rows.0.brand_name', $brandName)->where('partnerships.canManage', true)->etc());
+        $relationship = $this->getJson('/pro')->json('relationships.0.id');
+        $this->delete('/partnerships/'.$relationship, ['workspaces' => true])->assertRedirect('/workspaces');
+        $this->get('/workspaces')->assertInertia(fn (Assert $page) => $page->has('partnerships.rows', 0)->etc());
+        $this->select($brand, $bo)->get('/workspaces')->assertInertia(fn (Assert $page) => $page->where('partnerships', null)->etc());
+    }
+
     public function test_omitted_stages_keep_details_and_aggregate_semantics(): void
     {
         [$creator, $co] = $this->workspace('creator');

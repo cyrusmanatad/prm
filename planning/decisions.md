@@ -88,3 +88,7 @@ When localhost and browser tooling become available, inspect all seven boards at
 - Deferred capabilities are kept but compacted into one "Coming soon" strip per portal instead of placeholder cards, toggles and metrics. Summary cards show only real values (Professional: open pipeline, leads, brand partnerships; Brand: active partners, pending invitations, sign-up link status).
 - The Workspaces page groups workspaces under Business and Professional with an explicit "Open … portal" action, creates workspaces through a "New workspace" dialog with type choices, and keeps account security in its own panel.
 - The synthetic reference fixture (development builds only) keeps the reference compositions for historical visual comparison; it is no longer the acceptance baseline for production layouts.
+
+## Professional closed deals
+
+**D31 — Confirmed (2026-11-01):** the Professional portal shows **closed deals**, not brand partnerships, so Partner and Professional terminology stays distinct even when a won lead is technically a partner. A closed deal is a won lead in the Onboarded, Active or Repeat Client stage; no new stage or data change is introduced. The summary card and sidebar show the count, value per currency and the five most recently updated closed deals, linking to each lead. Brand partnerships of a Professional workspace, including End partnership with confirmation, move to the current-workspace panel on the Workspaces page until the [Partner portal](partner-portal-contract.md) takes them over. Brands still manage partnerships in the Brand portal.

@@ -6,6 +6,7 @@ import FormField from '../../components/FormField.vue';
 import AccountSecurity from '../../components/AccountSecurity.vue';
 import ActionGroup from '../../components/ActionGroup.vue';
 import DialogClose from '../../components/DialogClose.vue';
+import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 import FoundationShell from '../../layouts/FoundationShell.vue';
@@ -20,6 +21,8 @@ const props = withDefaults(
         errors?: FieldErrors;
         status?: string;
         accessRevoked?: boolean;
+        // Brand partnerships of the selected Professional workspace until the Partner portal exists (D31).
+        partnerships?: { rows: { id: string; brand_name: string; accepted_at: string }[]; canManage: boolean } | null;
     }>(),
     { activeOrgId: null, pendingAction: null, errors: () => ({}), status: '', accessRevoked: false },
 );
@@ -30,6 +33,7 @@ const emit = defineEmits<{
     rename: [name: string];
     revokeSessions: [password: string];
     logout: [];
+    endPartnership: [id: string];
 }>();
 const root = ref<HTMLElement>();
 const newName = ref('');
@@ -221,6 +225,37 @@ defineExpose({
                             }}</Button>
                         </fieldset>
                     </form>
+                    <section v-if="partnerships" class="wd-workspace-partnerships" aria-labelledby="partnerships-title">
+                        <h3 id="partnerships-title">Brand partnerships</h3>
+                        <ul v-if="partnerships.rows.length">
+                            <li v-for="row in partnerships.rows" :key="row.id">
+                                <span
+                                    ><strong>{{ row.brand_name }}</strong>
+                                    <span class="wd-hint"
+                                        >Partner since {{ new Date(row.accepted_at).toLocaleDateString() }}</span
+                                    ></span
+                                >
+                                <button
+                                    v-if="partnerships.canManage"
+                                    type="button"
+                                    class="wd-action-danger"
+                                    :disabled="busy"
+                                    @click="
+                                        confirmAction(
+                                            'End partnership',
+                                            `End the partnership with ${row.brand_name}? Shared relationship access ends on both sides. Private records are preserved.`,
+                                            () => emit('endPartnership', row.id),
+                                            $event,
+                                            { tone: 'danger' },
+                                        )
+                                    "
+                                >
+                                    End partnership
+                                </button>
+                            </li>
+                        </ul>
+                        <p v-else class="wd-description">No active brand partnerships for this workspace.</p>
+                    </section>
                 </section>
                 <AccountSecurity
                     v-model="password"

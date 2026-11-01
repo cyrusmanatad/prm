@@ -28,6 +28,21 @@ class Pipeline
         return DB::table('pipeline_entries')->where('org_id', $orgId);
     }
 
+    /** Won leads (D31): converted leads in Onboarded, Active or Repeat Client, across all pages. */
+    public function closedDeals(string $orgId): array
+    {
+        $won = fn () => $this->entries($orgId)->whereIn('stage', ['onboarded', 'active', 'repeat-client']);
+
+        return [
+            'count' => $won()->count(),
+            'totals' => $won()->groupBy('currency')->orderBy('currency')
+                ->selectRaw('currency, sum(value_minor)::text as amount_minor')->get()->all(),
+            // Money stays a string, as in pipeline entries, so large values keep full precision.
+            'recent' => $won()->orderByDesc('updated_at')->orderByDesc('id')->limit(5)
+                ->selectRaw('id, brand_name, stage, value_minor::text as value_minor, currency')->get()->all(),
+        ];
+    }
+
     public function listing(string $orgId, array $filters): array
     {
         $query = $this->entries($orgId);

@@ -17,6 +17,11 @@ export interface Invitation {
     expires_at: string;
     email_state: string | null;
 }
+export interface ClosedDeals {
+    count: number;
+    totals: { currency: string; amount_minor: string }[];
+    recent: { id: string; brand_name: string; stage: string; value_minor: string; currency: string }[];
+}
 export interface PortalData {
     account: { name: string; email: string };
     workspace: { id: string; name: string; kind: 'creator' | 'brand' };
@@ -24,6 +29,7 @@ export interface PortalData {
     canManage: boolean;
     joinLink?: JoinLink | null;
     invitations?: Invitation[];
+    closedDeals?: ClosedDeals | null;
     pipeline: PipelineWorkspace | null;
     errors?: Record<string, string>;
     status?: string;

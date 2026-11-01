@@ -116,7 +116,7 @@ function endPartnership(id: string, trigger: HTMLElement): void {
             </section>
         </template>
     </BrandDashboard>
-    <PartnerDashboard v-else :data="props" @remove="endPartnership" />
+    <PartnerDashboard v-else :data="props" />
     <dialog
         ref="invitationDialog"
         class="wd-dialog"

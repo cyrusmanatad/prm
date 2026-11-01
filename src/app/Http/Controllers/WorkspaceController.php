@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Services\Workspaces;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class WorkspaceController extends Controller
 {
-    public function index(Request $request, Workspaces $workspaces): JsonResponse|Response
+    public function index(Request $request, Workspaces $workspaces, TenantContext $context): JsonResponse|Response
     {
         $listing = $workspaces->listing((int) $request->user()->id);
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
@@ -23,10 +25,17 @@ class WorkspaceController extends Controller
             $request->session()->forget('active_org_id');
         }
 
+        // Brand partnerships of the selected Professional workspace live here until the Partner portal exists (D31).
+        $current = $revoked ? null : collect($listing)->firstWhere('id', $selected);
+        $partnerships = $current && $current->kind === 'creator' ? $context->run((int) $request->user()->id, $selected, fn () => [
+            'rows' => DB::table('partnerships')->where('creator_org_id', $selected)->orderBy('accepted_at')->get(['id', 'brand_name', 'accepted_at'])->all(),
+            'canManage' => (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$selected])->allowed,
+        ]) : null;
+
         // Materialized allowlisted data only; no lazy tenant queries after context closes.
         return Inertia::render('Workspaces', [
             'workspaces' => $listing, 'activeOrgId' => $revoked ? null : $selected,
-            'accessRevoked' => $revoked,
+            'accessRevoked' => $revoked, 'partnerships' => $partnerships,
         ]);
     }
 

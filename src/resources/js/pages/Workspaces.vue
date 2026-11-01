@@ -10,6 +10,7 @@ const props = withDefaults(
         workspaces: WorkspaceSummary[];
         activeOrgId: string | null;
         accessRevoked?: boolean;
+        partnerships?: { rows: { id: string; brand_name: string; accepted_at: string }[]; canManage: boolean } | null;
         status?: string;
         errors?: Record<string, string | FieldErrors>;
     }>(),
@@ -103,6 +104,7 @@ function logout(): void {
         :workspaces="workspaces"
         :active-org-id="activeOrgId"
         :access-revoked="accessRevoked"
+        :partnerships="partnerships"
         :status="status"
         :errors="errors"
         :pending-action="pending"
@@ -112,5 +114,8 @@ function logout(): void {
         @rename="submit('rename', { name: $event })"
         @revoke-sessions="submit('revoke-sessions', { password: $event })"
         @logout="logout"
+        @end-partnership="
+            router.delete(`/partnerships/${$event}`, { data: { workspaces: true }, preserveScroll: true })
+        "
     />
 </template>

@@ -83,12 +83,16 @@ test('same relationship appears in both portals, private leads survive removal, 
         await pp.getByLabel(/I accept this partnership/).check();
         await pp.getByRole('button', { name: 'Accept partnership', exact: true }).click();
         await expect(pp).toHaveURL(/\/pro\/leads$/);
-        await expect(pp.getByRole('heading', { name: 'Brand partnerships' })).toBeVisible();
-        await expect(pp.getByText('Habi Home', { exact: true })).toBeVisible();
+        // Professionals see won leads, not brand partnerships, in their portal (D31).
+        await expect(pp.getByRole('heading', { name: 'Closed deals' })).toBeVisible();
+        await expect(pp.getByText('Habi Home', { exact: true })).toHaveCount(0);
         await expect(pp.getByRole('region', { name: 'Five-stage pipeline' })).toContainText('Private portal prospect');
         await expect(pp.getByRole('region', { name: 'Coming soon' })).toContainText('Autopilot');
         await clean(pp);
         await pp.screenshot({ path: info.outputPath(`portal-partner-${info.project.name}.png`), fullPage: true });
+        await pp.goto('/workspaces');
+        await expect(pp.getByRole('heading', { name: 'Brand partnerships' })).toBeVisible();
+        await expect(pp.getByText('Habi Home', { exact: true })).toBeVisible();
         const partnerEnd = pp.getByRole('button', { name: 'End partnership', exact: true });
         await partnerEnd.click();
         const partnerConfirmation = pp.getByRole('dialog', { name: 'End partnership?', exact: true });
@@ -111,7 +115,8 @@ test('same relationship appears in both portals, private leads survive removal, 
         );
         await expect(bp.getByText('No active partners. Invite a partner to begin.')).toBeVisible();
         await pp.reload();
-        await expect(pp.getByText('No active partnerships. Accept a brand invitation to connect.')).toBeVisible();
+        await expect(pp.getByText('No active brand partnerships for this workspace.')).toBeVisible();
+        await pp.goto('/pro/leads');
         await expect(pp.getByRole('region', { name: 'Five-stage pipeline' })).toContainText('Private portal prospect');
         await pp.goto(url);
         await pp.getByLabel(/I accept this partnership/).check();

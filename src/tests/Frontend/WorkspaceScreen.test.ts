@@ -119,4 +119,26 @@ describe('workspace screens', () => {
         confirmation.value?.action();
         expect(wrapper.emitted('revokeSessions')).toEqual([['safe-password-123']]);
     });
+
+    it('lists brand partnerships for a Professional workspace and confirms ending one', async () => {
+        const wrapper = mount(WorkspaceScreen, {
+            props: {
+                account: { name: 'Creator', email: 'creator@example.test' },
+                workspaces: [{ id: 'workspace-a', name: 'Studio', role: 'owner', kind: 'creator' }],
+                activeOrgId: 'workspace-a',
+                partnerships: {
+                    rows: [{ id: 'p-1', brand_name: 'Habi Home', accepted_at: '2026-11-01' }],
+                    canManage: true,
+                },
+            },
+            attachTo: document.body,
+        });
+        wrappers.push(wrapper);
+        expect(wrapper.get('.wd-workspace-partnerships').text()).toContain('Habi Home');
+        await wrapper.get('.wd-workspace-partnerships button').trigger('click');
+        expect(confirmation.value?.description).toContain('Habi Home');
+        expect(wrapper.emitted('endPartnership')).toBeUndefined();
+        confirmation.value?.action();
+        expect(wrapper.emitted('endPartnership')).toEqual([['p-1']]);
+    });
 });

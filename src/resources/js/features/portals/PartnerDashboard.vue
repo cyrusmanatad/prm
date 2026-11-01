@@ -6,11 +6,11 @@ import PipelineBoard from '../pipeline/PipelineBoard.vue';
 import PartnerChrome from './PartnerChrome.vue';
 import ComingSoonStrip from './ComingSoonStrip.vue';
 import { money } from '../pipeline/money';
+import { pipelineStages } from '../pipeline/stages';
 import type { PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
 // Synthetic reference content cannot be enabled in a production build.
 const fixture = import.meta.env.DEV && props.fixture === true;
-defineEmits<{ invite: []; remove: [id: string, trigger: HTMLElement] }>();
 const leadManager = ref<InstanceType<typeof LeadManager> | null>(null);
 const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 function open(path: string): void {
@@ -25,8 +25,16 @@ const summary = computed(() => [
         label: 'Leads',
         value: String(props.data.pipeline?.counts.reduce((sum, row) => sum + row.count, 0) ?? 0),
     },
-    { label: 'Brand partnerships', value: String(props.data.relationships.length) },
+    {
+        label: 'Closed deals',
+        value: props.data.closedDeals?.totals.length
+            ? `${props.data.closedDeals.count} · ${props.data.closedDeals.totals.map((t) => money(t.amount_minor, t.currency)).join(' · ')}`
+            : '0',
+    },
 ]);
+function stageLabel(stage: string): string {
+    return pipelineStages.find((row) => row.value === stage)?.label ?? stage;
+}
 </script>
 <template>
     <PartnerChrome
@@ -47,7 +55,7 @@ const summary = computed(() => [
                         <template v-if="fixture"
                             >You have <strong>4 actions</strong> today. Autopilot handled <strong>14 tasks</strong> for
                             you this week.</template
-                        ><template v-else>Your private leads and explicit brand partnerships, in one place.</template>
+                        ><template v-else>Your private leads, pipeline and closed deals, in one place.</template>
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2.5">
@@ -446,30 +454,31 @@ const summary = computed(() => [
                     <aside class="flex min-w-0 flex-[1_1_300px] flex-col gap-4">
                         <section
                             class="wd-on-dark rounded-2xl bg-ink p-5 text-white"
-                            aria-labelledby="partnerships-title"
+                            aria-labelledby="closed-deals-title"
                         >
-                            <h2 id="partnerships-title" class="font-display text-[18px] font-bold">
-                                Brand partnerships
-                            </h2>
-                            <ul v-if="data.relationships.length" class="mt-3 flex flex-col gap-2">
-                                <li
-                                    v-for="row in data.relationships"
-                                    :key="row.id"
-                                    class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/7 px-3.5 py-3"
-                                >
-                                    <strong class="text-[14px]">{{ row.brand_name }}</strong>
-                                    <button
-                                        v-if="data.canManage"
-                                        class="wd-action-danger text-[13px]"
-                                        type="button"
-                                        @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
+                            <h2 id="closed-deals-title" class="font-display text-[18px] font-bold">Closed deals</h2>
+                            <p class="mt-1 text-[13px] text-lilac">Won leads in Onboarded, Active or Repeat Client.</p>
+                            <ul v-if="data.closedDeals?.recent.length" class="mt-3 flex flex-col gap-2">
+                                <li v-for="deal in data.closedDeals.recent" :key="deal.id">
+                                    <Link
+                                        :href="`/pro/leads?entry=${deal.id}`"
+                                        class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/7 px-3.5 py-3 hover:bg-white/12"
                                     >
-                                        End partnership
-                                    </button>
+                                        <span class="min-w-0">
+                                            <strong class="block text-[14px]">{{ deal.brand_name }}</strong>
+                                            <span class="text-[12px] text-lilac">{{ stageLabel(deal.stage) }}</span>
+                                        </span>
+                                        <span class="text-[13px] font-semibold">{{
+                                            money(deal.value_minor, deal.currency)
+                                        }}</span>
+                                    </Link>
                                 </li>
                             </ul>
-                            <p v-else class="mt-2 text-[13px] text-lilac">
-                                No active partnerships. Accept a brand invitation to connect.
+                            <p v-else class="mt-3 text-[13px] text-lilac">
+                                No closed deals yet. Move a lead to Onboarded when you win it.
+                            </p>
+                            <p v-if="(data.closedDeals?.count ?? 0) > 5" class="mt-3 text-[12px] text-lilac">
+                                Showing the 5 most recent of {{ data.closedDeals?.count }}.
                             </p>
                         </section>
                         <section class="rounded-2xl border border-line bg-white p-5" aria-labelledby="follow-ups-title">

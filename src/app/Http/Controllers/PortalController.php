@@ -99,7 +99,8 @@ class PortalController extends Controller
             'joinLink' => $joinLink ? [...PartnerJoinController::share(decrypt($joinLink->sealed_code)), 'created_at' => $joinLink->created_at] : null,
             'invitations' => DB::table('partner_invitations as i')->leftJoin('notification_outbox as n', 'n.subject_id', '=', 'i.id')
                 ->orderByDesc('i.created_at')->limit(100)->get(['i.id', 'i.status', 'i.expires_at', 'n.state as email_state'])->all(),
-            'pipeline' => $portal === 'pro' ? app(PipelinePage::class)->data($request, $pipeline) : null];
+            'pipeline' => $portal === 'pro' ? app(PipelinePage::class)->data($request, $pipeline) : null,
+            'closedDeals' => $portal === 'pro' ? $pipeline->closedDeals($org) : null];
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
             return response()->json($data);
         }
@@ -150,6 +151,7 @@ class PortalController extends Controller
         $ok = DB::selectOne('SELECT app_revoke_partner(?::uuid,?::uuid,?::boolean) AS allowed', [$record, (string) Str::uuid(), $request->is('partner-invitations/*') ? 'true' : 'false'])->allowed;
         abort_unless($ok, 404);
 
-        return $this->completed($request, ['message' => $request->is('partner-invitations/*') ? 'Invitation revoked' : 'Partnership ended'], '/portal/enter');
+        // Professional workspaces manage brand partnerships from the Workspaces page until the Partner portal exists (D31).
+        return $this->completed($request, ['message' => $request->is('partner-invitations/*') ? 'Invitation revoked' : 'Partnership ended'], $request->boolean('workspaces') ? '/workspaces' : '/portal/enter');
     }
 }
