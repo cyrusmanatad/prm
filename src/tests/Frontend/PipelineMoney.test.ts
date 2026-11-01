@@ -15,7 +15,8 @@ describe('pipeline money input and display', () => {
         expect(fromMinor('1', 'USD')).toBe('0.01');
     });
     it('rejects invalid amounts and values beyond the stored range', () => {
-        for (const amount of ['-1', '1e3', '', '1,000', '10000000000000000.00']) expect(toMinor(amount, 'PHP')).toBeNull();
+        for (const amount of ['-1', '1e3', '', '1,000', '10000000000000000.00'])
+            expect(toMinor(amount, 'PHP')).toBeNull();
         expect(toMinor('1', 'bad')).toBeNull();
         expect(toMinor('0001.5', 'PHP')).toBe('150');
     });

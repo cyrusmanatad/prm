@@ -24,8 +24,9 @@ use Inertia\Inertia;
 // Public pages exchange capabilities in POST bodies; fragment tokens never reach access logs.
 Route::get('/partnerships/accept', [PortalController::class, 'acceptancePage']);
 Route::post('/partnerships/prepare', [PortalController::class, 'prepare'])->middleware('throttle:10,1,partner-prepare:');
-// The Professional portal moved from /partner; temporary redirects keep bookmarks working until /partner is reused.
-Route::get('/partner/{path?}', fn (Request $request, string $path = '') => redirect('/pro'.($path !== '' ? '/'.$path : '').($request->getQueryString() ? '?'.$request->getQueryString() : '')))->where('path', '.*');
+// Professional portal pages moved from /partner (D29); /partner is now the Partner portal (D32).
+Route::get('/partner/{page}', fn (Request $request, string $page) => redirect('/pro/'.$page.($request->getQueryString() ? '?'.$request->getQueryString() : '')))
+    ->whereIn('page', ['leads', 'contacts', 'outreach-templates', 'onboarding', 'media-kit']);
 Route::get('/join', [PartnerJoinController::class, 'page']);
 Route::post('/join/prepare', [PartnerJoinController::class, 'prepare'])->middleware('throttle:10,1,partner-join-prepare:');
 Route::get('/onboarding', fn () => Inertia::render('OpenInvitation'));
@@ -43,10 +44,12 @@ Route::get('/kits/{record}', [PublicPresenceController::class, 'kit'])->whereUui
 Route::get('/', fn (Request $request) => redirect($request->user()
     ? ($request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email') : '/login'));
 Route::middleware('guest')->group(function (): void {
-    Route::get('/{portal}/login', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'pro']);
-    Route::get('/{portal}/register', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'pro']);
-    Route::post('/{portal}/login', [SessionController::class, 'store'])->whereIn('portal', ['brand', 'pro'])->middleware('throttle:20,1,login:');
-    Route::post('/{portal}/register', RegisteredUserController::class)->whereIn('portal', ['brand', 'pro'])->middleware('throttle:5,1,register:');
+    Route::get('/{portal}/login', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'pro', 'partner']);
+    // Partner accounts start from a brand invitation or sign-up link (D32).
+    Route::get('/{portal}/register', fn (Request $request, string $portal) => $portal === 'partner' && ! PartnershipInvitation::pending($request)
+        ? redirect('/join') : Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'pro', 'partner']);
+    Route::post('/{portal}/login', [SessionController::class, 'store'])->whereIn('portal', ['brand', 'pro', 'partner'])->middleware('throttle:20,1,login:');
+    Route::post('/{portal}/register', RegisteredUserController::class)->whereIn('portal', ['brand', 'pro', 'partner'])->middleware('throttle:5,1,register:');
     Route::get('/login', fn () => Inertia::render('Auth', ['mode' => 'login']))->name('login');
     Route::get('/register', fn () => Inertia::render('Auth', ['mode' => 'register']));
     Route::get('/forgot-password', fn () => Inertia::render('Auth', ['mode' => 'forgot-password']));
@@ -92,6 +95,7 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/pro/leads', [PortalController::class, 'index']);
             Route::get('/pro', [PortalController::class, 'index']);
             Route::get('/brand', [PortalController::class, 'index']);
+            Route::get('/partner', [PortalController::class, 'index']);
             Route::post('/partner-invitations', [PortalController::class, 'invite'])->middleware('throttle:10,1,partner-invite:');
             Route::post('/partnerships/accept', [PortalController::class, 'accept'])->middleware('throttle:6,1,partner-accept:');
             Route::post('/join/accept', [PartnerJoinController::class, 'accept'])->middleware('throttle:6,1,partner-join:');

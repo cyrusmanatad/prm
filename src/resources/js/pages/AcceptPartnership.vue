@@ -4,12 +4,14 @@ import { onMounted } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
 const props = defineProps<{ account: { name: string; email: string } | null; savedToken?: string }>();
-const form = useForm({ token: props.savedToken ?? '', consent: false, choose: false });
+const form = useForm({ token: props.savedToken ?? '', consent: false });
 onMounted(() => {
-    if (window.location.hash) form.token = window.location.hash.slice(1);
+    const fresh = !!window.location.hash;
+    if (fresh) form.token = window.location.hash.slice(1);
     history.replaceState(null, '', window.location.pathname);
-    // Guests go straight to account creation, or sign-in when the invited email already has an account.
-    if (!props.account && form.token) form.post('/partnerships/prepare');
+    // A fresh link always prepares first: guests create an account or sign in, and every recipient
+    // continues in their Partner workspace, created on first use (D32).
+    if (fresh && form.token) form.post('/partnerships/prepare');
 });
 </script>
 <template>
@@ -21,27 +23,18 @@ onMounted(() => {
                 <p class="wd-description">
                     {{
                         account
-                            ? 'Select a Professional workspace you own or administer, then confirm the partnership.'
+                            ? 'Confirm the partnership to connect this brand to your Partner workspace.'
                             : 'Create your account with the invited email, or sign in if it already has one. Then confirm the partnership.'
                     }}
                 </p>
             </div>
             <section class="wd-card">
-                <button
-                    v-if="account"
-                    type="button"
-                    class="wd-link"
-                    @click="
-                        form.choose = true;
-                        form.post('/partnerships/prepare');
-                    "
-                >
-                    Select Professional workspace
-                </button>
                 <form
                     class="wd-fields"
                     :aria-busy="form.processing"
-                    @submit.prevent="form.post(account ? '/partnerships/accept' : '/partnerships/prepare')"
+                    @submit.prevent="
+                        form.post(account && savedToken ? '/partnerships/accept' : '/partnerships/prepare')
+                    "
                 >
                     <FormField
                         id="invitation-token"

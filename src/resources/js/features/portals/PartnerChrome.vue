@@ -4,13 +4,18 @@ import { Menu, X } from '@lucide/vue';
 import { router } from '@inertiajs/vue3';
 import AccountMenu from '../../components/AccountMenu.vue';
 
-const props = defineProps<{
-    accountName: string;
-    accountEmail?: string;
-    current: 'leads' | 'contacts' | 'templates' | 'onboarding' | 'media-kit';
-    fixture?: boolean;
-    searchValue?: string;
-}>();
+const props = withDefaults(
+    defineProps<{
+        accountName: string;
+        accountEmail?: string;
+        // The Professional and Partner portals share this header; Partner has no lead search (D32).
+        portal?: 'pro' | 'partner';
+        current: 'leads' | 'contacts' | 'templates' | 'onboarding' | 'media-kit' | 'home';
+        fixture?: boolean;
+        searchValue?: string;
+    }>(),
+    { portal: 'pro', accountEmail: undefined, searchValue: undefined },
+);
 const fixture = computed(() => import.meta.env.DEV && props.fixture === true);
 const initials = computed(() =>
     fixture.value
@@ -28,14 +33,18 @@ watch(
         search.value = value ?? '';
     },
 );
-// Only working pages appear in the Professional portal navigation; the reference fixture keeps its composition.
-const pages = [
-    { key: 'leads', href: '/pro/leads', label: 'Leads' },
-    { key: 'contacts', href: '/pro/contacts', label: 'Contacts' },
-    { key: 'templates', href: '/pro/outreach-templates', label: 'Templates' },
-    { key: 'onboarding', href: '/pro/onboarding', label: 'Onboarding' },
-    { key: 'media-kit', href: '/pro/media-kit', label: 'Media kit' },
-] as const;
+// Only working pages appear in portal navigation; the reference fixture keeps its composition.
+const pages = computed(() =>
+    props.portal === 'partner'
+        ? [{ key: 'home', href: '/partner', label: 'Home' }]
+        : [
+              { key: 'leads', href: '/pro/leads', label: 'Leads' },
+              { key: 'contacts', href: '/pro/contacts', label: 'Contacts' },
+              { key: 'templates', href: '/pro/outreach-templates', label: 'Templates' },
+              { key: 'onboarding', href: '/pro/onboarding', label: 'Onboarding' },
+              { key: 'media-kit', href: '/pro/media-kit', label: 'Media kit' },
+          ],
+);
 const menuOpen = ref(false);
 function searchLeads(): void {
     if (!fixture.value) router.get('/pro/leads', { q: search.value });
@@ -83,7 +92,7 @@ function searchLeads(): void {
                     <span
                         class="rounded-full bg-white/12 px-2 py-[3px] text-[12px]"
                         :class="{ 'hidden sm:inline': !fixture }"
-                        >Professional</span
+                        >{{ portal === 'partner' ? 'Partner' : 'Professional' }}</span
                     >
                 </div>
                 <nav v-if="fixture" aria-label="Main" class="flex flex-auto flex-wrap gap-1">
@@ -115,8 +124,9 @@ function searchLeads(): void {
                     >
                 </nav>
                 <div class="ml-auto flex min-w-0 items-center gap-3">
-                    <label for="q" class="sr-only">Search leads</label>
+                    <label v-if="portal === 'pro'" for="q" class="sr-only">Search leads</label>
                     <input
+                        v-if="portal === 'pro'"
                         id="q"
                         v-model="search"
                         type="search"
@@ -160,8 +170,9 @@ function searchLeads(): void {
                         >{{ page.label }}</a
                     >
                 </nav>
-                <label for="q-mobile" class="sr-only">Search leads</label>
+                <label v-if="portal === 'pro'" for="q-mobile" class="sr-only">Search leads</label>
                 <input
+                    v-if="portal === 'pro'"
                     id="q-mobile"
                     v-model="search"
                     type="search"

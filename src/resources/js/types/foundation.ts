@@ -1,7 +1,7 @@
 export type WorkspaceRole = 'owner' | 'admin' | 'manager' | 'member' | 'viewer';
 
 export interface WorkspaceSummary {
-    kind?: 'creator' | 'brand';
+    kind?: 'creator' | 'brand' | 'partner';
     id: string;
     name: string;
     role: WorkspaceRole;

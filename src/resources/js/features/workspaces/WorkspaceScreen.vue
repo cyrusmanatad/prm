@@ -6,7 +6,6 @@ import FormField from '../../components/FormField.vue';
 import AccountSecurity from '../../components/AccountSecurity.vue';
 import ActionGroup from '../../components/ActionGroup.vue';
 import DialogClose from '../../components/DialogClose.vue';
-import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 import FoundationShell from '../../layouts/FoundationShell.vue';
@@ -21,8 +20,6 @@ const props = withDefaults(
         errors?: FieldErrors;
         status?: string;
         accessRevoked?: boolean;
-        // Brand partnerships of the selected Professional workspace until the Partner portal exists (D31).
-        partnerships?: { rows: { id: string; brand_name: string; accepted_at: string }[]; canManage: boolean } | null;
     }>(),
     { activeOrgId: null, pendingAction: null, errors: () => ({}), status: '', accessRevoked: false },
 );
@@ -33,7 +30,6 @@ const emit = defineEmits<{
     rename: [name: string];
     revokeSessions: [password: string];
     logout: [];
-    endPartnership: [id: string];
 }>();
 const root = ref<HTMLElement>();
 const newName = ref('');
@@ -50,8 +46,10 @@ const kinds = [
         description: 'For individuals managing leads, sales and client onboarding. Opens the Professional portal.',
     },
 ] as const;
+// Partner workspaces are created only from brand invitations or sign-up links, so they are listed but not offered (D32).
+const groupTypes = [...kinds, { value: 'partner', label: 'Partner', description: '' }] as const;
 const groups = computed(() =>
-    kinds
+    groupTypes
         .map((type) => ({
             ...type,
             workspaces: props.workspaces.filter((row) => (row.kind ?? 'creator') === type.value),
@@ -59,8 +57,9 @@ const groups = computed(() =>
         .filter((group) => group.workspaces.length),
 );
 function portal(workspace: WorkspaceSummary): { href: string; label: string } {
-    return workspace.kind === 'brand'
-        ? { href: '/brand', label: 'Brand portal' }
+    if (workspace.kind === 'brand') return { href: '/brand', label: 'Brand portal' };
+    return workspace.kind === 'partner'
+        ? { href: '/partner', label: 'Partner portal' }
         : { href: '/pro/leads', label: 'Professional portal' };
 }
 const createDialog = ref<HTMLDialogElement | null>(null);
@@ -174,8 +173,12 @@ defineExpose({
                             <span class="wd-workspace-label"
                                 ><strong :id="`workspace-name-${workspace.id}`">{{ workspace.name }}</strong
                                 ><span class="wd-role"
-                                    >{{ workspace.kind === 'brand' ? 'Business' : 'Professional' }} ·
-                                    {{ workspace.role }}</span
+                                    >{{
+                                        { brand: 'Business', creator: 'Professional', partner: 'Partner' }[
+                                            workspace.kind ?? 'creator'
+                                        ]
+                                    }}
+                                    · {{ workspace.role }}</span
                                 ></span
                             >
                             <span v-if="selected?.id === workspace.id" class="wd-active-label">Current</span>
@@ -225,37 +228,6 @@ defineExpose({
                             }}</Button>
                         </fieldset>
                     </form>
-                    <section v-if="partnerships" class="wd-workspace-partnerships" aria-labelledby="partnerships-title">
-                        <h3 id="partnerships-title">Brand partnerships</h3>
-                        <ul v-if="partnerships.rows.length">
-                            <li v-for="row in partnerships.rows" :key="row.id">
-                                <span
-                                    ><strong>{{ row.brand_name }}</strong>
-                                    <span class="wd-hint"
-                                        >Partner since {{ new Date(row.accepted_at).toLocaleDateString() }}</span
-                                    ></span
-                                >
-                                <button
-                                    v-if="partnerships.canManage"
-                                    type="button"
-                                    class="wd-action-danger"
-                                    :disabled="busy"
-                                    @click="
-                                        confirmAction(
-                                            'End partnership',
-                                            `End the partnership with ${row.brand_name}? Shared relationship access ends on both sides. Private records are preserved.`,
-                                            () => emit('endPartnership', row.id),
-                                            $event,
-                                            { tone: 'danger' },
-                                        )
-                                    "
-                                >
-                                    End partnership
-                                </button>
-                            </li>
-                        </ul>
-                        <p v-else class="wd-description">No active brand partnerships for this workspace.</p>
-                    </section>
                 </section>
                 <AccountSecurity
                     v-model="password"

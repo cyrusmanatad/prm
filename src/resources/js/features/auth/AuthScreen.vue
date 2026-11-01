@@ -9,7 +9,7 @@ import type { AuthMode, AuthSubmission, FieldErrors } from '../../types/foundati
 const props = withDefaults(
     defineProps<{
         mode: AuthMode;
-        portal?: 'brand' | 'pro';
+        portal?: 'brand' | 'pro' | 'partner';
         email?: string;
         invitation?: boolean;
         joining?: string;
@@ -36,13 +36,13 @@ const content = computed(
                 ? {
                       title: 'Sign in to accept.',
                       description:
-                          'This invitation email already has a WeavDash account. Sign in and we’ll add a new Professional workspace for this partnership.',
+                          'This invitation email already has a WeavDash account. Sign in and we’ll connect this brand to your Partner workspace.',
                       action: 'Sign in',
                   }
                 : props.joining
                   ? {
                         title: `Sign in to join ${props.joining}.`,
-                        description: 'Sign in and we’ll add a new Professional workspace for this partnership.',
+                        description: 'Sign in and we’ll connect this brand to your Partner workspace.',
                         action: 'Sign in',
                     }
                   : { title: 'Welcome back.', description: 'Sign in to your WeavDash workspace.', action: 'Sign in' },
@@ -50,14 +50,14 @@ const content = computed(
                 ? {
                       title: `Create your account to join ${props.joining}.`,
                       description:
-                          'We’ll set up your Professional workspace after you verify your email, then you can confirm the partnership.',
+                          'We’ll set up your Partner workspace after you verify your email, then you can confirm the partnership.',
                       action: 'Create account',
                   }
                 : props.invitation
                   ? {
                         title: 'Create your account to accept.',
                         description:
-                            'Create a new account with the invited email. We’ll set up its Professional workspace, then you can review the partnership.',
+                            'Create a new account with the invited email. We’ll set up its Partner workspace, then you can review the partnership.',
                         action: 'Create account',
                     }
                   : {
@@ -138,7 +138,9 @@ defineExpose({ clearPasswords });
             </aside>
             <section class="wd-card wd-auth-card" aria-labelledby="auth-title">
                 <span class="wd-eyebrow">{{
-                    portal ? `${portal === 'brand' ? 'Brand' : 'Professional'} account` : 'Your account'
+                    portal
+                        ? `${{ brand: 'Brand', pro: 'Professional', partner: 'Partner' }[portal]} account`
+                        : 'Your account'
                 }}</span>
                 <h1 id="auth-title">{{ content.title }}</h1>
                 <p class="wd-description">{{ content.description }}</p>
@@ -203,7 +205,7 @@ defineExpose({ clearPasswords });
                 <nav class="wd-auth-navigation" aria-label="Account options">
                     <template v-if="mode === 'login'">
                         <a
-                            v-if="portal && !invited"
+                            v-if="portal && portal !== 'partner' && !invited"
                             class="wd-link"
                             :href="portal === 'brand' ? '/pro/login' : '/brand/login'"
                             >{{ portal === 'brand' ? 'Professional sign in' : 'Brand sign in' }}</a

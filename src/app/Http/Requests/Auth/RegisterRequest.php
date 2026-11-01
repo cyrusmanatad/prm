@@ -10,10 +10,16 @@ use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
+    // Partner registration requires a retained brand invitation or sign-up link (D32).
+    public function authorize(): bool
+    {
+        return $this->route('portal') !== 'partner' || PartnershipInvitation::pending($this);
+    }
+
     public function rules(): array
     {
         // Registration from a partner invitation is locked to the invited recipient.
-        $recipient = $this->route('portal') === 'pro' ? PartnershipInvitation::recipient($this) : null;
+        $recipient = $this->route('portal') === 'partner' ? PartnershipInvitation::recipient($this) : null;
 
         return [
             'name' => ['required', 'string', 'max:120'],

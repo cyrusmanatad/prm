@@ -77,22 +77,18 @@ test('same relationship appears in both portals, private leads survive removal, 
         const url = await bp.getByRole('textbox', { name: 'Invitation link' }).inputValue();
         await bp.getByRole('button', { name: 'Close invitation dialog' }).click();
         await expect(bp.getByRole('dialog')).not.toBeVisible();
-        // Signed-in recipients accept into their selected Professional workspace; signed-out paths are PHPUnit-covered.
+        // Signed-in recipients continue in their Partner workspace, created on first use (D32).
         await pp.goto(url);
         await expect(pp).toHaveURL(/\/partnerships\/accept$/);
         await pp.getByLabel(/I accept this partnership/).check();
         await pp.getByRole('button', { name: 'Accept partnership', exact: true }).click();
-        await expect(pp).toHaveURL(/\/pro\/leads$/);
-        // Professionals see won leads, not brand partnerships, in their portal (D31).
-        await expect(pp.getByRole('heading', { name: 'Closed deals' })).toBeVisible();
-        await expect(pp.getByText('Habi Home', { exact: true })).toHaveCount(0);
-        await expect(pp.getByRole('region', { name: 'Five-stage pipeline' })).toContainText('Private portal prospect');
-        await expect(pp.getByRole('region', { name: 'Coming soon' })).toContainText('Autopilot');
+        await expect(pp).toHaveURL(/\/partner$/);
+        await expect(pp.getByRole('heading', { name: 'Your brands' })).toBeVisible();
+        await expect(pp.getByText('Habi Home', { exact: true })).toBeVisible();
+        await expect(pp.getByRole('region', { name: 'Coming soon' })).toContainText('Messages');
+        expect((await new AxeBuilder({ page: pp }).analyze()).violations).toEqual([]);
         await clean(pp);
         await pp.screenshot({ path: info.outputPath(`portal-partner-${info.project.name}.png`), fullPage: true });
-        await pp.goto('/workspaces');
-        await expect(pp.getByRole('heading', { name: 'Brand partnerships' })).toBeVisible();
-        await expect(pp.getByText('Habi Home', { exact: true })).toBeVisible();
         const partnerEnd = pp.getByRole('button', { name: 'End partnership', exact: true });
         await partnerEnd.click();
         const partnerConfirmation = pp.getByRole('dialog', { name: 'End partnership?', exact: true });
@@ -102,7 +98,7 @@ test('same relationship appears in both portals, private leads survive removal, 
         await pp.keyboard.press('Escape');
         await expect(partnerEnd).toBeFocused();
         await bp.reload();
-        await expect(bp.getByRole('region', { name: 'Partners table' })).toContainText('Role test workspace');
+        await expect(bp.getByRole('region', { name: 'Partners table' })).toContainText('Browser Creator');
         await expect(bp.locator('body')).not.toContainText('Private portal prospect');
         await expect(bp.locator('body')).not.toContainText('Private portal note');
         await clean(bp);
@@ -115,13 +111,15 @@ test('same relationship appears in both portals, private leads survive removal, 
         );
         await expect(bp.getByText('No active partners. Invite a partner to begin.')).toBeVisible();
         await pp.reload();
-        await expect(pp.getByText('No active brand partnerships for this workspace.')).toBeVisible();
+        await expect(pp.getByText(/No brands yet/)).toBeVisible();
+        // Private leads stay in the Professional workspace and never reach the brand.
+        expect(await mutate(pp, '/workspace/select', 'POST', { org_id: creatorWs.own })).toBe(200);
         await pp.goto('/pro/leads');
         await expect(pp.getByRole('region', { name: 'Five-stage pipeline' })).toContainText('Private portal prospect');
+        await expect(pp.getByText('Habi Home', { exact: true })).toHaveCount(0);
+        // A consumed link is refused before any workspace step.
         await pp.goto(url);
-        await pp.getByLabel(/I accept this partnership/).check();
-        await pp.getByRole('button', { name: 'Accept partnership', exact: true }).click();
-        await expect(pp.getByRole('alert').filter({ hasText: 'This invitation cannot be accepted' })).toBeVisible();
+        await expect(pp.getByRole('alert').filter({ hasText: 'already accepted' })).toBeVisible();
     } finally {
         await partner.close();
         await brand.close();

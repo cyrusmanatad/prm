@@ -1,6 +1,6 @@
 # Partner portal contract
 
-**Status: Proposal (2026-11-01).** Requires review and approval before implementation. Terminology and portal model are **Confirmed** in [D29](decisions.md).
+**Status: foundation slice Confirmed and implemented (D32, 2026-11-01); remaining scope is a Proposal.** The Partner workspace type, invitation/link flows, `/partner` home with connected brands and End partnership, and Register my brand are implemented. Projects, contracts, messages, files and onboarding below still require approval of their open questions. Terminology is **Confirmed** in [D29](decisions.md) and [D32](decisions.md#partner-workspaces).
 
 ## Purpose
 
@@ -9,7 +9,7 @@
 - partners invited by a Business through an email invitation or sign-up link (D28);
 - converted leads of a Professional, who go through onboarding.
 
-**Confirmed:** partners need only a WeavDash account, not a workspace. A partner may optionally register their own brand, which creates a separate Business workspace they own.
+**Confirmed (D32, supersedes the earlier account-only model):** partners use a Partner workspace, created only from a brand invitation or sign-up link and reused for every brand. A partner may register their own brand, which creates a separate Business workspace they own.
 
 ## Proposed scope
 

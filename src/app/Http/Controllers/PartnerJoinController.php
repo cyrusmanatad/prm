@@ -33,11 +33,11 @@ class PartnerJoinController extends Controller
         }
         $request->session()->forget('partnership_token');
         $request->session()->put('partnership_join', ['encrypted' => encrypt($code), 'brand' => encrypt($brand), 'expires' => time() + 900]);
-        $request->session()->put('portal', 'pro');
-        // Guests who sign in to an existing account gain a new creator workspace; registration provisions its own.
-        $request->session()->put('partnership_workspace', ! $request->user());
+        $request->session()->put('portal', 'partner');
+        // Joining always uses the account's Partner workspace, created on first use (D32).
+        $request->session()->put('partnership_workspace', true);
 
-        return redirect('/join');
+        return redirect($request->user() && $request->user()->hasVerifiedEmail() ? '/portal/enter' : '/join');
     }
 
     public function accept(Request $request)
@@ -47,7 +47,7 @@ class PartnerJoinController extends Controller
         $ok = $join && DB::selectOne('SELECT app_join_partner(?::text,?::uuid) AS allowed', [hash('sha256', $join['code']), (string) Str::uuid()])->allowed;
         if (! $ok) {
             $message = $join
-                ? 'This workspace cannot join. Select a Professional workspace you own or administer that is not already partnered with this brand, or ask the brand for its current link.'
+                ? 'This account cannot join. You may already be partnered with this brand, or the brand may have replaced its link.'
                 : 'Your sign-up link expired. Open the brand link again to continue.';
             abort_if($request->expectsJson() && ! $request->header('X-Inertia'), 404, $message);
 
@@ -55,7 +55,7 @@ class PartnerJoinController extends Controller
         }
         $request->session()->forget('partnership_join');
 
-        return $this->completed($request, ['message' => 'Partnership with '.$join['brand'].' started'], '/pro/leads');
+        return $this->completed($request, ['message' => 'Partnership with '.$join['brand'].' started'], '/partner');
     }
 
     public function issue(Request $request)

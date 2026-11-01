@@ -26,6 +26,12 @@ class PartnershipInvitation
         return is_array($join) && $join['expires'] > time() ? ['code' => decrypt($join['encrypted']), 'brand' => decrypt($join['brand'])] : null;
     }
 
+    /** Partner accounts are created only from a retained brand invitation or sign-up link (D32). */
+    public static function pending(Request $request): bool
+    {
+        return self::recipient($request) !== null || self::join($request) !== null;
+    }
+
     /** Whether this identity may continue a retained invitation or brand sign-up. */
     public static function pendingFor(Request $request, User $user): bool
     {
@@ -35,7 +41,7 @@ class PartnershipInvitation
     /** Partner sign-in/registration props: invitations lock the email; brand sign-ups name the brand. */
     public static function authProps(Request $request, string $portal): array
     {
-        if ($portal !== 'pro') {
+        if ($portal !== 'partner') {
             return [];
         }
         $recipient = self::recipient($request);
