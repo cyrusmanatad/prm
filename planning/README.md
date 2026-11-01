@@ -18,6 +18,8 @@ Status: milestone-by-milestone implementation is authorized by the user. Develop
 
 **Confirmed D21–D23:** M3A implementation is now authorized and precedes M4. Connected brand/partner portals, explicit relationships and both reference dashboard compositions are implemented; automated gates have passed; manual release reviews remain pending. See [M3A status](m3a-status.md), [contract](m3a-portal-contract.md) and [portal UI alignment](portal-ui-alignment.md).
 
+**Confirmed D29 / Proposal:** workspaces are now labelled Business and Professional; the leads portal moved to `/pro/*`. The future Partner portal (projects, contracts, messages, onboarding for invited partners) awaits approval in the [Partner portal contract](partner-portal-contract.md).
+
 M4 development and automated verification are complete on `m4/financial-records-entitlements`: private draft invoices, manual receipt/allocation history and explicit time-limited pilot entitlements. See [M4 status](m4-status.md) and [finance/entitlement contract](m4-finance-contract.md). Pricing and numerical commercial quotas remain open; issuance, charging and transfers remain gated.
 
 **Confirmed D25:** M5 includes required transactional email notifications independently of optional future Gmail/Outlook syncing. The durable outbox supports explicitly requested partner and onboarding invitation email, including onboarding replacements; see [M5 status](m5-status.md), [first-slice contract](m5-notification-contract.md), [onboarding invitation contract](m5-onboarding-email-contract.md) and [email requirements](m5-email-notifications.md). Onboarding lifecycle notifications and the rest of M5 remain pending; external provider delivery is unverified.

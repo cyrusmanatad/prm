@@ -1,7 +1,7 @@
 import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
-import { changeRole, fixture, login } from './helpers';
+import { changeRole, fixture, login, portalNav } from './helpers';
 
 test('private templates persist, reject stale edits, merge drafts, copy and delete', async ({ page }, info) => {
     test.setTimeout(90_000);
@@ -9,10 +9,9 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open partner portal' }).click();
-    await expect(page).toHaveURL(/\/partner/);
-    await page.getByRole('button', { name: 'Account menu' }).click();
-    await page.getByRole('menuitem', { name: 'Outreach templates', exact: true }).click();
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
+    await expect(page).toHaveURL(/\/pro/);
+    await portalNav(page, 'Templates');
     await page.getByLabel('Template name', { exact: true }).fill('Personal pitch');
     await page.getByLabel('Subject', { exact: true }).fill('Hello {{brand_name}}');
     await page.getByLabel('Template body', { exact: true }).fill('Hi {{contact_name}}, from {{creator_name}}.');
@@ -38,7 +37,7 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await expect(page.getByRole('button', { name: 'Generate draft', exact: true })).toBeDisabled();
     await page.getByLabel('Brand name', { exact: true }).fill('<b>Studio</b>');
     await page.getByLabel('Contact name', { exact: true }).fill('Sam');
-    await page.getByLabel('Creator name', { exact: true }).fill('Creator');
+    await page.getByLabel('Your name', { exact: true }).fill('Creator');
     await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
     await expect(page.getByLabel('Draft subject', { exact: true })).toHaveValue('Hello <b>Studio</b>');
     await expect(page.getByLabel('Draft body', { exact: true })).toHaveValue('Hi Sam, from Creator.');

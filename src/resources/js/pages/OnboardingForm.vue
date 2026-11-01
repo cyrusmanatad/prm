@@ -213,7 +213,7 @@ function pick(event: Event): void {
                         type="checkbox"
                         :aria-invalid="errors?.consent ? true : undefined"
                         :aria-describedby="errors?.consent ? 'onboard-consent-error' : undefined"
-                    />I agree to share this form and its reference files with the requesting creator for this
+                    />I agree to share this form and its reference files with the requesting professional for this
                     collaboration.</label
                 >
                 <p v-if="errors?.consent" id="onboard-consent-error" class="wd-field-error" role="alert">

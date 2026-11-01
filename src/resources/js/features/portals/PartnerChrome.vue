@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { ClipboardList, ContactRound, FileText } from '@lucide/vue';
+import { Menu, X } from '@lucide/vue';
 import { router } from '@inertiajs/vue3';
-import AccountMenu, { type AccountMenuLink } from '../../components/AccountMenu.vue';
+import AccountMenu from '../../components/AccountMenu.vue';
 
 const props = defineProps<{
     accountName: string;
     accountEmail?: string;
-    current: 'leads' | 'media-kit';
+    current: 'leads' | 'contacts' | 'templates' | 'onboarding' | 'media-kit';
     fixture?: boolean;
     searchValue?: string;
 }>();
@@ -28,13 +28,17 @@ watch(
         search.value = value ?? '';
     },
 );
-const accountLinks: AccountMenuLink[] = [
-    { href: '/partner/contacts', label: 'Contacts and reminders', icon: ContactRound },
-    { href: '/partner/outreach-templates', label: 'Outreach templates', icon: FileText },
-    { href: '/partner/onboarding', label: 'Onboarding requests', icon: ClipboardList },
-];
+// Only working pages appear in the Professional portal navigation; the reference fixture keeps its composition.
+const pages = [
+    { key: 'leads', href: '/pro/leads', label: 'Leads' },
+    { key: 'contacts', href: '/pro/contacts', label: 'Contacts' },
+    { key: 'templates', href: '/pro/outreach-templates', label: 'Templates' },
+    { key: 'onboarding', href: '/pro/onboarding', label: 'Onboarding' },
+    { key: 'media-kit', href: '/pro/media-kit', label: 'Media kit' },
+] as const;
+const menuOpen = ref(false);
 function searchLeads(): void {
-    if (!fixture.value) router.get('/partner/leads', { q: search.value });
+    if (!fixture.value) router.get('/pro/leads', { q: search.value });
 }
 </script>
 
@@ -45,7 +49,7 @@ function searchLeads(): void {
     >
         <a class="wd-skip-link" href="#main-content">Skip to main content</a>
         <header class="bg-brand text-white">
-            <div class="mx-auto flex max-w-[1408px] flex-wrap items-center gap-6 px-6 py-3.5">
+            <div class="mx-auto flex max-w-[1408px] items-center gap-6 px-6 py-3.5" :class="{ 'flex-wrap': fixture }">
                 <div class="flex items-center gap-2.5">
                     <svg viewBox="0 0 128 120" width="36" height="34" role="img" aria-label="WeavDash logo">
                         <circle cx="60" cy="60" r="52" fill="#E3C79A"></circle>
@@ -73,46 +77,45 @@ function searchLeads(): void {
                         ></path>
                     </svg>
                     <span class="font-display text-[20px] font-bold">WeavDash</span>
-                    <span class="rounded-full bg-white/12 px-2 py-[3px] text-[12px]">Partner</span>
+                    <span class="rounded-full bg-white/12 px-2 py-[3px] text-[12px]">Professional</span>
                 </div>
-                <nav aria-label="Main" class="flex flex-auto flex-wrap gap-1">
+                <nav v-if="fixture" aria-label="Main" class="flex flex-auto flex-wrap gap-1">
                     <a
-                        href="/partner/leads"
-                        :aria-current="current === 'leads' ? 'page' : undefined"
-                        :class="
-                            current === 'leads'
-                                ? 'rounded-lg bg-white/18 px-3 py-2 text-[14px] font-semibold text-white'
-                                : 'px-3 py-2 text-[14px] text-lilac'
-                        "
+                        href="/pro/leads"
+                        aria-current="page"
+                        class="rounded-lg bg-white/18 px-3 py-2 text-[14px] font-semibold text-white"
                         >My leads</a
                     >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-lilac">Inbox</span>
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-lilac"
-                        >Campaigns</span
-                    >
-                    <a
-                        href="/partner/media-kit"
-                        :aria-current="current === 'media-kit' ? 'page' : undefined"
-                        :class="
-                            current === 'media-kit'
-                                ? 'rounded-lg bg-white/18 px-3 py-2 text-[14px] font-semibold text-white'
-                                : 'px-3 py-2 text-[14px] text-lilac'
-                        "
-                        >Media kit</a
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-lilac">Earnings</span>
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-lilac"
-                        >Autopilot</span
+                    <span
+                        v-for="label in ['Inbox', 'Campaigns', 'Media kit', 'Earnings', 'Autopilot']"
+                        :key="label"
+                        class="px-3 py-2 text-[14px] text-lilac"
+                        >{{ label }}</span
                     >
                 </nav>
-                <div class="flex min-w-0 max-w-full flex-wrap items-center gap-3">
+                <nav v-else aria-label="Main" class="hidden flex-auto gap-1 md:flex">
+                    <a
+                        v-for="page in pages"
+                        :key="page.key"
+                        :href="page.href"
+                        :aria-current="current === page.key ? 'page' : undefined"
+                        :class="
+                            current === page.key
+                                ? 'rounded-lg bg-white/18 px-3 py-2 text-[14px] font-semibold text-white'
+                                : 'rounded-lg px-3 py-2 text-[14px] text-lilac hover:bg-white/10 hover:text-white'
+                        "
+                        >{{ page.label }}</a
+                    >
+                </nav>
+                <div class="ml-auto flex min-w-0 items-center gap-3">
                     <label for="q" class="sr-only">Search leads</label>
                     <input
                         id="q"
                         v-model="search"
                         type="search"
                         placeholder="Search brands, contacts…"
-                        class="w-[220px] min-w-0 flex-[1_1_180px] rounded-lg bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
+                        class="w-[220px] min-w-0 rounded-lg bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
+                        :class="fixture ? 'flex-[1_1_180px]' : 'hidden lg:block'"
                         @keydown.enter="searchLeads"
                     />
                     <AccountMenu
@@ -120,10 +123,45 @@ function searchLeads(): void {
                         :account-email="accountEmail"
                         :initials="initials"
                         :fixture="fixture"
-                        :links="accountLinks"
                         @logout="router.post('/logout')"
                     />
+                    <button
+                        v-if="!fixture"
+                        type="button"
+                        class="flex size-11 items-center justify-center rounded-lg text-white md:hidden"
+                        :aria-expanded="menuOpen"
+                        aria-controls="portal-menu"
+                        @click="menuOpen = !menuOpen"
+                    >
+                        <component :is="menuOpen ? X : Menu" :size="22" aria-hidden="true" />
+                        <span class="sr-only">{{ menuOpen ? 'Close menu' : 'Open menu' }}</span>
+                    </button>
                 </div>
+            </div>
+            <div v-if="!fixture && menuOpen" id="portal-menu" class="border-t border-white/15 px-6 pt-2 pb-4 md:hidden">
+                <nav aria-label="Main" class="flex flex-col gap-1">
+                    <a
+                        v-for="page in pages"
+                        :key="page.key"
+                        :href="page.href"
+                        :aria-current="current === page.key ? 'page' : undefined"
+                        :class="
+                            current === page.key
+                                ? 'rounded-lg bg-white/18 px-3 py-3 text-[15px] font-semibold text-white'
+                                : 'rounded-lg px-3 py-3 text-[15px] text-lilac'
+                        "
+                        >{{ page.label }}</a
+                    >
+                </nav>
+                <label for="q-mobile" class="sr-only">Search leads</label>
+                <input
+                    id="q-mobile"
+                    v-model="search"
+                    type="search"
+                    placeholder="Search brands, contacts…"
+                    class="mt-3 w-full rounded-lg bg-white px-3 py-[11px] text-[14px] text-ink placeholder:text-muted"
+                    @keydown.enter="searchLeads"
+                />
             </div>
         </header>
         <slot />

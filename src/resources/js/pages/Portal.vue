@@ -6,15 +6,15 @@ import { nextTick, ref, watch } from 'vue';
 import PartnerDashboard from '../features/portals/PartnerDashboard.vue';
 import BrandDashboard from '../features/portals/BrandDashboard.vue';
 import JoinLinkPanel from '../features/portals/JoinLinkPanel.vue';
-import type { PortalData } from '../features/portals/types';
+import type { Invitation, PortalData } from '../features/portals/types';
 import FormField from '../components/FormField.vue';
 import DialogClose from '../components/DialogClose.vue';
 import { emailStates } from '../features/notifications/emailStates';
 import { Button } from '../components/ui/button';
 const props = defineProps<
     PortalData & {
-        portal: 'partner' | 'brand';
-        invitations: { id: string; status: string; expires_at: string; email_state: string | null }[];
+        portal: 'pro' | 'brand';
+        invitations: Invitation[];
         inviteUrl?: string | null;
     }
 >();
@@ -72,13 +72,20 @@ function endPartnership(id: string, trigger: HTMLElement): void {
 <template>
     <Head :title="portal === 'brand' ? 'Partner hub' : 'My leads'" />
     <BrandDashboard v-if="portal === 'brand'" :data="props" @invite="openInvitation" @remove="endPartnership">
-        <template v-if="canManage && invitations.length" #after-partners>
-            <section class="rounded-2xl border border-line bg-white p-5" aria-labelledby="invitation-history-title">
+        <template v-if="canManage" #after-partners>
+            <section
+                id="invitations"
+                class="scroll-mt-6 rounded-2xl border border-line bg-white p-5"
+                aria-labelledby="invitation-history-title"
+            >
                 <h2 id="invitation-history-title" class="mb-2 font-display text-[18px] font-bold">
                     Invitation history
                 </h2>
-                <p class="wd-hint mb-3">Refresh this page to check email delivery progress.</p>
-                <ul class="invitation-history">
+                <p v-if="!invitations.length" class="wd-empty">
+                    No invitations yet. Invite a partner by email or share your sign-up link.
+                </p>
+                <p v-else class="wd-hint mb-3">Refresh this page to check email delivery progress.</p>
+                <ul v-if="invitations.length" class="invitation-history">
                     <li
                         v-for="row in invitations"
                         :key="row.id"

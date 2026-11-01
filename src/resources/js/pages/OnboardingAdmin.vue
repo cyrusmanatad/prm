@@ -2,7 +2,7 @@
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import FoundationShell from '../layouts/FoundationShell.vue';
+import PartnerChrome from '../features/portals/PartnerChrome.vue';
 import FormField from '../components/FormField.vue';
 import OnboardingEmailFields from '../components/OnboardingEmailFields.vue';
 import ContentSection from '../components/ContentSection.vue';
@@ -102,14 +102,9 @@ function review(action: string): void {
 }
 </script>
 <template>
-    <Head title="Onboarding requests" /><FoundationShell
-        :account-name="account.name"
-        :account-email="account.email"
-        @logout="router.post('/logout')"
-        ><div class="wd-workspace-content wd-onboarding-admin">
-            <nav aria-label="Workspace">
-                <Link class="wd-link" href="/partner/leads">Back to leads</Link>
-            </nav>
+    <Head title="Onboarding requests" />
+    <PartnerChrome current="onboarding" :account-name="account.name" :account-email="account.email">
+        <main id="main-content" class="wd-main wd-workspace-content wd-onboarding-admin">
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
                 <h1>Onboarding requests</h1>
@@ -121,7 +116,7 @@ function review(action: string): void {
                     type="button"
                     class="wd-link"
                     @click="
-                        router.get('/partner/onboarding', selected ? { request: selected.id } : {}, {
+                        router.get('/pro/onboarding', selected ? { request: selected.id } : {}, {
                             preserveState: false,
                         })
                     "
@@ -143,7 +138,7 @@ function review(action: string): void {
                 <p v-if="!requests.length" class="wd-empty">Start onboarding from a lead in your pipeline.</p>
                 <ul>
                     <li v-for="row in requests" :key="row.id">
-                        <Link class="wd-link" :href="`/partner/onboarding?request=${row.id}`">{{ row.label }}</Link>
+                        <Link class="wd-link" :href="`/pro/onboarding?request=${row.id}`">{{ row.label }}</Link>
                         · {{ row.status }} <strong v-if="row.status === 'submitted'">Awaiting review</strong>
                     </li>
                 </ul>
@@ -282,8 +277,8 @@ function review(action: string): void {
                     </li>
                 </ul>
             </ContentSection>
-        </div></FoundationShell
-    >
+        </main>
+    </PartnerChrome>
 </template>
 <style scoped>
 .wd-card {

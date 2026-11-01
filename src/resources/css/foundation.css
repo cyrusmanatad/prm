@@ -104,24 +104,10 @@ summary:focus-visible {
     font-size: 14px;
     min-width: 0;
 }
-.wd-account-identity {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    gap: 1px;
-    text-align: right;
-}
 .wd-account-name {
     font-weight: 700;
     font-size: 14px;
     line-height: 1.25;
-    overflow-wrap: anywhere;
-}
-.wd-account-email {
-    font-size: 12px;
-    line-height: 1.25;
-    font-weight: 500;
-    opacity: 0.78;
     overflow-wrap: anywhere;
 }
 .wd-avatar {
@@ -160,9 +146,28 @@ summary:focus-visible {
 .wd-account-trigger-light .wd-avatar {
     border-color: var(--wd-line);
 }
-.wd-account-trigger-light .wd-account-email {
+.wd-account-trigger .wd-account-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.wd-account-menu-identity {
+    display: grid;
+    gap: 2px;
+    padding: 8px 12px 10px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--wd-divider);
+    font-size: 14px;
+}
+.wd-account-menu-identity span {
     color: var(--wd-muted);
-    opacity: 1;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+    .wd-account-trigger .wd-account-name {
+        display: none;
+    }
 }
 .wd-account-trigger-light:focus-visible {
     outline-color: var(--wd-brand);
@@ -629,21 +634,91 @@ summary:focus-visible {
 .wd-page-heading .wd-description {
     margin: 0;
 }
-.wd-workspace-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    align-items: start;
+.wd-workspaces-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
 }
-.wd-workspace-list {
+.wd-workspace-group {
+    margin-bottom: 24px;
+}
+.wd-workspace-group h2 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--wd-muted);
+}
+.wd-workspace-cards {
     list-style: none;
-    margin: 8px 0 0;
+    margin: 0;
     padding: 0;
     display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
 }
-.wd-workspace-list li {
-    border-top: 1px solid var(--wd-divider);
-    padding: 8px 0;
+.wd-workspace-card {
+    display: grid;
+    gap: 12px;
+    align-content: space-between;
+    padding: 12px;
+    border: 1px solid var(--wd-line);
+    border-radius: 16px;
+    background: var(--wd-surface);
+}
+.wd-workspace-card-current {
+    border-color: var(--wd-focus);
+    background: var(--wd-success-bg);
+}
+.wd-workspace-card .wd-workspace-option[aria-pressed='true'] {
+    border-color: transparent;
+    background: transparent;
+}
+.wd-workspace-card .wd-button {
+    width: 100%;
+}
+.wd-type-options {
+    display: grid;
+    gap: 10px;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+.wd-type-options legend {
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wd-body);
+}
+.wd-type-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 12px;
+    cursor: pointer;
+}
+.wd-type-option:has(input:checked) {
+    border-color: var(--wd-brand);
+    background: var(--wd-paper);
+}
+.wd-type-option input {
+    margin-top: 3px;
+    accent-color: var(--wd-brand);
+}
+.wd-type-option > span {
+    display: grid;
+    gap: 2px;
+    font-size: 14px;
+}
+.wd-type-option > span > span {
+    color: var(--wd-muted);
+    font-size: 13px;
+    line-height: 1.45;
 }
 .wd-workspace-option {
     border: 1px solid transparent;
@@ -705,10 +780,10 @@ summary:focus-visible {
 }
 .wd-settings-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
     gap: 24px;
     align-items: start;
-    margin-top: 24px;
+    margin-top: 8px;
 }
 .wd-settings-card form,
 .wd-security-card form {
@@ -743,9 +818,6 @@ summary:focus-visible {
     }
     .wd-introduction {
         display: none;
-    }
-    .wd-workspace-grid {
-        grid-template-columns: 1fr;
     }
     .wd-settings-row,
     .wd-split,
@@ -1086,7 +1158,6 @@ summary:focus-visible {
     align-items: start;
 }
 .wd-finance-columns > *,
-.wd-workspace-grid > *,
 .wd-settings-row > * {
     min-width: 0;
 }

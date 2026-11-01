@@ -61,7 +61,7 @@ class OutreachTemplateTest extends TestCase
         $this->patchJson('/outreach-templates/'.$foreign, [...$this->details(), 'version' => 1])->assertNotFound();
         $this->deleteJson('/outreach-templates/'.$foreign, ['version' => 1])->assertNotFound();
         $this->withoutVite();
-        $this->get('/partner/outreach-templates', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '',
+        $this->get('/pro/outreach-templates', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '',
             'X-Inertia-Partial-Component' => 'OutreachTemplates', 'X-Inertia-Partial-Data' => 'templates,org_id,actor_id'])
             ->assertOk()->assertJsonCount(1, 'props.templates')->assertJsonPath('props.templates.0.id', $own)
             ->assertJsonMissingPath('props.org_id')->assertJsonMissingPath('props.actor_id');

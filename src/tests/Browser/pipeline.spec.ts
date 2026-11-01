@@ -1,7 +1,7 @@
 import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
-import { changeRole, fixture, login } from './helpers';
+import { changeRole, fixture, login, mutate } from './helpers';
 
 test('private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion', async ({ page }, info) => {
     test.setTimeout(120_000);
@@ -9,7 +9,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open partner portal' }).click();
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
     await expect(page.getByRole('heading', { name: 'No leads match these filters', exact: true })).toBeVisible();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('M2 Studio');
@@ -101,7 +101,7 @@ test('viewer reads private workspace pipeline and revocation blocks further page
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open partner portal' }).click();
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
     changeRole(email, 'viewer');
     await page.reload();
     await expect(page.getByText('Your viewer role provides read-only access to this pipeline.')).toBeVisible();
@@ -111,4 +111,29 @@ test('viewer reads private workspace pipeline and revocation blocks further page
     expect(response?.status()).toBe(403);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('not available');
     await expect(page.getByText('Role test workspace', { exact: true })).toHaveCount(0);
+});
+
+test('lead cards drag between pipeline columns and stay there after reload', async ({ page }, info) => {
+    test.skip(
+        info.project.name !== 'desktop',
+        'Dragging is a pointer interaction; the lead drawer stage control covers touch.',
+    );
+    const email = `m1-browser-pipeline-drag-${Date.now()}@example.test`;
+    fixture('seed-workspaces', email);
+    await login(page, email);
+    await page.getByRole('button', { name: /Role test workspace/ }).click();
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
+    expect(
+        await mutate(page, '/pipeline', 'POST', { brand_name: 'Drag studio', currency: 'PHP', value_minor: '500' }),
+    ).toBe(201);
+    await page.reload();
+    const board = page.getByRole('region', { name: 'Five-stage pipeline' });
+    const pitched = board.getByRole('region', { name: 'Pitched', exact: true });
+    await board.getByRole('button', { name: /Open Drag studio/ }).dragTo(pitched);
+    await expect(pitched).toContainText('Drag studio');
+    await expect(page).toHaveURL(/\/pro\/leads$/);
+    await expect(page.getByRole('heading', { name: 'Drag studio', level: 2 })).toBeHidden();
+    await page.reload();
+    await expect(pitched).toContainText('Drag studio');
+    await expect(board.getByRole('region', { name: 'Lead', exact: true })).not.toContainText('Drag studio');
 });

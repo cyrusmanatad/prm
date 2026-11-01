@@ -70,16 +70,18 @@ class PipelineTest extends TestCase
         $created = $this->post('/pipeline', [...$this->lead(), 'pipeline_filters' => $filters])->assertRedirect();
         parse_str(parse_url($created->headers->get('Location'), PHP_URL_QUERY), $query);
         $id = $query['entry'];
-        $destination = '/partner/leads?q=Private&stage=lead&due=1&entry='.$id;
+        $destination = '/pro/leads?q=Private&stage=lead&due=1&entry='.$id;
         $created->assertRedirect($destination);
         $this->patch('/pipeline/'.$id, [...$this->lead(), 'version' => 1, 'pipeline_filters' => $filters])->assertRedirect($destination);
         $this->post('/pipeline/'.$id.'/stage', ['stage' => 'lost', 'version' => 2, 'pipeline_filters' => $filters])->assertRedirect($destination);
         $this->post('/pipeline/'.$id.'/snooze', ['next_action_due' => now()->addDay()->toIso8601String(), 'version' => 3, 'pipeline_filters' => $filters])->assertRedirect($destination);
-        $this->post('/pipeline/'.$id.'/activities', ['kind' => 'note', 'body' => 'Private update', 'version' => 4, 'pipeline_filters' => ['q' => '0', 'due' => '0']])->assertRedirect('/partner/leads?q=0&entry='.$id);
+        $this->post('/pipeline/'.$id.'/activities', ['kind' => 'note', 'body' => 'Private update', 'version' => 4, 'pipeline_filters' => ['q' => '0', 'due' => '0']])->assertRedirect('/pro/leads?q=0&entry='.$id);
+        // Board drags keep the filtered board without opening the moved lead.
+        $this->post('/pipeline/'.$id.'/stage', ['stage' => 'pitched', 'version' => 5, 'board' => true, 'pipeline_filters' => $filters])->assertRedirect('/pro/leads?q=Private&stage=lead&due=1');
         $this->postJson('/pipeline', [...$this->lead(), 'pipeline_filters' => ['redirect' => 'https://example.test', 'org_id' => (string) Str::uuid()]])->assertUnprocessable();
         $this->postJson('/pipeline', [...$this->lead(), 'pipeline_filters' => ['q' => str_repeat('x', 161)]])->assertUnprocessable();
         app(TenantContext::class)->run($actor->id, $org, fn () => $this->assertSame(1, DB::table('pipeline_entries')->count()));
-        $this->delete('/pipeline/'.$id, ['version' => 5, 'pipeline_filters' => $filters])->assertRedirect('/partner/leads?q=Private&stage=lead&due=1');
+        $this->delete('/pipeline/'.$id, ['version' => 6, 'pipeline_filters' => $filters])->assertRedirect('/pro/leads?q=Private&stage=lead&due=1');
     }
 
     public function test_stale_commands_reject_without_overwriting_or_appending_activity_and_web_errors_redirect(): void
@@ -113,9 +115,9 @@ class PipelineTest extends TestCase
         $this->postJson('/pipeline/'.$foreign.'/activities', ['body' => 'forged', 'kind' => 'note', 'version' => 1])->assertNotFound();
         $this->deleteJson('/pipeline/'.$foreign, ['version' => 1])->assertNotFound();
         $this->withoutVite();
-        $this->get('/partner/leads?entry='.$own)->assertInertia(fn (Assert $page) => $page->component('Portal')
+        $this->get('/pro/leads?entry='.$own)->assertInertia(fn (Assert $page) => $page->component('Portal')
             ->where('workspace.id', $org)->where('pipeline.entries.0.id', $own)->where('pipeline.selected.notes', 'Never share with a brand')->etc());
-        $this->get('/partner/leads', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '',
+        $this->get('/pro/leads', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '',
             'X-Inertia-Partial-Component' => 'Portal', 'X-Inertia-Partial-Data' => 'pipeline,notes,actor_id,org_id'])
             ->assertOk()->assertJsonCount(1, 'props.pipeline.entries')->assertJsonMissingPath('props.notes')->assertJsonMissingPath('props.actor_id')->assertDontSee('Hidden brand');
         $this->withSession(['active_org_id' => $foreignOrg])->getJson('/pipeline')->assertForbidden();

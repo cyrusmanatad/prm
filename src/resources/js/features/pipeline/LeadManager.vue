@@ -12,7 +12,7 @@ import EntryFields from './EntryFields.vue';
 import PipelineBoard from './PipelineBoard.vue';
 import { fromMinor, money, toMinor } from './money';
 import { pipelineStages } from './stages';
-import type { EntryDetail, LeadForm, PipelineWorkspace } from './types';
+import type { Entry, EntryDetail, LeadForm, PipelineWorkspace } from './types';
 import { useNotify } from '../../composables/useNotify';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 
@@ -53,7 +53,7 @@ function close(): void {
         const params = new URLSearchParams(location.search);
         params.delete('entry');
         params.delete('create');
-        router.get('/partner/leads', Object.fromEntries(params), { preserveScroll: true, preserveState: true });
+        router.get('/pro/leads', Object.fromEntries(params), { preserveScroll: true, preserveState: true });
     } else {
         creating.value = false;
         dialog.value?.close();
@@ -344,13 +344,37 @@ function openLead(id: string): void {
     const params = new URLSearchParams(location.search);
     params.delete('create');
     params.set('entry', id);
-    router.get('/partner/leads', Object.fromEntries(params), { preserveScroll: true });
+    router.get('/pro/leads', Object.fromEntries(params), { preserveScroll: true });
+}
+// A dragged card shows in its new column until the server confirms or rejects the move.
+const pendingMove = ref<{ id: string; stage: string } | null>(null);
+const boardEntries = computed(() =>
+    pendingMove.value
+        ? props.entries.map((row) =>
+              row.id === pendingMove.value?.id ? { ...row, stage: pendingMove.value.stage } : row,
+          )
+        : props.entries,
+);
+function moveLead(lead: Entry, stage: string): void {
+    if (busy.value || pendingMove.value || errors.value.version) return;
+    pendingMove.value = { id: lead.id, stage };
+    router.post(
+        `/pipeline/${lead.id}/stage`,
+        { stage, version: lead.version, board: true, pipeline_filters: props.filters },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onFinish: () => {
+                pendingMove.value = null;
+            },
+        },
+    );
 }
 const pipelineLoading = ref(false);
 let listingVisit = 0;
 function loadPage(params: Record<string, string>): void {
     const currentVisit = ++listingVisit;
-    router.get('/partner/leads', params, {
+    router.get('/pro/leads', params, {
         preserveScroll: true,
         preserveState: true,
         onStart: () => {
@@ -386,7 +410,7 @@ function startOnboarding(): void {
 }
 
 function reloadSelected(): void {
-    if (props.selected) router.get('/partner/leads', { entry: props.selected.id }, { preserveState: false });
+    if (props.selected) router.get('/pro/leads', { entry: props.selected.id }, { preserveState: false });
 }
 </script>
 
@@ -398,7 +422,9 @@ function reloadSelected(): void {
         </div>
         <p v-if="!canWrite" class="wd-hint">Your viewer role provides read-only access to this pipeline.</p>
         <PipelineBoard
-            :entries="entries"
+            :entries="boardEntries"
+            :movable="canWrite"
+            :moving="pendingMove?.id ?? null"
             :counts="counts"
             :totals="totals"
             :filters="filters"
@@ -408,6 +434,7 @@ function reloadSelected(): void {
             @open="openLead"
             @load="loadPage"
             @reset="resetPipeline"
+            @move="moveLead"
         />
         <dialog
             ref="dialog"
@@ -431,7 +458,7 @@ function reloadSelected(): void {
                         </div>
                         <DialogClose label="Close lead" :disabled="busy" @click="close" />
                     </div>
-                    <Link class="contacts-link" :href="`/partner/contacts?entry=${selected.id}`">
+                    <Link class="contacts-link" :href="`/pro/contacts?entry=${selected.id}`">
                         <span class="contacts-icon" aria-hidden="true">
                             <svg
                                 width="18"

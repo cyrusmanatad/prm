@@ -2,7 +2,7 @@
 
 Creator pipeline and brand onboarding, built as a Laravel modular monolith. This checkout contains the **foundation, creator CRM and M3 onboarding development implementation**, not a finished product. Official Inertia adapters connect Vue authentication, recovery, verification, workspace, and account-session screens to the Laravel backend. Tailwind CSS and a generated shadcn-vue button baseline are installed. The first CRM slice adds private leads, manual stage changes, next-action snoozing, and activity history. Private outreach templates support literal merge, draft editing, and manual copy. Reusable contacts and dedicated reminders support linking, completion and snooze; production deployment is not included. Do not use this development slice with live data.
 
-Partner lead management now lives at `/partner/leads`, with Add lead in a modal and editing/actions in a drawer. Supporting pages use `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. Old page bookmarks redirect; existing JSON and mutation endpoints remain available. See the [partner navigation contract](planning/m3a-portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
+Professional lead management now lives at `/pro/leads`, with Add lead in a modal and editing/actions in a drawer. Supporting pages use `/pro/contacts`, `/pro/outreach-templates`, `/pro/onboarding` and `/pro/media-kit`. Old page bookmarks, including pre-rename `/partner/*` links, redirect (D29); existing JSON and mutation endpoints remain available. See the [partner navigation contract](planning/m3a-portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
 
 ## Layout
 
@@ -149,7 +149,7 @@ The host lacks WebKit system libraries. Full fresh-setup verification can run in
 
 ## Connected partner and brand portals (M3A)
 
-Use `/partner/login` or `/brand/login` with your existing account, or register from the matching portal. Registration provisions the matching workspace after email verification, including when verification occurs after signing out. Existing workspaces remain creator workspaces. Create additional partner or brand workspaces from `/workspaces` and open the selected workspace's portal. The legacy `/login` remains available.
+Use `/pro/login` or `/brand/login` with your existing account, or register from the matching portal. Registration provisions the matching workspace after email verification, including when verification occurs after signing out. Existing workspaces remain Professional workspaces. Create additional Professional or Business workspaces from `/workspaces` and open the selected workspace's portal. The legacy `/login` remains available.
 
 Brand owners/admins choose **Invite partners**, enter the recipient email and copy the one-time link. Select **Email this invitation to the recipient** to request queued delivery, then check invitation history for status. Compose defaults to local mail capture. The verified recipient signs in, selects a creator workspace they own/administer and explicitly accepts the partnership. Both portals then show the same relationship. Either side's owner/admin can end it without deleting private records.
 

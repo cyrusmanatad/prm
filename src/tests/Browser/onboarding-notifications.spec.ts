@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { fixture, login } from './helpers';
+import { fixture, login, createWorkspace } from './helpers';
 import { confirmMutation } from './confirmations';
 
 function deliver(email: string): void {
@@ -33,10 +33,8 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     const email = `m1-browser-notifications-onboarding-${info.project.name}-${Date.now()}@example.test`;
     fixture('seed', email);
     await login(page, email);
-    await page.getByLabel('Workspace name', { exact: true }).fill('Onboarding email review');
-    await page.locator('#workspace-kind').selectOption('creator');
-    await page.getByRole('button', { name: 'Create workspace', exact: true }).click();
-    await page.getByRole('link', { name: 'Open partner portal' }).click();
+    await createWorkspace(page, 'Onboarding email review', 'Professional');
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('Invitation Studio');
     await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
@@ -46,7 +44,7 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     await page.getByLabel('Invitation recipient email').fill('recipient@example.test');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({ path: info.outputPath('onboarding-email-controls.png'), fullPage: true });
-    await page.getByRole('button', { name: 'Start onboarding and email invitation', exact: true }).click();
+    await page.getByRole('button', { name: 'Start onboarding', exact: true }).click();
     const history = page.getByRole('region', { name: 'Onboarding email history' });
     await expect(history).toContainText('Email pending');
     const link = await page.getByLabel('Private invitation link (copy now)').inputValue();

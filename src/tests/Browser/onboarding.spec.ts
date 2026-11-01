@@ -24,7 +24,7 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open partner portal' }).click();
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('Onboarding Studio');
     await page.getByLabel('Private notes (optional)').fill('PRIVATE creator notes must never be shown to brand');
@@ -143,7 +143,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open partner portal' }).click();
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
     await page.getByRole('link', { name: 'Media kit', exact: true }).click();
     await page.getByLabel('Public title', { exact: true }).fill('A public creator kit');
     await page.getByLabel('Public introduction', { exact: true }).fill('A public introduction.');

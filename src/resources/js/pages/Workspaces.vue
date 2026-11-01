@@ -56,6 +56,28 @@ function submit(action: WorkspaceAction, data: Record<string, string>): void {
         },
     });
 }
+// Opening a portal selects its workspace first; a pending partnership redirect takes precedence.
+function open(orgId: string, href: string): void {
+    if (pending.value || loggingOut.value) return;
+    router.post(
+        '/workspace/select',
+        { org_id: orgId },
+        {
+            errorBag: 'select',
+            preserveScroll: true,
+            preserveState: true,
+            onStart: () => {
+                pending.value = 'select';
+            },
+            onSuccess: (page) => {
+                if (page.url.startsWith('/workspaces')) router.visit(href);
+            },
+            onFinish: () => {
+                pending.value = null;
+            },
+        },
+    );
+}
 function logout(): void {
     if (pending.value || loggingOut.value) return;
     router.post(
@@ -86,6 +108,7 @@ function logout(): void {
         :pending-action="pending"
         @create="(name, kind) => submit('create', { name, kind })"
         @select="submit('select', { org_id: $event })"
+        @open="open"
         @rename="submit('rename', { name: $event })"
         @revoke-sessions="submit('revoke-sessions', { password: $event })"
         @logout="logout"

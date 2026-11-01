@@ -43,7 +43,7 @@ class PortalController extends Controller
 
         $pending = $selected->kind !== 'creator' ? null : ($request->session()->has('partnership_token') ? '/partnerships/accept' : ($request->session()->has('partnership_join') ? '/join' : null));
 
-        return redirect($pending ?? ($selected->kind === 'brand' ? '/brand' : '/partner/leads'));
+        return redirect($pending ?? ($selected->kind === 'brand' ? '/brand' : '/pro/leads'));
     }
 
     public function acceptancePage(Request $request)
@@ -69,13 +69,13 @@ class PortalController extends Controller
         }
         $request->session()->forget('partnership_join');
         $request->session()->put('partnership_token', ['encrypted' => encrypt($data['token']), 'recipient' => encrypt($recipient), 'expires' => time() + 900]);
-        $request->session()->put('portal', 'partner');
+        $request->session()->put('portal', 'pro');
         if (! $request->user()) {
             // Existing identities sign in and gain a new creator workspace; new recipients register a separate account.
             $existing = User::whereRaw('lower(email) = ?', [$recipient])->exists();
             $request->session()->put('partnership_workspace', $existing);
 
-            return redirect($existing ? '/partner/login' : '/partner/register');
+            return redirect($existing ? '/pro/login' : '/pro/register');
         }
 
         return redirect($request->user()->hasVerifiedEmail() ? (! empty($data['choose']) ? '/workspaces' : '/portal/enter') : '/verify-email');
@@ -85,12 +85,12 @@ class PortalController extends Controller
     {
         $org = $request->session()->get('active_org_id');
         $workspace = DB::table('organizations')->where('id', $org)->first(['id', 'name', 'kind']);
-        $portal = $request->is('brand') ? 'brand' : 'partner';
+        $portal = $request->is('brand') ? 'brand' : 'pro';
         if (! $workspace || $workspace->kind !== ($portal === 'brand' ? 'brand' : 'creator')) {
             return redirect('/workspaces');
         }
-        if ($request->is('partner') && (! $request->expectsJson() || $request->header('X-Inertia'))) {
-            return redirect('/partner/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
+        if ($request->is('pro') && (! $request->expectsJson() || $request->header('X-Inertia'))) {
+            return redirect('/pro/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
         $relationships = DB::table('partnerships')->orderBy('accepted_at')->get(['id', 'brand_name', 'creator_name', 'status', 'accepted_at'])->all();
         $canManage = (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$org])->allowed;
@@ -99,7 +99,7 @@ class PortalController extends Controller
             'joinLink' => $joinLink ? [...PartnerJoinController::share(decrypt($joinLink->sealed_code)), 'created_at' => $joinLink->created_at] : null,
             'invitations' => DB::table('partner_invitations as i')->leftJoin('notification_outbox as n', 'n.subject_id', '=', 'i.id')
                 ->orderByDesc('i.created_at')->limit(100)->get(['i.id', 'i.status', 'i.expires_at', 'n.state as email_state'])->all(),
-            'pipeline' => $portal === 'partner' ? app(PipelinePage::class)->data($request, $pipeline) : null];
+            'pipeline' => $portal === 'pro' ? app(PipelinePage::class)->data($request, $pipeline) : null];
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
             return response()->json($data);
         }
@@ -133,7 +133,7 @@ class PortalController extends Controller
         $data = $request->validate(['token' => ['required', 'string', 'regex:/^[a-f0-9]{64}$/'], 'consent' => ['accepted']]);
         $ok = DB::selectOne('SELECT app_accept_partner(?::text,?::uuid) AS allowed', [hash('sha256', $data['token']), (string) Str::uuid()])->allowed;
         if (! $ok) {
-            $message = 'This invitation cannot be accepted by the signed-in account. Sign in with the verified email address the invitation was sent to and select a creator workspace you own or administer. Expired, revoked or already accepted invitations, or an existing partnership with this brand, also prevent acceptance.';
+            $message = 'This invitation cannot be accepted by the signed-in account. Sign in with the verified email address the invitation was sent to and select a Professional workspace you own or administer. Expired, revoked or already accepted invitations, or an existing partnership with this brand, also prevent acceptance.';
             abort_if($request->expectsJson() && ! $request->header('X-Inertia'), 404, $message);
 
             // Browser visits keep the form and explain the refusal instead of the generic 404 page.
@@ -142,7 +142,7 @@ class PortalController extends Controller
 
         $request->session()->forget('partnership_token');
 
-        return $this->completed($request, ['message' => 'Partnership accepted'], '/partner/leads');
+        return $this->completed($request, ['message' => 'Partnership accepted'], '/pro/leads');
     }
 
     public function revoke(Request $request, string $record)

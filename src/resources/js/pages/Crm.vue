@@ -3,7 +3,7 @@ import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Calendar, Check, Link as LinkIcon, Lock } from '@lucide/vue';
 import { computed, nextTick, ref, watch } from 'vue';
-import FoundationShell from '../layouts/FoundationShell.vue';
+import PartnerChrome from '../features/portals/PartnerChrome.vue';
 import FormField from '../components/FormField.vue';
 import ActionGroup from '../components/ActionGroup.vue';
 import ContentSection from '../components/ContentSection.vue';
@@ -159,7 +159,7 @@ function list(cursor?: string, kind?: string, selectedState = state.value): void
     if (busy.value) return;
     const filtersChanged = q.value !== props.filters.q || selectedState !== state.value;
     router.get(
-        '/partner/contacts',
+        '/pro/contacts',
         {
             q: q.value,
             state: selectedState,
@@ -277,13 +277,13 @@ const blocked = computed(() => busy.value || !!errors.value.version);
 </script>
 <template>
     <Head title="Contacts and reminders" />
-    <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
-        <div ref="root" class="wd-crm">
+    <PartnerChrome current="contacts" :account-name="account.name" :account-email="account.email">
+        <main id="main-content" ref="root" class="wd-main wd-crm">
             <div class="crm-intro">
-                <nav aria-label="Workspace">
-                    <Link class="crm-back" :href="entry ? `/partner/leads?entry=${entry.id}` : '/partner/leads'">
+                <nav v-if="entry" aria-label="Workspace">
+                    <Link class="crm-back" :href="`/pro/leads?entry=${entry.id}`">
                         <ArrowLeft :size="16" aria-hidden="true" />
-                        Back to leads
+                        Back to lead
                     </Link>
                 </nav>
                 <div class="crm-heading">
@@ -309,7 +309,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                     class="crm-text-button"
                     @click="
                         router.get(
-                            '/partner/contacts',
+                            '/pro/contacts',
                             { ...filters, ...(entry ? { entry: entry.id } : {}) },
                             { preserveState: false },
                         )
@@ -588,7 +588,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                         <Link
                                             v-if="row.pipeline_entry_id"
                                             class="crm-inline-link"
-                                            :href="`/partner/leads?entry=${row.pipeline_entry_id}`"
+                                            :href="`/pro/leads?entry=${row.pipeline_entry_id}`"
                                             >Open related lead</Link
                                         >
                                         <button
@@ -767,8 +767,8 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                     </fieldset>
                 </form>
             </dialog>
-        </div>
-    </FoundationShell>
+        </main>
+    </PartnerChrome>
 </template>
 <style scoped>
 .wd-crm {

@@ -2,7 +2,7 @@
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
-import FoundationShell from '../layouts/FoundationShell.vue';
+import PartnerChrome from '../features/portals/PartnerChrome.vue';
 import FormField from '../components/FormField.vue';
 import ActionGroup from '../components/ActionGroup.vue';
 import ContentSection from '../components/ContentSection.vue';
@@ -122,9 +122,8 @@ function copy(): void {
 
 <template>
     <Head title="Outreach templates" />
-    <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
-        <div ref="root" class="wd-workspace-content wd-section-stack">
-            <nav aria-label="Workspace"><Link class="wd-link" href="/partner/leads">Back to leads</Link></nav>
+    <PartnerChrome current="templates" :account-name="account.name" :account-email="account.email">
+        <main id="main-content" ref="root" class="wd-main wd-workspace-content wd-section-stack">
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
                 <h1>Outreach templates</h1>
@@ -136,7 +135,7 @@ function copy(): void {
                 <button
                     class="wd-link"
                     type="button"
-                    @click="router.get('/partner/outreach-templates', {}, { preserveState: false })"
+                    @click="router.get('/pro/outreach-templates', {}, { preserveState: false })"
                 >
                     Reload latest templates
                 </button>
@@ -244,7 +243,7 @@ function copy(): void {
                     /><FormField
                         id="merge-creator"
                         v-model="values.creator_name"
-                        label="Creator name"
+                        label="Your name"
                         :required="false"
                         :maxlength="120"
                     />
@@ -272,6 +271,6 @@ function copy(): void {
                     <Button class="wd-button wd-button-primary" type="button" @click="copy">Copy draft</Button>
                 </div>
             </ContentSection>
-        </div>
-    </FoundationShell>
+        </main>
+    </PartnerChrome>
 </template>

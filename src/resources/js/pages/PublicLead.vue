@@ -50,11 +50,11 @@ function submit(): void {
             <div class="wd-page-heading">
                 <h1>Start a conversation</h1>
                 <p class="wd-description">
-                    Share your business contact details with the creator who provided this link.
+                    Share your business contact details with the professional who provided this link.
                 </p>
             </div>
             <p v-if="status || done" class="wd-description">
-                Contact details shared. The creator who sent this link can now follow up.
+                Contact details shared. The professional who sent this link can now follow up.
             </p>
             <form v-if="!done" class="wd-card wd-fields" :aria-busy="busy" @submit.prevent="submit">
                 <FormField
@@ -90,7 +90,7 @@ function submit(): void {
                         required
                         :aria-invalid="errors?.consent ? true : undefined"
                         :aria-describedby="errors?.consent ? 'lead-consent-error' : undefined"
-                    />I agree to share these details with this creator for this conversation.</label
+                    />I agree to share these details with this professional for this conversation.</label
                 >
                 <p v-if="errors?.consent" id="lead-consent-error" class="wd-field-error" role="alert">
                     {{ errors.consent }}

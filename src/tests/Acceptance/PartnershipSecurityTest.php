@@ -82,7 +82,7 @@ class PartnershipSecurityTest extends AcceptanceCase
         }
         $this->control->table('memberships')->where('org_id', $co)->update(['role' => 'admin']);
         $this->postJson('/partnerships/accept', $accept)->assertOk();
-        $this->get('/partner/leads', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '', 'X-Inertia-Partial-Component' => 'Portal', 'X-Inertia-Partial-Data' => 'relationships'])
+        $this->get('/pro/leads', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '', 'X-Inertia-Partial-Component' => 'Portal', 'X-Inertia-Partial-Data' => 'relationships'])
             ->assertOk()->assertJsonCount(1, 'props.relationships')->assertJsonMissingPath('props.pipeline')->assertDontSee('token_hash')->assertDontSee($brand->email);
         $this->actingAs($brand)->withSession(['active_org_id' => $bo])->get('/brand')->assertInertia(fn (Assert $page) => $page->component('Portal')->where('pipeline', null)->has('relationships', 1)->etc());
         $this->get('/onboarding-requests/'.Str::uuid().'/documents/'.Str::uuid())->assertNotFound();
@@ -94,7 +94,7 @@ class PartnershipSecurityTest extends AcceptanceCase
             $this->getJson('/brand')->assertJsonPath('canManage', false)->assertJsonCount(0, 'invitations');
         }
         $this->control->table('memberships')->where('org_id', $co)->update(['revoked_at' => now()]);
-        $this->actingAs($creator)->withSession(['active_org_id' => $co])->getJson('/partner')->assertForbidden();
+        $this->actingAs($creator)->withSession(['active_org_id' => $co])->getJson('/pro')->assertForbidden();
         $this->postJson('/partnerships/accept', $accept)->assertForbidden();
         // Relationship status is distinct from membership; the brand's authorized view still has it.
         $this->actingAs($brand)->withSession(['active_org_id' => $bo])->getJson('/brand')->assertJsonCount(1, 'relationships');

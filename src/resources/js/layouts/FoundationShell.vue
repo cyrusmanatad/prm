@@ -2,7 +2,7 @@
 import AccountMenu from '../components/AccountMenu.vue';
 import BrandLogo from '../components/BrandLogo.vue';
 
-defineProps<{ accountName?: string; accountEmail?: string; portal?: 'brand' | 'partner' }>();
+defineProps<{ accountName?: string; accountEmail?: string; portal?: 'brand' | 'pro' }>();
 defineEmits<{ logout: [] }>();
 </script>
 
@@ -14,7 +14,7 @@ defineEmits<{ logout: [] }>();
                 <span class="wd-brand">
                     <BrandLogo />
                     <span class="wd-wordmark">WeavDash</span
-                    ><span v-if="portal">{{ portal === 'brand' ? 'Brand' : 'Partner' }}</span>
+                    ><span v-if="portal">{{ portal === 'brand' ? 'Brand' : 'Professional' }}</span>
                 </span>
                 <div v-if="accountName" class="wd-account">
                     <AccountMenu :account-name="accountName" :account-email="accountEmail" @logout="$emit('logout')" />

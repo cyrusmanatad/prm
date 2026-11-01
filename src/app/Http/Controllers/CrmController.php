@@ -14,7 +14,7 @@ class CrmController extends Controller
     public function index(Request $request, Crm $crm, Pipeline $pipeline): mixed
     {
         if ($request->is('crm') && (! $request->expectsJson() || $request->header('X-Inertia'))) {
-            return redirect('/partner/contacts'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
+            return redirect('/pro/contacts'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
 
         $filters = $request->validate(['q' => ['nullable', 'string', 'max:160'], 'state' => ['nullable', 'in:pending,due,completed,all'],
@@ -121,6 +121,6 @@ class CrmController extends Controller
             'entry' => $linkedEntry ?? $data['entry'] ?? '',
         ], fn ($value) => $value !== '' && $value !== null);
 
-        return '/partner/contacts'.($context ? '?'.http_build_query($context) : '');
+        return '/pro/contacts'.($context ? '?'.http_build_query($context) : '');
     }
 }

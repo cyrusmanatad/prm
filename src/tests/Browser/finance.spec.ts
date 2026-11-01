@@ -10,7 +10,7 @@ test('private draft exact money, edit and terminal void', async ({ page }, info)
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await expect(page.getByRole('link', { name: 'Open partner portal' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open Professional portal' })).toBeVisible();
     await page.goto('/finance/invoices');
     await page.getByLabel('Recipient business name').fill('Synthetic finance');
     await page.getByLabel('Currency code').fill('USD');

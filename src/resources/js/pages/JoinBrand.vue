@@ -27,7 +27,7 @@ onMounted(() => {
                         !brand
                             ? 'Enter the sign-up code the brand shared with you.'
                             : account
-                              ? 'Confirm the partnership from a creator workspace you own or administer.'
+                              ? 'Confirm the partnership from a Professional workspace you own or administer.'
                               : 'Create a WeavDash account, or sign in if you already have one, to become a partner.'
                     }}
                 </p>
@@ -56,9 +56,11 @@ onMounted(() => {
                     <p class="wd-hint">
                         Your sign-up is retained securely for 15 minutes while you create your account or sign in.
                     </p>
-                    <Link href="/partner/register" class="wd-button wd-button-primary">Create account</Link>
-                    <Link href="/partner/login" class="wd-button wd-button-secondary">I already have an account</Link>
-                    <p class="wd-hint">Signing in adds a new creator workspace to your account for this partnership.</p>
+                    <Link href="/pro/register" class="wd-button wd-button-primary">Create account</Link>
+                    <Link href="/pro/login" class="wd-button wd-button-secondary">I already have an account</Link>
+                    <p class="wd-hint">
+                        Signing in adds a new Professional workspace to your account for this partnership.
+                    </p>
                 </div>
                 <form
                     v-else
@@ -66,7 +68,7 @@ onMounted(() => {
                     :aria-busy="joinForm.processing"
                     @submit.prevent="joinForm.post('/join/accept')"
                 >
-                    <Link href="/workspaces" class="wd-link">Select creator workspace</Link>
+                    <Link href="/workspaces" class="wd-link">Select Professional workspace</Link>
                     <label class="wd-checkbox" for="join-consent"
                         ><input id="join-consent" v-model="joinForm.consent" type="checkbox" required /> I accept this
                         partnership and agree to share my workspace display name and relationship status with

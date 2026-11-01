@@ -16,7 +16,7 @@ class PipelineController extends Controller
     public function index(Request $request, Pipeline $pipeline): JsonResponse|RedirectResponse
     {
         if (! $request->expectsJson() || $request->header('X-Inertia')) {
-            return redirect('/partner/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
+            return redirect('/pro/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
 
         return response()->json(app(PipelinePage::class)->data($request, $pipeline));
@@ -46,13 +46,15 @@ class PipelineController extends Controller
         $context = $this->listingContext($request);
         $data = $request->validate([
             'version' => ['required', 'integer', 'min:1', 'max:2147483646'], 'stage' => ['required', Rule::enum(PipelineStage::class)],
+            'board' => ['sometimes', 'boolean'],
         ]);
         $pipeline->change((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, (int) $data['version'], 'stage', ['stage' => $data['stage']]);
         $stage = $data['stage'] instanceof PipelineStage ? $data['stage']->value : (string) $data['stage'];
         $match = collect(PipelineStage::options())->firstWhere('value', $stage);
         $label = is_array($match) ? $match['label'] : ucfirst($stage);
 
-        return $this->completed($request, ['message' => 'Stage updated to '.$label], $this->destination($context, $entry));
+        // Board drags stay on the board; drawer changes return to the open lead.
+        return $this->completed($request, ['message' => 'Stage updated to '.$label], $this->destination($context, $request->boolean('board') ? null : $entry));
     }
 
     public function snooze(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse
@@ -113,7 +115,7 @@ class PipelineController extends Controller
         // Mutations restart the matching list: a moved/deleted cursor may no longer be valid.
         $query = http_build_query([...$filters, ...($entry ? ['entry' => $entry] : [])]);
 
-        return '/partner/leads'.($query !== '' ? '?'.$query : '');
+        return '/pro/leads'.($query !== '' ? '?'.$query : '');
     }
 
     private function details(Request $request): array

@@ -35,7 +35,7 @@ class PartnershipInvitation
     /** Partner sign-in/registration props: invitations lock the email; brand sign-ups name the brand. */
     public static function authProps(Request $request, string $portal): array
     {
-        if ($portal !== 'partner') {
+        if ($portal !== 'pro') {
             return [];
         }
         $recipient = self::recipient($request);

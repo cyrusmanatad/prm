@@ -118,3 +118,23 @@ it('cancels an unsubmitted search when browser history restores another filter',
     expect(wrapper.emitted('load')).toBeUndefined();
     expect((wrapper.get('#pipeline-search').element as HTMLInputElement).value).toBe('Restored query');
 });
+
+it('moves a dragged lead to another column only when moving is allowed', async () => {
+    const dataTransfer = { setData: vi.fn(), effectAllowed: '', dropEffect: '' };
+    const wrapper = board({ movable: true });
+    const card = wrapper.get('.lead-card');
+    expect(card.attributes('draggable')).toBe('true');
+    expect(card.attributes('aria-describedby')).toBe('pipeline-drag-hint');
+    await card.trigger('dragstart', { dataTransfer });
+    expect(dataTransfer.setData).toHaveBeenCalledWith('text/plain', 'lead');
+    const columns = wrapper.findAll('.pipeline-column');
+    await columns[0]!.trigger('drop', { dataTransfer });
+    expect(wrapper.emitted('move')).toBeUndefined();
+    await columns[1]!.trigger('dragover', { dataTransfer });
+    expect(columns[1]!.classes()).toContain('column-over');
+    await columns[1]!.trigger('drop', { dataTransfer });
+    expect(wrapper.emitted('move')).toEqual([[expect.objectContaining({ id: 'lead' }), 'pitched']]);
+
+    const readOnly = board();
+    expect(readOnly.get('.lead-card').attributes('draggable')).toBe('false');
+});

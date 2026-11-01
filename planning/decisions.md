@@ -75,3 +75,16 @@ When localhost and browser tooling become available, inspect all seven boards at
 ## Brand sign-up links
 
 **D28 — Confirmed (2026-11-01):** in addition to single-recipient email invitations, brand owners/admins can share one reusable sign-up link and matching code per brand workspace. Anyone holding the active link or code can register a new account, or sign in to an existing one (which adds a new creator workspace), and join as a partner immediately after email verification and explicit consent. No brand approval step and no recipient-email match applies to this path. Brands can replace the link (the old link and code stop working) or turn it off; existing partnerships stay active. The partner page offers both "Create account" and "I already have an account" so that account existence is not revealed. See the [M3A portal contract](m3a-portal-contract.md).
+
+## Customer terminology and portals
+
+**D29 — Confirmed (2026-11-01):** workspaces have two customer-facing types: **Business** (stored kind `brand`) and **Professional** (stored kind `creator`). "Professional" replaces "creator" in the UI so the product can serve influencers, authors, self-brands, consultants and other individuals. Portals: the **Brand portal** (`/brand`) is for Business workspaces managing their partners; the **Professional portal** (`/pro/*`, formerly labelled the Partner portal at `/partner/*`) is for individuals managing leads, sales and onboarding of converted leads; the future **Partner portal** is for partners invited by a Business, who need only an account and may optionally register their own brand as a separate Business workspace. Pre-rename `/partner/*` URLs redirect temporarily until the Partner portal reclaims `/partner`. Stored kind values, database columns and the outreach merge token `{{ creator_name }}` are unchanged in this pass. Until the [Partner portal contract](partner-portal-contract.md) is approved, invitation and sign-up-link partners continue to join through a Professional workspace (D28).
+
+## Production portal layout cleanup
+
+**D30 — Confirmed (2026-11-01):** production portal layouts prioritize working features over reproducing the reference compositions. This supersedes the exact-reproduction requirement of D21 and the per-section unavailable states of D23 for real account views:
+
+- Navigation lists only working pages. Professional portal: Leads, Contacts, Templates, Onboarding and Media kit, with a menu button on narrow viewports. Brand portal: Partners and Invitations. The account menu shows the name and email inside the dropdown so headers stay on one row.
+- Deferred capabilities are kept but compacted into one "Coming soon" strip per portal instead of placeholder cards, toggles and metrics. Summary cards show only real values (Professional: open pipeline, leads, brand partnerships; Brand: active partners, pending invitations, sign-up link status).
+- The Workspaces page groups workspaces under Business and Professional with an explicit "Open … portal" action, creates workspaces through a "New workspace" dialog with type choices, and keeps account security in its own panel.
+- The synthetic reference fixture (development builds only) keeps the reference compositions for historical visual comparison; it is no longer the acceptance baseline for production layouts.

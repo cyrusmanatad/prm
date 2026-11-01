@@ -31,8 +31,43 @@ describe('workspace screens', () => {
         const wrapper = screen([]);
         expect(wrapper.text()).toContain('You don’t have an active workspace yet');
         await wrapper.get('#workspace_name').setValue('  My Studio  ');
-        await wrapper.get('form').trigger('submit');
+        await wrapper.get('#workspace-create-form').trigger('submit');
         expect(wrapper.emitted('create')).toEqual([['My Studio', 'creator']]);
+    });
+
+    it('labels workspace types as Business or Professional and links to the matching portal', () => {
+        const wrapper = screen([
+            { id: 'workspace-a', name: 'Habi Home', role: 'owner', kind: 'brand' },
+            { id: 'workspace-b', name: 'Studio', role: 'owner', kind: 'creator' },
+        ]);
+        const options = wrapper.findAll('.wd-workspace-option');
+        expect(options[0]?.text()).toContain('Business · owner');
+        expect(options[1]?.text()).toContain('Professional · owner');
+        expect(wrapper.text()).toContain('Open Brand portal');
+        expect(wrapper.text()).not.toContain('partner portal');
+    });
+
+    it('groups workspaces by type and opens the matching portal', async () => {
+        const wrapper = screen([
+            { id: 'workspace-a', name: 'Studio', role: 'owner', kind: 'creator' },
+            { id: 'workspace-b', name: 'Habi Home', role: 'admin', kind: 'brand' },
+        ]);
+        expect(wrapper.findAll('.wd-workspace-group h2').map((heading) => heading.text())).toEqual([
+            'Business',
+            'Professional',
+        ]);
+        const open = wrapper.findAll('.wd-workspace-card .wd-button');
+        expect(open[0]?.text()).toBe('Open Brand portal');
+        await open[0]?.trigger('click');
+        expect(wrapper.emitted('open')).toEqual([['workspace-b', '/brand']]);
+    });
+
+    it('creates a Business workspace from the type choices', async () => {
+        const wrapper = screen();
+        await wrapper.get('input[name="workspace-kind"][value="brand"]').setValue(true);
+        await wrapper.get('#workspace_name').setValue('Habi Home');
+        await wrapper.get('#workspace-create-form').trigger('submit');
+        expect(wrapper.emitted('create')).toEqual([['Habi Home', 'brand']]);
     });
 
     it('selects by workspace ID and exposes which workspace is selected', async () => {
@@ -65,7 +100,7 @@ describe('workspace screens', () => {
         const wrapper = screen();
         await wrapper.setProps({ pendingAction: 'create' });
         await wrapper.get('#workspace_name').setValue('Another studio');
-        await wrapper.get('form').trigger('submit');
+        await wrapper.get('#workspace-create-form').trigger('submit');
         await wrapper.get('.wd-settings-card form').trigger('submit');
         expect(wrapper.emitted('create')).toBeUndefined();
         expect(wrapper.emitted('rename')).toBeUndefined();

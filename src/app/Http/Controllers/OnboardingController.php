@@ -18,7 +18,7 @@ class OnboardingController extends Controller
     public function index(Request $request, Onboarding $service, Pipeline $pipeline): mixed
     {
         if ($request->is('onboarding-requests') && (! $request->expectsJson() || $request->header('X-Inertia'))) {
-            return redirect('/partner/onboarding'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
+            return redirect('/pro/onboarding'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
 
         $org = $request->session()->get('active_org_id');
@@ -42,7 +42,7 @@ class OnboardingController extends Controller
         $result = $service->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data['pipeline_entry_id'], $data['label'], $recipient);
         $message = $recipient ? 'Onboarding invitation sent to '.$recipient : 'Invitation link created';
 
-        return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result, 201) : redirect('/partner/onboarding?request='.$result['id'])->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
+        return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result, 201) : redirect('/pro/onboarding?request='.$result['id'])->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
     }
 
     public function review(Request $request, Onboarding $service, string $record, string $action): mixed
@@ -53,7 +53,7 @@ class OnboardingController extends Controller
             $result = $service->renew((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $recipient);
             $message = $recipient ? 'Onboarding invitation sent to '.$recipient : 'Invitation replaced. Previous sessions are closed';
 
-            return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result) : redirect('/partner/onboarding?request='.$record)->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
+            return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($result) : redirect('/pro/onboarding?request='.$record)->with('issued_link', Crypt::encryptString($result['url']))->with('status', $message);
         }
         $service->review((int) $request->user()->id, $request->session()->get('active_org_id'), $record, (int) $d['version'], $action, $d['note'] ?? '');
         $message = match ($action) {
@@ -63,7 +63,7 @@ class OnboardingController extends Controller
             default => 'Onboarding updated',
         };
 
-        return $this->completed($request, ['message' => $message], '/partner/onboarding?request='.$record);
+        return $this->completed($request, ['message' => $message], '/pro/onboarding?request='.$record);
     }
 
     public function exchange(Request $request, Onboarding $service): mixed
@@ -142,7 +142,7 @@ class OnboardingController extends Controller
             abort_unless($pipeline->canWrite((int) $request->user()->id, $org), 403);
             $docs->scan($org, $record, $document);
 
-            return $this->completed($request, ['message' => 'Scan attempted'], '/partner/onboarding?request='.$record);
+            return $this->completed($request, ['message' => 'Scan attempted'], '/pro/onboarding?request='.$record);
         }
 
         return $this->download($docs, $org, $record, $document);

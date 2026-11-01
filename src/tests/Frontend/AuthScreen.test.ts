@@ -97,7 +97,7 @@ describe('authentication screens', () => {
         expect(wrapper.text()).toContain('Create your account to accept.');
         expect(wrapper.find('nav button').exists()).toBe(false);
         await wrapper.setProps({ mode: 'login' });
-        expect(wrapper.text()).toContain('add a new creator workspace');
+        expect(wrapper.text()).toContain('add a new Professional workspace');
         expect(wrapper.text()).not.toContain('Create an account');
         expect(wrapper.text()).not.toContain('Brand sign in');
     });

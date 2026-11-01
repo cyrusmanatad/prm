@@ -13,7 +13,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         // Registration from a partner invitation is locked to the invited recipient.
-        $recipient = $this->route('portal') === 'partner' ? PartnershipInvitation::recipient($this) : null;
+        $recipient = $this->route('portal') === 'pro' ? PartnershipInvitation::recipient($this) : null;
 
         return [
             'name' => ['required', 'string', 'max:120'],

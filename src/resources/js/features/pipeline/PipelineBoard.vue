@@ -16,8 +16,20 @@ const props = defineProps<{
     nextCursor: string | null;
     loading?: boolean;
     error?: string;
+    movable?: boolean;
+    moving?: string | null;
 }>();
-const emit = defineEmits<{ open: [id: string]; load: [params: Record<string, string>]; reset: [] }>();
+const emit = defineEmits<{
+    open: [id: string];
+    load: [params: Record<string, string>];
+    reset: [];
+    move: [lead: Entry, stage: string];
+}>();
+const dragging = ref<Entry | null>(null);
+function move(lead: Entry, stage: string): void {
+    dragging.value = null;
+    emit('move', lead, stage);
+}
 const query = ref(props.filters.q);
 const stageFilter = ref(props.filters.stage);
 const dueOnly = ref(props.filters.due);
@@ -126,9 +138,14 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                 <div class="pipeline-intro">
                     <div class="pipeline-title-row">
                         <h2 id="my-pipeline-title">My pipeline</h2>
-                        <span class="automation-pill">Automation unavailable</span>
                     </div>
-                    <p class="pipeline-subtitle">Open a lead to edit it, move its stage or start onboarding.</p>
+                    <p id="pipeline-drag-hint" class="pipeline-subtitle">
+                        {{
+                            movable
+                                ? 'Drag a lead to another column to change its stage, or open it to edit, choose a stage or start onboarding.'
+                                : 'Open a lead to edit it, move its stage or start onboarding.'
+                        }}
+                    </p>
                 </div>
                 <div class="pipeline-value">
                     <span class="pipeline-kicker">Matching pipeline value</span>
@@ -199,7 +216,12 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                             :key="column.stage.value"
                             v-bind="column"
                             :filtered="filtered"
+                            :movable="movable"
+                            :dragging="dragging"
+                            :moving="moving"
                             @open="emit('open', $event)"
+                            @drag="dragging = $event"
+                            @move="move"
                         />
                     </div>
                 </div>
@@ -214,7 +236,12 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                         :key="column.stage.value"
                         v-bind="column"
                         :filtered="filtered"
+                        :movable="movable"
+                        :dragging="dragging"
+                        :moving="moving"
                         @open="emit('open', $event)"
+                        @drag="dragging = $event"
+                        @move="move"
                     />
                 </div>
             </template>
@@ -294,14 +321,6 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
     margin: 0;
     font-size: 24px;
     line-height: 1.2;
-}
-.automation-pill {
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: var(--wd-warning-bg);
-    color: var(--wd-warning);
-    font-size: 12px;
-    font-weight: 600;
 }
 .pipeline-subtitle {
     margin: 0;

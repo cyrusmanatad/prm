@@ -23,7 +23,8 @@ test('registration, verification, workspace errors, create, and settings', async
     await expect(page.getByRole('status').filter({ hasText: 'Verification link requested' })).toBeVisible();
     await page.goto(fixture('verify', email).url);
     await expect(page).toHaveURL(/\/workspaces$/);
-    const create = page.getByRole('region', { name: 'Start something new.' });
+    await page.getByRole('button', { name: '+ New workspace' }).click();
+    const create = page.getByRole('dialog', { name: 'New workspace' });
     await create.getByLabel('Workspace name').fill('   ');
     await create.getByRole('button', { name: 'Create workspace' }).click();
     await expect(create.getByRole('alert')).toBeVisible();
@@ -47,6 +48,7 @@ test('registration, verification, workspace errors, create, and settings', async
     }
     const settings = page.getByRole('region', { name: 'Browser workspace', exact: true });
     await expect(settings).toBeVisible();
+    await expect(create).toBeHidden();
     await expect(create.getByLabel('Workspace name')).toHaveValue('');
     await settings.getByLabel('Workspace name').fill('Renamed browser workspace');
     await settings.getByRole('button', { name: 'Save name' }).click();

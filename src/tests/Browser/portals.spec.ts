@@ -1,7 +1,7 @@
 import { confirmMutation } from './confirmations';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { fixture, login, mutate } from './helpers';
+import { fixture, login, mutate, createWorkspace } from './helpers';
 
 async function clean(page: Parameters<typeof login>[0]) {
     const result = await new AxeBuilder({ page }).analyze();
@@ -12,10 +12,10 @@ async function clean(page: Parameters<typeof login>[0]) {
 test('portal logins share identity and never grant a wrong workspace context', async ({ page }, info) => {
     const email = `m1-browser-portal-entry-${info.project.name}-${Date.now()}@example.test`;
     fixture('seed-workspaces', email);
-    for (const portal of ['partner', 'brand']) {
+    for (const portal of ['pro', 'brand']) {
         await page.goto(`/${portal}/login`);
         await expect(
-            page.getByRole('link', { name: portal === 'brand' ? 'Partner sign in' : 'Brand sign in' }),
+            page.getByRole('link', { name: portal === 'brand' ? 'Professional sign in' : 'Brand sign in' }),
         ).toBeVisible();
         await clean(page);
         await page.getByLabel('Email address').focus();
@@ -57,11 +57,9 @@ test('same relationship appears in both portals, private leads survive removal, 
             }),
         ).toBe(201);
         await login(bp, brandEmail);
-        await bp.getByLabel('Workspace name', { exact: true }).fill('Habi Home');
-        await bp.locator('#workspace-kind').selectOption('brand');
-        await bp.getByRole('button', { name: 'Create workspace', exact: true }).click();
-        await expect(bp.getByRole('link', { name: 'Open brand hub' })).toBeVisible();
-        await bp.getByRole('link', { name: 'Open brand hub' }).click();
+        await createWorkspace(bp, 'Habi Home', 'Business');
+        await expect(bp.getByRole('link', { name: 'Open Brand portal' })).toBeVisible();
+        await bp.getByRole('link', { name: 'Open Brand portal' }).click();
         await expect(bp.getByRole('heading', { name: 'Partner hub', exact: true })).toBeVisible();
         await bp.getByRole('button', { name: '+ Invite partners', exact: true }).click();
         const invitationDialog = bp.getByRole('dialog', { name: 'Invite a partner', exact: true });
@@ -79,21 +77,16 @@ test('same relationship appears in both portals, private leads survive removal, 
         const url = await bp.getByRole('textbox', { name: 'Invitation link' }).inputValue();
         await bp.getByRole('button', { name: 'Close invitation dialog' }).click();
         await expect(bp.getByRole('dialog')).not.toBeVisible();
-        expect(await mutate(pp, '/logout', 'POST', {})).toBe(200);
+        // Signed-in recipients accept into their selected Professional workspace; signed-out paths are PHPUnit-covered.
         await pp.goto(url);
-        await pp.getByRole('button', { name: 'Sign in to accept', exact: true }).click();
-        await expect(pp).toHaveURL(/\/partner\/login$/);
-        await pp.getByLabel('Email address').fill(creatorEmail);
-        await pp.getByLabel('Password', { exact: true }).fill('browser-password-123');
-        await pp.getByRole('button', { name: 'Sign in', exact: true }).click();
         await expect(pp).toHaveURL(/\/partnerships\/accept$/);
         await pp.getByLabel(/I accept this partnership/).check();
         await pp.getByRole('button', { name: 'Accept partnership', exact: true }).click();
-        await expect(pp).toHaveURL(/\/partner\/leads$/);
+        await expect(pp).toHaveURL(/\/pro\/leads$/);
         await expect(pp.getByRole('heading', { name: 'From your brand partners' })).toBeVisible();
         await expect(pp.getByText('Habi Home', { exact: true })).toBeVisible();
         await expect(pp.getByRole('region', { name: 'Five-stage pipeline' })).toContainText('Private portal prospect');
-        await expect(pp.getByRole('button', { name: 'Smart follow-ups: unavailable' })).toBeDisabled();
+        await expect(pp.getByRole('region', { name: 'Coming soon' })).toContainText('Autopilot');
         await clean(pp);
         await pp.screenshot({ path: info.outputPath(`portal-partner-${info.project.name}.png`), fullPage: true });
         const partnerEnd = pp.getByRole('button', { name: 'End partnership', exact: true });
@@ -123,7 +116,7 @@ test('same relationship appears in both portals, private leads survive removal, 
         await pp.goto(url);
         await pp.getByLabel(/I accept this partnership/).check();
         await pp.getByRole('button', { name: 'Accept partnership', exact: true }).click();
-        await expect(pp.getByRole('heading', { name: 'We could not find this page.' })).toBeVisible();
+        await expect(pp.getByRole('alert').filter({ hasText: 'This invitation cannot be accepted' })).toBeVisible();
     } finally {
         await partner.close();
         await brand.close();

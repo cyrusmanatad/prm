@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { fixture, login } from './helpers';
+import { fixture, login, createWorkspace } from './helpers';
 
 function deliver(email: string): void {
     execFileSync(
@@ -32,10 +32,8 @@ test('explicit invitation email shows queue capture and cancellation without ext
     const email = `m1-browser-notifications-${info.project.name}-${Date.now()}@example.test`;
     fixture('seed', email);
     await login(page, email);
-    await page.getByLabel('Workspace name', { exact: true }).fill('Notification review brand');
-    await page.locator('#workspace-kind').selectOption('brand');
-    await page.getByRole('button', { name: 'Create workspace', exact: true }).click();
-    await page.getByRole('link', { name: 'Open brand hub' }).click();
+    await createWorkspace(page, 'Notification review brand', 'Business');
+    await page.getByRole('link', { name: 'Open Brand portal' }).click();
     await page.getByRole('button', { name: '+ Invite partners', exact: true }).click();
     await expect(page.getByLabel('Email this invitation to the recipient')).not.toBeChecked();
     await page.getByLabel('Recipient email').fill(email.replace('@', '-recipient@'));

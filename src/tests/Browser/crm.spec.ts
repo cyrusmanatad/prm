@@ -9,7 +9,7 @@ test('contacts are reusable and reminders snooze, complete and reopen', async ({
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await page.getByRole('link', { name: 'Open partner portal' }).click();
+    await page.getByRole('link', { name: 'Open Professional portal' }).click();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('CRM Studio');
     await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
@@ -134,7 +134,7 @@ test('CRM filters reset paged lists, restore history and retain actionable stale
         }
         return { older: older.id };
     }, workspace.own);
-    await page.goto('/partner/contacts');
+    await page.goto('/pro/contacts');
     const contacts = page.getByRole('region', { name: 'Reusable contacts', exact: true });
     const reminders = page.getByRole('region', { name: 'Reminders', exact: true });
     await expect(contacts.getByText('25 on this page', { exact: true })).toBeVisible();

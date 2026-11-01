@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3';
 import LeadManager from '../pipeline/LeadManager.vue';
 import PipelineBoard from '../pipeline/PipelineBoard.vue';
 import PartnerChrome from './PartnerChrome.vue';
+import ComingSoonStrip from './ComingSoonStrip.vue';
 import { money } from '../pipeline/money';
 import type { PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
@@ -18,16 +19,13 @@ function open(path: string): void {
 const summary = computed(() => [
     {
         label: 'Open pipeline',
-        value:
-            props.data.pipeline?.totals.map((t) => money(t.amount_minor, t.currency)).join(' · ') ||
-            'No non-lost value',
-        hint: 'Matching non-lost estimates, separated by currency',
+        value: props.data.pipeline?.totals.map((t) => money(t.amount_minor, t.currency)).join(' · ') || 'No open value',
     },
-    ...['Expected this month', 'Commissions earned', 'Reply rate'].map((label) => ({
-        label,
-        value: 'Unavailable',
-        hint: 'Not yet measured',
-    })),
+    {
+        label: 'Leads',
+        value: String(props.data.pipeline?.counts.reduce((sum, row) => sum + row.count, 0) ?? 0),
+    },
+    { label: 'Brand partnerships', value: String(props.data.relationships.length) },
 ]);
 </script>
 <template>
@@ -55,7 +53,7 @@ const summary = computed(() => [
                 <div class="flex flex-wrap gap-2.5">
                     <button
                         type="button"
-                        @click="open('/partner/media-kit')"
+                        @click="open('/pro/media-kit')"
                         class="rounded-[10px] border border-line-strong bg-white px-4 py-[11px] text-[14px] font-semibold text-ink"
                     >
                         Share my lead link
@@ -71,8 +69,9 @@ const summary = computed(() => [
                 </div>
             </div>
 
-            <section aria-label="Summary" class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
-                <template v-if="fixture">
+            <!-- Synthetic reference composition for visual comparison; development builds only. -->
+            <template v-if="fixture">
+                <section aria-label="Summary" class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
                     <div class="rounded-[14px] border border-line bg-white px-5 py-[18px]">
                         <div class="text-[13px] font-semibold text-muted">Open pipeline</div>
                         <div class="mt-1.5 font-display text-[28px] font-bold">₱186,500</div>
@@ -92,24 +91,12 @@ const summary = computed(() => [
                         <div class="text-[13px] font-semibold text-muted">Reply rate</div>
                         <div class="mt-1.5 font-display text-[28px] font-bold">41%</div>
                         <div class="mt-1 text-[13px] font-semibold text-forest">Up from 33% last month</div>
-                    </div> </template
-                ><template v-else
-                    ><div
-                        v-for="card in summary"
-                        :key="card.label"
-                        class="rounded-[14px] border border-line bg-white px-5 py-[18px]"
-                    >
-                        <div class="text-[13px] font-semibold text-muted">{{ card.label }}</div>
-                        <div class="mt-1.5 font-display text-[28px] font-bold">{{ card.value }}</div>
-                        <div class="mt-1 text-[13px] text-muted">{{ card.hint }}</div>
-                    </div></template
-                >
-            </section>
+                    </div>
+                </section>
 
-            <div class="flex flex-wrap items-start gap-6">
-                <div class="flex min-w-0 flex-[999_1_640px] flex-col gap-6">
-                    <section class="rounded-2xl border border-line bg-white p-5">
-                        <template v-if="fixture">
+                <div class="flex flex-wrap items-start gap-6">
+                    <div class="flex min-w-0 flex-[999_1_640px] flex-col gap-6">
+                        <section class="rounded-2xl border border-line bg-white p-5">
                             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                                 <h2 class="font-display text-[18px] font-bold">Today's next best actions</h2>
                                 <span class="text-[12px] text-muted"
@@ -249,39 +236,21 @@ const summary = computed(() => [
                                         </button>
                                     </div>
                                 </div>
-                            </div> </template
-                        ><template v-else
-                            ><h2 class="mb-3 font-display text-[18px] font-bold">Today's next best actions</h2>
-                            <p class="text-[13px] text-muted">AI ranking and suggested drafts are unavailable.</p>
-                            <Link
-                                href="/partner/contacts?state=due"
-                                class="mt-3 inline-block text-[14px] font-bold underline"
-                                >View contacts and due reminders →</Link
-                            ></template
-                        >
-                    </section>
+                            </div>
+                        </section>
 
-                    <PipelineBoard
-                        v-if="fixture && data.pipeline"
-                        :entries="data.pipeline.entries"
-                        :counts="data.pipeline.counts"
-                        :totals="data.pipeline.totals"
-                        :filters="data.pipeline.filters"
-                        :next-cursor="data.pipeline.nextCursor"
-                    />
-                    <LeadManager
-                        v-else-if="data.pipeline"
-                        ref="leadManager"
-                        v-bind="data.pipeline"
-                        :workspace="data.workspace"
-                        :errors="data.errors"
-                        :status="data.status"
-                    />
-                </div>
+                        <PipelineBoard
+                            v-if="fixture && data.pipeline"
+                            :entries="data.pipeline.entries"
+                            :counts="data.pipeline.counts"
+                            :totals="data.pipeline.totals"
+                            :filters="data.pipeline.filters"
+                            :next-cursor="data.pipeline.nextCursor"
+                        />
+                    </div>
 
-                <aside class="flex min-w-0 flex-[1_1_340px] flex-col gap-6">
-                    <section class="rounded-2xl border border-line bg-white p-5">
-                        <template v-if="fixture">
+                    <aside class="flex min-w-0 flex-[1_1_340px] flex-col gap-6">
+                        <section class="rounded-2xl border border-line bg-white p-5">
                             <h2 class="mb-1 font-display text-[18px] font-bold">Autopilot</h2>
                             <p class="mb-3 text-[13px] text-muted">
                                 You stay in control: drafts wait for your OK, everything else runs on its own.
@@ -399,41 +368,10 @@ const summary = computed(() => [
                                         <span class="block size-[22px] rounded-full bg-white"></span>
                                     </button>
                                 </div>
-                            </div> </template
-                        ><template v-else
-                            ><h2 class="mb-3 font-display text-[18px] font-bold">Autopilot</h2>
-                            <p class="text-[13px] text-muted">
-                                Automation is unavailable. Start onboarding explicitly from a lead; only non-sensitive
-                                business details are collected.
-                            </p>
-                            <div
-                                v-for="label in [
-                                    'Smart follow-ups',
-                                    'Onboarding automation',
-                                    'Invoice automation',
-                                    'Automatic payouts',
-                                    'Seasonal re-pitch',
-                                    'Earnings digest',
-                                ]"
-                                :key="label"
-                                class="flex items-center gap-3 border-t border-line-soft py-3"
-                            >
-                                <span class="flex-1 text-[14px] font-bold">{{ label }}</span
-                                ><button
-                                    disabled
-                                    type="button"
-                                    :aria-label="`${label}: unavailable`"
-                                    aria-pressed="false"
-                                    title="Unavailable in this milestone"
-                                    class="flex h-7 w-[46px] items-center rounded-full bg-switch-off p-[3px]"
-                                >
-                                    <span class="block size-[22px] rounded-full bg-white"></span>
-                                </button></div
-                        ></template>
-                    </section>
+                            </div>
+                        </section>
 
-                    <section class="wd-on-dark rounded-2xl bg-ink p-5 text-white">
-                        <template v-if="fixture">
+                        <section class="wd-on-dark rounded-2xl bg-ink p-5 text-white">
                             <h2 class="mb-1 font-display text-[18px] font-bold">From your brand partners</h2>
                             <p class="mb-3.5 text-[13px] text-lilac">Perks and goals your brands set for you</p>
                             <div class="flex flex-col gap-3.5">
@@ -477,34 +415,77 @@ const summary = computed(() => [
                             </div>
                             <a href="#" class="mt-3.5 inline-block text-[14px] font-bold text-mint underline"
                                 >Ask a brand for support →</a
-                            > </template
-                        ><template v-else
-                            ><h2 class="mb-3 font-display text-[18px] font-bold">From your brand partners</h2>
-                            <div
-                                v-for="row in data.relationships"
-                                :key="row.id"
-                                class="mt-3 rounded-xl bg-white/7 p-3.5"
                             >
-                                <strong>{{ row.brand_name }}</strong>
-                                <p class="text-[13px] text-lilac">
-                                    Active partnership · tiers and commissions unavailable
-                                </p>
-                                <button
-                                    v-if="data.canManage"
-                                    class="wd-action-danger mt-2 text-[13px]"
-                                    type="button"
-                                    @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
-                                >
-                                    End partnership
-                                </button>
-                            </div>
-                            <p v-if="!data.relationships.length" class="text-[13px] text-lilac">
-                                No active partnerships. Accept a brand invitation to connect.
-                            </p></template
+                        </section>
+                    </aside>
+                </div>
+            </template>
+            <template v-else>
+                <section aria-label="Summary" class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
+                    <div
+                        v-for="card in summary"
+                        :key="card.label"
+                        class="rounded-[14px] border border-line bg-white px-5 py-4"
+                    >
+                        <div class="text-[13px] font-semibold text-muted">{{ card.label }}</div>
+                        <div class="mt-1 font-display text-[24px] font-bold">{{ card.value }}</div>
+                    </div>
+                </section>
+
+                <div class="flex flex-wrap items-start gap-6">
+                    <div class="min-w-0 flex-[999_1_640px]">
+                        <LeadManager
+                            v-if="data.pipeline"
+                            ref="leadManager"
+                            v-bind="data.pipeline"
+                            :workspace="data.workspace"
+                            :errors="data.errors"
+                            :status="data.status"
+                        />
+                    </div>
+                    <aside class="flex min-w-0 flex-[1_1_300px] flex-col gap-4">
+                        <section
+                            class="wd-on-dark rounded-2xl bg-ink p-5 text-white"
+                            aria-labelledby="partnerships-title"
                         >
-                    </section>
-                </aside>
-            </div>
+                            <h2 id="partnerships-title" class="font-display text-[18px] font-bold">
+                                Brand partnerships
+                            </h2>
+                            <ul v-if="data.relationships.length" class="mt-3 flex flex-col gap-2">
+                                <li
+                                    v-for="row in data.relationships"
+                                    :key="row.id"
+                                    class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/7 px-3.5 py-3"
+                                >
+                                    <strong class="text-[14px]">{{ row.brand_name }}</strong>
+                                    <button
+                                        v-if="data.canManage"
+                                        class="wd-action-danger text-[13px]"
+                                        type="button"
+                                        @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
+                                    >
+                                        End partnership
+                                    </button>
+                                </li>
+                            </ul>
+                            <p v-else class="mt-2 text-[13px] text-lilac">
+                                No active partnerships. Accept a brand invitation to connect.
+                            </p>
+                        </section>
+                        <section class="rounded-2xl border border-line bg-white p-5" aria-labelledby="follow-ups-title">
+                            <h2 id="follow-ups-title" class="font-display text-[18px] font-bold">Follow-ups</h2>
+                            <p class="mt-1 text-[13px] text-muted">Reminders you set on contacts and leads.</p>
+                            <Link
+                                href="/pro/contacts?state=due"
+                                class="mt-3 inline-block text-[14px] font-bold underline"
+                                >View due reminders →</Link
+                            >
+                        </section>
+                    </aside>
+                </div>
+
+                <ComingSoonStrip :items="['Forecast', 'Commissions', 'Reply rate', 'Next best actions', 'Autopilot']" />
+            </template>
         </main>
     </PartnerChrome>
 </template>

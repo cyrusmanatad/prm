@@ -24,6 +24,8 @@ use Inertia\Inertia;
 // Public pages exchange capabilities in POST bodies; fragment tokens never reach access logs.
 Route::get('/partnerships/accept', [PortalController::class, 'acceptancePage']);
 Route::post('/partnerships/prepare', [PortalController::class, 'prepare'])->middleware('throttle:10,1,partner-prepare:');
+// The Professional portal moved from /partner; temporary redirects keep bookmarks working until /partner is reused.
+Route::get('/partner/{path?}', fn (Request $request, string $path = '') => redirect('/pro'.($path !== '' ? '/'.$path : '').($request->getQueryString() ? '?'.$request->getQueryString() : '')))->where('path', '.*');
 Route::get('/join', [PartnerJoinController::class, 'page']);
 Route::post('/join/prepare', [PartnerJoinController::class, 'prepare'])->middleware('throttle:10,1,partner-join-prepare:');
 Route::get('/onboarding', fn () => Inertia::render('OpenInvitation'));
@@ -41,10 +43,10 @@ Route::get('/kits/{record}', [PublicPresenceController::class, 'kit'])->whereUui
 Route::get('/', fn (Request $request) => redirect($request->user()
     ? ($request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email') : '/login'));
 Route::middleware('guest')->group(function (): void {
-    Route::get('/{portal}/login', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'partner']);
-    Route::get('/{portal}/register', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'partner']);
-    Route::post('/{portal}/login', [SessionController::class, 'store'])->whereIn('portal', ['brand', 'partner'])->middleware('throttle:20,1,login:');
-    Route::post('/{portal}/register', RegisteredUserController::class)->whereIn('portal', ['brand', 'partner'])->middleware('throttle:5,1,register:');
+    Route::get('/{portal}/login', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'pro']);
+    Route::get('/{portal}/register', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal, ...PartnershipInvitation::authProps($request, $portal)]))->whereIn('portal', ['brand', 'pro']);
+    Route::post('/{portal}/login', [SessionController::class, 'store'])->whereIn('portal', ['brand', 'pro'])->middleware('throttle:20,1,login:');
+    Route::post('/{portal}/register', RegisteredUserController::class)->whereIn('portal', ['brand', 'pro'])->middleware('throttle:5,1,register:');
     Route::get('/login', fn () => Inertia::render('Auth', ['mode' => 'login']))->name('login');
     Route::get('/register', fn () => Inertia::render('Auth', ['mode' => 'register']));
     Route::get('/forgot-password', fn () => Inertia::render('Auth', ['mode' => 'forgot-password']));
@@ -87,8 +89,8 @@ Route::middleware('auth')->group(function (): void {
             Route::patch('/finance/invoices/{invoice}', [InvoiceDraftController::class, 'mutate'])->whereUuid('invoice');
             Route::post('/finance/invoices/{invoice}/void', [InvoiceDraftController::class, 'mutate'])->whereUuid('invoice');
 
-            Route::get('/partner/leads', [PortalController::class, 'index']);
-            Route::get('/partner', [PortalController::class, 'index']);
+            Route::get('/pro/leads', [PortalController::class, 'index']);
+            Route::get('/pro', [PortalController::class, 'index']);
             Route::get('/brand', [PortalController::class, 'index']);
             Route::post('/partner-invitations', [PortalController::class, 'invite'])->middleware('throttle:10,1,partner-invite:');
             Route::post('/partnerships/accept', [PortalController::class, 'accept'])->middleware('throttle:6,1,partner-accept:');
@@ -97,24 +99,24 @@ Route::middleware('auth')->group(function (): void {
             Route::delete('/partner-join-link', [PartnerJoinController::class, 'disable']);
             Route::delete('/partner-invitations/{record}', [PortalController::class, 'revoke'])->whereUuid('record');
             Route::delete('/partnerships/{record}', [PortalController::class, 'revoke'])->whereUuid('record');
-            Route::get('/partner/media-kit', [PublicPresenceController::class, 'index']);
+            Route::get('/pro/media-kit', [PublicPresenceController::class, 'index']);
             Route::get('/public-presence', [PublicPresenceController::class, 'index']);
             Route::put('/media-kit', [PublicPresenceController::class, 'saveKit']);
             Route::post('/lead-links', [PublicPresenceController::class, 'createLink']);
             Route::delete('/lead-links/{record}', [PublicPresenceController::class, 'revoke'])->whereUuid('record');
-            Route::get('/partner/onboarding', [OnboardingController::class, 'index']);
+            Route::get('/pro/onboarding', [OnboardingController::class, 'index']);
             Route::get('/onboarding-requests', [OnboardingController::class, 'index']);
             Route::post('/onboarding-requests', [OnboardingController::class, 'store']);
             Route::post('/onboarding-requests/{record}/{action}', [OnboardingController::class, 'review'])->whereUuid('record')->whereIn('action', ['correct', 'accept', 'revoke', 'renew']);
             Route::match(['get', 'post'], '/onboarding-requests/{record}/documents/{document}', [OnboardingController::class, 'ownerDocument'])->whereUuid('record')->whereUuid('document');
-            Route::get('/partner/contacts', [CrmController::class, 'index']);
+            Route::get('/pro/contacts', [CrmController::class, 'index']);
             Route::get('/crm', [CrmController::class, 'index']);
             Route::post('/{kind}', [CrmController::class, 'store'])->whereIn('kind', ['contacts', 'reminders']);
             Route::patch('/{kind}/{record}', [CrmController::class, 'update'])->whereIn('kind', ['contacts', 'reminders'])->whereUuid('record');
             Route::delete('/{kind}/{record}', [CrmController::class, 'destroy'])->whereIn('kind', ['contacts', 'reminders'])->whereUuid('record');
             Route::post('/reminders/{record}/{action}', [CrmController::class, 'command'])->whereUuid('record')->whereIn('action', ['complete', 'reopen', 'snooze']);
             Route::match(['post', 'delete'], '/pipeline/{entry}/contacts', [CrmController::class, 'link'])->whereUuid('entry');
-            Route::get('/partner/outreach-templates', [OutreachTemplateController::class, 'index']);
+            Route::get('/pro/outreach-templates', [OutreachTemplateController::class, 'index']);
             Route::get('/outreach-templates', [OutreachTemplateController::class, 'index']);
             Route::post('/outreach-templates', [OutreachTemplateController::class, 'store']);
             Route::patch('/outreach-templates/{template}', [OutreachTemplateController::class, 'update'])->whereUuid('template');

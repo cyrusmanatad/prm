@@ -86,7 +86,7 @@ function save(): void {
                 <button
                     type="button"
                     class="wd-link"
-                    @click="router.get('/partner/media-kit', {}, { preserveState: false })"
+                    @click="router.get('/pro/media-kit', {}, { preserveState: false })"
                 >
                     Reload latest kit
                 </button>

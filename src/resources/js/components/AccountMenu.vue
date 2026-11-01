@@ -46,21 +46,22 @@ function signOut(): void {
     <DropdownMenuRoot :modal="false">
         <DropdownMenuTrigger as-child>
             <button type="button" class="wd-account-trigger" :class="{ 'wd-account-trigger-light': tone === 'light' }">
-                <span class="wd-sr-only">Account menu: </span>
-                <span class="wd-account-identity">
-                    <span class="wd-account-name">{{ accountName }}</span>
-                    <span v-if="accountEmail" class="wd-account-email">{{ accountEmail }}</span>
-                </span>
-                <span class="wd-avatar">{{ letters }}</span>
+                <span class="wd-sr-only">Account menu: {{ accountName }}</span>
+                <!-- The email moves into the menu so headers stay on one row. -->
+                <span class="wd-account-name" aria-hidden="true">{{ accountName.split(' ')[0] }}</span>
+                <span class="wd-avatar" aria-hidden="true">{{ letters }}</span>
             </button>
         </DropdownMenuTrigger>
         <DropdownMenuPortal>
             <nav aria-label="Account">
                 <DropdownMenuContent align="end" :side-offset="8" class="wd-account-menu">
+                    <div class="wd-account-menu-identity">
+                        <strong>{{ accountName }}</strong>
+                        <span v-if="accountEmail">{{ accountEmail }}</span>
+                    </div>
                     <DropdownMenuItem as-child>
                         <Link href="/workspaces"
-                            ><Settings :size="18" aria-hidden="true" class="shrink-0" />Switch workspace / account
-                            security</Link
+                            ><Settings :size="18" aria-hidden="true" class="shrink-0" />Workspaces and account</Link
                         >
                     </DropdownMenuItem>
                     <DropdownMenuItem v-for="link in links" :key="link.href" as-child>

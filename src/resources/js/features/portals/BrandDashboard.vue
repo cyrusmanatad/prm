@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AccountMenu from '../../components/AccountMenu.vue';
+import ComingSoonStrip from './ComingSoonStrip.vue';
 import type { PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
 // Synthetic reference content cannot be enabled in a production build.
@@ -15,16 +16,12 @@ const initials = computed(() =>
 );
 defineEmits<{ invite: []; remove: [id: string, trigger: HTMLElement] }>();
 const summary = computed(() => [
+    { label: 'Active partners', value: String(props.data.relationships.length) },
     {
-        label: 'Active partners',
-        value: String(props.data.relationships.length),
-        hint: 'Explicitly accepted partnerships',
+        label: 'Pending invitations',
+        value: String(props.data.invitations?.filter((row) => row.status === 'pending').length ?? 0),
     },
-    ...['Partner-sourced revenue', 'Leads registered', 'Days to first sale', 'Payouts due Friday'].map((label) => ({
-        label,
-        value: 'Unavailable',
-        hint: 'Not yet implemented',
-    })),
+    { label: 'Sign-up link', value: props.data.joinLink ? 'Active' : 'Off' },
 ]);
 </script>
 <template>
@@ -34,7 +31,7 @@ const summary = computed(() => [
     >
         <a class="wd-skip-link" href="#main-content">Skip to main content</a>
         <header class="border-b border-line bg-white">
-            <div class="mx-auto flex max-w-[1408px] flex-wrap items-center gap-6 px-6 py-3.5">
+            <div class="mx-auto flex max-w-[1408px] flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3.5">
                 <div class="flex items-center gap-2.5">
                     <svg viewBox="0 0 128 120" width="36" height="34" role="img" aria-label="WeavDash logo">
                         <circle cx="60" cy="60" r="52" fill="#E3C79A"></circle>
@@ -62,37 +59,41 @@ const summary = computed(() => [
                         ></path>
                     </svg>
                     <span class="font-display text-[20px] font-bold">WeavDash</span>
-                    <span class="rounded-full bg-blush px-2 py-[3px] text-[12px] font-bold text-brand"
+                    <span
+                        class="max-w-[220px] truncate rounded-full bg-blush px-2 py-[3px] text-[12px] font-bold text-brand"
                         >Brand · {{ fixture ? 'Habi Home' : data.workspace.name }}</span
                     >
                 </div>
-                <nav aria-label="Main" class="flex flex-auto flex-wrap gap-1">
+                <nav v-if="fixture" aria-label="Main" class="flex flex-auto flex-wrap gap-1">
+                    <a href="/brand" aria-current="page" class="rounded-lg bg-cream px-3 py-2 text-[14px] font-bold"
+                        >Partner hub</a
+                    >
+                    <span
+                        v-for="label in ['Lead registrations', 'Campaigns', 'Incentives', 'Enablement', 'Payouts']"
+                        :key="label"
+                        class="px-3 py-2 text-[14px] text-ink-soft"
+                        >{{ label }}</span
+                    >
+                </nav>
+                <!-- Only working sections appear in Brand portal navigation. -->
+                <nav v-else aria-label="Main" class="flex flex-auto gap-1">
                     <a
                         href="/brand"
                         aria-current="page"
                         class="rounded-lg bg-cream px-3 py-2 text-[14px] font-bold hover:text-brand"
-                        >Partner hub</a
+                        >Partners</a
                     >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Lead registrations</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Campaigns</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Incentives</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Enablement</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Payouts</span
+                    <a
+                        v-if="data.canManage"
+                        href="#invitations"
+                        class="rounded-lg px-3 py-2 text-[14px] text-ink-soft hover:text-brand"
+                        >Invitations</a
                     >
                 </nav>
                 <div class="flex items-center gap-3">
                     <button
+                        v-if="fixture"
                         type="button"
-                        :disabled="!fixture && !data.canManage"
                         @click="$emit('invite')"
                         class="rounded-[10px] bg-brand px-3.5 py-2.5 text-[14px] font-bold text-white"
                     >
@@ -111,15 +112,16 @@ const summary = computed(() => [
         </header>
 
         <main id="main-content" class="mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
-            <div>
-                <h1 class="font-display text-[32px] font-bold">Partner hub</h1>
-                <p class="mt-1.5 text-[15px] text-ink-soft">
-                    Who's bringing leads, who needs help, and what to do next.
-                </p>
-            </div>
+            <!-- Synthetic reference composition for visual comparison; development builds only. -->
+            <template v-if="fixture">
+                <div>
+                    <h1 class="font-display text-[32px] font-bold">Partner hub</h1>
+                    <p class="mt-1.5 text-[15px] text-ink-soft">
+                        Who's bringing leads, who needs help, and what to do next.
+                    </p>
+                </div>
 
-            <section aria-label="Program summary" class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-                <template v-if="fixture">
+                <section aria-label="Program summary" class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
                     <div class="rounded-[14px] border border-line bg-white px-[18px] py-4">
                         <div class="text-[13px] font-semibold text-muted">Active partners</div>
                         <div class="mt-1.5 font-display text-[26px] font-bold">41 / 48</div>
@@ -144,23 +146,11 @@ const summary = computed(() => [
                         <div class="text-[13px] font-semibold text-muted">Payouts due Friday</div>
                         <div class="mt-1.5 font-display text-[26px] font-bold">₱64,820</div>
                         <div class="mt-1 text-[12px] text-ink-soft">29 partners · GCash, Maya, bank</div>
-                    </div> </template
-                ><template v-else
-                    ><div
-                        v-for="card in summary"
-                        :key="card.label"
-                        class="rounded-[14px] border border-line bg-white px-[18px] py-4"
-                    >
-                        <div class="text-[13px] font-semibold text-muted">{{ card.label }}</div>
-                        <div class="mt-1.5 font-display text-[26px] font-bold">{{ card.value }}</div>
-                        <div class="mt-1 text-[13px] text-muted">{{ card.hint }}</div>
-                    </div></template
-                >
-            </section>
+                    </div>
+                </section>
 
-            <div class="flex flex-wrap items-start gap-6">
-                <section class="min-w-0 flex-[999_1_682px] rounded-2xl border border-line bg-white p-5">
-                    <template v-if="fixture">
+                <div class="flex flex-wrap items-start gap-6">
+                    <section class="min-w-0 flex-[999_1_682px] rounded-2xl border border-line bg-white p-5">
                         <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
                             <h2 class="font-display text-[18px] font-bold">Partners</h2>
                             <div class="flex flex-wrap gap-1.5">
@@ -377,57 +367,10 @@ const summary = computed(() => [
                                     </tr>
                                 </tbody>
                             </table>
-                        </div> </template
-                    ><template v-else
-                        ><h2 class="mb-3 font-display text-[18px] font-bold">Partners</h2>
-                        <div class="mb-3 flex flex-wrap gap-1.5">
-                            <span class="rounded-full bg-brand px-2.5 py-[5px] text-[12px] font-bold text-white"
-                                >All {{ data.relationships.length }}</span
-                            ><span class="rounded-full bg-cream px-2.5 py-[5px] text-[12px]">Segments unavailable</span>
                         </div>
-                        <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Partners table">
-                            <table class="w-full min-w-[760px] text-left text-[14px]">
-                                <thead>
-                                    <tr>
-                                        <th class="p-3">Partner</th>
-                                        <th class="p-3">Tier</th>
-                                        <th class="p-3">Leads (30d)</th>
-                                        <th class="p-3">Sales</th>
-                                        <th class="p-3">Revenue</th>
-                                        <th class="p-3">Health</th>
-                                        <th class="p-3">Last active</th>
-                                        <th class="p-3">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="row in data.relationships" :key="row.id" class="border-t border-line">
-                                        <td class="p-3">
-                                            {{ row.creator_name }}
-                                            <p class="text-[12px] text-muted">Active partnership</p>
-                                        </td>
-                                        <td v-for="column in 6" :key="column" class="p-3 text-muted">Unavailable</td>
-                                        <td class="p-3">
-                                            <button
-                                                v-if="data.canManage"
-                                                type="button"
-                                                class="wd-action-danger"
-                                                @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
-                                            >
-                                                End partnership
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <p v-if="!data.relationships.length" class="wd-empty mt-3">
-                            No active partners. Invite a partner to begin.
-                        </p></template
-                    >
-                </section>
+                    </section>
 
-                <aside class="min-w-0 flex-[1_1_380px] rounded-2xl bg-ink p-5 text-white">
-                    <template v-if="fixture">
+                    <aside class="min-w-0 flex-[1_1_380px] rounded-2xl bg-ink p-5 text-white">
                         <h2 class="mb-1 font-display text-[18px] font-bold">Needs your attention</h2>
                         <p class="mb-3.5 text-[13px] text-lilac">AI suggestions with the reasons behind them</p>
                         <div class="flex flex-col gap-3">
@@ -494,20 +437,12 @@ const summary = computed(() => [
                                     </button>
                                 </div>
                             </div>
-                        </div> </template
-                    ><template v-else
-                        ><h2 class="mb-3 font-display text-[18px] font-bold">Needs your attention</h2>
-                        <p class="text-[13px] text-lilac">
-                            Health signals and automated recommendations are unavailable.
-                        </p></template
-                    >
-                </aside>
-            </div>
-            <slot name="after-partners" />
+                        </div>
+                    </aside>
+                </div>
 
-            <div class="flex flex-wrap items-start gap-6">
-                <section class="min-w-0 flex-[1_1_562px] rounded-2xl border border-line bg-white p-5">
-                    <template v-if="fixture">
+                <div class="flex flex-wrap items-start gap-6">
+                    <section class="min-w-0 flex-[1_1_562px] rounded-2xl border border-line bg-white p-5">
                         <h2 class="mb-1 font-display text-[18px] font-bold">Partner-registered leads</h2>
                         <p class="mb-3 text-[13px] text-muted">
                             Wholesale, corporate gifting and B2B leads partners bring in. Clean leads auto-approve;
@@ -562,17 +497,10 @@ const summary = computed(() => [
                             >
                                 Approve &amp; protect 60 days
                             </button>
-                        </div> </template
-                    ><template v-else
-                        ><h2 class="mb-3 font-display text-[18px] font-bold">Partner-registered leads</h2>
-                        <p class="text-[13px] text-muted">
-                            Lead registration is unavailable. Creator-private prospects are never shared automatically.
-                        </p></template
-                    >
-                </section>
+                        </div>
+                    </section>
 
-                <section class="min-w-0 flex-[1_1_462px] rounded-2xl border border-line bg-white p-5">
-                    <template v-if="fixture">
+                    <section class="min-w-0 flex-[1_1_462px] rounded-2xl border border-line bg-white p-5">
                         <div class="flex items-center justify-between gap-2">
                             <h2 class="font-display text-[18px] font-bold">Tiers &amp; incentives</h2>
                             <a href="#" class="text-[13px] font-bold underline hover:text-brand">Edit rules</a>
@@ -607,26 +535,11 @@ const summary = computed(() => [
                                 31 partners opted in · brief, assets and captions auto-sent · bonus calculated into the
                                 commission ledger
                             </div>
-                        </div> </template
-                    ><template v-else
-                        ><h2 class="mb-3 font-display text-[18px] font-bold">Tiers &amp; incentives</h2>
-                        <p class="text-[13px] text-muted">
-                            Program tiers, incentives and commission rules are unavailable.
-                        </p>
-                        <button
-                            disabled
-                            type="button"
-                            title="Program rules are unavailable"
-                            class="mt-3 rounded-lg border border-line px-3 py-2 text-[13px]"
-                        >
-                            Edit rules
-                        </button></template
-                    >
-                </section>
-            </div>
+                        </div>
+                    </section>
+                </div>
 
-            <section class="rounded-2xl border border-line bg-white p-5">
-                <template v-if="fixture">
+                <section class="rounded-2xl border border-line bg-white p-5">
                     <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                         <h2 class="font-display text-[18px] font-bold">Enablement kit</h2>
                         <span class="text-[12px] text-muted">Usage tells you what actually helps partners sell</span>
@@ -654,23 +567,91 @@ const summary = computed(() => [
                                 9 partners finished · they register 2× more B2B leads
                             </div>
                         </div>
-                    </div> </template
-                ><template v-else
-                    ><h2 class="mb-3 font-display text-[18px] font-bold">Enablement kit</h2>
-                    <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
-                        <div
-                            v-for="label in ['Brief', 'Captions', 'Assets', 'Training']"
-                            :key="label"
-                            class="rounded-xl border border-line p-3.5"
-                        >
-                            <strong class="text-[14px]">{{ label }}</strong>
-                            <p class="mt-1.5 text-[12px] text-muted">
-                                Unavailable until campaign enablement is implemented.
-                            </p>
-                        </div>
-                    </div></template
-                >
-            </section>
+                    </div>
+                </section>
+            </template>
+            <template v-else>
+                <div class="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <h1 class="font-display text-[32px] font-bold">Partner hub</h1>
+                        <p class="mt-1.5 text-[15px] text-ink-soft">
+                            Invite partners, share your sign-up link and manage active partnerships.
+                        </p>
+                    </div>
+                    <button
+                        v-if="data.canManage"
+                        type="button"
+                        class="rounded-[10px] bg-brand px-4 py-[11px] text-[14px] font-bold text-white"
+                        @click="$emit('invite')"
+                    >
+                        + Invite partners
+                    </button>
+                </div>
+
+                <section aria-label="Program summary" class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
+                    <div
+                        v-for="card in summary"
+                        :key="card.label"
+                        class="rounded-[14px] border border-line bg-white px-5 py-4"
+                    >
+                        <div class="text-[13px] font-semibold text-muted">{{ card.label }}</div>
+                        <div class="mt-1 font-display text-[24px] font-bold">{{ card.value }}</div>
+                    </div>
+                </section>
+
+                <section class="rounded-2xl border border-line bg-white p-5" aria-labelledby="partners-title">
+                    <h2 id="partners-title" class="font-display text-[18px] font-bold">Partners</h2>
+                    <div
+                        v-if="data.relationships.length"
+                        class="mt-3 overflow-x-auto"
+                        tabindex="0"
+                        role="region"
+                        aria-label="Partners table"
+                    >
+                        <table class="w-full text-left text-[14px]">
+                            <thead class="text-[13px] text-muted">
+                                <tr>
+                                    <th class="p-3 font-semibold">Partner</th>
+                                    <th class="p-3 font-semibold">Partner since</th>
+                                    <th class="p-3"><span class="sr-only">Actions</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="row in data.relationships" :key="row.id" class="border-t border-line">
+                                    <td class="p-3 font-semibold">{{ row.creator_name }}</td>
+                                    <td class="p-3 text-ink-soft">
+                                        {{ new Date(row.accepted_at).toLocaleDateString() }}
+                                    </td>
+                                    <td class="p-3 text-right">
+                                        <button
+                                            v-if="data.canManage"
+                                            type="button"
+                                            class="wd-action-danger"
+                                            @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
+                                        >
+                                            End partnership
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p v-else class="wd-empty mt-3">No active partners. Invite a partner to begin.</p>
+                </section>
+
+                <slot name="after-partners" />
+
+                <ComingSoonStrip
+                    :items="[
+                        'Partner revenue',
+                        'Lead registrations',
+                        'Health signals',
+                        'Tiers & incentives',
+                        'Enablement kit',
+                        'Payouts',
+                    ]"
+                />
+            </template>
         </main>
     </div>
 </template>

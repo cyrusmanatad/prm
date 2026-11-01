@@ -39,7 +39,7 @@ test('pipeline filters query every page and preserve stages, money, URL and draw
         for (let i = 0; i < 27; i++) await lead(`Current lead ${i}`, 'PHP', '100', 'lead');
         await lead('Future active', 'PHP', '400', 'active', '2099-01-01T00:00:00Z');
     });
-    await page.goto('/partner/leads');
+    await page.goto('/pro/leads');
     const board = page.getByRole('region', { name: 'My pipeline', exact: true });
     const card = (name: string) => board.getByRole('button', { name: new RegExp(`Open ${name}`) });
     const pitched = board.getByRole('region', { name: 'Pitched', exact: true });

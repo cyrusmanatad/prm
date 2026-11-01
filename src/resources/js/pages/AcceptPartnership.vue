@@ -21,7 +21,7 @@ onMounted(() => {
                 <p class="wd-description">
                     {{
                         account
-                            ? 'Select a creator workspace you own or administer, then confirm the partnership.'
+                            ? 'Select a Professional workspace you own or administer, then confirm the partnership.'
                             : 'Create your account with the invited email, or sign in if it already has one. Then confirm the partnership.'
                     }}
                 </p>
@@ -36,7 +36,7 @@ onMounted(() => {
                         form.post('/partnerships/prepare');
                     "
                 >
-                    Select creator workspace
+                    Select Professional workspace
                 </button>
                 <form
                     class="wd-fields"

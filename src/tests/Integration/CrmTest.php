@@ -57,10 +57,10 @@ class CrmTest extends TestCase
         $this->workspace();
         $filters = ['q' => '0', 'state' => 'completed'];
         $this->post('/contacts', ['name' => 'Filtered contact', 'crm_filters' => $filters])
-            ->assertRedirect('/partner/contacts?q=0&state=completed');
+            ->assertRedirect('/pro/contacts?q=0&state=completed');
         $id = $this->postJson('/reminders', ['title' => 'Complete me', 'due_at' => now()->toIso8601String()])->json('id');
         $this->post('/reminders/'.$id.'/complete', ['version' => 1, 'crm_filters' => $filters])
-            ->assertRedirect('/partner/contacts?q=0&state=completed');
+            ->assertRedirect('/pro/contacts?q=0&state=completed');
         $this->getJson('/crm?state=completed')->assertJsonPath('reminders.items.0.id', $id);
         $this->postJson('/reminders/'.$id.'/reopen', ['version' => 2, 'crm_filters' => ['state' => 'forged']])->assertUnprocessable();
         $this->getJson('/crm?state=completed')->assertJsonPath('reminders.items.0.version', 2);

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
 import AccountSecurity from '../../components/AccountSecurity.vue';
 import ActionGroup from '../../components/ActionGroup.vue';
-import SelectField from '../../components/SelectField.vue';
+import DialogClose from '../../components/DialogClose.vue';
+import { containDialogFocus } from '../../composables/useDialogFocus';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 import FoundationShell from '../../layouts/FoundationShell.vue';
 import type { AccountSummary, FieldErrors, WorkspaceAction, WorkspaceSummary } from '../../types/foundation';
@@ -25,6 +26,7 @@ const props = withDefaults(
 const emit = defineEmits<{
     create: [name: string, kind: 'creator' | 'brand'];
     select: [orgId: string];
+    open: [orgId: string, href: string];
     rename: [name: string];
     revokeSessions: [password: string];
     logout: [];
@@ -32,8 +34,36 @@ const emit = defineEmits<{
 const root = ref<HTMLElement>();
 const newName = ref('');
 const kind = ref<'creator' | 'brand'>('creator');
-function onKind(next: string): void {
-    if (next === 'creator' || next === 'brand') kind.value = next;
+const kinds = [
+    {
+        value: 'brand',
+        label: 'Business',
+        description: 'For companies managing their partners. Opens the Brand portal.',
+    },
+    {
+        value: 'creator',
+        label: 'Professional',
+        description: 'For individuals managing leads, sales and client onboarding. Opens the Professional portal.',
+    },
+] as const;
+const groups = computed(() =>
+    kinds
+        .map((type) => ({
+            ...type,
+            workspaces: props.workspaces.filter((row) => (row.kind ?? 'creator') === type.value),
+        }))
+        .filter((group) => group.workspaces.length),
+);
+function portal(workspace: WorkspaceSummary): { href: string; label: string } {
+    return workspace.kind === 'brand'
+        ? { href: '/brand', label: 'Brand portal' }
+        : { href: '/pro/leads', label: 'Professional portal' };
+}
+const createDialog = ref<HTMLDialogElement | null>(null);
+async function openCreate(): Promise<void> {
+    createDialog.value?.showModal();
+    await nextTick();
+    document.getElementById('workspace_name')?.focus();
 }
 const currentName = ref('');
 const password = ref('');
@@ -48,6 +78,13 @@ watch(
         currentName.value = name ?? '';
     },
     { immediate: true },
+);
+// Rejected names reopen the dialog so the error is visible beside its field.
+watch(
+    () => props.errors.create_name,
+    (error) => {
+        if (error && !createDialog.value?.open) createDialog.value?.showModal();
+    },
 );
 useValidationFocus(
     root,
@@ -69,6 +106,7 @@ defineExpose({
     },
     clearCreateForm: () => {
         newName.value = '';
+        createDialog.value?.close();
     },
 });
 </script>
@@ -76,86 +114,89 @@ defineExpose({
 <template>
     <FoundationShell :account-name="account.name" :account-email="account.email" @logout="emit('logout')">
         <div ref="root" class="wd-workspace-content">
-            <div class="wd-page-heading">
-                <span class="wd-eyebrow">Your workspaces</span>
-                <h1>A place for your next chapter.</h1>
-                <p class="wd-description">Choose where you want to work, or create a workspace of your own.</p>
+            <div class="wd-page-heading wd-workspaces-heading">
+                <div>
+                    <h1>Workspaces</h1>
+                    <p class="wd-description">Open a workspace to go to its portal, or create a new one.</p>
+                </div>
+                <Button
+                    v-if="workspaces.length"
+                    type="button"
+                    class="wd-button wd-button-primary"
+                    :disabled="busy"
+                    @click="openCreate"
+                    >+ New workspace</Button
+                >
             </div>
             <p v-if="accessRevoked" class="wd-field-error wd-banner" role="alert">
                 Your access to the previous workspace has changed. Choose an available workspace below.
             </p>
-            <div class="wd-workspace-grid">
-                <section class="wd-card" aria-labelledby="workspace-list-title" :aria-busy="pendingAction === 'select'">
-                    <h2 id="workspace-list-title">Your spaces</h2>
-                    <p v-if="!workspaces.length" class="wd-empty">
-                        You don’t have an active workspace yet. Create one to get started.
-                    </p>
-                    <ul v-else class="wd-workspace-list">
-                        <li v-for="workspace in workspaces" :key="workspace.id">
-                            <button
-                                type="button"
-                                class="wd-workspace-option"
-                                :aria-pressed="selected?.id === workspace.id"
-                                :disabled="busy"
-                                @click="emit('select', workspace.id)"
+
+            <section v-if="!workspaces.length" class="wd-card" aria-labelledby="workspace-first-title">
+                <h2 id="workspace-first-title">Create your first workspace</h2>
+                <p class="wd-description">
+                    You don’t have an active workspace yet. Create a Business or Professional workspace to get started.
+                </p>
+                <Button type="button" class="wd-button wd-button-primary" :disabled="busy" @click="openCreate"
+                    >+ New workspace</Button
+                >
+            </section>
+
+            <section
+                v-for="group in groups"
+                :key="group.value"
+                class="wd-workspace-group"
+                :aria-labelledby="`workspace-group-${group.value}`"
+                :aria-busy="pendingAction === 'select'"
+            >
+                <h2 :id="`workspace-group-${group.value}`">{{ group.label }}</h2>
+                <ul class="wd-workspace-cards">
+                    <li
+                        v-for="workspace in group.workspaces"
+                        :key="workspace.id"
+                        class="wd-workspace-card"
+                        :class="{ 'wd-workspace-card-current': selected?.id === workspace.id }"
+                    >
+                        <button
+                            type="button"
+                            class="wd-workspace-option"
+                            :aria-pressed="selected?.id === workspace.id"
+                            :disabled="busy"
+                            @click="emit('select', workspace.id)"
+                        >
+                            <span class="wd-workspace-initial" aria-hidden="true">{{
+                                workspace.name.slice(0, 1).toUpperCase()
+                            }}</span>
+                            <span class="wd-workspace-label"
+                                ><strong :id="`workspace-name-${workspace.id}`">{{ workspace.name }}</strong
+                                ><span class="wd-role"
+                                    >{{ workspace.kind === 'brand' ? 'Business' : 'Professional' }} ·
+                                    {{ workspace.role }}</span
+                                ></span
                             >
-                                <span class="wd-workspace-initial" aria-hidden="true">{{
-                                    workspace.name.slice(0, 1).toUpperCase()
-                                }}</span>
-                                <span class="wd-workspace-label"
-                                    ><strong>{{ workspace.name }}</strong
-                                    ><span class="wd-role"
-                                        >{{ workspace.kind === 'brand' ? 'Brand' : 'Partner' }} ·
-                                        {{ workspace.role }}</span
-                                    ></span
-                                >
-                                <span v-if="selected?.id === workspace.id" class="wd-active-label">Selected</span>
-                                <span v-else aria-hidden="true">↗</span>
-                            </button>
-                        </li>
-                    </ul>
-                    <p v-if="errors.org_id" class="wd-field-error" role="alert">{{ errors.org_id }}</p>
-                    <p v-if="pendingAction === 'select'" class="wd-hint" role="status">Switching workspace…</p>
-                </section>
-                <section class="wd-card" aria-labelledby="workspace-create-title">
-                    <h2 id="workspace-create-title">Start something new.</h2>
-                    <p class="wd-description">Give your workspace a name you’ll recognize.</p>
-                    <form :aria-busy="pendingAction === 'create'" @submit.prevent="create">
-                        <fieldset class="wd-fields" :disabled="busy">
-                            <legend class="wd-sr-only">Create a workspace</legend>
-                            <SelectField
-                                id="workspace-kind"
-                                :model-value="kind"
-                                label="Workspace type"
-                                :options="[
-                                    { value: 'creator', label: 'Partner / creator' },
-                                    { value: 'brand', label: 'Brand' },
-                                ]"
-                                @update:model-value="onKind"
-                            />
-                            <FormField
-                                id="workspace_name"
-                                v-model="newName"
-                                label="Workspace name"
-                                autocomplete="organization"
-                                :maxlength="120"
-                                :error="errors.create_name"
-                            />
-                            <Button type="submit" class="wd-button wd-button-primary">{{
-                                pendingAction === 'create' ? 'Creating…' : 'Create workspace'
-                            }}</Button>
-                        </fieldset>
-                    </form>
-                </section>
-            </div>
-            <div v-if="selected" class="wd-settings-row">
-                <section class="wd-card wd-settings-card" aria-labelledby="workspace-settings-title">
-                    <span class="wd-eyebrow">Selected workspace</span>
+                            <span v-if="selected?.id === workspace.id" class="wd-active-label">Current</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="wd-button wd-button-secondary"
+                            :disabled="busy"
+                            :aria-describedby="`workspace-name-${workspace.id}`"
+                            @click="emit('open', workspace.id, portal(workspace).href)"
+                        >
+                            Open {{ portal(workspace).label }}
+                        </button>
+                    </li>
+                </ul>
+            </section>
+            <p v-if="errors.org_id" class="wd-field-error" role="alert">{{ errors.org_id }}</p>
+            <p v-if="pendingAction === 'select'" class="wd-hint" role="status">Switching workspace…</p>
+
+            <div class="wd-settings-row">
+                <section v-if="selected" class="wd-card wd-settings-card" aria-labelledby="workspace-settings-title">
+                    <span class="wd-eyebrow">Current workspace</span>
                     <h2 id="workspace-settings-title">{{ selected.name }}</h2>
-                    <Link
-                        class="wd-link inline-flex min-h-11 items-center"
-                        :href="selected.kind === 'brand' ? '/brand' : '/partner/leads'"
-                        >Open {{ selected.kind === 'brand' ? 'brand hub' : 'partner portal' }}</Link
+                    <Link class="wd-link inline-flex min-h-11 items-center" :href="portal(selected).href"
+                        >Open {{ portal(selected).label }}</Link
                     >
                     <ActionGroup v-if="selected.role === 'owner'">
                         <Link class="wd-link" href="/finance/invoices">Private finance records</Link>
@@ -190,15 +231,49 @@ defineExpose({
                     @revoke="revoke"
                 />
             </div>
-            <AccountSecurity
-                v-else
-                v-model="password"
-                :account-name="account.name"
-                :busy="busy"
-                :pending="pendingAction === 'revoke-sessions'"
-                :error="errors.password"
-                @revoke="revoke"
-            />
         </div>
+
+        <dialog
+            ref="createDialog"
+            class="wd-dialog"
+            aria-labelledby="workspace-create-title"
+            @keydown="containDialogFocus($event, createDialog)"
+        >
+            <div class="wd-dialog-header">
+                <h2 id="workspace-create-title">New workspace</h2>
+                <DialogClose label="Close new workspace dialog" @click="createDialog?.close()" />
+            </div>
+            <form id="workspace-create-form" :aria-busy="pendingAction === 'create'" @submit.prevent="create">
+                <fieldset class="wd-fields" :disabled="busy">
+                    <legend class="wd-sr-only">Create a workspace</legend>
+                    <fieldset class="wd-type-options">
+                        <legend>Workspace type</legend>
+                        <label v-for="type in kinds" :key="type.value" class="wd-type-option">
+                            <input v-model="kind" type="radio" name="workspace-kind" :value="type.value" />
+                            <span
+                                ><strong>{{ type.label }}</strong
+                                ><span>{{ type.description }}</span></span
+                            >
+                        </label>
+                    </fieldset>
+                    <FormField
+                        id="workspace_name"
+                        v-model="newName"
+                        label="Workspace name"
+                        autocomplete="organization"
+                        :maxlength="120"
+                        :error="errors.create_name"
+                    />
+                    <div class="wd-dialog-footer">
+                        <button type="button" class="wd-button wd-button-secondary" @click="createDialog?.close()">
+                            Cancel
+                        </button>
+                        <Button type="submit" class="wd-button wd-button-primary">{{
+                            pendingAction === 'create' ? 'Creating…' : 'Create workspace'
+                        }}</Button>
+                    </div>
+                </fieldset>
+            </form>
+        </dialog>
     </FoundationShell>
 </template>
