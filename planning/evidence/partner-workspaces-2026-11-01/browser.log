@@ -1,0 +1,55 @@
+
+Running 50 tests using 1 worker
+
+[1/50] [desktop] › tests\Browser\accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations
+[2/50] [desktop] › tests\Browser\accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+[3/50] [desktop] › tests\Browser\adversarial.spec.ts:4:1 › all five roles enforce server permissions and revoked pages drop stale workspace data
+[4/50] [desktop] › tests\Browser\adversarial.spec.ts:32:1 › session fixation, CSRF failure, logout replay, and reset of two live sessions
+[5/50] [desktop] › tests\Browser\confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors
+[6/50] [desktop] › tests\Browser\crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen
+[7/50] [desktop] › tests\Browser\crm.spec.ts:106:1 › CRM filters reset paged lists, restore history and retain actionable stale errors
+[8/50] [desktop] › tests\Browser\finance.spec.ts:8:1 › private draft exact money, edit and terminal void
+[9/50] [desktop] › tests\Browser\finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility
+[10/50] [desktop] › tests\Browser\foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings
+[11/50] [desktop] › tests\Browser\foundation.spec.ts:62:1 › recovery, invalid login, and revocation of two real database sessions
+[12/50] [desktop] › tests\Browser\notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+[13/50] [desktop] › tests\Browser\onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+[14/50] [desktop] › tests\Browser\onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes
+[15/50] [desktop] › tests\Browser\onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+[16/50] [desktop] › tests\Browser\outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete
+[17/50] [desktop] › tests\Browser\partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history
+[18/50] [desktop] › tests\Browser\pipeline-filtering.spec.ts:5:1 › pipeline filters query every page and preserve stages, money, URL and drawer history
+[19/50] [desktop] › tests\Browser\pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+[20/50] [desktop] › tests\Browser\pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access
+[21/50] [desktop] › tests\Browser\pipeline.spec.ts:116:1 › lead cards drag between pipeline columns and stay there after reload
+[22/50] [desktop] › tests\Browser\portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context
+[23/50] [desktop] › tests\Browser\portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable
+[24/50] [desktop] › tests\Browser\portals.spec.ts:129:1 › portal registration survives logout and verification before first workspace provisioning
+[25/50] [desktop] › tests\Browser\ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths
+[26/50] [mobile] › tests\Browser\accessibility.spec.ts:29:1 › auth, reset, verification, and generic error pages have no automated accessibility violations
+[27/50] [mobile] › tests\Browser\accessibility.spec.ts:59:1 › workspace, security disclosure, validation focus, and 200-percent root font remain accessible
+[28/50] [mobile] › tests\Browser\adversarial.spec.ts:4:1 › all five roles enforce server permissions and revoked pages drop stale workspace data
+[29/50] [mobile] › tests\Browser\adversarial.spec.ts:32:1 › session fixation, CSRF failure, logout replay, and reset of two live sessions
+[30/50] [mobile] › tests\Browser\confirmation-errors.spec.ts:5:1 › confirmation prevents duplicate requests while pending and retains password errors
+[31/50] [mobile] › tests\Browser\crm.spec.ts:6:1 › contacts are reusable and reminders snooze, complete and reopen
+[32/50] [mobile] › tests\Browser\crm.spec.ts:106:1 › CRM filters reset paged lists, restore history and retain actionable stale errors
+[33/50] [mobile] › tests\Browser\finance.spec.ts:8:1 › private draft exact money, edit and terminal void
+[34/50] [mobile] › tests\Browser\finance.spec.ts:49:1 › manual receipt allocation, reversal, void and entitlement visibility
+[35/50] [mobile] › tests\Browser\foundation.spec.ts:5:1 › registration, verification, workspace errors, create, and settings
+[36/50] [mobile] › tests\Browser\foundation.spec.ts:62:1 › recovery, invalid login, and revocation of two real database sessions
+[37/50] [mobile] › tests\Browser\notifications.spec.ts:31:1 › explicit invitation email shows queue capture and cancellation without external mail
+[38/50] [mobile] › tests\Browser\onboarding-notifications.spec.ts:28:1 › onboarding email is explicit, captured, usable and safely replaced or revoked
+[39/50] [mobile] › tests\Browser\onboarding.spec.ts:18:1 › creator invites brand, brand resumes, uploads, submits and corrects; creator revokes
+[40/50] [mobile] › tests\Browser\onboarding.spec.ts:140:1 › media kit publication and inbound lead links are explicit and revocable
+[41/50] [mobile] › tests\Browser\outreach-templates.spec.ts:6:1 › private templates persist, reject stale edits, merge drafts, copy and delete
+[42/50] [mobile] › tests\Browser\partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history
+[43/50] [mobile] › tests\Browser\pipeline-filtering.spec.ts:5:1 › pipeline filters query every page and preserve stages, money, URL and drawer history
+[44/50] [mobile] › tests\Browser\pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion
+[45/50] [mobile] › tests\Browser\pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access
+[46/50] [mobile] › tests\Browser\pipeline.spec.ts:116:1 › lead cards drag between pipeline columns and stay there after reload
+[47/50] [mobile] › tests\Browser\portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context
+[48/50] [mobile] › tests\Browser\portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable
+[49/50] [mobile] › tests\Browser\portals.spec.ts:129:1 › portal registration survives logout and verification before first workspace provisioning
+[50/50] [mobile] › tests\Browser\ui-refinement.spec.ts:5:1 › shared controls preserve keyboard intent and layouts adapt across viewport widths
+  2 skipped
+  48 passed (7.4m)

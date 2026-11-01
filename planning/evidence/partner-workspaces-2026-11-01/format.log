@@ -1,0 +1,6 @@
+
+> format:check
+> prettier --check resources/css/foundation.css resources/js/features/auth/AuthScreen.vue resources/js/features/portals/PartnerChrome.vue resources/js/features/workspaces/WorkspaceScreen.vue resources/js/layouts/FoundationShell.vue resources/js/pages/AcceptPartnership.vue resources/js/pages/Auth.vue resources/js/pages/JoinBrand.vue resources/js/pages/PartnerPortal.vue resources/js/pages/Workspaces.vue resources/js/types/foundation.ts tests/Browser/portals.spec.ts tests/Frontend/AuthScreen.test.ts tests/Frontend/OutreachMerge.test.ts tests/Frontend/PipelineMoney.test.ts tests/Frontend/WorkspaceScreen.test.ts
+
+Checking formatting...
+All matched files use Prettier code style!

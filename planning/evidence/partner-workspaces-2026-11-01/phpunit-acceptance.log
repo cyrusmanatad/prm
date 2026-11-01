@@ -1,0 +1,10 @@
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.acceptance.xml
+
+.....................................................             53 / 53 (100%)
+
+Time: 01:25.595, Memory: 64.50 MB
+
+OK (53 tests, 1142 assertions)

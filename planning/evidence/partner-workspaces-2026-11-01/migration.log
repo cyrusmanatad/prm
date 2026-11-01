@@ -1,0 +1,12 @@
+ workspace_kind | status  | count 
+----------------+---------+-------
+ creator        | active  |     1
+ partner        | active  |    57
+ partner        | revoked |    19
+(3 rows)
+
+ moved | duplicates_ended | partner_workspaces_created 
+-------+------------------+----------------------------
+    76 |                0 |                         66
+(1 row)
+

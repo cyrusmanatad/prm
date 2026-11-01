@@ -1,0 +1,56 @@
+
+> build
+> vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 3214 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/manifest.json                                         11.83 kB │ gzip:  1.54 kB
+public/build/assets/manrope-latin-ext-Ch3YOpNY.woff2               15.12 kB
+public/build/assets/manrope-latin-DHIcAJRg.woff2                   24.83 kB
+public/build/assets/bricolage-grotesque-latin-ext-IcJDqblK.woff2   30.73 kB
+public/build/assets/bricolage-grotesque-latin-Cre6nC2_.woff2       76.88 kB
+public/build/assets/OnboardingForm-CUb0SmXu.css                     0.08 kB │ gzip:  0.09 kB
+public/build/assets/PublicPresence-vGeWxg1K.css                     0.12 kB │ gzip:  0.11 kB
+public/build/assets/OnboardingAdmin-CQWfwShR.css                    0.16 kB │ gzip:  0.12 kB
+public/build/assets/SelectField-BodgAT51.css                        0.63 kB │ gzip:  0.29 kB
+public/build/assets/Crm-DccKJnWf.css                                9.27 kB │ gzip:  1.95 kB
+public/build/assets/Portal-DHDgU1aQ.css                            13.23 kB │ gzip:  2.74 kB
+public/build/assets/app-Bnk-yHCT.css                               86.75 kB │ gzip: 18.59 kB
+public/build/assets/x-BQDNhxJB.js                                   0.16 kB │ gzip:  0.16 kB
+public/build/assets/useValidationFocus-Cd-pL-HU.js                  0.28 kB │ gzip:  0.24 kB
+public/build/assets/ActionGroup-4cjl652E.js                         0.29 kB │ gzip:  0.23 kB
+public/build/assets/DialogClose-CzQ-7-Z5.js                         0.46 kB │ gzip:  0.32 kB
+public/build/assets/ContentSection-D9bLM7Uk.js                      0.57 kB │ gzip:  0.36 kB
+public/build/assets/ComingSoonStrip-DAiDEK4F.js                     0.60 kB │ gzip:  0.40 kB
+public/build/assets/Error-CvU5NXrY.js                               0.63 kB │ gzip:  0.43 kB
+public/build/assets/FieldGroup-CqwwOHOR.js                          0.68 kB │ gzip:  0.42 kB
+public/build/assets/FormField-DfqWZ1Qn.js                           1.34 kB │ gzip:  0.68 kB
+public/build/assets/OpenInvitation-DdrS1Uuf.js                      1.43 kB │ gzip:  0.83 kB
+public/build/assets/FinanceLayout-CsTMGuV4.js                       1.67 kB │ gzip:  0.85 kB
+public/build/assets/emailStates-Ccjol9em.js                         1.74 kB │ gzip:  0.91 kB
+public/build/assets/Entitlements-CJTnjXGR.js                        1.94 kB │ gzip:  0.95 kB
+public/build/assets/AcceptPartnership-CG1ngZ4g.js                   2.40 kB │ gzip:  1.25 kB
+public/build/assets/PublicLead-e05bBTyD.js                          2.91 kB │ gzip:  1.31 kB
+public/build/assets/JoinBrand-CCvjv-AS.js                           2.97 kB │ gzip:  1.41 kB
+public/build/assets/FoundationShell-UbaYFiyV.js                     3.99 kB │ gzip:  1.83 kB
+public/build/assets/PartnerPortal-BQJFowMB.js                       4.82 kB │ gzip:  2.24 kB
+public/build/assets/Invoices-DAnYzSwd.js                            5.93 kB │ gzip:  2.18 kB
+public/build/assets/SelectField-WyJ_cGNE.js                         6.40 kB │ gzip:  2.53 kB
+public/build/assets/PublicPresence-Dr97loSN.js                      6.65 kB │ gzip:  2.67 kB
+public/build/assets/OnboardingForm-CLwqKLWQ.js                      7.01 kB │ gzip:  2.64 kB
+public/build/assets/Payments-DsTCBk2y.js                            7.26 kB │ gzip:  2.44 kB
+public/build/assets/PartnerChrome-CnRW0otg.js                       7.60 kB │ gzip:  3.16 kB
+public/build/assets/OnboardingAdmin-IS_krZ20.js                     7.62 kB │ gzip:  2.91 kB
+public/build/assets/OutreachTemplates-Dk68NQgQ.js                   7.80 kB │ gzip:  3.01 kB
+public/build/assets/Auth-DSD3VsH6.js                                8.16 kB │ gzip:  2.98 kB
+public/build/assets/Workspaces-CcmQmvEj.js                         11.39 kB │ gzip:  4.10 kB
+public/build/assets/Crm-BetNxdXt.js                                19.79 kB │ gzip:  6.13 kB
+public/build/assets/app-BHDFxvPK.js                                64.49 kB │ gzip: 22.17 kB
+public/build/assets/Portal-B2XHTNjc.js                             81.07 kB │ gzip: 21.65 kB
+public/build/assets/AccountMenu-4uuKmwgQ.js                        81.48 kB │ gzip: 26.84 kB
+public/build/assets/Primitive-inDAIAcH.js                         222.72 kB │ gzip: 76.44 kB
+
+✓ built in 2.89s

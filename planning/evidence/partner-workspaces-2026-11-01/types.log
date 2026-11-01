@@ -1,0 +1,4 @@
+
+> typecheck
+> vue-tsc --noEmit
+
