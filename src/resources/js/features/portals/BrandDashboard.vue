@@ -20,6 +20,11 @@ const summary = computed(() => [
         value: String(props.data.relationships.length),
         hint: 'Explicitly accepted partnerships',
     },
+    {
+        label: 'Sign-up link',
+        value: props.data.canManage ? (props.data.joinLink ? 'Active' : 'Off') : 'Restricted',
+        hint: props.data.canManage ? 'Manage in Invite partners' : 'Owner or admin access required',
+    },
     ...['Partner-sourced revenue', 'Leads registered', 'Days to first sale', 'Payouts due Friday'].map((label) => ({
         label,
         value: 'Unavailable',

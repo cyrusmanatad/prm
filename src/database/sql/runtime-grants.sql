@@ -8,3 +8,10 @@ GRANT EXECUTE ON FUNCTION app_create_workspace(uuid, text) TO weavdash_app;
 REVOKE ALL ON TABLE migrations FROM weavdash_app;
 
 GRANT EXECUTE ON FUNCTION app_onboarding_access(uuid), app_onboarding_scope(text), app_exchange_onboarding(text,text,uuid), app_public_kit(uuid), app_capture_lead(text,uuid,text,text,text,text,uuid) TO weavdash_app;
+
+-- Reusable link mutations must remain available only through their guarded functions.
+DO $$ BEGIN
+ IF to_regclass('public.partner_join_links') IS NOT NULL THEN
+  REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.partner_join_links FROM weavdash_app;
+ END IF;
+END $$;

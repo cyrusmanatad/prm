@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:128966) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/join-links.spec.ts:11:1 › reusable brand codes support signup, verified consent, replacement and safe disable (37.9s)
+(node:130169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [mobile] › tests/Browser/join-links.spec.ts:11:1 › reusable brand codes support signup, verified consent, replacement and safe disable (22.7s)
+
+  2 passed (1.2m)

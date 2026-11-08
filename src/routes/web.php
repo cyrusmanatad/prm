@@ -12,6 +12,7 @@ use App\Http\Controllers\InvoiceDraftController;
 use App\Http\Controllers\ManualPaymentController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OutreachTemplateController;
+use App\Http\Controllers\PartnerJoinController;
 use App\Http\Controllers\PipelineController;
 use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\PortalController;
@@ -19,11 +20,14 @@ use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\PublicPresenceController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Middleware\WorkspaceContext;
+use App\Services\PartnershipInvitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Public pages exchange capabilities in POST bodies; fragment tokens never reach access logs.
+Route::get('/join', [PartnerJoinController::class, 'page']);
+Route::post('/join/prepare', [PartnerJoinController::class, 'prepare'])->middleware('throttle:10,1,join-prepare:');
 Route::get('/partnerships/accept', [PortalController::class, 'acceptancePage']);
 Route::post('/partnerships/prepare', [PortalController::class, 'prepare'])->middleware('throttle:10,1,partner-prepare:');
 Route::get('/onboarding', fn () => Inertia::render('OpenInvitation'));
@@ -41,8 +45,8 @@ Route::get('/kits/{record}', [PublicPresenceController::class, 'kit'])->whereUui
 Route::get('/', fn (Request $request) => redirect($request->user()
     ? ($request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email') : '/login'));
 Route::middleware('guest')->group(function (): void {
-    Route::get('/{portal}/login', fn (string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal]))->whereIn('portal', ['brand', 'partner', 'professional']);
-    Route::get('/{portal}/register', fn (string $portal) => Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal]))->whereIn('portal', ['brand', 'partner', 'professional']);
+    Route::get('/{portal}/login', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'login', 'portal' => $portal, 'joining' => PartnershipInvitation::join($request)['brand'] ?? null]))->whereIn('portal', ['brand', 'partner', 'professional']);
+    Route::get('/{portal}/register', fn (Request $request, string $portal) => Inertia::render('Auth', ['mode' => 'register', 'portal' => $portal, 'joining' => PartnershipInvitation::join($request)['brand'] ?? null]))->whereIn('portal', ['brand', 'partner', 'professional']);
     Route::post('/{portal}/login', [SessionController::class, 'store'])->whereIn('portal', ['brand', 'partner', 'professional'])->middleware('throttle:20,1,login:');
     Route::post('/{portal}/register', RegisteredUserController::class)->whereIn('portal', ['brand', 'partner', 'professional'])->middleware('throttle:5,1,register:');
     Route::get('/login', fn () => Inertia::render('Auth', ['mode' => 'login']))->name('login');
@@ -65,8 +69,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
     Route::delete('/sessions', RevokeSessionsController::class)->middleware('throttle:5,1,sessions:');
     Route::get('/verify-email', fn (Request $request) => $request->user()->hasVerifiedEmail()
-        ? redirect('/workspaces')
-        : Inertia::render('Auth', ['mode' => 'verify-email', 'email' => $request->user()->email]))->name('verification.notice');
+        ? redirect($request->session()->has('partnership_join') ? '/portal/enter' : '/workspaces')
+        : Inertia::render('Auth', ['mode' => 'verify-email', 'email' => $request->user()->email, 'joining' => PartnershipInvitation::join($request)['brand'] ?? null]))->name('verification.notice');
     Route::get('/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware(['signed', 'throttle:6,1,verification-link:'])->name('verification.verify');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])->middleware('throttle:6,1,verification-resend:')->name('verification.send');
     Route::get('/account', fn (Request $request) => response()->json([
@@ -78,6 +82,7 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/admin/security/verify', [PlatformController::class, 'verify'])->middleware('throttle:5,1,admin-mfa:');
         Route::get('/admin', [PlatformController::class, 'index']);
         Route::post('/admin/assignments', [PlatformController::class, 'assign'])->middleware('throttle:10,1,admin-assign:');
+        Route::get('/join/select', [PartnerJoinController::class, 'select']);
         Route::get('/portal/enter', [PortalController::class, 'enter']);
 
         Route::middleware(WorkspaceContext::class)->group(function (): void {
@@ -114,6 +119,9 @@ Route::middleware('auth')->group(function (): void {
 
             Route::get('/partner/leads', [PortalController::class, 'index']);
             Route::get('/partner', [PortalController::class, 'index']);
+            Route::post('/join/accept', [PartnerJoinController::class, 'accept'])->middleware('throttle:6,1,join-accept:');
+            Route::post('/partner-join-link', [PartnerJoinController::class, 'issue'])->middleware('throttle:10,1,join-manage:');
+            Route::delete('/partner-join-link', [PartnerJoinController::class, 'disable'])->middleware('throttle:10,1,join-disable:');
             Route::get('/brand', [PortalController::class, 'index']);
             Route::post('/partner-invitations', [PortalController::class, 'invite'])->middleware('throttle:10,1,partner-invite:');
             Route::post('/partnerships/accept', [PortalController::class, 'accept'])->middleware('throttle:6,1,partner-accept:');

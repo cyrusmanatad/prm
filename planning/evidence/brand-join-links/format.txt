@@ -1,0 +1,5 @@
+
+> format:changed
+> node scripts/format-changed.mjs --write
+
+39 changed frontend files formatted.

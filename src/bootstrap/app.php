@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ? response()->json(['message' => $message, 'errors' => ['quota' => [$message]]], 422)
                 : back()->withErrors(['quota' => $message]);
         });
-        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'token']);
+        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'token', 'code']);
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             $messages = [
                 403 => 'This page is not available to your account.',

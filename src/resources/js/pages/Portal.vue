@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { confirmAction } from '../composables/useConfirmation';
+import JoinLinkPanel from '../features/portals/JoinLinkPanel.vue';
+import { confirmation, confirmAction } from '../composables/useConfirmation';
 import { containDialogFocus } from '../composables/useDialogFocus';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { nextTick, ref, watch } from 'vue';
@@ -18,6 +19,33 @@ const props = defineProps<
     }
 >();
 const inviting = ref(false);
+let joinTrigger: HTMLElement | null = null;
+async function confirmJoin(
+    title: string,
+    description: string,
+    action: () => void,
+    trigger: HTMLElement,
+): Promise<void> {
+    joinTrigger = trigger;
+    inviting.value = false;
+    invitationDialog.value?.close();
+    await nextTick();
+    confirmAction(title, description, action, trigger, { tone: 'danger' });
+}
+async function restoreJoinFocus(): Promise<void> {
+    await nextTick();
+    if (confirmation.value || !invitationDialog.value?.open || !joinTrigger) return;
+    const trigger = joinTrigger.isConnected ? joinTrigger : document.getElementById('join-link-create');
+    if (trigger instanceof HTMLButtonElement && trigger.disabled) return;
+    trigger?.focus();
+    joinTrigger = null;
+}
+watch(confirmation, async (value, old) => {
+    if (value || !old || !joinTrigger) return;
+    inviting.value = true;
+    await nextTick();
+    await restoreJoinFocus();
+});
 const invitationDialog = ref<HTMLDialogElement | null>(null);
 const invitationLink = ref<string | null>(null);
 function openInvitation(): void {
@@ -144,7 +172,7 @@ function endPartnership(id: string, trigger: HTMLElement): void {
                 Choose email to request delivery. Check invitation history for delivery status.
             </p>
             <p v-if="form.errors.send_email" role="alert">{{ form.errors.send_email }}</p>
-            <div class="wd-dialog-footer">
+            <div class="wd-dialog-footer mb-4">
                 <button type="button" class="wd-button wd-button-secondary" @click="inviting = false">Cancel</button>
                 <Button type="submit" class="wd-button wd-button-primary" :disabled="form.processing">{{
                     form.send_email ? 'Create and email invitation' : 'Create invitation link'
@@ -162,6 +190,13 @@ function endPartnership(id: string, trigger: HTMLElement): void {
                 @focus="($event.target as HTMLInputElement).select()"
             />
         </div>
+        <JoinLinkPanel
+            v-if="portal === 'brand' && canManage"
+            :join-link="joinLink ?? null"
+            :error="errors?.version"
+            @confirm="confirmJoin"
+            @settled="restoreJoinFocus"
+        />
     </dialog>
 </template>
 
