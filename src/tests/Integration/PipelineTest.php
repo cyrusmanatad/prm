@@ -82,6 +82,20 @@ class PipelineTest extends TestCase
         $this->delete('/pipeline/'.$id, ['version' => 5, 'pipeline_filters' => $filters])->assertRedirect('/partner/leads?q=Private&stage=lead&due=1');
     }
 
+    public function test_board_moves_validate_context_and_return_to_board_without_opening_drawer(): void
+    {
+        $this->workspace();
+        $id = $this->postJson('/pipeline', $this->lead())->json('id');
+        $filters = ['q' => 'Private', 'due' => true];
+        $this->postJson('/pipeline/'.$id.'/stage', ['stage' => 'pitched', 'version' => 1, 'board' => 'invalid'])
+            ->assertUnprocessable()->assertJsonValidationErrors('board');
+        $this->post('/pipeline/'.$id.'/stage', ['stage' => 'pitched', 'version' => 1, 'board' => true, 'pipeline_filters' => $filters])
+            ->assertRedirect('/partner/leads?q=Private&due=1');
+        $this->getJson('/pipeline?entry='.$id)->assertJsonPath('selected.stage', 'pitched')->assertJsonPath('selected.version', 2);
+        $this->post('/pipeline/'.$id.'/stage', ['stage' => 'active', 'version' => 2, 'board' => false, 'pipeline_filters' => $filters])
+            ->assertRedirect('/partner/leads?q=Private&due=1&entry='.$id);
+    }
+
     public function test_stale_commands_reject_without_overwriting_or_appending_activity_and_web_errors_redirect(): void
     {
         [$actor, $org] = $this->workspace();

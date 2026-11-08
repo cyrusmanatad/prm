@@ -45,6 +45,7 @@ class PipelineController extends Controller
     {
         $context = $this->listingContext($request);
         $data = $request->validate([
+            'board' => ['sometimes', 'boolean'],
             'version' => ['required', 'integer', 'min:1', 'max:2147483646'], 'stage' => ['required', Rule::enum(PipelineStage::class)],
         ]);
         $pipeline->change((int) $request->user()->id, $request->session()->get('active_org_id'), $entry, (int) $data['version'], 'stage', ['stage' => $data['stage']]);
@@ -52,7 +53,7 @@ class PipelineController extends Controller
         $match = collect(PipelineStage::options())->firstWhere('value', $stage);
         $label = is_array($match) ? $match['label'] : ucfirst($stage);
 
-        return $this->completed($request, ['message' => 'Stage updated to '.$label], $this->destination($context, $entry));
+        return $this->completed($request, ['message' => 'Stage updated to '.$label], $this->destination($context, ($data['board'] ?? false) ? null : $entry));
     }
 
     public function snooze(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse

@@ -18,8 +18,29 @@ const props = defineProps<{
     nextCursor: string | null;
     loading?: boolean;
     error?: string;
+    movable?: boolean;
+    moving?: string | null;
 }>();
-const emit = defineEmits<{ open: [id: string]; load: [params: Record<string, string>]; reset: [] }>();
+const emit = defineEmits<{
+    open: [id: string];
+    load: [params: Record<string, string>];
+    reset: [];
+    move: [lead: Entry, stage: string];
+}>();
+const dragging = ref<Entry | null>(null);
+const canDrag = computed(() => !!props.movable && !props.loading && !props.moving);
+watch(canDrag, () => {
+    if (!canDrag.value) dragging.value = null;
+});
+function move(lead: Entry, stage: string): void {
+    if (!canDrag.value || dragging.value?.id !== lead.id || lead.stage === stage) return;
+    dragging.value = null;
+    emit('move', lead, stage);
+}
+function cancelDrag(event: KeyboardEvent): void {
+    if (event.key === 'Escape') dragging.value = null;
+}
+
 const query = ref(props.filters.q);
 const stageFilter = ref(props.filters.stage);
 const dueOnly = ref(props.filters.due);
@@ -44,10 +65,14 @@ function cancelSearchOnHistory(): void {
     // Let the next history props replace even an unsubmitted search draft.
     submittedQuery = query.value;
 }
-onMounted(() => window.addEventListener('popstate', cancelSearchOnHistory));
+onMounted(() => {
+    window.addEventListener('popstate', cancelSearchOnHistory);
+    window.addEventListener('keydown', cancelDrag);
+});
 onBeforeUnmount(() => {
     clearTimeout(searchTimer);
     window.removeEventListener('popstate', cancelSearchOnHistory);
+    window.removeEventListener('keydown', cancelDrag);
 });
 function params(): Record<string, string> {
     return {
@@ -130,7 +155,13 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                         <h2 id="my-pipeline-title">My pipeline</h2>
                         <span v-if="!professional" class="automation-pill">Automation unavailable</span>
                     </div>
-                    <p class="pipeline-subtitle">Open a lead to edit it, move its stage or start onboarding.</p>
+                    <p id="pipeline-drag-hint" class="pipeline-subtitle">
+                        {{
+                            movable
+                                ? 'Drag a lead to another column to change its stage, or open it to choose a stage, edit or start onboarding.'
+                                : 'Open a lead to edit it, move its stage or start onboarding.'
+                        }}
+                    </p>
                 </div>
                 <div class="pipeline-value">
                     <span class="pipeline-kicker">Matching pipeline value</span>
@@ -150,7 +181,7 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     class="wd-button"
                     :class="stageFilter === segment.value ? 'wd-button-primary' : 'wd-button-secondary'"
                     :aria-pressed="stageFilter === segment.value"
-                    :disabled="loading"
+                    :disabled="loading || !!moving"
                     @click="chooseSegment(segment.value)"
                 >
                     {{ segment.label }}
@@ -162,6 +193,7 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     <input
                         id="pipeline-search"
                         v-model="query"
+                        :disabled="loading || !!moving"
                         type="search"
                         maxlength="160"
                         :placeholder="professional ? 'Search clients' : 'Search brands'"
@@ -169,6 +201,7 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     />
                 </div>
                 <SelectField
+                    :disabled="loading || !!moving"
                     id="pipeline-stage"
                     v-model="stageFilter"
                     class="pipeline-stage"
@@ -178,13 +211,22 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     @change="apply"
                 />
                 <label class="pipeline-due"
-                    ><input v-model="dueOnly" type="checkbox" @change="apply" />Due next actions</label
+                    ><input v-model="dueOnly" :disabled="loading || !!moving" type="checkbox" @change="apply" />Due next
+                    actions</label
                 >
-                <Button type="submit" class="wd-button wd-button-secondary">Apply filters</Button>
-                <Button v-if="filtered" type="button" class="wd-button wd-button-secondary" @click="clearFilters"
+                <Button :disabled="loading || !!moving" type="submit" class="wd-button wd-button-secondary"
+                    >Apply filters</Button
+                >
+                <Button
+                    :disabled="loading || !!moving"
+                    v-if="filtered"
+                    type="button"
+                    class="wd-button wd-button-secondary"
+                    @click="clearFilters"
                     >Clear filters</Button
                 >
             </form>
+            <p v-if="moving" role="status" class="wd-hint">Moving lead… Counts and totals update after saving.</p>
             <p v-if="loading" role="status" class="wd-hint">Loading leads…</p>
             <p v-if="error" role="alert" class="wd-field-error">{{ error }}</p>
             <template v-if="matchingCount > 0">
@@ -201,6 +243,11 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                             :key="column.stage.value"
                             v-bind="column"
                             :filtered="filtered"
+                            :movable="canDrag"
+                            :dragging="dragging"
+                            :moving="moving"
+                            @drag="dragging = $event"
+                            @move="move"
                             @open="emit('open', $event)"
                         />
                     </div>
@@ -216,6 +263,11 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                         :key="column.stage.value"
                         v-bind="column"
                         :filtered="filtered"
+                        :movable="canDrag"
+                        :dragging="dragging"
+                        :moving="moving"
+                        @drag="dragging = $event"
+                        @move="move"
                         @open="emit('open', $event)"
                     />
                 </div>
@@ -241,7 +293,7 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     v-if="nextCursor"
                     class="wd-button wd-button-secondary"
                     type="button"
-                    :disabled="loading"
+                    :disabled="loading || !!moving"
                     @click="nextPage"
                     >Next 25 leads</Button
                 >
@@ -249,7 +301,7 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     v-if="matchingCount > entries.length && !nextCursor"
                     class="wd-button wd-button-secondary"
                     type="button"
-                    :disabled="loading"
+                    :disabled="loading || !!moving"
                     @click="apply"
                     >First page</Button
                 >

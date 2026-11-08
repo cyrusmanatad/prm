@@ -4,7 +4,7 @@ const { professional, path, clientLabel } = useWorkspaceExperience();
 import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { Link, router } from '@inertiajs/vue3';
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
 import SelectField from '../../components/SelectField.vue';
@@ -15,7 +15,7 @@ import EntryFields from './EntryFields.vue';
 import PipelineBoard from './PipelineBoard.vue';
 import { fromMinor, money, toMinor } from './money';
 import { pipelineStages } from './stages';
-import type { EntryDetail, LeadForm, PipelineWorkspace } from './types';
+import type { Entry, EntryDetail, LeadForm, PipelineWorkspace } from './types';
 import { useNotify } from '../../composables/useNotify';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 
@@ -367,14 +367,88 @@ function command(action: string, data: Record<string, string | null>, done?: () 
         visit('post', `/pipeline/${props.selected.id}/${action}`, { ...data, version: loadedVersion.value }, done);
 }
 function openLead(id: string): void {
+    if (pendingMove.value) return;
     const params = new URLSearchParams(location.search);
     params.delete('create');
     params.set('entry', id);
     router.get(path('/partner/leads'), Object.fromEntries(params), { preserveScroll: true });
 }
+// Only the card is optimistic; matching counts and exact totals stay server-owned.
+const subscription = inject<Ref<{ state: string } | undefined>>('professionalSubscription', ref(undefined));
+const workspaceActive = computed(() => !professional.value || subscription.value?.state === 'active');
+const pendingMove = ref<{ id: string; stage: string } | null>(null);
+const moveError = ref('');
+const boardEntries = computed(() =>
+    props.entries.map((row) => (row.id === pendingMove.value?.id ? { ...row, stage: pendingMove.value.stage } : row)),
+);
+function moveLead(lead: Entry, stage: string): void {
+    if (
+        !props.canWrite ||
+        !workspaceActive.value ||
+        busy.value ||
+        pipelineLoading.value ||
+        pendingMove.value ||
+        active.value ||
+        lead.stage === stage
+    )
+        return;
+    if (!pipelineStages.some((item) => item.value === stage)) return;
+    pendingMove.value = { id: lead.id, stage };
+    busy.value = true;
+    moveError.value = '';
+    let stale = false;
+    let succeeded = false;
+    router.post(
+        `/pipeline/${lead.id}/stage`,
+        {
+            stage,
+            version: lead.version,
+            board: true,
+            pipeline_filters: props.filters,
+        },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                succeeded = true;
+            },
+            onError: (errors) => {
+                stale = !!errors.version;
+                moveError.value =
+                    Object.values(errors).join(' ') || 'The stage could not be changed. Please try again.';
+                if (stale)
+                    moveError.value += ' The latest filtered board has been requested. Review it before moving again.';
+            },
+            onNetworkError: () => {
+                moveError.value = 'The stage could not be confirmed. Reload the board before trying again.';
+                return false;
+            },
+            onHttpException: () => {
+                moveError.value =
+                    'The stage could not be changed. Reload the board to check your access and the latest lead.';
+                return false;
+            },
+            onFinish: () => {
+                pendingMove.value = null;
+                busy.value = false;
+                if (!succeeded && !moveError.value)
+                    moveError.value = 'The stage change was interrupted. Reload the board before trying again.';
+                if (stale)
+                    loadPage(
+                        Object.fromEntries(
+                            Object.entries(props.filters)
+                                .filter(([, value]) => !!value)
+                                .map(([key, value]) => [key, value === true ? '1' : String(value)]),
+                        ),
+                    );
+            },
+        },
+    );
+}
 const pipelineLoading = ref(false);
 let listingVisit = 0;
 function loadPage(params: Record<string, string>): void {
+    if (pendingMove.value) return;
     const currentVisit = ++listingVisit;
     router.get(path('/partner/leads'), params, {
         preserveScroll: true,
@@ -419,19 +493,23 @@ function reloadSelected(): void {
 
 <template>
     <div ref="root" class="wd-pipeline">
-        <div v-if="!active && errors.version" class="wd-banner">
+        <div v-if="!active && errors.version && !moveError" class="wd-banner">
             <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
             <p class="wd-hint">Copy any unsaved changes before reloading.</p>
         </div>
         <p v-if="!canWrite" class="wd-hint">Your viewer role provides read-only access to this pipeline.</p>
+        <p v-if="moveError" role="alert" class="wd-field-error">{{ moveError }}</p>
         <PipelineBoard
-            :entries="entries"
+            :entries="boardEntries"
+            :movable="canWrite && workspaceActive && !busy && !active"
+            :moving="pendingMove?.id ?? null"
             :counts="counts"
             :totals="totals"
             :filters="filters"
             :next-cursor="nextCursor"
             :loading="pipelineLoading"
             :error="errors.q || errors.stage || errors.due || errors.cursor"
+            @move="moveLead"
             @open="openLead"
             @load="loadPage"
             @reset="resetPipeline"

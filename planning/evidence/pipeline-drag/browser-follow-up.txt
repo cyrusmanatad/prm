@@ -1,0 +1,71 @@
+
+Running 6 tests using 1 worker
+
+(node:52099) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible (33.2s)
+(node:52917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+time="2026-11-08T09:33:54+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-dfe840128e1b Creating
+ Container weavdash-professional-migrate-run-dfe840128e1b Created
+  ✓  2 [desktop] › tests/Browser/pipeline-drag.spec.ts:114:5 › Professional active subscription applies board move access and retains routes (6.6s)
+time="2026-11-08T09:34:01+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-b5df19e06b79 Creating
+ Container weavdash-professional-migrate-run-b5df19e06b79 Created
+  ✓  3 [desktop] › tests/Browser/pipeline-drag.spec.ts:114:5 › Professional expired subscription applies board move access and retains routes (5.3s)
+(node:53752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible (8.8s)
+time="2026-11-08T09:34:16+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-a924bbf02fd2 Creating
+ Container weavdash-professional-migrate-run-a924bbf02fd2 Created
+  ✓  5 [mobile] › tests/Browser/pipeline-drag.spec.ts:114:5 › Professional active subscription applies board move access and retains routes (4.5s)
+time="2026-11-08T09:34:21+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-2f0a19681cc5 Creating
+ Container weavdash-professional-migrate-run-2f0a19681cc5 Created
+  ✓  6 [mobile] › tests/Browser/pipeline-drag.spec.ts:114:5 › Professional expired subscription applies board move access and retains routes (5.1s)
+
+
+  1) [desktop] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.pipeline-card').getByRole('region', { name: 'Pitched', exact: true }).locator('.lead-card')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.pipeline-card').getByRole('region', { name: 'Pitched', exact: true }).locator('.lead-card') with timeout 15000ms
+      - waiting for locator('.pipeline-card').getByRole('region', { name: 'Pitched', exact: true }).locator('.lead-card')
+        34 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      83 |         // Recovery permits a deliberate new move using the freshly loaded version.
+      84 |         await move('Pitched');
+    > 85 |         await expect(column('Pitched').locator('.lead-card')).toHaveCount(1);
+         |                                                               ^
+      86 |     }
+      87 |     await card.click();
+      88 |     const selector = page.getByRole('combobox', { name: 'Stage', exact: true });
+        at /home/cyrusadmin/weavdash/src/tests/Browser/pipeline-drag.spec.ts:85:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-pipeline-drag-follow-up/pipeline-drag-board-drag-p-fa452-e-stage-selector-accessible-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-pipeline-drag-follow-up/pipeline-drag-board-drag-p-fa452-e-stage-selector-accessible-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-pipeline-drag-follow-up/pipeline-drag-board-drag-p-fa452-e-stage-selector-accessible-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-pipeline-drag-follow-up/pipeline-drag-board-drag-p-fa452-e-stage-selector-accessible-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible
+  5 passed (1.2m)
