@@ -32,12 +32,12 @@ class WorkspaceController extends Controller
 
     public function store(Request $request, Workspaces $workspaces): JsonResponse|RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'kind' => ['sometimes', 'in:creator,brand']]);
-        $orgId = $workspaces->create((int) $request->user()->id, $data['name'], $data['kind'] ?? 'creator');
+        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'kind' => ['sometimes', 'in:creator,brand'], 'experience' => ['sometimes', 'in:partner,professional', 'prohibited_if:kind,brand']]);
+        $orgId = $workspaces->create((int) $request->user()->id, $data['name'], $data['kind'] ?? 'creator', experience: $data['experience'] ?? 'partner');
         $request->session()->put('active_org_id', $orgId);
         $request->session()->regenerate();
 
-        return $this->completed($request, ['id' => $orgId, 'message' => 'Workspace created'], '/workspaces', 201);
+        return $this->completed($request, ['id' => $orgId, 'message' => 'Workspace created'], $request->session()->has('partnership_join') ? '/join/select' : '/workspaces', 201);
     }
 
     public function select(Request $request, Workspaces $workspaces): JsonResponse|RedirectResponse
@@ -48,7 +48,7 @@ class WorkspaceController extends Controller
         $request->session()->put('active_org_id', $data['org_id']);
         $request->session()->regenerate();
 
-        return $this->completed($request, ['message' => 'Workspace selected'], $request->session()->has('partnership_token') ? '/partnerships/accept' : '/workspaces');
+        return $this->completed($request, ['message' => 'Workspace selected'], $request->session()->has('partnership_join') ? '/join/select' : ($request->session()->has('partnership_token') ? '/partnerships/accept' : '/workspaces'));
     }
 
     public function update(Request $request, Workspaces $workspaces): JsonResponse|RedirectResponse

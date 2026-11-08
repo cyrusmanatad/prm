@@ -11,7 +11,7 @@ class PilotEntitlements
     {
         $assignment = DB::table('pilot_assignments')->where('org_id', $org)->orderByDesc('version')->first();
         if (! $assignment) {
-            return ['state' => 'unassigned-development', 'plan' => null, 'usage' => []];
+            return ['state' => (DB::table('organizations')->where('id', $org)->value('experience') === 'professional' ? 'pending activation' : 'unassigned-development'), 'plan' => null, 'usage' => []];
         }
         $plan = DB::table('pilot_plan_versions')->where('id', $assignment->plan_id)->first();
         $quotas = json_decode($plan->quotas, true, flags: JSON_THROW_ON_ERROR);
@@ -20,7 +20,9 @@ class PilotEntitlements
             $usage[] = ['resource' => $resource, 'limit' => $quotas[$resource] ?? 0, 'used' => DB::table($resource)->where('org_id', $org)->count()];
         }
 
-        return ['state' => Carbon::parse($assignment->starts_at)->isFuture() ? 'scheduled' : (Carbon::parse($assignment->ends_at)->isPast() ? 'expired' : 'active'),
+        $clock = Carbon::parse(DB::selectOne('SELECT clock_timestamp() AS current')->current);
+
+        return ['state' => Carbon::parse($assignment->starts_at)->greaterThan($clock) ? 'scheduled' : (Carbon::parse($assignment->ends_at)->lessThanOrEqualTo($clock) ? 'expired' : 'active'),
             'plan' => ['id' => $plan->id, 'name' => $plan->name, 'version' => $plan->version, 'assignment_version' => $assignment->version,
                 'starts_at' => $assignment->starts_at, 'ends_at' => $assignment->ends_at], 'usage' => $usage];
     }

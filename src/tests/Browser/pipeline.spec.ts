@@ -39,7 +39,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await stale.getByLabel('Brand name', { exact: true }).fill('Unsaved stale draft');
     await page.getByLabel('Brand name', { exact: true }).fill('Latest studio');
     await page.getByRole('button', { name: 'Save lead', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Lead saved' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Lead saved' }).last()).toBeVisible();
     await stale.getByRole('button', { name: 'Save lead', exact: true }).click();
     await expect(stale.getByRole('alert').filter({ hasText: 'changed in another session' })).toBeVisible();
     await expect(stale.getByLabel('Brand name', { exact: true })).toHaveValue('Unsaved stale draft');
@@ -50,7 +50,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.getByLabel('Private notes', { exact: true }).fill('Draft kept across activity updates.');
     await page.getByLabel('Next action', { exact: true }).fill('2035-06-10T09:30');
     await page.getByRole('button', { name: 'Save lead', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Lead saved' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Lead saved' }).last()).toBeVisible();
     await page.getByRole('tab', { name: 'Activity', exact: true }).click();
     await page.getByLabel('Details', { exact: true }).fill('Discussed the next collaboration.');
     await Promise.all([
@@ -65,7 +65,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.getByRole('tab', { name: 'Details', exact: true }).click();
     await expect(page.getByLabel('Private notes', { exact: true })).toHaveValue('Draft kept across activity updates.');
     await page.getByRole('button', { name: 'Save lead', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Lead saved' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Lead saved' }).last()).toBeVisible();
     await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeEnabled();
     await page.reload();
     await expect(page.getByLabel('Next action', { exact: true })).toHaveValue('2035-06-10T09:30');

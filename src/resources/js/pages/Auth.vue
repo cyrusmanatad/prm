@@ -7,7 +7,8 @@ import type { AuthMode, AuthSubmission, FieldErrors } from '../types/foundation'
 const props = withDefaults(
     defineProps<{
         mode: AuthMode;
-        portal?: 'brand' | 'partner';
+        joining?: string | null;
+        portal?: 'brand' | 'partner' | 'professional';
         email?: string;
         token?: string;
         status?: string;
@@ -70,6 +71,7 @@ function navigate(mode: AuthMode): void {
         ref="screen"
         :mode="mode"
         :portal="portal"
+        :joining="joining"
         :email="email"
         :errors="errors"
         :status="status"

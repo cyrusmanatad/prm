@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
+const { professional, path } = useWorkspaceExperience();
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
@@ -137,7 +139,7 @@ function review(action: string): void {
         @logout="router.post('/logout')"
         ><div class="wd-workspace-content wd-onboarding-admin">
             <nav aria-label="Workspace">
-                <Link class="wd-link" href="/partner/leads">Back to leads</Link>
+                <Link class="wd-link" :href="path('/partner/leads')">Back to leads</Link>
             </nav>
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
@@ -170,17 +172,28 @@ function review(action: string): void {
             <section class="wd-card" aria-labelledby="request-list">
                 <h2 id="request-list">Recent requests</h2>
                 <p v-if="!requests.length" class="wd-empty">Start onboarding from a lead in your pipeline.</p>
-                <ul>
+                <ul class="pro-request-list">
                     <li v-for="row in requests" :key="row.id">
-                        <Link class="wd-link" :href="`/partner/onboarding?request=${row.id}`">{{ row.label }}</Link>
-                        · {{ row.status }} <strong v-if="row.status === 'submitted'">Awaiting review</strong>
+                        <Link
+                            class="wd-link"
+                            :href="`${path('/partner/onboarding')}?request=${row.id}`"
+                            v-bind="{ 'aria-current': selected?.id === row.id ? 'page' : undefined }"
+                            >{{ row.label }}</Link
+                        >
+                        <span v-if="professional" class="pro-request-status">{{
+                            row.status === 'submitted' ? 'Awaiting review' : row.status.replaceAll('_', ' ')
+                        }}</span
+                        ><template v-else>
+                            · {{ row.status }}
+                            <strong v-if="row.status === 'submitted'">Awaiting review</strong></template
+                        >
                     </li>
                 </ul>
             </section>
             <section v-if="selected" class="wd-card wd-fields" aria-labelledby="selected-request">
                 <h2 id="selected-request">{{ selected.label }}</h2>
-                <dl>
-                    <dt>Business</dt>
+                <dl class="pro-request-details">
+                    <dt>Client</dt>
                     <dd>{{ selected.business_name }}</dd>
                     <dt>Contact</dt>
                     <dd>{{ selected.contact_name }} · {{ selected.business_email }}</dd>
@@ -250,6 +263,7 @@ function review(action: string): void {
                     <form
                         v-if="selected.status !== 'revoked'"
                         ref="replacementForm"
+                        class="pro-access-controls"
                         :aria-busy="busy"
                         @submit.prevent="replace"
                     >
@@ -294,7 +308,7 @@ function review(action: string): void {
                     <p>Consent recorded: {{ submission.consent_at }}</p>
                     <dl class="wd-fields">
                         <div>
-                            <dt>Business</dt>
+                            <dt>Client</dt>
                             <dd>{{ submission.snapshot.business_name }}</dd>
                         </div>
                         <div>
@@ -302,7 +316,7 @@ function review(action: string): void {
                             <dd>{{ submission.snapshot.contact_name }}</dd>
                         </div>
                         <div>
-                            <dt>Business email</dt>
+                            <dt>Client email</dt>
                             <dd>{{ submission.snapshot.business_email }}</dd>
                         </div>
                         <div>

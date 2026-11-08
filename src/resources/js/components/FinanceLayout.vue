@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
+const { professional } = useWorkspaceExperience();
 import { Link, router } from '@inertiajs/vue3';
 import FoundationShell from '../layouts/FoundationShell.vue';
 defineProps<{
@@ -21,7 +23,7 @@ const links = [
 <template>
     <FoundationShell :account-name="accountName" :account-email="accountEmail" @logout="router.post('/logout')">
         <div class="wd-workspace-content wd-finance">
-            <nav class="wd-finance-nav" aria-label="Finance">
+            <nav v-if="!professional || active === 'entitlements'" class="wd-finance-nav" aria-label="Finance">
                 <Link
                     v-for="link in links"
                     :key="link.key"

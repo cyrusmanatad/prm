@@ -9,7 +9,8 @@ import type { AuthMode, AuthSubmission, FieldErrors } from '../../types/foundati
 const props = withDefaults(
     defineProps<{
         mode: AuthMode;
-        portal?: 'brand' | 'partner';
+        joining?: string | null;
+        portal?: 'brand' | 'partner' | 'professional';
         email?: string;
         errors?: FieldErrors;
         processing?: boolean;
@@ -106,6 +107,9 @@ defineExpose({ clearPasswords });
                 </svg>
             </aside>
             <section class="wd-card wd-auth-card" aria-labelledby="auth-title">
+                <p v-if="joining" class="wd-hint">
+                    Continue joining {{ joining }} after signing in and verifying your email.
+                </p>
                 <span class="wd-eyebrow">{{ portal ? `${portal} account` : 'Your account' }}</span>
                 <h1 id="auth-title">{{ content.title }}</h1>
                 <p class="wd-description">{{ content.description }}</p>

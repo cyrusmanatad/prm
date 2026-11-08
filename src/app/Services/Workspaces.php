@@ -16,14 +16,14 @@ class Workspaces
         return $this->context->run($actorId, null, fn () => DB::table('organizations')
             ->join('memberships', 'memberships.org_id', '=', 'organizations.id')
             ->where('memberships.user_id', $actorId)->whereNull('memberships.revoked_at')
-            ->orderBy('organizations.name')->get(['organizations.id', 'organizations.name', 'organizations.kind', 'memberships.role'])->all());
+            ->orderBy('organizations.name')->get(['organizations.id', 'organizations.name', 'organizations.kind', 'organizations.experience', 'memberships.role'])->all());
     }
 
-    public function create(int $actorId, string $name, string $kind = 'creator', ?string $provisionId = null): string
+    public function create(int $actorId, string $name, string $kind = 'creator', ?string $provisionId = null, string $experience = 'partner'): string
     {
         $orgId = $provisionId ?? (string) Str::uuid();
-        $this->context->run($actorId, $orgId, function () use ($actorId, $orgId, $name, $kind): void {
-            DB::select('SELECT app_create_typed_workspace(?::uuid, ?::text, ?::text)', [$orgId, $name, $kind]);
+        $this->context->run($actorId, $orgId, function () use ($actorId, $orgId, $name, $kind, $experience): void {
+            DB::select('SELECT app_create_experience_workspace(?::uuid, ?::text, ?::text, ?::text)', [$orgId, $name, $kind, $experience]);
             $this->audit->record($actorId, $orgId, 'workspace.created', $orgId);
         }, requireMembership: false);
 

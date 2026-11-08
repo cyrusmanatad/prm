@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,22 +20,26 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->report(function (QueryException $exception) {
+        $exceptions->report(function (PDOException $exception) {
             if (($exception->errorInfo[0] ?? null) === 'P0004') {
                 return false;
             }
         });
-        $exceptions->render(function (QueryException $exception, Request $request) {
+        $exceptions->render(function (PDOException $exception, Request $request) {
             if (($exception->errorInfo[0] ?? null) !== 'P0004') {
                 return null;
             }
-            $message = 'Pilot entitlement is inactive or its resource limit has been reached. Existing records remain available. Contact the pilot administrator.';
+            $message = 'Workspace access is inactive or its record quota has been reached. Existing records remain available. Contact your administrator.';
+
+            if ($request->is('lead', 'onboarding/*')) {
+                $message = 'This form is temporarily paused. Please contact the person who shared it.';
+            }
 
             return $request->expectsJson() && ! $request->header('X-Inertia')
                 ? response()->json(['message' => $message, 'errors' => ['quota' => [$message]]], 422)
                 : back()->withErrors(['quota' => $message]);
         });
-        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'token']);
+        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'token', 'code']);
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             $messages = [
                 403 => 'This page is not available to your account.',
@@ -48,6 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 503 => 'WeavDash is temporarily unavailable. Please try again later.',
             ];
             if ($request->is('onboarding/*')) {
+                $messages[403] = 'This form is paused or its access has changed. Please contact the person who shared it.';
                 $messages[409] = 'This form changed or is no longer editable. Reload it to see its latest status.';
             }
             if ($request->is('partner-invitations*')) {

@@ -1,0 +1,33 @@
+
+Running 12 tests using 1 worker
+
+(node:55220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible (10.0s)
+time="2026-11-08T09:35:12+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-3193bbf7d7f2 Creating
+ Container weavdash-professional-migrate-run-3193bbf7d7f2 Created
+  ✓   2 [desktop] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional active subscription applies board move access and retains routes (5.4s)
+time="2026-11-08T09:35:17+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-47a0c258c200 Creating
+ Container weavdash-professional-migrate-run-47a0c258c200 Created
+  ✓   3 [desktop] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional expired subscription applies board move access and retains routes (5.0s)
+  ✓   4 [desktop] › tests/Browser/pipeline-filtering.spec.ts:5:1 › pipeline filters query every page and preserve stages, money, URL and drawer history (18.0s)
+  ✓   5 [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (22.7s)
+  ✓   6 [desktop] › tests/Browser/pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access (7.2s)
+(node:57490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [mobile] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible (14.1s)
+time="2026-11-08T09:36:25+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-b52036b19f7d Creating
+ Container weavdash-professional-migrate-run-b52036b19f7d Created
+  ✓   8 [mobile] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional active subscription applies board move access and retains routes (11.6s)
+time="2026-11-08T09:36:37+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-9773bf2b1daf Creating
+ Container weavdash-professional-migrate-run-9773bf2b1daf Created
+  ✓   9 [mobile] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional expired subscription applies board move access and retains routes (5.3s)
+  ✓  10 [mobile] › tests/Browser/pipeline-filtering.spec.ts:5:1 › pipeline filters query every page and preserve stages, money, URL and drawer history (20.1s)
+  ✓  11 [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (20.8s)
+  ✓  12 [mobile] › tests/Browser/pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access (7.8s)
+
+  12 passed (2.5m)

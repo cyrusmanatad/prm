@@ -63,7 +63,7 @@ class FollowUpDrafts
 
     public function transition(int $actor, string $org, string $id, int $version, string $action): ?string
     {
-        $this->writer($actor, $org);
+        $this->writer($actor, $org, $action === 'discard');
         // Same schedule-before-draft ordering as consumption, including consent and subject locks.
         $routing = DB::table('follow_up_drafts')->where('id', $id)->first();
         abort_unless($routing, 404);
@@ -77,6 +77,7 @@ class FollowUpDrafts
         $this->version($d, $version);
         abort_if(in_array($d->state, ['discarded', 'cancelled'], true), 422, 'This draft was discarded or cancelled after a reply.');
         if (in_array($action, ['approve', 'handoff'], true)) {
+            app(ProfessionalAccess::class)->requireActive($org);
             if (! $entry || $entry->stage === 'lost' || $entry->version !== $d->subject_version || ($d->schedule_run_id && (! $schedule || $schedule->kind !== 'follow_up_draft' || $schedule->subject_id !== $d->pipeline_entry_id || $run->rule_version !== $schedule->rule_version || $run->schedule_version !== $schedule->version || $run->preference_version !== $schedule->preference_version || $run->state !== 'completed'))) {
                 throw ValidationException::withMessages(['version' => 'The lead or schedule changed. Save a fresh manual draft before approval.'])->status(409);
             }
@@ -115,11 +116,14 @@ class FollowUpDrafts
         return $draft;
     }
 
-    private function writer(int $actor, string $org): void
+    private function writer(int $actor, string $org, bool $revocation = false): void
     {
         abort_unless(app(Pipeline::class)->canWrite($actor, $org) && User::find($actor)?->hasVerifiedEmail(), 403);
         DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ['pilot:'.$org]);
-        abort_if(in_array(app(PilotEntitlements::class)->state($org)['state'], ['expired', 'scheduled'], true), 403);
+        if (! $revocation) {
+            app(ProfessionalAccess::class)->requireActive($org);
+            abort_if(in_array(app(PilotEntitlements::class)->state($org)['state'], ['expired', 'scheduled'], true), 403);
+        }
     }
 
     private function version(object $draft, int $expected): void

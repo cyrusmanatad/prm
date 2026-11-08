@@ -1,0 +1,12 @@
+{
+    "src/app/Http/Controllers/PipelineController.php": "3ef3294f9045fde3bcee93bba3ea35f1869fafd5e986973f4888ec4999208a8e",
+    "src/resources/js/features/pipeline/LeadManager.vue": "dff9c5a308e032a38fa95bb371aee78e27c451598c33b2a1e9261d574f8e967c",
+    "src/resources/js/features/pipeline/PipelineBoard.vue": "b9a05d619561f163c5eab7b5defc7f8012c97a4badc75a4af9bc4a7163f23ca8",
+    "src/resources/js/features/pipeline/PipelineColumn.vue": "555ea22ca7536e70554be076d4e7feb3d9084d9479da98655d3121df097fbc51",
+    "src/tests/Frontend/PipelineBoard.test.ts": "f3d35e9e60636ed437328e748d22cd4a788cb2951e8096b9884eb26543af1574",
+    "src/tests/Frontend/PipelineMove.test.ts": "a1f38e07b85fe976f545ee55b8e106a08e63517d57c91c9c5624eaa689c51e16",
+    "src/tests/Integration/PipelineTest.php": "dce6adcad9c1cacbc652401b24f881433df3656ceffccad1d017462363ef2c80",
+    "src/tests/Browser/pipeline-drag.spec.ts": "decf5f406055d10ea346b1261b1173ff5bcaddb3d45e600e32b34591f45c068d",
+    "src/tests/Browser/pipeline-access-fixture.php": "90a9ceef1b1484cb4c9196b93e48f595ce1781d4e2551b029dbf0d61c1edc70c",
+    "src/tests/Browser/pipeline.spec.ts": "5ab6823597fb4db5d38b90396392b9700ad862daefcb6d9b3f2cf47a08e3fb9c"
+}

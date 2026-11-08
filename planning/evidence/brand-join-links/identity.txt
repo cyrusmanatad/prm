@@ -1,0 +1,13 @@
+time="2026-11-08T10:31:48+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-acceptance-run-85d1761dc59f Creating
+ Container weavdash-professional-acceptance-run-85d1761dc59f Created
+PHPUnit 12.5.37 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.5.11
+Configuration: /var/www/html/phpunit.xml
+
+..............................                                    30 / 30 (100%)
+
+Time: 00:05.778, Memory: 62.50 MB
+
+[30;42mOK (30 tests, 265 assertions)[0m

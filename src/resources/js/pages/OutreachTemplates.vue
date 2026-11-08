@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
+const { professional, path, clientLabel } = useWorkspaceExperience();
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
@@ -139,7 +141,7 @@ async function copy(): Promise<void> {
     <Head title="Outreach templates" />
     <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
         <div ref="root" class="wd-workspace-content wd-section-stack">
-            <nav aria-label="Workspace"><Link class="wd-link" href="/partner/leads">Back to leads</Link></nav>
+            <nav aria-label="Workspace"><Link class="wd-link" :href="path('/partner/leads')">Back to leads</Link></nav>
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
                 <h1>Outreach templates</h1>
@@ -156,7 +158,7 @@ async function copy(): Promise<void> {
                     Reload latest templates
                 </button>
             </div>
-            <div class="wd-split">
+            <div class="wd-split pro-template-layout">
                 <section class="wd-card" aria-labelledby="saved-title">
                     <h2 id="saved-title">Saved templates</h2>
                     <p v-if="!templates.length" class="wd-empty">No templates yet. Create one in the editor.</p>
@@ -165,6 +167,7 @@ async function copy(): Promise<void> {
                             <button
                                 type="button"
                                 class="wd-action"
+                                :aria-pressed="selected === row.id"
                                 :disabled="busy || !!errors.version"
                                 @click="choose(row)"
                             >
@@ -172,7 +175,12 @@ async function copy(): Promise<void> {
                             </button>
                         </li>
                     </ul>
-                    <button class="wd-action" type="button" :disabled="busy || !!errors.version" @click="choose()">
+                    <button
+                        :class="professional ? 'wd-button wd-button-secondary' : 'wd-action'"
+                        type="button"
+                        :disabled="busy || !!errors.version"
+                        @click="choose()"
+                    >
                         New template
                     </button>
                 </section>
@@ -247,7 +255,7 @@ async function copy(): Promise<void> {
                     <FormField
                         id="merge-brand"
                         v-model="values.brand_name"
-                        label="Brand name"
+                        :label="clientLabel"
                         :required="false"
                         :maxlength="160"
                     /><FormField
@@ -259,7 +267,7 @@ async function copy(): Promise<void> {
                     /><FormField
                         id="merge-creator"
                         v-model="values.creator_name"
-                        label="Creator name"
+                        :label="professional ? 'Professional name' : 'Creator name'"
                         :required="false"
                         :maxlength="120"
                     />

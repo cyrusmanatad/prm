@@ -124,7 +124,7 @@ test('manual receipt allocation, reversal, void and entitlement visibility', asy
     await page.getByLabel('Description', { exact: true }).fill('Blocked');
     await page.getByRole('button', { name: 'Save draft', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText(
-        'Pilot entitlement is inactive or its resource limit has been reached',
+        'Workspace access is inactive or its record quota has been reached',
     );
     await expect(page.getByLabel('Recipient business name')).toHaveValue('Blocked by pilot quota');
     await page.goto(`/finance/invoices/${invoice}`);

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
+const { professional, path, clientLabel } = useWorkspaceExperience();
 import FormField from '../../components/FormField.vue';
 import type { LeadForm } from './types';
 const form = defineModel<LeadForm>({ required: true });
@@ -9,7 +11,7 @@ defineProps<{ prefix: string; errors: Record<string, string> }>();
     <FormField
         :id="`${prefix}-brand`"
         v-model="form.brand_name"
-        label="Brand name"
+        :label="clientLabel"
         :maxlength="160"
         :error="errors.brand_name"
     />

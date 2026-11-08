@@ -12,6 +12,7 @@ const api = vi.hoisted(() => ({
 }));
 vi.mock('@inertiajs/vue3', () => ({
     router: api,
+    usePage: () => ({ url: '/onboarding/test', props: {} }),
     Head: { template: '<span />' },
     Link: { template: '<a><slot /></a>' },
 }));

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
+const { professional, path, clientLabel } = useWorkspaceExperience();
 import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import LeadManager from '../pipeline/LeadManager.vue';
@@ -23,7 +25,7 @@ const summary = computed(() => [
             'No non-lost value',
         hint: 'Matching non-lost estimates, separated by currency',
     },
-    ...['Expected this month', 'Commissions earned', 'Reply rate'].map((label) => ({
+    ...(professional.value ? [] : ['Expected this month', 'Commissions earned', 'Reply rate']).map((label) => ({
         label,
         value: 'Unavailable',
         hint: 'Not yet measured',
@@ -38,24 +40,42 @@ const summary = computed(() => [
         :fixture="fixture"
         :search-value="data.pipeline?.filters.q ?? ''"
     >
-        <main id="main-content" class="mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
+        <main id="main-content" class="pro-leads mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <p class="mb-1 text-[14px] text-muted">{{ fixture ? 'Saturday, 17 October' : today }}</p>
                     <h1 class="font-display text-[34px] leading-[1.1] font-bold">
-                        {{ fixture ? 'Magandang umaga, Bea' : `Magandang umaga, ${data.account.name.split(' ')[0]}` }}
+                        {{
+                            professional
+                                ? 'Client leads'
+                                : fixture
+                                  ? 'Magandang umaga, Bea'
+                                  : `Magandang umaga, ${data.account.name.split(' ')[0]}`
+                        }}
                     </h1>
                     <p class="mt-2 text-[15px] text-ink-soft">
                         <template v-if="fixture"
                             >You have <strong>4 actions</strong> today. Autopilot handled <strong>14 tasks</strong> for
                             you this week.</template
-                        ><template v-else>Your private leads and explicit brand partnerships, in one place.</template>
+                        ><template v-else>{{
+                            professional
+                                ? 'Your private client leads, in one place.'
+                                : 'Your private leads and explicit brand partnerships, in one place.'
+                        }}</template>
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2.5">
+                    <a
+                        v-if="professional"
+                        :href="path('/partner/media-kit')"
+                        class="rounded-[10px] border border-line-strong bg-white px-4 py-[11px] text-[14px] font-semibold text-ink"
+                    >
+                        Share my lead link
+                    </a>
                     <button
+                        v-else
                         type="button"
-                        @click="open('/partner/media-kit')"
+                        @click="open(path('/partner/media-kit'))"
                         class="rounded-[10px] border border-line-strong bg-white px-4 py-[11px] text-[14px] font-semibold text-ink"
                     >
                         Share my lead link
@@ -71,7 +91,11 @@ const summary = computed(() => [
                 </div>
             </div>
 
-            <section aria-label="Summary" class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+            <section
+                v-if="!professional"
+                aria-label="Summary"
+                class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4"
+            >
                 <template v-if="fixture">
                     <div class="rounded-[14px] border border-line bg-white px-5 py-[18px]">
                         <div class="text-[13px] font-semibold text-muted">Open pipeline</div>
@@ -254,7 +278,7 @@ const summary = computed(() => [
                             ><h2 class="mb-3 font-display text-[18px] font-bold">Today's next best actions</h2>
                             <p class="text-[13px] text-muted">AI ranking and suggested drafts are unavailable.</p>
                             <Link
-                                href="/partner/contacts?state=due"
+                                :href="path('/partner/contacts?state=due')"
                                 class="mt-3 inline-block text-[14px] font-bold underline"
                                 >View contacts and due reminders →</Link
                             ></template
@@ -434,7 +458,9 @@ const summary = computed(() => [
 
                     <section class="wd-on-dark rounded-2xl bg-ink p-5 text-white">
                         <template v-if="fixture">
-                            <h2 class="mb-1 font-display text-[18px] font-bold">From your brand partners</h2>
+                            <h2 class="mb-1 font-display text-[18px] font-bold text-inherit">
+                                From your brand partners
+                            </h2>
                             <p class="mb-3.5 text-[13px] text-lilac">Perks and goals your brands set for you</p>
                             <div class="flex flex-col gap-3.5">
                                 <div class="rounded-xl bg-white/7 p-3.5">
@@ -479,7 +505,9 @@ const summary = computed(() => [
                                 >Ask a brand for support →</a
                             > </template
                         ><template v-else
-                            ><h2 class="mb-3 font-display text-[18px] font-bold">From your brand partners</h2>
+                            ><h2 class="mb-3 font-display text-[18px] font-bold text-inherit">
+                                From your brand partners
+                            </h2>
                             <div
                                 v-for="row in data.relationships"
                                 :key="row.id"
@@ -487,7 +515,11 @@ const summary = computed(() => [
                             >
                                 <strong>{{ row.brand_name }}</strong>
                                 <p class="text-[13px] text-lilac">
-                                    Active partnership · tiers and commissions unavailable
+                                    {{
+                                        professional
+                                            ? 'Active partnership'
+                                            : 'Active partnership · tiers and commissions unavailable'
+                                    }}
                                 </p>
                                 <button
                                     v-if="data.canManage"

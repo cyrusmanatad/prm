@@ -18,7 +18,7 @@
   </head>
   <body>
     <main>
-      <p>WeavDash · Media kit</p>
+      <p>WeavDash · {{ $kit->professional ? 'Professional profile / portfolio' : 'Media kit' }}</p>
       <h1>{{ $kit->title }}</h1>
       <p>{{ $kit->bio }}</p>
       @if ($kit->website)

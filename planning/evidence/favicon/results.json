@@ -1,0 +1,29 @@
+{
+    "artworkUnchanged": true,
+    "icoSizes": [16, 32, 48],
+    "transparentEdges": true,
+    "links": [
+        {
+            "href": "http://localhost:8000/favicon.ico?v=20261108",
+            "type": "image/x-icon",
+            "sizes": "16x16 32x32 48x48"
+        },
+        {
+            "href": "http://localhost:8000/favicon.svg?v=20261108",
+            "type": "image/svg+xml",
+            "sizes": "any"
+        }
+    ],
+    "tabIconResponses": [
+        {
+            "url": "http://localhost:8000/favicon.svg?v=20261108",
+            "status": 200
+        },
+        {
+            "url": "http://localhost:8000/favicon.ico?v=20261108",
+            "status": 200
+        }
+    ],
+    "httpBodiesMatchSource": true,
+    "browserDecode": true
+}

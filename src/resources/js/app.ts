@@ -1,6 +1,6 @@
 import '../css/app.css';
-import { createApp, h, type DefineComponent } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createApp, h, provide, computed, type DefineComponent } from 'vue';
+import { createInertiaApp, usePage } from '@inertiajs/vue3';
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import '../css/toasts.css';
@@ -17,7 +17,20 @@ void createInertiaApp({
         return page();
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => [h(App, props), h(ConfirmationDialog)] })
+        createApp({
+            setup() {
+                const page = usePage();
+                provide(
+                    'workspaceExperience',
+                    computed(() => page.props.workspaceExperience ?? 'partner'),
+                );
+                provide(
+                    'professionalSubscription',
+                    computed(() => page.props.professionalSubscription),
+                );
+                return () => [h(App, props), h(ConfirmationDialog)];
+            },
+        })
             .use(plugin)
             .use(Vue3Toastify, {
                 autoClose: 3500,

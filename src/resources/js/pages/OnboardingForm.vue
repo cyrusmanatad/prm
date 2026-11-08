@@ -98,11 +98,11 @@ function pick(event: Event): void {
                 @submit.prevent="act('patch', `/onboarding/form/${form.id}`, draft)"
             >
                 <fieldset class="wd-fields" :disabled="busy || !editable || !!errors?.version">
-                    <legend>Business and collaboration details</legend>
+                    <legend>Client and collaboration details</legend>
                     <FormField
                         id="onboard-business"
                         v-model="draft.business_name"
-                        label="Business name"
+                        label="Client name (individual or business)"
                         :required="false"
                         :maxlength="160"
                         :error="errors?.business_name"
@@ -116,7 +116,7 @@ function pick(event: Event): void {
                     /><FormField
                         id="onboard-email"
                         v-model="draft.business_email"
-                        label="Business email"
+                        label="Client email"
                         type="email"
                         :required="false"
                         :maxlength="255"

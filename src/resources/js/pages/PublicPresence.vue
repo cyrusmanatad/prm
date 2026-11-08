@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
+const { professional, path, clientLabel } = useWorkspaceExperience();
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -35,8 +37,8 @@ const version = ref(props.kit?.version ?? 0);
 function requestSave(event: Event): void {
     if (props.kit?.published && !published.value) {
         confirmAction(
-            'Unpublish media kit',
-            `Unpublish ${props.kit.title}? Visitors will lose access to the public media kit.`,
+            professional.value ? 'Unpublish profile' : 'Unpublish media kit',
+            `Unpublish ${props.kit.title}? Visitors will lose access to the public ${professional.value ? 'profile' : 'media kit'}.`,
             save,
             event,
             { tone: 'danger' },
@@ -73,12 +75,12 @@ function save(): void {
 }
 </script>
 <template>
-    <Head title="Media kit" />
+    <Head :title="professional ? 'Professional profile / portfolio' : 'Media kit'" />
     <PartnerChrome current="media-kit" :account-name="account.name" :account-email="account.email">
         <main id="main-content" class="mx-auto max-w-[1040px] px-6 pt-7 pb-12">
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
-                <h1>Media kit</h1>
+                <h1>{{ professional ? 'Professional profile / portfolio' : 'Media kit' }}</h1>
                 <p class="wd-description">Choose exactly what to share publicly.</p>
             </div>
             <div v-if="errors?.version" role="alert" class="wd-banner">
@@ -94,36 +96,42 @@ function save(): void {
             </div>
             <form class="wd-card" :aria-busy="busy" @submit.prevent="requestSave($event)">
                 <fieldset class="wd-fields" :disabled="!canWrite || busy || !!errors?.version">
-                    <legend>Media kit</legend>
-                    <FormField
-                        id="kit-title"
-                        v-model="title"
-                        label="Public title"
-                        :maxlength="160"
-                        :error="errors?.title"
-                    />
-                    <div class="wd-field">
-                        <label for="kit-bio">Public introduction</label
-                        ><textarea
-                            id="kit-bio"
-                            v-model="bio"
-                            rows="5"
-                            maxlength="5000"
-                            :aria-invalid="errors?.bio ? true : undefined"
-                            :aria-describedby="errors?.bio ? 'kit-bio-error' : undefined"
+                    <legend>{{ professional ? 'Professional profile' : 'Media kit' }}</legend>
+                    <section
+                        :class="professional ? 'wd-fields pro-profile-identity' : 'contents'"
+                        :aria-labelledby="professional ? 'profile-identity' : undefined"
+                    >
+                        <h2 v-if="professional" id="profile-identity">Identity and introduction</h2>
+                        <FormField
+                            id="kit-title"
+                            v-model="title"
+                            label="Public title"
+                            :maxlength="160"
+                            :error="errors?.title"
                         />
-                        <p v-if="errors?.bio" id="kit-bio-error" class="wd-field-error" role="alert">
-                            {{ errors.bio }}
-                        </p>
-                    </div>
-                    <FormField
-                        id="kit-website"
-                        v-model="website"
-                        label="Public website (optional, https:// or http://)"
-                        :required="false"
-                        :maxlength="500"
-                        :error="errors?.website"
-                    />
+                        <div class="wd-field">
+                            <label for="kit-bio">Public introduction</label
+                            ><textarea
+                                id="kit-bio"
+                                v-model="bio"
+                                rows="5"
+                                maxlength="5000"
+                                :aria-invalid="errors?.bio ? true : undefined"
+                                :aria-describedby="errors?.bio ? 'kit-bio-error' : undefined"
+                            />
+                            <p v-if="errors?.bio" id="kit-bio-error" class="wd-field-error" role="alert">
+                                {{ errors.bio }}
+                            </p>
+                        </div>
+                        <FormField
+                            id="kit-website"
+                            v-model="website"
+                            label="Public website (optional, https:// or http://)"
+                            :required="false"
+                            :maxlength="500"
+                            :error="errors?.website"
+                        />
+                    </section>
                     <section aria-labelledby="social-links-title" class="wd-fields">
                         <h2 id="social-links-title">Social accounts</h2>
                         <p class="wd-hint">
@@ -156,21 +164,31 @@ function save(): void {
                             >Add social account</Button
                         >
                     </section>
-                    <label class="wd-checkbox"
-                        ><input v-model="published" type="checkbox" />Publish this media kit</label
-                    ><label v-if="published" class="wd-checkbox"
-                        ><input
-                            v-model="consent"
-                            type="checkbox"
-                            :aria-invalid="errors?.consent ? true : undefined"
-                            :aria-describedby="errors?.consent ? 'kit-consent-error' : undefined"
-                        />I agree to publish this title, introduction, website and social links for anyone with the
-                        public URL.</label
+                    <section
+                        :class="professional ? 'wd-fields pro-publishing' : 'contents'"
+                        :aria-labelledby="professional ? 'profile-publishing' : undefined"
                     >
-                    <p v-if="errors?.consent" id="kit-consent-error" class="wd-field-error" role="alert">
-                        {{ errors.consent }}
-                    </p>
-                    <Button type="submit" class="wd-button wd-button-primary">Save media kit</Button>
+                        <h2 v-if="professional" id="profile-publishing">Publication</h2>
+                        <label class="wd-checkbox"
+                            ><input v-model="published" type="checkbox" />{{
+                                professional ? 'Publish this professional profile' : 'Publish this media kit'
+                            }}</label
+                        ><label v-if="published" class="wd-checkbox"
+                            ><input
+                                v-model="consent"
+                                type="checkbox"
+                                :aria-invalid="errors?.consent ? true : undefined"
+                                :aria-describedby="errors?.consent ? 'kit-consent-error' : undefined"
+                            />I agree to publish this title, introduction, website and social links for anyone with the
+                            public URL.</label
+                        >
+                        <p v-if="errors?.consent" id="kit-consent-error" class="wd-field-error" role="alert">
+                            {{ errors.consent }}
+                        </p>
+                        <Button type="submit" class="wd-button wd-button-primary"
+                            >Save {{ professional ? 'profile' : 'media kit' }}</Button
+                        >
+                    </section>
                 </fieldset>
                 <p v-if="kit" class="wd-hint">{{ kit.views }} aggregate views. No individual viewer tracking.</p>
                 <a
@@ -179,7 +197,7 @@ function save(): void {
                     :href="`/kits/${kit.id}`"
                     target="_blank"
                     rel="noopener noreferrer"
-                    >Open public media kit</a
+                    >Open public {{ professional ? 'profile' : 'media kit' }}</a
                 >
             </form>
             <section class="wd-card wd-fields" aria-labelledby="lead-links-title">

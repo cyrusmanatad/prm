@@ -1,0 +1,99 @@
+
+Running 4 tests using 1 worker
+
+(node:126170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/join-links.spec.ts:11:1 › reusable brand codes support signup, verified consent, replacement and safe disable (15.7s)
+  ✘  2 [desktop] › tests/Browser/join-links.spec.ts:92:1 › existing identity chooses among workspaces and can join from Professional (22.3s)
+(node:127600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [mobile] › tests/Browser/join-links.spec.ts:11:1 › reusable brand codes support signup, verified consent, replacement and safe disable (23.0s)
+  ✘  4 [mobile] › tests/Browser/join-links.spec.ts:92:1 › existing identity chooses among workspaces and can join from Professional (36.4s)
+
+
+  1) [desktop] › tests/Browser/join-links.spec.ts:92:1 › existing identity chooses among workspaces and can join from Professional
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: 'Open professional hub', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: 'Open professional hub', exact: true }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Open professional hub', exact: true })
+
+
+      112 |         await pp.locator('#workspace-kind').selectOption('professional');
+      113 |         await pp.getByRole('button', { name: 'Create workspace', exact: true }).click();
+    > 114 |         await expect(pp.getByRole('link', { name: 'Open professional hub', exact: true })).toBeVisible();
+          |                                                                                            ^
+      115 |         // Sign in again to leave multiple eligible workspaces with no selected context.
+      116 |         await pp.getByRole('button', { name: /Account menu:/ }).click();
+      117 |         await pp.getByRole('menuitem', { name: 'Sign out', exact: true }).click();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/join-links.spec.ts:114:92
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › tests/Browser/join-links.spec.ts:92:1 › existing identity chooses among workspaces and can join from Professional
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: 'Open professional hub', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: 'Open professional hub', exact: true }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Open professional hub', exact: true })
+
+
+      112 |         await pp.locator('#workspace-kind').selectOption('professional');
+      113 |         await pp.getByRole('button', { name: 'Create workspace', exact: true }).click();
+    > 114 |         await expect(pp.getByRole('link', { name: 'Open Professional Hub', exact: true })).toBeVisible();
+          |                                                                                            ^
+      115 |         // Sign in again to leave multiple eligible workspaces with no selected context.
+      116 |         await pp.getByRole('button', { name: /Account menu:/ }).click();
+      117 |         await pp.getByRole('menuitem', { name: 'Sign out', exact: true }).click();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/join-links.spec.ts:114:92
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/weavdash-join-accepted/join-links-existing-identi-1a978--can-join-from-Professional-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › tests/Browser/join-links.spec.ts:92:1 › existing identity chooses among workspaces and can join from Professional
+    [mobile] › tests/Browser/join-links.spec.ts:92:1 › existing identity chooses among workspaces and can join from Professional
+  2 passed (1.7m)

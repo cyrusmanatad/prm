@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token', 'registration_workspace_id', 'registration_workspace_kind'])]
+#[Hidden(['password', 'remember_token', 'registration_workspace_id', 'registration_workspace_kind', 'registration_workspace_experience', 'admin_totp_secret', 'admin_totp_counter', 'admin_totp_confirmed_at'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */

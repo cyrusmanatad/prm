@@ -1,0 +1,21 @@
+
+Running 6 tests using 1 worker
+
+(node:251450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/professional-ui.spec.ts:52:1 › Professional presentation, destinations and editor cancellation (40.7s)
+  ✓  2 [desktop] › tests/Browser/professional-ui.spec.ts:138:1 › Professional tools retain client, onboarding, publishing, finance and automation workflows (59.1s)
+time="2026-11-08T12:46:46+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-b9c1a91a0660 Creating
+ Container weavdash-professional-migrate-run-b9c1a91a0660 Created
+  ✓  3 [desktop] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA (32.2s)
+(node:254890) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/Browser/professional-ui.spec.ts:52:1 › Professional presentation, destinations and editor cancellation (19.1s)
+  ✓  5 [mobile] › tests/Browser/professional-ui.spec.ts:138:1 › Professional tools retain client, onboarding, publishing, finance and automation workflows (54.8s)
+time="2026-11-08T12:48:33+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-82f3992603fa Creating
+ Container weavdash-professional-migrate-run-82f3992603fa Created
+  ✓  6 [mobile] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA (18.9s)
+
+  6 passed (3.8m)

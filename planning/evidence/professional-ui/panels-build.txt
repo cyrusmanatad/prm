@@ -1,0 +1,59 @@
+
+> build
+> vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 3240 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/manifest.json                                         14.16 kB │ gzip:  1.69 kB
+public/build/assets/manrope-latin-ext-Ch3YOpNY.woff2               15.12 kB
+public/build/assets/manrope-latin-DHIcAJRg.woff2                   24.83 kB
+public/build/assets/bricolage-grotesque-latin-ext-IcJDqblK.woff2   30.73 kB
+public/build/assets/bricolage-grotesque-latin-Cre6nC2_.woff2       76.88 kB
+public/build/assets/OnboardingForm-6PqZo2OX.css                     0.08 kB │ gzip:  0.09 kB
+public/build/assets/PublicPresence-DK7Cn92X.css                     0.12 kB │ gzip:  0.11 kB
+public/build/assets/OnboardingAdmin-DgIgE5sK.css                    0.16 kB │ gzip:  0.12 kB
+public/build/assets/SelectField-BodgAT51.css                        0.63 kB │ gzip:  0.29 kB
+public/build/assets/useWorkspaceExperience-DwK0heya.css             8.40 kB │ gzip:  1.94 kB
+public/build/assets/Crm-Bh_jeFvt.css                                9.27 kB │ gzip:  1.95 kB
+public/build/assets/Portal-D3KkUymk.css                            13.39 kB │ gzip:  2.77 kB
+public/build/assets/app-BMg9qGba.css                               85.32 kB │ gzip: 18.41 kB
+public/build/assets/useValidationFocus-Cd12MrSD.js                  0.29 kB │ gzip:  0.25 kB
+public/build/assets/ActionGroup-Bj-YI35p.js                         0.31 kB │ gzip:  0.24 kB
+public/build/assets/resources-COQ2GExx.js                           0.32 kB │ gzip:  0.22 kB
+public/build/assets/ContentSection-2xU3czx6.js                      0.58 kB │ gzip:  0.37 kB
+public/build/assets/DialogClose-DiYEG2DM.js                         0.61 kB │ gzip:  0.42 kB
+public/build/assets/Error-UU_4QQUJ.js                               0.65 kB │ gzip:  0.45 kB
+public/build/assets/FieldGroup-Bg3qYnM-.js                          0.70 kB │ gzip:  0.43 kB
+public/build/assets/FormField-CqkP3ZaO.js                           1.30 kB │ gzip:  0.67 kB
+public/build/assets/FoundationShell-akaIJQ3E.js                     1.40 kB │ gzip:  0.70 kB
+public/build/assets/OpenInvitation-BIshNw8S.js                      1.45 kB │ gzip:  0.84 kB
+public/build/assets/FinanceLayout-B6SUvy0_.js                       1.82 kB │ gzip:  0.92 kB
+public/build/assets/AcceptPartnership-DoLWNHcI.js                   2.31 kB │ gzip:  1.18 kB
+public/build/assets/Entitlements-Bj-SaU7R.js                        2.66 kB │ gzip:  1.18 kB
+public/build/assets/PlatformSecurity-DF6cNiDF.js                    2.78 kB │ gzip:  1.35 kB
+public/build/assets/PublicLead-D8ve503b.js                          2.93 kB │ gzip:  1.34 kB
+public/build/assets/emailStates-Ck3QZJ9o.js                         3.13 kB │ gzip:  1.31 kB
+public/build/assets/JoinBrand-CV0BT467.js                           4.24 kB │ gzip:  1.86 kB
+public/build/assets/Professional-DPAkqsZh.js                        4.29 kB │ gzip:  1.87 kB
+public/build/assets/PlatformDirectory-D_84XU5J.js                   5.58 kB │ gzip:  2.28 kB
+public/build/assets/Invoices-CF9BvwQh.js                            5.95 kB │ gzip:  2.19 kB
+public/build/assets/SelectField-DEokN1Gc.js                         6.39 kB │ gzip:  2.52 kB
+public/build/assets/Auth-M3DHf0RW.js                                7.13 kB │ gzip:  2.75 kB
+public/build/assets/OnboardingForm-BHT1mgt0.js                      7.19 kB │ gzip:  2.73 kB
+public/build/assets/Payments-CatD3Wlf.js                            7.28 kB │ gzip:  2.46 kB
+public/build/assets/PartnerChrome-CIN0A7OK.js                       7.40 kB │ gzip:  3.15 kB
+public/build/assets/PublicPresence-B2eWj11w.js                      7.48 kB │ gzip:  2.91 kB
+public/build/assets/OutreachTemplates-dIjo6ajh.js                   8.63 kB │ gzip:  3.32 kB
+public/build/assets/OnboardingAdmin-CE0fKBY6.js                     9.27 kB │ gzip:  3.42 kB
+public/build/assets/Workspaces-spYWHAdZ.js                          9.72 kB │ gzip:  3.51 kB
+public/build/assets/Crm-Beg7UMoN.js                                20.33 kB │ gzip:  6.25 kB
+public/build/assets/Automation-NyVv2N2_.js                         22.14 kB │ gzip:  6.68 kB
+public/build/assets/app-C7mx1YKW.js                                65.71 kB │ gzip: 22.58 kB
+public/build/assets/Portal-B5o4roSo.js                             86.85 kB │ gzip: 23.45 kB
+public/build/assets/useWorkspaceExperience-CdO3nCkt.js             91.48 kB │ gzip: 30.02 kB
+public/build/assets/_plugin-vue_export-helper-CRRvJzEY.js         223.43 kB │ gzip: 76.64 kB
+
+✓ built in 3.87s

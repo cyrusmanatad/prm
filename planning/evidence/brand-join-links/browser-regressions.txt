@@ -1,0 +1,45 @@
+
+Running 18 tests using 1 worker
+
+(node:110540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible (23.4s)
+time="2026-11-08T10:31:56+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-d10617ac18d8 Creating
+ Container weavdash-professional-migrate-run-d10617ac18d8 Created
+  ✓   2 [desktop] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional active subscription applies board move access and retains routes (10.5s)
+time="2026-11-08T10:32:07+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-df4789f3fda7 Creating
+ Container weavdash-professional-migrate-run-df4789f3fda7 Created
+  ✓   3 [desktop] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional expired subscription applies board move access and retains routes (6.6s)
+  ✓   4 [desktop] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (25.1s)
+  ✓   5 [desktop] › tests/Browser/pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access (21.2s)
+  ✓   6 [desktop] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (7.5s)
+  ✓   7 [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (31.9s)
+  ✓   8 [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (6.8s)
+time="2026-11-08T10:33:46+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-7aac655ced2d Creating
+ Container weavdash-professional-migrate-run-7aac655ced2d Created
+  ✓   9 [desktop] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA (49.7s)
+(node:118058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › tests/Browser/pipeline-drag.spec.ts:5:1 › board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible (21.4s)
+time="2026-11-08T10:35:03+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-8ce795e5094f Creating
+ Container weavdash-professional-migrate-run-8ce795e5094f Created
+  ✓  11 [mobile] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional active subscription applies board move access and retains routes (24.3s)
+time="2026-11-08T10:35:25+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-03823f5ceb2f Creating
+ Container weavdash-professional-migrate-run-03823f5ceb2f Created
+  ✓  12 [mobile] › tests/Browser/pipeline-drag.spec.ts:115:5 › Professional expired subscription applies board move access and retains routes (4.5s)
+  ✓  13 [mobile] › tests/Browser/pipeline.spec.ts:6:1 › private pipeline capture, seven stages, stale tabs, snooze, activity, and deletion (36.2s)
+  ✓  14 [mobile] › tests/Browser/pipeline.spec.ts:99:1 › viewer reads private workspace pipeline and revocation blocks further page access (8.1s)
+  ✓  15 [mobile] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (5.9s)
+  ✓  16 [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (22.1s)
+  ✓  17 [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (4.7s)
+time="2026-11-08T10:36:47+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-3a7f22aca3d6 Creating
+ Container weavdash-professional-migrate-run-3a7f22aca3d6 Created
+  ✓  18 [mobile] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA (21.7s)
+
+  18 passed (5.6m)

@@ -118,3 +118,47 @@ it('cancels an unsubmitted search when browser history restores another filter',
     expect(wrapper.emitted('load')).toBeUndefined();
     expect((wrapper.get('#pipeline-search').element as HTMLInputElement).value).toBe('Restored query');
 });
+
+function transfer() {
+    return { effectAllowed: '', dropEffect: '', setData: vi.fn() };
+}
+it('allows only local writer drags, highlights other stages and clears cancelled or same-stage drags', async () => {
+    const wrapper = board({ movable: true });
+    const card = wrapper.get('.lead-card');
+    const dataTransfer = transfer();
+    expect(card.attributes('draggable')).toBe('true');
+    await wrapper.get('section[aria-label="Pitched"]').trigger('drop', { dataTransfer });
+    expect(wrapper.emitted('move')).toBeUndefined();
+    await card.trigger('dragstart', { dataTransfer });
+    expect(card.classes()).toContain('lead-dragging');
+    expect(wrapper.get('section[aria-label="Lead"]').classes()).not.toContain('column-accepts');
+    const target = wrapper.get('section[aria-label="Pitched"]');
+    expect(target.classes()).toContain('column-accepts');
+    await target.trigger('dragover', { dataTransfer });
+    expect(target.classes()).toContain('column-over');
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await wrapper.vm.$nextTick();
+    expect(target.classes()).not.toContain('column-over');
+    await card.trigger('dragstart', { dataTransfer });
+    await wrapper.get('section[aria-label="Lead"]').trigger('drop', { dataTransfer });
+    expect(wrapper.emitted('move')).toBeUndefined();
+    expect(card.classes()).not.toContain('lead-dragging');
+    await card.trigger('dragstart', { dataTransfer });
+    await card.trigger('dragend');
+    expect(target.classes()).not.toContain('column-accepts');
+    await card.trigger('dragstart', { dataTransfer });
+    await target.trigger('drop', { dataTransfer });
+    await target.trigger('drop', { dataTransfer });
+    expect(wrapper.emitted('move')).toEqual([[lead('lead'), 'pitched']]);
+});
+it.each([{ movable: false }, { movable: true, loading: true }, { movable: true, moving: 'lead' }, {}])(
+    'disables dragging for static, read-only, loading and pending boards: %j',
+    async (props) => {
+        const wrapper = board(props);
+        const card = wrapper.get('.lead-card');
+        expect(card.attributes('draggable')).toBe('false');
+        await card.trigger('dragstart', { dataTransfer: transfer() });
+        await wrapper.get('section[aria-label="Pitched"]').trigger('drop');
+        expect(wrapper.emitted('move')).toBeUndefined();
+    },
+);

@@ -1,0 +1,171 @@
+
+Running 16 tests using 1 worker
+
+(node:351727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (8.1s)
+  ✓   2 [desktop] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (4.9s)
+  ✓   3 [desktop] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (25.0s)
+  ✓   4 [desktop] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (5.0s)
+  ✓   5 [desktop] › tests/Browser/professional-ui.spec.ts:54:1 › Professional presentation, destinations and editor cancellation (38.4s)
+  ✘   6 [desktop] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths (33.7s)
+(node:354975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [desktop] › tests/Browser/professional-ui.spec.ts:288:1 › Professional tools retain client, onboarding, publishing, finance and automation workflows (1.3m)
+time="2026-11-08T16:12:53+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-dc323a586d75 Creating
+ Container weavdash-professional-migrate-run-dc323a586d75 Created
+  ✘   8 [desktop] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA (32.0s)
+(node:357790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [mobile] › tests/Browser/partner-navigation.spec.ts:4:1 › partner URLs, avatar navigation, modal focus and paginated drawer history (12.2s)
+  ✓  10 [mobile] › tests/Browser/portals.spec.ts:12:1 › portal logins share identity and never grant a wrong workspace context (7.3s)
+  ✓  11 [mobile] › tests/Browser/portals.spec.ts:36:1 › same relationship appears in both portals, private leads survive removal, automation stays unavailable (35.1s)
+  ✓  12 [mobile] › tests/Browser/portals.spec.ts:133:1 › portal registration survives logout and verification before first workspace provisioning (11.7s)
+  ✓  13 [mobile] › tests/Browser/professional-ui.spec.ts:54:1 › Professional presentation, destinations and editor cancellation (1.6m)
+  ✘  14 [mobile] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths (49.4s)
+(node:363801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [mobile] › tests/Browser/professional-ui.spec.ts:288:1 › Professional tools retain client, onboarding, publishing, finance and automation workflows (1.5m)
+time="2026-11-08T16:18:43+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-09679f6d5149 Creating
+ Container weavdash-professional-migrate-run-09679f6d5149 Created
+  ✓  16 [mobile] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA (38.1s)
+
+
+  1) [desktop] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+
+    TimeoutError: locator.boundingBox: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Five-stage pipeline' })
+
+
+      236 |         for (const width of widths) {
+      237 |             await page.setViewportSize({ width, height: 900 });
+    > 238 |             const actions = (await page
+          |                                        ^
+      239 |                 .getByRole('heading', { name: "Today's next best actions" })
+      240 |                 .locator('..')
+      241 |                 .boundingBox())!;
+        at /home/cyrusadmin/weavdash/src/tests/Browser/professional-ui.spec.ts:238:92
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA
+
+    TimeoutError: locator.selectOption: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('#assign-workspace')
+        - locator resolved to <select value="" tabindex="-1" data-v-20bb9618="" aria-hidden="true" id="assign-workspace" name="assign-workspace" class="wd-select-native">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        - waiting for element to be visible and enabled
+      - element was detached from the DOM, retrying
+        - locator resolved to <select value="" tabindex="-1" data-v-20bb9618="" aria-hidden="true" id="assign-workspace" name="assign-workspace" class="wd-select-native">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        29 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      94 |     await page.getByLabel('Search names').fill('Independent consulting');
+      95 |     await page.getByRole('button', { name: 'Search', exact: true }).click();
+    > 96 |     await page.locator('#assign-workspace').selectOption(fixture.org);
+         |                                             ^
+      97 |     await page.getByLabel('Plan name', { exact: true }).fill('Synthetic renewed subscription');
+      98 |     await page.locator('#assign-start').fill(new Date(Date.now() - 60000).toISOString());
+      99 |     await page.locator('#assign-end').fill(new Date(Date.now() + 86400000).toISOString());
+        at /home/cyrusadmin/weavdash/src/tests/Browser/professional.spec.ts:96:45
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-professional--9aa22-ports-and-administrator-MFA-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/professional-panels-browser/professional-professional--9aa22-ports-and-administrator-MFA-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-professional--9aa22-ports-and-administrator-MFA-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/professional-panels-browser/professional-professional--9aa22-ports-and-administrator-MFA-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [mobile] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No active partnerships. Accept a brand invitation to connect.')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No active partnerships. Accept a brand invitation to connect.') with timeout 15000ms
+      - waiting for getByText('No active partnerships. Accept a brand invitation to connect.')
+
+
+      374 |     await expect(page).toHaveURL(/\/finance\/invoices\/[a-f0-9-]+$/);
+      375 |     const invoice = page.url().split('/').pop()!;
+    > 376 |     await expect(page.locator('.wd-professional')).toBeVisible();
+          |                                                                  ^
+      377 |     await expect(page.getByLabel('Unit price in minor units')).toHaveValue('9007199254740993');
+      378 |     await capture('invoice-detail');
+      379 |     await page.goto('/professional/finance/payments');
+        at /home/cyrusadmin/weavdash/src/tests/Browser/professional-ui.spec.ts:376:99
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/professional-panels-browser/professional-ui-Profession-a780e--partnerships-across-widths-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [desktop] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+    [desktop] › tests/Browser/professional.spec.ts:35:1 › professional workspace, shared client tools, exports and administrator MFA
+    [mobile] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+  13 passed (9.7m)

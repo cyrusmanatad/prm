@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { money } from './money';
 import type { Entry } from './types';
 
@@ -8,8 +8,46 @@ const props = defineProps<{
     entries: Entry[];
     count: number;
     filtered: boolean;
+    // Board moves are enabled only for writers; the reference fixture stays static.
+    movable?: boolean;
+    dragging?: Entry | null;
+    moving?: string | null;
 }>();
-const emit = defineEmits<{ open: [id: string] }>();
+const emit = defineEmits<{ open: [id: string]; drag: [lead: Entry | null]; move: [lead: Entry, stage: string] }>();
+const over = ref(false);
+const accepts = computed(
+    () => !!props.movable && !props.moving && !!props.dragging && props.dragging.stage !== props.stage.value,
+);
+watch(accepts, () => {
+    if (!accepts.value) over.value = false;
+});
+function start(event: DragEvent, lead: Entry): void {
+    if (!props.movable || props.moving || !event.dataTransfer) {
+        event.preventDefault();
+        return;
+    }
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', lead.id);
+    emit('drag', lead);
+}
+function enter(event: DragEvent): void {
+    if (!accepts.value) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    over.value = true;
+}
+function leave(event: DragEvent): void {
+    if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) over.value = false;
+}
+function drop(event: DragEvent): void {
+    over.value = false;
+    if (!accepts.value || !props.dragging) {
+        emit('drag', null);
+        return;
+    }
+    event.preventDefault();
+    emit('move', props.dragging, props.stage.value);
+}
 const amounts = computed(() => {
     const sums = new Map<string, bigint>();
     for (const row of props.entries) sums.set(row.currency, (sums.get(row.currency) ?? 0n) + BigInt(row.value_minor));
@@ -25,7 +63,15 @@ function due(row: Entry): boolean {
 }
 </script>
 <template>
-    <section class="pipeline-column" :aria-label="stage.label">
+    <section
+        class="pipeline-column"
+        :class="{ 'column-accepts': accepts, 'column-over': over && accepts }"
+        :aria-label="stage.label"
+        @dragenter="enter"
+        @dragover="enter"
+        @dragleave="leave"
+        @drop="drop"
+    >
         <header class="column-header">
             <div class="column-title">
                 <span class="stage-dot" aria-hidden="true" :style="{ background: stage.dot }"></span>
@@ -42,8 +88,14 @@ function due(row: Entry): boolean {
                 :key="lead.id"
                 type="button"
                 class="lead-card"
-                @click="emit('open', lead.id)"
+                :class="{ 'lead-dragging': dragging?.id === lead.id, 'lead-moving': moving === lead.id }"
+                :draggable="!!movable && !moving"
+                :aria-describedby="movable ? 'pipeline-drag-hint' : undefined"
+                @click="!dragging && !moving && emit('open', lead.id)"
+                @dragstart="start($event, lead)"
+                @dragend="emit('drag', null)"
             >
+                <span v-if="moving === lead.id" class="wd-sr-only">Moving stage… </span>
                 <span class="wd-sr-only">Open </span>
                 <span class="lead-brand">{{ lead.brand_name }}</span>
                 <span class="lead-amount">{{ money(lead.value_minor, lead.currency) }}</span>
@@ -128,6 +180,23 @@ function due(row: Entry): boolean {
 }
 .lead-card:hover {
     border-color: var(--wd-brand);
+}
+.lead-card[draggable='true'] {
+    cursor: grab;
+}
+.lead-dragging {
+    opacity: 0.45;
+}
+.lead-moving {
+    opacity: 0.7;
+}
+.column-accepts {
+    border-style: dashed;
+    border-color: var(--wd-control-line);
+}
+.column-over {
+    border-color: var(--wd-brand);
+    background: var(--wd-surface);
 }
 .lead-card:focus-visible {
     outline: 3px solid var(--wd-focus);

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
+const { professional, path } = useWorkspaceExperience();
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Calendar, Check, Link as LinkIcon, Lock } from '@lucide/vue';
@@ -281,7 +283,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
         <div ref="root" class="wd-crm">
             <div class="crm-intro">
                 <nav aria-label="Workspace">
-                    <Link class="crm-back" :href="entry ? `/partner/leads?entry=${entry.id}` : '/partner/leads'">
+                    <Link class="crm-back" :href="path(entry ? `/partner/leads?entry=${entry.id}` : '/partner/leads')">
                         <ArrowLeft :size="16" aria-hidden="true" />
                         Back to leads
                     </Link>
@@ -588,7 +590,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                         <Link
                                             v-if="row.pipeline_entry_id"
                                             class="crm-inline-link"
-                                            :href="`/partner/leads?entry=${row.pipeline_entry_id}`"
+                                            :href="path(`/partner/leads?entry=${row.pipeline_entry_id}`)"
                                             >Open related lead</Link
                                         >
                                         <button
@@ -658,7 +660,15 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             :hint="entry ? `New reminders here relate to ${entry.brand_name}.` : undefined"
                             :error="errors.due_at"
                         />
-                        <Button type="submit" class="wd-button wd-button-primary crm-save">Save reminder</Button>
+                        <div :class="professional ? 'wd-dialog-footer' : 'contents'">
+                            <Button
+                                v-if="professional"
+                                type="button"
+                                class="wd-button wd-button-secondary"
+                                @click="editorOpen = false"
+                                >Cancel</Button
+                            ><Button type="submit" class="wd-button wd-button-primary crm-save">Save reminder</Button>
+                        </div>
                         <template v-if="reminder.id">
                             <FormField
                                 id="reminder-snooze"
@@ -747,7 +757,15 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                 {{ errors.notes }}
                             </p>
                         </div>
-                        <Button type="submit" class="wd-button wd-button-primary crm-save">Save contact</Button>
+                        <div :class="professional ? 'wd-dialog-footer' : 'contents'">
+                            <Button
+                                v-if="professional"
+                                type="button"
+                                class="wd-button wd-button-secondary"
+                                @click="editorOpen = false"
+                                >Cancel</Button
+                            ><Button type="submit" class="wd-button wd-button-primary crm-save">Save contact</Button>
+                        </div>
                         <Button
                             v-if="contact.id"
                             type="button"

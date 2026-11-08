@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import ProfessionalShell from '../../layouts/ProfessionalShell.vue';
+import WorkspaceNotice from '../../components/WorkspaceNotice.vue';
+import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
+const { professional, path } = useWorkspaceExperience();
 import { computed, ref, watch } from 'vue';
 import { ClipboardList, ContactRound, FileText } from '@lucide/vue';
 import { router } from '@inertiajs/vue3';
@@ -28,18 +32,27 @@ watch(
         search.value = value ?? '';
     },
 );
-const accountLinks: AccountMenuLink[] = [
-    { href: '/partner/contacts', label: 'Contacts and reminders', icon: ContactRound },
-    { href: '/partner/outreach-templates', label: 'Outreach templates', icon: FileText },
-    { href: '/partner/onboarding', label: 'Onboarding requests', icon: ClipboardList },
-];
+const accountLinks = computed<AccountMenuLink[]>(() => [
+    { href: path('/partner/contacts'), label: 'Contacts and reminders', icon: ContactRound },
+    { href: path('/partner/outreach-templates'), label: 'Outreach templates', icon: FileText },
+    { href: path('/partner/onboarding'), label: 'Onboarding requests', icon: ClipboardList },
+]);
 function searchLeads(): void {
-    if (!fixture.value) router.get('/partner/leads', { q: search.value });
+    if (!fixture.value) router.get(path('/partner/leads'), { q: search.value });
 }
 </script>
 
 <template>
+    <ProfessionalShell
+        v-if="professional"
+        :account-name="accountName"
+        :account-email="accountEmail"
+        :contain-main="false"
+        @logout="router.post('/logout')"
+        ><slot
+    /></ProfessionalShell>
     <div
+        v-else
         class="portal-ui min-h-screen bg-cream font-sans leading-[normal] text-ink"
         @click="fixture && $event.preventDefault()"
     >
@@ -73,11 +86,13 @@ function searchLeads(): void {
                         ></path>
                     </svg>
                     <span class="font-display text-[20px] font-bold">WeavDash</span>
-                    <span class="rounded-full bg-white/12 px-2 py-[3px] text-[12px]">Partner</span>
+                    <span class="rounded-full bg-white/12 px-2 py-[3px] text-[12px]">{{
+                        professional ? 'Professional' : 'Partner'
+                    }}</span>
                 </div>
                 <nav aria-label="Main" class="flex flex-auto flex-wrap gap-1">
                     <a
-                        href="/partner/leads"
+                        :href="path('/partner/leads')"
                         :aria-current="current === 'leads' ? 'page' : undefined"
                         :class="
                             current === 'leads'
@@ -91,14 +106,14 @@ function searchLeads(): void {
                         >Campaigns</span
                     >
                     <a
-                        href="/partner/media-kit"
+                        :href="path('/partner/media-kit')"
                         :aria-current="current === 'media-kit' ? 'page' : undefined"
                         :class="
                             current === 'media-kit'
                                 ? 'rounded-lg bg-white/18 px-3 py-2 text-[14px] font-semibold text-white'
                                 : 'px-3 py-2 text-[14px] text-lilac'
                         "
-                        >Media kit</a
+                        >{{ professional ? 'Profile / portfolio' : 'Media kit' }}</a
                     >
                     <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-lilac">Earnings</span>
                     <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-lilac"
@@ -111,7 +126,7 @@ function searchLeads(): void {
                         id="q"
                         v-model="search"
                         type="search"
-                        placeholder="Search brands, contacts…"
+                        :placeholder="professional ? 'Search clients, contacts…' : 'Search brands, contacts…'"
                         class="w-[220px] min-w-0 flex-[1_1_180px] rounded-lg bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
                         @keydown.enter="searchLeads"
                     />
@@ -126,6 +141,7 @@ function searchLeads(): void {
                 </div>
             </div>
         </header>
+        <WorkspaceNotice />
         <slot />
     </div>
 </template>
