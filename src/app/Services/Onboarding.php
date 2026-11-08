@@ -67,6 +67,8 @@ class Onboarding
             abort_unless($scope, 403);
             DB::selectOne("SELECT set_config('app.capability',?,true),set_config('app.org_id',?,true)", [$hash, $scope->org]);
 
+            app(ProfessionalAccess::class)->requireActive($scope->org);
+
             return $callback($scope->org, $scope->request);
         }, requireMembership: false);
     }
@@ -130,7 +132,7 @@ class Onboarding
         }
         DB::table('onboarding_requests')->where('org_id', $org)->where('id', $id)->update(['status' => match ($action) {
             'revoke' => 'revoked','correct' => 'correction','accept' => 'accepted'
-        }, 'correction_note' => $note, 'version' => $version + 1]);
+        }, 'correction_note' => $action === 'revoke' ? $r->correction_note : $note, 'version' => $version + 1]);
         $this->event($org, $id, $action);
         $this->audit->record($actor, $org, 'onboarding.'.$action, $id);
         if ($recipient !== null && in_array($action, ['correct', 'accept'], true)) {

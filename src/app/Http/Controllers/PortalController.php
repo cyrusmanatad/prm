@@ -17,15 +17,15 @@ class PortalController extends Controller
     {
         $user = $request->user();
         if ($user->registration_workspace_id) {
-            $id = $workspaces->create((int) $user->id, $user->name, $user->registration_workspace_kind, $user->registration_workspace_id);
+            $id = $workspaces->create((int) $user->id, $user->name, $user->registration_workspace_kind, $user->registration_workspace_id, $user->registration_workspace_experience ?? 'partner');
             $request->session()->put('active_org_id', $id);
-            $user->forceFill(['registration_workspace_id' => null, 'registration_workspace_kind' => null])->save();
+            $user->forceFill(['registration_workspace_id' => null, 'registration_workspace_kind' => null, 'registration_workspace_experience' => null])->save();
         }
         $listing = $workspaces->listing((int) $request->user()->id);
-        $preference = $request->session()->get('portal');
-        $selected = collect($listing)->first(fn ($row) => $row->id === $request->session()->get('active_org_id') && (! $preference || $row->kind === ($preference === 'brand' ? 'brand' : 'creator')));
+        $preference = $request->session()->has('partnership_token') ? null : $request->session()->get('portal');
+        $selected = collect($listing)->first(fn ($row) => $row->id === $request->session()->get('active_org_id') && (! $preference || ($row->kind === ($preference === 'brand' ? 'brand' : 'creator') && ($preference === 'brand' || $row->experience === ($preference === 'professional' ? 'professional' : 'partner')))));
         if (! $selected) {
-            $matching = collect($listing)->filter(fn ($row) => ! $preference || $row->kind === ($preference === 'brand' ? 'brand' : 'creator'));
+            $matching = collect($listing)->filter(fn ($row) => ! $preference || ($row->kind === ($preference === 'brand' ? 'brand' : 'creator') && ($preference === 'brand' || $row->experience === ($preference === 'professional' ? 'professional' : 'partner'))));
             $selected = $matching->count() === 1 ? $matching->first() : null;
         }
         if (! $selected) {
@@ -34,7 +34,7 @@ class PortalController extends Controller
         $request->session()->put('active_org_id', $selected->id);
         $request->session()->regenerate();
 
-        return redirect($request->session()->has('partnership_token') && $selected->kind === 'creator' ? '/partnerships/accept' : ($selected->kind === 'brand' ? '/brand' : '/partner/leads'));
+        return redirect($request->session()->has('partnership_token') && $selected->kind === 'creator' ? '/partnerships/accept' : ($selected->kind === 'brand' ? '/brand' : ($selected->experience === 'professional' ? '/professional' : '/partner/leads')));
     }
 
     public function acceptancePage(Request $request)
@@ -60,8 +60,11 @@ class PortalController extends Controller
     public function index(Request $request, Pipeline $pipeline)
     {
         $org = $request->session()->get('active_org_id');
-        $workspace = DB::table('organizations')->where('id', $org)->first(['id', 'name', 'kind']);
+        $workspace = DB::table('organizations')->where('id', $org)->first(['id', 'name', 'kind', 'experience']);
         $portal = $request->is('brand') ? 'brand' : 'partner';
+        if ($workspace?->experience === 'professional' && ! $request->is('professional*') && (! $request->expectsJson() || $request->header('X-Inertia'))) {
+            return redirect('/professional/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
+        }
         if (! $workspace || $workspace->kind !== ($portal === 'brand' ? 'brand' : 'creator')) {
             return redirect('/workspaces');
         }

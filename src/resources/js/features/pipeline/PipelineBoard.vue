@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
+const { professional, path, clientLabel } = useWorkspaceExperience();
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import SelectField from '../../components/SelectField.vue';
 import ActionGroup from '../../components/ActionGroup.vue';
@@ -126,7 +128,7 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                 <div class="pipeline-intro">
                     <div class="pipeline-title-row">
                         <h2 id="my-pipeline-title">My pipeline</h2>
-                        <span class="automation-pill">Automation unavailable</span>
+                        <span v-if="!professional" class="automation-pill">Automation unavailable</span>
                     </div>
                     <p class="pipeline-subtitle">Open a lead to edit it, move its stage or start onboarding.</p>
                 </div>
@@ -156,13 +158,13 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
             </ActionGroup>
             <form class="pipeline-toolbar" aria-label="Filter pipeline" @submit.prevent="apply">
                 <div class="wd-field pipeline-search">
-                    <label for="pipeline-search">Search brands</label>
+                    <label for="pipeline-search">{{ professional ? 'Search clients' : 'Search brands' }}</label>
                     <input
                         id="pipeline-search"
                         v-model="query"
                         type="search"
                         maxlength="160"
-                        placeholder="Search brands"
+                        :placeholder="professional ? 'Search clients' : 'Search brands'"
                         @input="search"
                     />
                 </div>
@@ -223,7 +225,9 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                 <p>
                     {{
                         filtered
-                            ? 'Try a different brand name, stage or due filter.'
+                            ? professional
+                                ? 'Try a different client name, stage or due filter.'
+                                : 'Try a different brand name, stage or due filter.'
                             : 'Capture a lead to start your private pipeline.'
                     }}
                 </p>

@@ -85,6 +85,11 @@ class NotificationOutbox
             if (! DB::selectOne('SELECT app_lock_membership(?::uuid) AS allowed', [$org])->allowed) {
                 return null;
             }
+            if (! app(ProfessionalAccess::class)->active($org)) {
+                DB::table('notification_outbox')->where('id', $id)->where('state', 'pending')->update(['state' => 'cancelled', 'encrypted_payload' => null, 'completed_at' => now()]);
+
+                return null;
+            }
             // Discover routing only, then use the same schedule-before-outbox lock order as the consumer.
             $route = DB::table('notification_outbox')->where('id', $id)->where('actor_id', $actor)->first();
             $schedule = null;

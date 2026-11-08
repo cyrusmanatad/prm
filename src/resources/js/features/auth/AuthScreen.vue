@@ -9,7 +9,7 @@ import type { AuthMode, AuthSubmission, FieldErrors } from '../../types/foundati
 const props = withDefaults(
     defineProps<{
         mode: AuthMode;
-        portal?: 'brand' | 'partner';
+        portal?: 'brand' | 'partner' | 'professional';
         email?: string;
         errors?: FieldErrors;
         processing?: boolean;

@@ -23,7 +23,7 @@ const props = withDefaults(
     { activeOrgId: null, pendingAction: null, errors: () => ({}), status: '', accessRevoked: false },
 );
 const emit = defineEmits<{
-    create: [name: string, kind: 'creator' | 'brand'];
+    create: [name: string, kind: 'creator' | 'brand', experience: 'partner' | 'professional'];
     select: [orgId: string];
     rename: [name: string];
     revokeSessions: [password: string];
@@ -31,9 +31,9 @@ const emit = defineEmits<{
 }>();
 const root = ref<HTMLElement>();
 const newName = ref('');
-const kind = ref<'creator' | 'brand'>('creator');
+const kind = ref<'creator' | 'brand' | 'professional'>('creator');
 function onKind(next: string): void {
-    if (next === 'creator' || next === 'brand') kind.value = next;
+    if (next === 'creator' || next === 'brand' || next === 'professional') kind.value = next;
 }
 const currentName = ref('');
 const password = ref('');
@@ -55,7 +55,13 @@ useValidationFocus(
     () => !busy.value,
 );
 function create(): void {
-    if (!busy.value) emit('create', newName.value.trim(), kind.value);
+    if (!busy.value)
+        emit(
+            'create',
+            newName.value.trim(),
+            kind.value === 'brand' ? 'brand' : 'creator',
+            kind.value === 'professional' ? 'professional' : 'partner',
+        );
 }
 function rename(): void {
     if (!busy.value && canEdit.value) emit('rename', currentName.value.trim());
@@ -84,7 +90,7 @@ defineExpose({
             <p v-if="accessRevoked" class="wd-field-error wd-banner" role="alert">
                 Your access to the previous workspace has changed. Choose an available workspace below.
             </p>
-            <div class="wd-workspace-grid">
+            <div class="wd-workspace-grid mb-4">
                 <section class="wd-card" aria-labelledby="workspace-list-title" :aria-busy="pendingAction === 'select'">
                     <h2 id="workspace-list-title">Your spaces</h2>
                     <p v-if="!workspaces.length" class="wd-empty">
@@ -105,8 +111,14 @@ defineExpose({
                                 <span class="wd-workspace-label"
                                     ><strong>{{ workspace.name }}</strong
                                     ><span class="wd-role"
-                                        >{{ workspace.kind === 'brand' ? 'Brand' : 'Partner' }} ·
-                                        {{ workspace.role }}</span
+                                        >{{
+                                            workspace.kind === 'brand'
+                                                ? 'Brand'
+                                                : workspace.experience === 'professional'
+                                                  ? 'Professional'
+                                                  : 'Partner'
+                                        }}
+                                        · {{ workspace.role }}</span
                                     ></span
                                 >
                                 <span v-if="selected?.id === workspace.id" class="wd-active-label">Selected</span>
@@ -130,6 +142,7 @@ defineExpose({
                                 :options="[
                                     { value: 'creator', label: 'Partner / creator' },
                                     { value: 'brand', label: 'Brand' },
+                                    { value: 'professional', label: 'Professional / independent' },
                                 ]"
                                 @update:model-value="onKind"
                             />
@@ -153,16 +166,27 @@ defineExpose({
                     <span class="wd-eyebrow">Selected workspace</span>
                     <h2 id="workspace-settings-title">{{ selected.name }}</h2>
                     <Link
-                        class="wd-link inline-flex min-h-11 items-center"
-                        :href="selected.kind === 'brand' ? '/brand' : '/partner/leads'"
-                        >Open {{ selected.kind === 'brand' ? 'brand hub' : 'partner portal' }}</Link
+                        class="wd-link wd-link-pill"
+                        :href="
+                            selected.kind === 'brand'
+                                ? '/brand'
+                                : selected.experience === 'professional'
+                                  ? '/professional'
+                                  : '/partner/leads'
+                        "
+                        >Open
+                        {{
+                            selected.kind === 'brand'
+                                ? 'brand hub'
+                                : selected.experience === 'professional'
+                                  ? 'Professional Hub'
+                                  : 'partner portal'
+                        }}</Link
                     >
-                    <Link class="wd-link inline-flex min-h-11 items-center" href="/automation"
-                        >Automation preferences</Link
-                    >
+                    <Link class="wd-link wd-link-pill" href="/automation">Automation preferences</Link>
                     <ActionGroup v-if="selected.role === 'owner'">
-                        <Link class="wd-link" href="/finance/invoices">Private finance records</Link>
-                        <Link class="wd-link" href="/workspace/entitlements">Pilot entitlements</Link>
+                        <Link class="wd-link wd-link-pill" href="/finance/invoices">Private finance records</Link>
+                        <Link class="wd-link wd-link-pill" href="/workspace/entitlements">Pilot entitlements</Link>
                     </ActionGroup>
                     <p v-if="!canEdit" class="wd-description">
                         Your {{ selected.role }} role does not include workspace settings changes.

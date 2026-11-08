@@ -16,10 +16,10 @@ class RegisteredUserController extends Controller
     public function __invoke(RegisterRequest $request): JsonResponse|RedirectResponse
     {
         $user = User::create($request->validated());
-        if (in_array($request->route('portal'), ['brand', 'partner'], true)) {
+        if (in_array($request->route('portal'), ['brand', 'partner', 'professional'], true)) {
             $portal = $request->route('portal');
             $request->session()->put('portal', $portal);
-            $user->forceFill(['registration_workspace_id' => (string) Str::uuid(), 'registration_workspace_kind' => $portal === 'brand' ? 'brand' : 'creator'])->save();
+            $user->forceFill(['registration_workspace_id' => (string) Str::uuid(), 'registration_workspace_kind' => $portal === 'brand' ? 'brand' : 'creator', 'registration_workspace_experience' => $portal === 'professional' ? 'professional' : 'partner'])->save();
         }
         event(new Registered($user));
         Auth::login($user);

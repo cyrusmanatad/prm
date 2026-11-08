@@ -51,13 +51,15 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
     await expect(brand.getByRole('heading', { level: 1 })).toContainText('Onboarding for Onboarding Studio');
     await expect(brand.getByText('PRIVATE creator notes must never be shown to brand')).toHaveCount(0);
     const formUrl = brand.url();
-    await brand.getByLabel('Business name', { exact: true }).fill('Brand business');
+    await brand.getByLabel('Client name (individual or business)', { exact: true }).fill('Brand business');
     await brand.getByLabel('Contact name', { exact: true }).fill('Brand Contact');
     await brand.getByRole('button', { name: 'Save draft', exact: true }).click();
     await expect(brand.getByRole('status').filter({ hasText: 'Draft saved' })).toBeVisible();
     await brand.reload();
-    await expect(brand.getByLabel('Business name', { exact: true })).toHaveValue('Brand business');
-    await brand.getByLabel('Business email', { exact: true }).fill('brand@example.test');
+    await expect(brand.getByLabel('Client name (individual or business)', { exact: true })).toHaveValue(
+        'Brand business',
+    );
+    await brand.getByLabel('Client email', { exact: true }).fill('brand@example.test');
     await brand.getByLabel('Collaboration brief', { exact: true }).fill('A first brief.');
     await brand.getByRole('button', { name: 'Save draft', exact: true }).focus();
     await brand.keyboard.press('Enter');
@@ -178,9 +180,9 @@ test('media kit publication and inbound lead links are explicit and revocable', 
             })
         ).status(),
     ).toBe(419);
-    await publicPage.getByLabel('Business name', { exact: true }).fill('Inbound Studio');
+    await publicPage.getByLabel('Client name (individual or business)', { exact: true }).fill('Inbound Studio');
     await publicPage.getByLabel('Contact name', { exact: true }).fill('Inbound Contact');
-    await publicPage.getByLabel('Business email', { exact: true }).fill('contact@example.test');
+    await publicPage.getByLabel('Client email', { exact: true }).fill('contact@example.test');
     await publicPage.getByLabel('I agree to share these details', { exact: false }).check();
     await scan(publicPage, info, 'lead-form');
     await publicPage.getByRole('button', { name: 'Share contact details', exact: true }).click();

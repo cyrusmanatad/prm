@@ -7,7 +7,7 @@ import type { AuthMode, AuthSubmission, FieldErrors } from '../types/foundation'
 const props = withDefaults(
     defineProps<{
         mode: AuthMode;
-        portal?: 'brand' | 'partner';
+        portal?: 'brand' | 'partner' | 'professional';
         email?: string;
         token?: string;
         status?: string;

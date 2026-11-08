@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
+const { professional, path, clientLabel } = useWorkspaceExperience();
 import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { Link, router } from '@inertiajs/vue3';
@@ -54,7 +56,7 @@ function close(): void {
         const params = new URLSearchParams(location.search);
         params.delete('entry');
         params.delete('create');
-        router.get('/partner/leads', Object.fromEntries(params), { preserveScroll: true, preserveState: true });
+        router.get(path('/partner/leads'), Object.fromEntries(params), { preserveScroll: true, preserveState: true });
     } else {
         creating.value = false;
         dialog.value?.close();
@@ -368,13 +370,13 @@ function openLead(id: string): void {
     const params = new URLSearchParams(location.search);
     params.delete('create');
     params.set('entry', id);
-    router.get('/partner/leads', Object.fromEntries(params), { preserveScroll: true });
+    router.get(path('/partner/leads'), Object.fromEntries(params), { preserveScroll: true });
 }
 const pipelineLoading = ref(false);
 let listingVisit = 0;
 function loadPage(params: Record<string, string>): void {
     const currentVisit = ++listingVisit;
-    router.get('/partner/leads', params, {
+    router.get(path('/partner/leads'), params, {
         preserveScroll: true,
         preserveState: true,
         onStart: () => {
@@ -411,7 +413,7 @@ function startOnboarding(): void {
 }
 
 function reloadSelected(): void {
-    if (props.selected) router.get('/partner/leads', { entry: props.selected.id }, { preserveState: false });
+    if (props.selected) router.get(path('/partner/leads'), { entry: props.selected.id }, { preserveState: false });
 }
 </script>
 
@@ -456,7 +458,7 @@ function reloadSelected(): void {
                         </div>
                         <DialogClose label="Close lead" :disabled="busy" @click="close" />
                     </div>
-                    <Link class="contacts-link" :href="`/partner/contacts?entry=${selected.id}`">
+                    <Link class="contacts-link" :href="path(`/partner/contacts?entry=${selected.id}`)">
                         <span class="contacts-icon" aria-hidden="true">
                             <svg
                                 width="18"
@@ -536,7 +538,7 @@ function reloadSelected(): void {
                                     <FormField
                                         id="edit-brand"
                                         v-model="editForm.brand_name"
-                                        label="Brand name"
+                                        :label="clientLabel"
                                         :maxlength="160"
                                         :error="detailErrors.brand_name"
                                     />

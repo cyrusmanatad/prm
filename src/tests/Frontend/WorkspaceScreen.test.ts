@@ -32,7 +32,7 @@ describe('workspace screens', () => {
         expect(wrapper.text()).toContain('You don’t have an active workspace yet');
         await wrapper.get('#workspace_name').setValue('  My Studio  ');
         await wrapper.get('form').trigger('submit');
-        expect(wrapper.emitted('create')).toEqual([['My Studio', 'creator']]);
+        expect(wrapper.emitted('create')).toEqual([['My Studio', 'creator', 'partner']]);
     });
 
     it('selects by workspace ID and exposes which workspace is selected', async () => {
@@ -45,6 +45,8 @@ describe('workspace screens', () => {
 
     it('allows owner settings but removes the form after switching to a viewer workspace', async () => {
         const wrapper = screen();
+        expect(wrapper.findAll('.wd-settings-card .wd-link-pill')).toHaveLength(4);
+        expect(wrapper.find('.wd-settings-card .wd-link-pill').classes()).toContain('wd-link-pill');
         await wrapper.get('#current_workspace_name').setValue('Updated Studio');
         await wrapper.get('.wd-settings-card form').trigger('submit');
         expect(wrapper.emitted('rename')).toEqual([['Updated Studio']]);

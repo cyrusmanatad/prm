@@ -67,7 +67,7 @@ function submit(): void {
                 /><FormField
                     id="lead-brand"
                     v-model="brand"
-                    label="Business name"
+                    label="Client name (individual or business)"
                     :maxlength="160"
                     :error="errors?.brand_name"
                 /><FormField
@@ -79,7 +79,7 @@ function submit(): void {
                 /><FormField
                     id="lead-email"
                     v-model="email"
-                    label="Business email"
+                    label="Client email"
                     type="email"
                     :maxlength="255"
                     :error="errors?.email"

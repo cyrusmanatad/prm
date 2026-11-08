@@ -16,7 +16,7 @@ class SessionController extends Controller
     {
         $portal = $request->route('portal');
         $request->session()->forget('url.intended');
-        if (in_array($portal, ['brand', 'partner'], true)) {
+        if (in_array($portal, ['brand', 'partner', 'professional'], true)) {
             $request->session()->put('portal', $portal);
         } else {
             $request->session()->forget('portal');

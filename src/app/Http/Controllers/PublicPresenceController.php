@@ -60,6 +60,7 @@ class PublicPresenceController extends Controller
         $kit = DB::selectOne('SELECT * FROM app_public_kit(?::uuid)', [$record]);
         abort_unless($kit, 404);
 
+        $kit->professional = DB::selectOne('SELECT app_public_profile_experience(?::uuid) AS experience', [$record])->experience === 'professional';
         $kit->social_links = json_decode($kit->social_links, true);
 
         return response()->view('media-kit', ['kit' => $kit])->header('X-Content-Type-Options', 'nosniff');

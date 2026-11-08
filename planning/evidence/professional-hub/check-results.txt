@@ -1,0 +1,16 @@
+2026-11-07, isolated weavdash-professional Compose project
+PostgreSQL affected suite: 52 tests, 968 assertions, PASS
+Final focused ProfessionalHubTest: 13 tests, 189 assertions, PASS
+Identity/authentication suite: 30 tests, 265 assertions, PASS
+Pinned formatting: 26 supported frontend files, PASS
+TypeScript: PASS
+Production build: PASS
+Vitest: 13 files / 51 tests, PASS
+PHP Pint dirty test: PASS
+Final Playwright: desktop + mobile, 2 tests, 41.9s, PASS
+Axe and modal keyboard/focus checks: PASS
+Hub overflow at 320/768/1024/1440 pixels: PASS
+Two new PostgreSQL migrations rollback and reapply: PASS
+Planning relative links: 296 checked, PASS
+Git diff whitespace check: PASS
+Gitleaks: synthetic positive control PASS; existing evidence checksum false positive remains (README documents exact path).
