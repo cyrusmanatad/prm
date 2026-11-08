@@ -91,7 +91,11 @@ const summary = computed(() => [
                 </div>
             </div>
 
-            <section aria-label="Summary" class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+            <section
+                v-if="!professional"
+                aria-label="Summary"
+                class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4"
+            >
                 <template v-if="fixture">
                     <div class="rounded-[14px] border border-line bg-white px-5 py-[18px]">
                         <div class="text-[13px] font-semibold text-muted">Open pipeline</div>
@@ -128,7 +132,7 @@ const summary = computed(() => [
 
             <div class="flex flex-wrap items-start gap-6">
                 <div class="flex min-w-0 flex-[999_1_640px] flex-col gap-6">
-                    <section v-if="!professional" class="rounded-2xl border border-line bg-white p-5">
+                    <section class="rounded-2xl border border-line bg-white p-5">
                         <template v-if="fixture">
                             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                                 <h2 class="font-display text-[18px] font-bold">Today's next best actions</h2>
@@ -274,7 +278,7 @@ const summary = computed(() => [
                             ><h2 class="mb-3 font-display text-[18px] font-bold">Today's next best actions</h2>
                             <p class="text-[13px] text-muted">AI ranking and suggested drafts are unavailable.</p>
                             <Link
-                                href="/partner/contacts?state=due"
+                                :href="path('/partner/contacts?state=due')"
                                 class="mt-3 inline-block text-[14px] font-bold underline"
                                 >View contacts and due reminders →</Link
                             ></template
@@ -299,11 +303,8 @@ const summary = computed(() => [
                     />
                 </div>
 
-                <aside
-                    v-if="!professional || data.relationships.length"
-                    class="flex min-w-0 flex-[1_1_340px] flex-col gap-6"
-                >
-                    <section v-if="!professional" class="rounded-2xl border border-line bg-white p-5">
+                <aside class="flex min-w-0 flex-[1_1_340px] flex-col gap-6">
+                    <section class="rounded-2xl border border-line bg-white p-5">
                         <template v-if="fixture">
                             <h2 class="mb-1 font-display text-[18px] font-bold">Autopilot</h2>
                             <p class="mb-3 text-[13px] text-muted">
@@ -457,7 +458,9 @@ const summary = computed(() => [
 
                     <section class="wd-on-dark rounded-2xl bg-ink p-5 text-white">
                         <template v-if="fixture">
-                            <h2 class="mb-1 font-display text-[18px] font-bold">From your brand partners</h2>
+                            <h2 class="mb-1 font-display text-[18px] font-bold text-inherit">
+                                From your brand partners
+                            </h2>
                             <p class="mb-3.5 text-[13px] text-lilac">Perks and goals your brands set for you</p>
                             <div class="flex flex-col gap-3.5">
                                 <div class="rounded-xl bg-white/7 p-3.5">
@@ -502,7 +505,9 @@ const summary = computed(() => [
                                 >Ask a brand for support →</a
                             > </template
                         ><template v-else
-                            ><h2 class="mb-3 font-display text-[18px] font-bold">From your brand partners</h2>
+                            ><h2 class="mb-3 font-display text-[18px] font-bold text-inherit">
+                                From your brand partners
+                            </h2>
                             <div
                                 v-for="row in data.relationships"
                                 :key="row.id"

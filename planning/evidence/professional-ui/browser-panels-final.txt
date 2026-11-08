@@ -1,0 +1,99 @@
+
+Running 4 tests using 1 worker
+
+(node:356996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/professional-ui.spec.ts:54:1 › Professional presentation, destinations and editor cancellation (45.6s)
+  ✘  2 [desktop] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths (50.1s)
+(node:360135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [mobile] › tests/Browser/professional-ui.spec.ts:54:1 › Professional presentation, destinations and editor cancellation (1.4m)
+  ✘  4 [mobile] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths (53.3s)
+
+
+  1) [desktop] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No active partnerships. Accept a brand invitation to connect.')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No active partnerships. Accept a brand invitation to connect.') with timeout 15000ms
+      - waiting for getByText('No active partnerships. Accept a brand invitation to connect.')
+
+
+      283 |         await page.keyboard.press('Escape');
+      284 |         await expect(end).toBeFocused();
+    > 285 |         await confirmMutation(page, end, 'End partnership');
+          |                                                             ^
+      286 |         await expect(page.getByText('No active partnerships. Accept a brand invitation to connect.')).toBeVisible();
+      287 |         await expect(page.getByRole('heading', { name: 'Autopilot', exact: true })).toBeVisible();
+      288 |     } finally {
+        at /home/cyrusadmin/weavdash/src/tests/Browser/professional-ui.spec.ts:285:103
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No active partnerships. Accept a brand invitation to connect.')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No active partnerships. Accept a brand invitation to connect.') with timeout 15000ms
+      - waiting for getByText('No active partnerships. Accept a brand invitation to connect.')
+
+
+      283 |         await page.keyboard.press('Escape');
+      284 |         await expect(end).toBeFocused();
+    > 285 |         await confirmMutation(page, end, 'End partnership');
+          |                                                             ^
+      286 |         await expect(page).toHaveURL(/\/professional$/);
+      287 |         await page.goto('/professional/leads');
+      288 |         await expect(page.getByText('No active partnerships. Accept a brand invitation to connect.')).toBeVisible();
+        at /home/cyrusadmin/weavdash/src/tests/Browser/professional-ui.spec.ts:285:103
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-mobile/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../tmp/professional-panels-final/professional-ui-Profession-a780e--partnerships-across-widths-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+    [mobile] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths
+  2 passed (4.1m)

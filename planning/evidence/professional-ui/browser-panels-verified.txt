@@ -1,0 +1,21 @@
+
+Running 6 tests using 1 worker
+
+(node:361645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/Browser/professional-ui.spec.ts:54:1 › Professional presentation, destinations and editor cancellation (1.9m)
+  ✓  2 [desktop] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths (34.4s)
+time="2026-11-08T16:18:19+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-a597df12827c Creating
+ Container weavdash-professional-migrate-run-a597df12827c Created
+  ✓  3 [desktop] › tests/Browser/professional.spec.ts:36:1 › professional workspace, shared client tools, exports and administrator MFA (29.3s)
+(node:366511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/Browser/professional-ui.spec.ts:54:1 › Professional presentation, destinations and editor cancellation (38.5s)
+  ✓  5 [mobile] › tests/Browser/professional-ui.spec.ts:198:1 › Professional pipeline panels retain empty and populated partnerships across widths (15.9s)
+time="2026-11-08T16:19:44+08:00" level=warning msg="Found orphan containers (weavdash-pipeline-app) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container weavdash-professional-migrate-run-c01b6cc094a7 Creating
+ Container weavdash-professional-migrate-run-c01b6cc094a7 Created
+  ✓  6 [mobile] › tests/Browser/professional.spec.ts:36:1 › professional workspace, shared client tools, exports and administrator MFA (23.0s)
+
+  6 passed (4.6m)
