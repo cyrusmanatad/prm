@@ -80,3 +80,8 @@ When localhost and browser tooling become available, inspect all seven boards at
 ## D29 — Professional Hub and manually activated subscriptions
 
 **Confirmed (2026-11-07):** implement the [Professional Hub contract](../professional/hub-contract.md) before M5-07, including its ADM-01/02/04 dependencies. Preserve creator storage, existing experiences and all release gates. Administrator-supplied quotas/dates/reasons; no checkout or production provisioning.
+
+
+## D30 — Follow-up delivery and uncertainty operations
+
+**Confirmed (2026-11-09):** the user selected separate MFA-protected platform permissions for sanitized delivery diagnostics/reconciliation, with tenant owners unable to act as global operators. Uncertain messages are never replayed; another send requires an appropriate replacement invitation or fresh draft approval. The user also approved a separate **Send approved message** action for the draft owner's exact approved recipient/content and opt-in review notices only to that owner's verified account. Limits may be configurable; production budget acceptance remains open until provider limits are known. See the [delivery operations contract](../m5/delivery-operations-contract.md). This confirms policy for local implementation; it does not authorize external test mail, deployment, real operator provisioning or waive M5-09/M5-10 and inherited release gates.

@@ -22,6 +22,7 @@ const props = defineProps<{
     q: string;
     page: number;
     canAssign: boolean;
+    canNotifications: boolean;
 }>();
 const query = ref(props.q);
 watch(
@@ -73,6 +74,9 @@ function assign(event: SubmitEvent) {
                 <h1>Accounts and workspaces</h1>
                 <p class="wd-description">Workspace metadata and manual subscriptions.</p>
             </header>
+            <Link v-if="canNotifications" href="/admin/notifications" class="wd-link inline-flex min-h-11 items-center"
+                >Delivery diagnostics</Link
+            >
             <ContentSection title="Directory"
                 ><form @submit.prevent="router.get('/admin', { q: query })">
                     <FormField id="directory-search" v-model="query" label="Search names" :maxlength="120" /><Button
@@ -166,7 +170,12 @@ function assign(event: SubmitEvent) {
                         <p v-for="(error, key) in form.errors" :key="key" class="wd-field-error" role="alert">
                             {{ error }}
                         </p>
-                        <Link v-if="form.errors.expected_version" href="/admin" class="wd-link">Reload directory</Link>
+                        <Link
+                            v-if="form.errors.expected_version"
+                            href="/admin"
+                            class="wd-link inline-flex min-h-11 items-center"
+                            >Reload directory</Link
+                        >
                         <Button type="submit" class="wd-button wd-button-primary">Record assignment</Button>
                     </fieldset>
                 </form>

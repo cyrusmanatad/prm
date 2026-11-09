@@ -7,5 +7,6 @@ export type FollowUpDraft = {
     body: string;
     version: number;
     state: 'draft' | 'approved' | 'discarded' | 'cancelled';
+    outreach_state?: string | null;
     schedule_run_id: string | null;
 };

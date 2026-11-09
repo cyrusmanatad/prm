@@ -28,4 +28,4 @@ Rollback removes these helpers/triggers/index only. It does not restore invalida
 
 ## Remaining gates
 
-M5-08 still needs the operator permissions/reconciliation, approved application-sent outreach, opt-in review notices and transport/rate-budget contract and implementation. Provider receipt is M5-09; broader outage/recovery acceptance is M5-10. Administration, broader small-screen/manual accessibility/UI-05 and inherited release gates remain separate. This slice's narrow Chromium mobile regression does not close those reviews.
+M5-08 now implements [operator permissions/reconciliation, explicit approved outreach, opt-in review notices and delivery controls](delivery-operations-contract.md), with actual production budget/provider acceptance still open. Provider receipt is M5-09; broader outage/recovery acceptance is M5-10. Administration, broader small-screen/manual accessibility/UI-05 and inherited release gates remain separate. This slice's narrow Chromium mobile regression does not close those reviews.

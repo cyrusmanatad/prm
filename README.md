@@ -108,7 +108,7 @@ The browser suite defines Chromium and WebKit desktop/mobile projects. Use `npx 
 
 Tests default to Compose project `weavdash-m1` and `http://localhost:8000`. For the default setup project, use `COMPOSE_PROJECT_NAME=weavdash npm run test:browser`. `PLAYWRIGHT_BASE_URL` can override the browser address; it must match the app's `APP_URL` for signed verification links. On a fresh Linux host, `npx playwright install --with-deps chromium webkit` also installs browser system dependencies.
 
-Browser tests create synthetic identities via `tests/Browser/fixture.php`, a CLI-only local/testing helper. They exercise registration, signed verification, reset links, invalid login, workspace validation/loading/settings, and revocation of two independent database sessions at desktop/mobile sizes. Mail uses the in-memory transport; link fixtures verify browser/server behavior without an external delivery service. Do not run these tests against a shared or production database. Screenshots/traces are generated under ignored `src/test-results/`; curated [UI evidence](planning/m1/evidence.md) is retained separately.
+Browser tests create synthetic identities via `tests/Browser/fixture.php`, a CLI-only local/testing helper. They exercise registration, signed verification, reset links, invalid login, workspace validation/loading/settings, and revocation of two independent database sessions at desktop/mobile sizes. Mail uses the in-memory transport; link fixtures verify browser/server behavior without an external delivery service. Do not run these tests against a shared or production database. Use `--output=/tmp/weavdash-browser` for temporary failure artifacts and remove image/trace captures after inspection, following the [current evidence policy](AGENTS.md#mandatory-ui-standards-for-every-milestone). Existing archived UI evidence is preserved.
 
 Eleven browser tests pass with one intentional mobile duplicate skipped. Desktop session attacks cover fixation, missing-CSRF login, logged-out cookie replay, reset-session revocation, and consumed reset links. All five roles are exercised in both viewports. Twenty axe scans report zero violations; the evidence records manual review of the decorative initial's contrast. Screen-reader, full browser zoom, and Safari/WebKit review remain open.
 
@@ -124,6 +124,8 @@ The pinned source scanner tests a synthetic positive control and scans tracked/n
 The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Baseline remote GitHub execution passed; expanded Chromium/WebKit desktop/mobile coverage also passed on `264e8e3` (22 tests, two intentional skips; 40 axe scans with zero violations).
 
 ## Milestone status
+
+M5-08 adds explicit approved follow-up email, account-only opt-in review notices, delivery backoff/rate controls and MFA-protected operator diagnostics. See the [contract and remaining production gates](planning/m5/delivery-operations-contract.md). Local synthetic verification does not establish provider receipt or approved production budgets.
 
 Start from the [current handoff](planning/shared/implementation-handoff.md) and [remaining-task register](planning/shared/remaining-tasks.md). M5's first notification slice is committed and locally verified; required M5 work remains open. [M6 preparation](planning/m6/status.md) has started; acceptance and inherited release gates remain pending.
 

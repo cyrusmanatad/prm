@@ -19,7 +19,7 @@ class BusinessSchedules
     public function preferences(int $actor, string $org): object
     {
         return DB::table('automation_preferences')->where(['org_id' => $org, 'actor_id' => $actor])->first()
-            ?? (object) ['timezone' => 'UTC', 'reminders' => false, 'weekly_digest' => false, 'follow_up_drafts' => false, 'version' => 0];
+            ?? (object) ['timezone' => 'UTC', 'reminders' => false, 'weekly_digest' => false, 'follow_up_drafts' => false, 'follow_up_reviews' => false, 'version' => 0];
     }
 
     private function lockPreferences(int $actor, string $org): object
@@ -41,6 +41,10 @@ class BusinessSchedules
             DB::table('automation_preferences')->where(['org_id' => $org, 'actor_id' => $actor])->update([
                 ...$data, 'version' => $version, 'updated_at' => now(),
             ]);
+            DB::table('notification_outbox')->where(['org_id' => $org, 'actor_id' => $actor, 'kind' => 'follow_up.review', 'state' => 'pending'])->update([
+                'state' => 'cancelled', 'encrypted_payload' => null, 'completed_at' => now(),
+            ]);
+            $this->consent($actor, $org, null, $version, 'follow_up_review', $data['follow_up_reviews'] ?? $p->follow_up_reviews);
             foreach (self::PREFERENCES as $kind => $field) {
                 $this->consent($actor, $org, null, $version, $kind, $data[$field]);
             }

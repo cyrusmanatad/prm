@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 /** Offline operator procedure. Must run with an explicitly supplied migration connection. */
 class PlatformGrant extends Command
 {
-    protected $signature = 'platform:grant {user : Existing verified user ID} {--permission=* : platform.owner, directory.read or plans.assign} {--reason=} {--operator= : Accountable offline operator label} {--recover : Reset authenticator and invalidate sessions} {--revoke : Revoke this grant}';
+    protected $signature = 'platform:grant {user : Existing verified user ID} {--permission=* : platform.owner, directory.read, plans.assign, notifications.read or notifications.reconcile} {--reason=} {--operator= : Accountable offline operator label} {--recover : Reset authenticator and invalidate sessions} {--revoke : Revoke this grant}';
 
     protected $description = 'Bootstrap, recover or revoke an explicit platform grant using offline migration credentials';
 
@@ -21,7 +21,7 @@ class PlatformGrant extends Command
             return self::FAILURE;
         }
         $permissions = $this->option('permission');
-        if (array_diff($permissions, ['platform.owner', 'directory.read', 'plans.assign']) || (! $permissions && ! $this->option('recover') && ! $this->option('revoke')) || ($this->option('recover') && $this->option('revoke'))) {
+        if (array_diff($permissions, ['platform.owner', 'directory.read', 'plans.assign', 'notifications.read', 'notifications.reconcile']) || (! $permissions && ! $this->option('recover') && ! $this->option('revoke')) || ($this->option('recover') && $this->option('revoke'))) {
             $this->error('Supply explicit permissions or exactly one recovery/revocation action.');
 
             return self::FAILURE;

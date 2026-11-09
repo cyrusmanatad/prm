@@ -11,20 +11,22 @@ import type { FollowUpDraft, LeadOption } from './follow-up-types';
 defineProps<{ drafts: FollowUpDraft[]; leads: LeadOption[]; canWrite: boolean }>();
 const selected = ref<FollowUpDraft | null>(null);
 const action = useForm({ version: 1 });
-function transition(draft: FollowUpDraft, kind: 'approve' | 'discard', event: Event): void {
+function transition(draft: FollowUpDraft, kind: 'approve' | 'discard' | 'send', event: Event): void {
     if (action.processing) return;
     confirmAction(
-        kind === 'approve' ? 'Approve follow-up' : 'Discard follow-up',
+        kind === 'approve' ? 'Approve follow-up' : kind === 'send' ? 'Send approved message' : 'Discard follow-up',
         kind === 'approve'
             ? `Approve “${draft.subject}” to ${draft.recipient || 'the recipient you enter'} for manual sending? No email will be sent by WeavDash.`
-            : `Discard “${draft.subject}”? It will no longer be available for approval or manual handoff.`,
+            : kind === 'send'
+              ? `Send the approved version ${draft.version} of “${draft.subject}” to ${draft.recipient}? This sends the message through WeavDash. Replies go to your verified account. A reserved send cannot be recalled.`
+              : `Discard “${draft.subject}”? It will no longer be available for approval or manual handoff.`,
         () => {
             action.version = draft.version;
             action.clearErrors();
             action.post(`/automation/drafts/${draft.id}/${kind}`, { preserveScroll: true });
         },
         event,
-        { tone: kind === 'approve' ? 'default' : 'danger' },
+        { tone: kind === 'discard' ? 'danger' : 'default' },
     );
 }
 </script>
@@ -35,8 +37,9 @@ function transition(draft: FollowUpDraft, kind: 'approve' | 'discard', event: Ev
         description="Your latest 50 private drafts, including discarded and cancelled history. No AI or mailbox connection is needed."
     >
         <p class="wd-hint">
-            Approval permits downloading a plain-text message to send yourself. WeavDash does not send follow-up email
-            or track receipt. Review your email client before sending; downloaded files cannot be recalled.
+            Approval permits a manual download or a separate explicit Send approved message action. Queueing and
+            mail-server acceptance do not confirm receipt. Review your email client before sending; downloaded files
+            cannot be recalled.
         </p>
         <div v-if="Object.keys(action.errors).length" class="wd-banner" role="alert">
             <p v-for="(error, key) in action.errors" :key="key">{{ error }}</p>
@@ -61,6 +64,10 @@ function transition(draft: FollowUpDraft, kind: 'approve' | 'discard', event: Ev
                 }}
                 · Version {{ draft.version }}
             </p>
+            <p v-if="draft.outreach_state" class="wd-hint">
+                An email request exists for this version. See your email history; it will not be sent again
+                automatically.
+            </p>
             <p>To: {{ draft.recipient || 'Enter a recipient before approval' }}</p>
             <p class="whitespace-pre-wrap break-words">{{ draft.body }}</p>
             <ActionGroup v-if="canWrite && (draft.state === 'draft' || draft.state === 'approved')">
@@ -78,6 +85,14 @@ function transition(draft: FollowUpDraft, kind: 'approve' | 'discard', event: Ev
                     :disabled="action.processing"
                     @click="transition(draft, 'approve', $event)"
                     >Approve {{ draft.subject }}</Button
+                >
+                <Button
+                    v-if="draft.state === 'approved' && !draft.outreach_state"
+                    class="wd-button wd-button-primary"
+                    type="button"
+                    :disabled="action.processing"
+                    @click="transition(draft, 'send', $event)"
+                    >Send approved message</Button
                 >
                 <a
                     v-if="draft.state === 'approved'"

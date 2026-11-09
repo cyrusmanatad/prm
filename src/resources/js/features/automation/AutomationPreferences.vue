@@ -12,15 +12,17 @@ export type Preferences = {
     reminders: boolean;
     weekly_digest: boolean;
     follow_up_drafts: boolean;
+    follow_up_reviews?: boolean;
     version: number;
 };
 const props = defineProps<{ preferences: Preferences; timezones: string[]; canWrite: boolean }>();
 const root = ref<HTMLElement>();
-const form = useForm({ ...props.preferences });
+const form = useForm({ ...props.preferences, follow_up_reviews: props.preferences.follow_up_reviews ?? false });
 const choices = [
     ['reminders', 'Reminder notices'],
     ['weekly_digest', 'Weekly digest'],
     ['follow_up_drafts', 'Follow-up drafts'],
+    ['follow_up_reviews', 'Follow-up review emails to my account'],
 ] as const;
 const withdrawing = computed(() => choices.some(([key]) => props.preferences[key] && !form[key]));
 useValidationFocus(
@@ -81,9 +83,10 @@ function save(event: Event): void {
                     }}</span></label
                 >
                 <p class="wd-hint">
-                    Turning a notice off withdraws consent and disables its schedules. Turning it on again requires
-                    saving each schedule with fresh consent. Verification, password resets and explicitly requested
-                    invitation emails keep their existing behavior.
+                    Turning scheduled notices off withdraws consent and disables their schedules. Re-enable them and
+                    save each schedule with fresh consent. Review emails apply only to new drafts and go to your
+                    verified account. Verification, password resets and explicitly requested invitation emails keep
+                    their existing behavior.
                 </p>
                 <Button v-if="canWrite" class="wd-button wd-button-primary" type="submit">{{
                     form.processing ? 'Saving…' : 'Save preferences'

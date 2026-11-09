@@ -1,6 +1,6 @@
 # M5-05 follow-up drafts and approval inbox
 
-Status: implemented manual/private preparation path; local verification is recorded in the [evidence](follow-up-drafts-evidence.md). M5 is incomplete. **Confirmed:** D15 requires explicit approval for external outreach, optional AI and private CRM; D25 requires transactional email independently of mailbox syncing. D28 assigns backend/necessary desktop work to Codex and small-screen acceptance to Claude.
+Status: implemented manual/private preparation path; subsequent explicit app delivery is covered by the [M5-08 contract](delivery-operations-contract.md); local verification is recorded in the [evidence](follow-up-drafts-evidence.md). M5 is incomplete. **Confirmed:** D15 requires explicit approval for external outreach, optional AI and private CRM; D25 requires transactional email independently of mailbox syncing. D28 assigns backend/necessary desktop work to Codex and small-screen acceptance to Claude.
 
 ## Recipient, content and sending boundary
 
@@ -12,7 +12,7 @@ Approval is an explicit action on the displayed version, recipient and content, 
 
 The download endpoint requires authentication, verified email, current editing membership and entitlement, exact approved version, an unchanged active lead, and (for scheduled drafts) the current consent/preferences/schedule/run/rule basis. It returns a private, noncached text attachment with To/Subject/body. Downloads never send email. A previously downloaded file cannot be recalled; the user must review their email client before sending. An approval in history describes a recorded decision; it is not proof that the current download basis still permits handoff.
 
-**Remaining required scope:** M5-06 now implements [logged-reply cancellation](logged-reply-contract.md); M5-07 implements [approval invalidation/reconciliation](approval-basis-contract.md) with [local concurrency/verification evidence](approval-basis-evidence.md). M5-08 must define and implement any application-sent approved outreach, follow-up review email recipient/consent/content, rate budgets and operator reconciliation before enabling that transport. M5-09 retains actual provider receipt and M5-10 broad recovery acceptance. The existing reminder/digest/lifecycle/invitation transactional paths remain required and unchanged. Manual handoff does not substitute for those email requirements or mark M5 complete.
+**Remaining required scope:** M5-06 now implements [logged-reply cancellation](logged-reply-contract.md); M5-07 implements [approval invalidation/reconciliation](approval-basis-contract.md) with [local concurrency/verification evidence](approval-basis-evidence.md). M5-08 now implements explicit approved outreach, opt-in review notices, rate controls and scoped operator reconciliation under its [contract](delivery-operations-contract.md); actual production limits/provider acceptance remain open. M5-09 retains actual provider receipt and M5-10 broad recovery acceptance. The existing reminder/digest/lifecycle/invitation transactional paths remain required and unchanged. Manual handoff does not substitute for those email requirements or mark M5 complete.
 
 ## Durable scheduled preparation
 

@@ -242,6 +242,7 @@ class ScheduledNotificationTest extends AcceptanceCase
         config(['mail.default' => 'log']);
         app(NotificationOutbox::class)->deliver($user->id, $org, $n->id);
         $this->assertSame('pending', $this->state($n->id));
+        $this->control->table('notification_outbox')->where('id', $n->id)->update(['available_at' => now()->subSecond()]);
         config(['mail.default' => 'smtp']);
         Mail::shouldReceive('mailer->to->send')->once()->andThrow(new RuntimeException('Synthetic ambiguous SMTP outcome'));
         app(NotificationOutbox::class)->deliver($user->id, $org, $n->id);

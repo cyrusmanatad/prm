@@ -154,7 +154,7 @@ class FollowUpApprovalTest extends AcceptanceCase
         $id = $this->postJson('/automation/drafts', ['pipeline_entry_id' => $this->control->table('follow_up_drafts')->where('id', $id)->value('pipeline_entry_id'), 'recipient' => 'fresh@example.test', 'subject' => 'Expiry', 'body' => 'Expiry content'])->assertCreated()->json('id');
         $this->postJson('/automation/drafts/'.$id.'/approve', ['version' => 1])->assertOk();
         // Wait for actual PostgreSQL wall-clock expiry; no application clock fake is used.
-        $this->control->table('pilot_assignments')->where('id', $assignment)->update(['ends_at' => now()->addSeconds(2)]);
+        $this->control->table('pilot_assignments')->where('id', $assignment)->update(['ends_at' => $this->control->raw("clock_timestamp()+interval '2 seconds'")]);
         $id = $this->postJson('/automation/drafts', ['pipeline_entry_id' => $this->control->table('follow_up_drafts')->where('id', $id)->value('pipeline_entry_id'), 'recipient' => 'expiry@example.test', 'subject' => 'Expires', 'body' => 'Expiry'])->assertCreated()->json('id');
         $this->postJson('/automation/drafts/'.$id.'/approve', ['version' => 1])->assertOk();
         $this->eventually(fn () => $this->control->selectOne('SELECT clock_timestamp() >= ends_at AS expired FROM pilot_assignments WHERE id=?', [$assignment])->expired, 'Synthetic assignment expired', 4);

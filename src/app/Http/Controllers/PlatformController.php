@@ -61,7 +61,9 @@ class PlatformController extends Controller
             $request->session()->regenerate();
             $request->session()->put('platform_mfa', ['user' => $user->id, 'version' => $grant->version, 'until' => time() + 900]);
 
-            return redirect('/admin');
+            DB::select("SELECT set_config('app.admin_version',?,true)", [(string) $grant->version]);
+
+            return redirect(DB::selectOne("SELECT app_platform_allowed('directory.read') AS ok")->ok ? '/admin' : '/admin/notifications');
         }, false);
     }
 
@@ -72,7 +74,7 @@ class PlatformController extends Controller
         return $admin->run($request, function () use ($request, $data) {
             abort_unless(DB::selectOne("SELECT app_platform_allowed('directory.read') AS ok")->ok, 403);
             $directory = json_decode(DB::selectOne('SELECT app_platform_directory(?,?) AS data', [$data['q'] ?? '', $data['page'] ?? 1])->data, true);
-            $payload = [...$directory, 'q' => $data['q'] ?? '', 'page' => (int) ($data['page'] ?? 1), 'canAssign' => DB::selectOne("SELECT app_platform_allowed('plans.assign') AS ok")->ok];
+            $payload = [...$directory, 'q' => $data['q'] ?? '', 'page' => (int) ($data['page'] ?? 1), 'canNotifications' => DB::selectOne("SELECT app_platform_allowed('notifications.read') AS ok")->ok, 'canAssign' => DB::selectOne("SELECT app_platform_allowed('plans.assign') AS ok")->ok];
 
             return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($payload) : Inertia::render('PlatformDirectory', $payload);
         });
