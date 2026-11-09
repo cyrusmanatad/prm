@@ -15,6 +15,7 @@ class OnboardingDocuments
 
     public function upload(string $org, string $request, int $version, UploadedFile $file): string
     {
+        abort_unless(config('uploads.enabled'), 403, 'Attachments are disabled.');
         $r = $this->onboarding->locked($org, $request, $version);
         abort_unless(in_array($r->status, ['draft', 'correction'], true), 409);
         if (DB::table('onboarding_documents')->where('org_id', $org)->where('request_id', $request)->count() >= 5) {
@@ -27,13 +28,15 @@ class OnboardingDocuments
         abort_unless(Storage::disk('onboarding')->put($key, $bytes), 503);
         try {
             DB::table('onboarding_documents')->insert(['id' => $id, 'org_id' => $org, 'request_id' => $request, 'name' => $name ?: 'attachment',
-                'object_key' => $key, 'checksum' => hash('sha256', $bytes), 'size' => strlen($bytes), 'mime' => $file->getMimeType(), 'scan_state' => 'pending']);
+                'object_key' => $key, 'checksum' => hash('sha256', $bytes), 'size' => strlen($bytes), 'mime' => $file->getMimeType(), 'scan_state' => UploadSafety::unscannedAllowed() ? 'unscanned' : 'pending']);
             DB::table('onboarding_requests')->where('org_id', $org)->where('id', $request)->update(['version' => $version + 1]);
         } catch (Throwable $e) {
             Storage::disk('onboarding')->delete($key);
             throw $e;
         }
-        $this->scan($org, $request, $id);
+        if (! UploadSafety::unscannedAllowed()) {
+            $this->scan($org, $request, $id);
+        }
 
         return $id;
     }
@@ -51,7 +54,7 @@ class OnboardingDocuments
     public function download(string $org, string $request, string $id): array
     {
         $row = $this->row($org, $request, $id);
-        abort_unless($row->scan_state === 'clean', 403);
+        abort_unless(UploadSafety::permits($row->scan_state), 403);
         $bytes = Storage::disk('onboarding')->get($row->object_key);
         abort_unless(hash_equals($row->checksum, hash('sha256', $bytes)), 403);
 

@@ -21,7 +21,7 @@ COPY . .
 COPY --from=frontend /build/public/build ./public/build
 # Runtime configuration is injected by Compose, never copied from the host.
 # An empty file also keeps Artisan's test runner from reporting Dotenv read warnings.
-RUN touch .env && composer dump-autoload --optimize --no-interaction \
+RUN touch .env && mkdir -p storage/app/private && composer dump-autoload --optimize --no-interaction \
     && chown -R www-data:www-data storage bootstrap/cache
 USER www-data
 # Configuration comes from the container environment; reload mode strips it

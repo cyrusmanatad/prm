@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+const page = usePage();
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -16,7 +18,7 @@ type Form = {
     brief: string;
     correction_note: string;
     version: number;
-    documents: { id: string; name: string; size: number; scan_state: string }[];
+    documents: { id: string; name: string; size: number; scan_state: string; downloadable?: boolean }[];
 };
 const props = defineProps<{ form: Form; errors?: Record<string, string>; status?: string }>();
 const draft = ref({
@@ -151,15 +153,23 @@ function pick(event: Event): void {
             </form>
             <section class="wd-card" aria-labelledby="files-title">
                 <h2 id="files-title">Reference files</h2>
+                <p v-if="page.props.unscannedUploadsAllowed" class="wd-banner">
+                    Staging uploads are not scanned for malware. Use non-sensitive test files. Files are kept in private
+                    staging storage.
+                </p>
+                <p v-if="page.props.uploadsEnabled === false" class="wd-hint">
+                    Attachments are disabled in this staging. You can save and submit without files.
+                </p>
                 <p class="wd-hint">
                     Optional PDF, PNG, JPEG or plain text; 2 MB each, up to five files. Use non-sensitive collaboration
                     references.
                 </p>
                 <ul>
                     <li v-for="doc in form.documents" :key="doc.id">
-                        {{ doc.name }} · {{ doc.scan_state }}
+                        {{ doc.name }} ·
+                        {{ doc.scan_state === 'unscanned' ? 'Unscanned (staging only)' : doc.scan_state }}
                         <a
-                            v-if="doc.scan_state === 'clean'"
+                            v-if="doc.downloadable ?? doc.scan_state === 'clean'"
                             class="wd-link"
                             :href="`/onboarding/form/${form.id}/documents/${doc.id}`"
                             >Download {{ doc.name }}</a
@@ -185,7 +195,7 @@ function pick(event: Event): void {
                 </ul>
                 <p v-if="!form.documents.length" class="wd-empty">No files uploaded.</p>
                 <form
-                    v-if="editable"
+                    v-if="editable && page.props.uploadsEnabled !== false"
                     :aria-busy="busy"
                     class="wd-fields"
                     @submit.prevent="act('post', `/onboarding/form/${form.id}/documents`, { file })"

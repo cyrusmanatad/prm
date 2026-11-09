@@ -1,3 +1,7 @@
+**Staging R2 deployed (2026-11-09):** private onboarding attachments now use Cloudflare R2 bucket `weavdash`; local development remains local. Existing attachment copied and checksum-verified after backup; live upload/removal, authorization, scan-state guards, desktop/mobile journeys and container-replacement persistence passed. See [migration/recovery](shared/staging-r2-storage.md) and [verification / remaining gates](shared/staging-r2-evidence.md). Existing staging fixes are included; dependency advisories and inherited release gates remain open.
+
+**Staging (2026-11-09):** registration, persistent local test uploads, email, verification and recovery are tracked in [staging deployment](shared/staging-deployment.md). Both P2 findings in the [saved full review](shared/staging-review.md) are resolved and locally verified; the fixes are included in the verified R2 staging deployment. This does not advance commercial release gates.
+
 **Professional UI refinement (2026-11-08):** the hub and eight tools now share Professional navigation and presentation. See the [implementation and verification handoff](professional/ui-handoff.md). M5-07 and existing administration/release gates remain unchanged.
 
 **Current checkpoint (2026-11-07):** [Professional Hub and manual subscriptions](professional/hub-status.md) are implemented with local verification. Necessary ADM-01/02/04 dependencies are included; remaining administration and release gates stay open. Next backend slice: M5-07.

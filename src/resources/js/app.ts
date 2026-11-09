@@ -4,6 +4,7 @@ import { createInertiaApp, usePage } from '@inertiajs/vue3';
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import '../css/toasts.css';
+import StagingBanner from './components/StagingBanner.vue';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
 import { registerFlashToasts } from './composables/useFlashToast';
 
@@ -28,7 +29,7 @@ void createInertiaApp({
                     'professionalSubscription',
                     computed(() => page.props.professionalSubscription),
                 );
-                return () => [h(App, props), h(ConfirmationDialog)];
+                return () => [h(StagingBanner), h(App, props), h(ConfirmationDialog)];
             },
         })
             .use(plugin)

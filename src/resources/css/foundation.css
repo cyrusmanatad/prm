@@ -1232,3 +1232,15 @@ summary:focus-visible {
         text-align: center;
     }
 }
+
+.wd-staging-banner {
+    position: relative;
+    z-index: 50;
+    padding: 0.75rem 1rem;
+    background: var(--wd-surface, #fff);
+    color: var(--wd-text, #282828);
+    border-bottom: 2px solid var(--wd-brand, #8e1650);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
+}

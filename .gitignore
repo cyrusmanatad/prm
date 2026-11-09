@@ -28,3 +28,9 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Private staging SMTP configuration (deployed outside the repository).
+/smtp.env
+/storage.env
+/staging.env
+/reviewers.json
