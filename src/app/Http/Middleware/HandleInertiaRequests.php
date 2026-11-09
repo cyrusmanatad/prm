@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\UploadSafety;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
@@ -13,6 +14,9 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'stagingMode' => (bool) config('staging.enabled'),
+            'uploadsEnabled' => (bool) config('uploads.enabled'),
+            'unscannedUploadsAllowed' => UploadSafety::unscannedAllowed(),
             'account' => fn () => $request->user()?->only(['name', 'email']),
             'status' => fn () => $request->session()->get('status', ''),
         ];

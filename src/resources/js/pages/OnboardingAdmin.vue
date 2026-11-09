@@ -22,7 +22,7 @@ type Detail = {
     website: string;
     brief: string;
     correction_note: string;
-    documents: { id: string; name: string; scan_state: string }[];
+    documents: { id: string; name: string; scan_state: string; downloadable?: boolean }[];
 };
 const props = defineProps<{
     account: { name: string; email: string };
@@ -192,6 +192,9 @@ function review(action: string): void {
             </section>
             <section v-if="selected" class="wd-card wd-fields" aria-labelledby="selected-request">
                 <h2 id="selected-request">{{ selected.label }}</h2>
+                <p v-if="$page.props.unscannedUploadsAllowed" class="wd-banner">
+                    Staging uploads are not scanned for malware. Download only test files you trust.
+                </p>
                 <dl class="pro-request-details">
                     <dt>Client</dt>
                     <dd>{{ selected.business_name }}</dd>
@@ -204,9 +207,10 @@ function review(action: string): void {
                 </dl>
                 <ul>
                     <li v-for="doc in selected.documents" :key="doc.id">
-                        {{ doc.name }} · {{ doc.scan_state }}
+                        {{ doc.name }} ·
+                        {{ doc.scan_state === 'unscanned' ? 'Unscanned (staging only)' : doc.scan_state }}
                         <a
-                            v-if="doc.scan_state === 'clean'"
+                            v-if="doc.downloadable ?? doc.scan_state === 'clean'"
                             class="wd-link"
                             :href="`/onboarding-requests/${selected.id}/documents/${doc.id}`"
                             >Download {{ doc.name }}</a

@@ -59,3 +59,6 @@ A crash between private object creation and database commit can leave an unreach
 ## Acceptance boundary
 
 See [M3 status](status.md) and [evidence index](evidence.md). Development completion is distinct from production readiness and carried-forward manual screen-reader, full browser zoom and native Safari reviews. Public kit indexing controls, high-volume request pagination, additional form steps and external notifications are follow-ups; sensitive collection remains excluded by D20.
+
+
+**Confirmed staging exception (2026-11-08):** the user enabled local test uploads on the resource-constrained staging environment and explicitly accepted unscanned files there. `STAGING_MODE` and `STAGING_UNSCANNED_UPLOADS` must both be true. Such files have a distinct `unscanned` state, visible labelling and historical snapshot metadata; they retain normal type/size/count, consent, checksum and authorization checks. Normal deployments continue to require clean antivirus results. See [staging deployment and verification](../shared/staging-deployment.md). Production OVH/S3 selection remains future work.

@@ -70,7 +70,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         }
         await page.screenshot({
-            path: `../planning/evidence/professional-ui/${before ? 'before' : 'after'}-${info.project.name}-${route.replaceAll('/', '-') || 'hub'}.png`,
+            path: `/tmp/weavdash-professional-ui/${before ? 'before' : 'after'}-${info.project.name}-${route.replaceAll('/', '-') || 'hub'}.png`,
             fullPage: true,
         });
     }
@@ -103,7 +103,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
     const editor = page.getByRole('dialog');
     await expect(editor).toBeVisible();
     await page.screenshot({
-        path: `../planning/evidence/professional-ui/editor-${info.project.name}-contact.png`,
+        path: `/tmp/weavdash-professional-ui/editor-${info.project.name}-contact.png`,
         fullPage: true,
     });
     await editor.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -113,7 +113,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
     await reminder.click();
     await expect(page.getByLabel('Reminder title', { exact: true })).toBeFocused();
     await page.screenshot({
-        path: `../planning/evidence/professional-ui/editor-${info.project.name}-reminder.png`,
+        path: `/tmp/weavdash-professional-ui/editor-${info.project.name}-reminder.png`,
         fullPage: true,
     });
     await editor.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -140,10 +140,10 @@ test('Professional presentation, destinations and editor cancellation', async ({
                     await expect(badge).toHaveCSS('font-size', '12px');
                     await expect(badge).toHaveCSS('padding', '3px 8px');
                     await page.locator('.pro-header').screenshot({
-                        path: `../planning/evidence/professional-ui/header-${width}.png`,
+                        path: `/tmp/weavdash-professional-ui/header-${width}.png`,
                     });
                     await page.screenshot({
-                        path: `../planning/evidence/professional-ui/hub-${width}.png`,
+                        path: `/tmp/weavdash-professional-ui/hub-${width}.png`,
                         fullPage: true,
                     });
                     const trigger = page.getByRole('button', {
@@ -180,7 +180,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
     await expect(nav.getByRole('menuitem')).toHaveCount(9);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({
-        path: `../planning/evidence/professional-ui/menu-${info.project.name}.png`,
+        path: `/tmp/weavdash-professional-ui/menu-${info.project.name}.png`,
         fullPage: true,
     });
     await page.keyboard.press('Escape');
@@ -204,7 +204,7 @@ test('Professional pipeline panels retain empty and populated partnerships acros
     await page.goto('/professional/leads');
     await expect(page.getByText('No active partnerships. Accept a brand invitation to connect.')).toBeVisible();
     await page.screenshot({
-        path: `../planning/evidence/professional-ui/panels-empty-${info.project.name}.png`,
+        path: `/tmp/weavdash-professional-ui/panels-empty-${info.project.name}.png`,
         fullPage: true,
     });
     const brandEmail = `m1-browser-panel-brand-${info.project.name}-${Date.now()}@example.test`;
@@ -271,7 +271,7 @@ test('Professional pipeline panels retain empty and populated partnerships acros
             await page.keyboard.press('Escape');
             await expect(account).toBeFocused();
             await page.screenshot({
-                path: `../planning/evidence/professional-ui/panels-${info.project.name}-${width}.png`,
+                path: `/tmp/weavdash-professional-ui/panels-${info.project.name}-${width}.png`,
                 fullPage: true,
             });
         }
@@ -303,7 +303,7 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
         await dismissNotifications(page);
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         await page.screenshot({
-            path: `../planning/evidence/professional-ui/workflow-${info.project.name}-${name}.png`,
+            path: `/tmp/weavdash-professional-ui/workflow-${info.project.name}-${name}.png`,
             fullPage: true,
         });
     };

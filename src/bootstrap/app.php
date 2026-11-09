@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\UploadRestrictions;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [HandleInertiaRequests::class]);
+        $middleware->web(append: [UploadRestrictions::class, HandleInertiaRequests::class]);
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
     })

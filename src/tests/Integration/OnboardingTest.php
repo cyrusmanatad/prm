@@ -5,6 +5,7 @@ namespace Tests\Integration;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\User;
 use App\Services\Onboarding;
+use App\Services\OnboardingDocuments;
 use App\Services\UploadScanner;
 use App\Services\Workspaces;
 use App\Tenancy\TenantContext;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use League\Flysystem\UnableToWriteFile;
 use Tests\TestCase;
 
 class OnboardingTest extends TestCase
@@ -34,6 +36,22 @@ class OnboardingTest extends TestCase
     private function fields(): array
     {
         return ['business_name' => 'Studio', 'contact_name' => 'Sam', 'business_email' => 'sam@example.test', 'website' => 'https://example.test', 'brief' => 'A small collaboration.'];
+    }
+
+    public function test_storage_write_failure_keeps_document_metadata_and_request_version_unchanged(): void
+    {
+        [$user, $org, $lead, $id] = $this->workspace();
+        Storage::shouldReceive('disk')->with('onboarding')->once()->andReturnSelf();
+        Storage::shouldReceive('put')->once()->andThrow(UnableToWriteFile::atLocation('synthetic'));
+        app(TenantContext::class)->run($user->id, $org, function () use ($org, $id): void {
+            try {
+                DB::transaction(fn () => app(OnboardingDocuments::class)->upload($org, $id, 1, UploadedFile::fake()->createWithContent('test.txt', 'synthetic')));
+                $this->fail('Storage failure must propagate');
+            } catch (UnableToWriteFile) {
+                $this->assertSame(0, DB::table('onboarding_documents')->where('request_id', $id)->count());
+                $this->assertSame(1, DB::table('onboarding_requests')->where('id', $id)->value('version'));
+            }
+        });
     }
 
     public function test_one_use_invitation_save_resume_safe_projection_idempotent_submission_and_immutable_correction_history(): void
@@ -78,6 +96,114 @@ class OnboardingTest extends TestCase
         $this->getJson('/onboarding/form/'.$id)->assertJsonCount(0, 'form.documents');
         $this->postJson('/onboarding/form/'.$id.'/documents', ['version' => 3, 'file' => UploadedFile::fake()->createWithContent('script.html', '<html><script>alert(1)</script></html>')])->assertUnprocessable();
         $this->postJson('/onboarding/form/'.$id.'/documents', ['version' => 3, 'file' => UploadedFile::fake()->create('large.pdf', 2049, 'application/pdf')])->assertUnprocessable();
+    }
+
+    public function test_staging_unscanned_upload_is_labelled_and_requires_opt_in_for_download_and_submission(): void
+    {
+        config(['staging.enabled' => true, 'uploads.staging_unscanned' => true, 'uploads.enabled' => true]);
+        [$u, $org, $lead, $id, $token] = $this->workspace();
+        Storage::fake('onboarding');
+        $this->mock(UploadScanner::class, fn ($mock) => $mock->shouldNotReceive('scan'));
+        $this->postJson('/onboarding/session', ['token' => $token])->assertOk();
+        $bytes = 'A non-sensitive staging test reference.';
+        $doc = $this->postJson('/onboarding/form/'.$id.'/documents', ['version' => 1,
+            'file' => UploadedFile::fake()->createWithContent('staging.txt', $bytes)])->assertCreated()->json('id');
+        $this->getJson('/onboarding/form/'.$id)->assertJsonPath('form.documents.0.scan_state', 'unscanned')
+            ->assertJsonPath('form.documents.0.downloadable', true);
+        $this->get('/onboarding/form/'.$id.'/documents/'.$doc)->assertOk()->assertContent($bytes)
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+
+        config(['staging.enabled' => false]);
+        $this->getJson('/onboarding/form/'.$id)->assertJsonPath('form.documents.0.downloadable', false);
+        $this->getJson('/onboarding/form/'.$id.'/documents/'.$doc)->assertForbidden();
+        $this->postJson('/onboarding/form/'.$id.'/submit', [...$this->fields(), 'version' => 2,
+            'consent' => true, 'idempotency_key' => (string) Str::uuid()])->assertUnprocessable();
+        config(['staging.enabled' => true, 'uploads.staging_unscanned' => false]);
+        $this->getJson('/onboarding/form/'.$id.'/documents/'.$doc)->assertForbidden();
+        config(['uploads.staging_unscanned' => true]);
+        $submission = $this->postJson('/onboarding/form/'.$id.'/submit', [...$this->fields(), 'version' => 2,
+            'consent' => true, 'idempotency_key' => (string) Str::uuid()])->assertOk()->json('submission_id');
+        app(TenantContext::class)->run($u->id, $org, function () use ($submission): void {
+            $snapshot = json_decode(DB::table('onboarding_submissions')->where('id', $submission)->value('snapshot'), true);
+            $this->assertSame('unscanned', $snapshot['documents'][0]['scan_state']);
+        });
+    }
+
+    public function test_disabled_uploads_allow_removing_pending_and_rejected_files_then_submitting_without_files(): void
+    {
+        Storage::fake('onboarding');
+        $this->mock(UploadScanner::class, fn ($mock) => $mock->shouldReceive('scan')->twice()->andReturn('pending', 'rejected'));
+        foreach (['pending', 'rejected'] as $state) {
+            config(['uploads.enabled' => true, 'staging.enabled' => false, 'uploads.staging_unscanned' => false]);
+            [$user, $org, $lead, $id, $token] = $this->workspace();
+            auth()->logout();
+            $this->postJson('/onboarding/session', ['token' => $token])->assertOk();
+            $doc = $this->postJson('/onboarding/form/'.$id.'/documents', ['version' => 1,
+                'file' => UploadedFile::fake()->createWithContent('reference.txt', 'Synthetic reference')])->assertCreated()->json('id');
+            $key = 'onboarding/'.$org.'/'.$id.'/'.$doc;
+            Storage::disk('onboarding')->assertExists($key);
+            config(['uploads.enabled' => false]);
+            $this->getJson('/onboarding/form/'.$id)->assertJsonPath('form.documents.0.scan_state', $state);
+            $this->postJson('/onboarding/form/'.$id.'/documents', ['version' => 2,
+                'file' => UploadedFile::fake()->createWithContent('new.txt', 'Blocked')])
+                ->assertUnprocessable()->assertJsonValidationErrors('file');
+            $this->postJson('/onboarding/form/'.$id.'/submit', [...$this->fields(), 'version' => 2,
+                'consent' => true, 'idempotency_key' => (string) Str::uuid()])->assertUnprocessable();
+            $this->deleteJson('/onboarding/form/'.$id.'/documents/'.$doc, ['version' => 1])->assertConflict();
+            $this->deleteJson('/onboarding/form/'.$id.'/documents/'.Str::uuid(), ['version' => 2])->assertNotFound();
+            Storage::disk('onboarding')->assertExists($key);
+            $this->deleteJson('/onboarding/form/'.$id.'/documents/'.$doc, ['version' => 2])->assertOk();
+            Storage::disk('onboarding')->assertMissing($key);
+            $this->getJson('/onboarding/form/'.$id)->assertJsonCount(0, 'form.documents')->assertJsonPath('form.version', 3);
+            $this->postJson('/onboarding/form/'.$id.'/submit', [...$this->fields(), 'version' => 3,
+                'consent' => true, 'idempotency_key' => (string) Str::uuid()])->assertOk();
+        }
+    }
+
+    public function test_disabled_uploads_preserve_submitted_file_and_revoked_capability_removal_guards(): void
+    {
+        config(['uploads.enabled' => true, 'staging.enabled' => false, 'uploads.staging_unscanned' => false]);
+        Storage::fake('onboarding');
+        $this->mock(UploadScanner::class, fn ($mock) => $mock->shouldReceive('scan')->once()->andReturn('clean'));
+        [$user, $org, $lead, $id, $token] = $this->workspace();
+        auth()->logout();
+        $this->postJson('/onboarding/session', ['token' => $token])->assertOk();
+        $doc = $this->postJson('/onboarding/form/'.$id.'/documents', ['version' => 1,
+            'file' => UploadedFile::fake()->createWithContent('reference.txt', 'Submitted reference')])->assertCreated()->json('id');
+        $this->postJson('/onboarding/form/'.$id.'/submit', [...$this->fields(), 'version' => 2,
+            'consent' => true, 'idempotency_key' => (string) Str::uuid()])->assertOk();
+        config(['uploads.enabled' => false]);
+        $this->deleteJson('/onboarding/form/'.$id.'/documents/'.$doc, ['version' => 3])->assertConflict();
+        $this->actingAs($user)->postJson('/onboarding-requests/'.$id.'/correct', ['version' => 3, 'note' => 'Clarify brief'])->assertOk();
+        auth()->logout();
+        $this->deleteJson('/onboarding/form/'.$id.'/documents/'.$doc, ['version' => 4])->assertConflict();
+        Storage::disk('onboarding')->assertExists('onboarding/'.$org.'/'.$id.'/'.$doc);
+        $this->actingAs($user)->postJson('/onboarding-requests/'.$id.'/revoke', ['version' => 4])->assertOk();
+        auth()->logout();
+        $this->deleteJson('/onboarding/form/'.$id.'/documents/'.$doc, ['version' => 5])->assertForbidden();
+        Storage::disk('onboarding')->assertExists('onboarding/'.$org.'/'.$id.'/'.$doc);
+    }
+
+    public function test_disabled_uploads_do_not_allow_removing_another_workspaces_file(): void
+    {
+        config(['uploads.enabled' => true, 'staging.enabled' => true, 'uploads.staging_unscanned' => true]);
+        Storage::fake('onboarding');
+        [$user, $org, $lead, $id, $token] = $this->workspace();
+        $this->postJson('/onboarding/session', ['token' => $token])->assertOk();
+        $doc = $this->postJson('/onboarding/form/'.$id.'/documents', ['version' => 1,
+            'file' => UploadedFile::fake()->createWithContent('private.txt', 'Foreign workspace reference')])->assertCreated()->json('id');
+
+        [$otherUser, $otherOrg, $otherLead, $otherId, $otherToken] = $this->workspace();
+        auth()->logout();
+        $this->flushSession();
+        $this->postJson('/onboarding/session', ['token' => $otherToken])->assertOk();
+        config(['uploads.enabled' => false]);
+        $this->deleteJson('/onboarding/form/'.$id.'/documents/'.$doc, ['version' => 2])->assertForbidden();
+        $this->deleteJson('/onboarding/form/'.$otherId.'/documents/'.$doc, ['version' => 1])->assertNotFound();
+        Storage::disk('onboarding')->assertExists('onboarding/'.$org.'/'.$id.'/'.$doc);
+        app(TenantContext::class)->run($user->id, $org, function () use ($doc): void {
+            $this->assertTrue(DB::table('onboarding_documents')->where('id', $doc)->exists());
+        });
     }
 
     public function test_valid_capability_cannot_read_crm_other_requests_or_foreign_files_and_partial_props_are_allowlisted(): void

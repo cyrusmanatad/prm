@@ -80,7 +80,7 @@ class Onboarding
 
         return ['id' => $r->id, 'label' => $r->label, 'status' => $r->status, 'business_name' => $r->business_name, 'contact_name' => $r->contact_name,
             'business_email' => $r->business_email, 'website' => $r->website, 'brief' => $r->brief, 'correction_note' => $r->correction_note, 'version' => $r->version,
-            'documents' => DB::table('onboarding_documents')->where('org_id', $org)->where('request_id', $id)->get(['id', 'name', 'size', 'scan_state'])->all()];
+            'documents' => DB::table('onboarding_documents')->where('org_id', $org)->where('request_id', $id)->get(['id', 'name', 'size', 'scan_state'])->map(fn ($document) => [...(array) $document, 'downloadable' => UploadSafety::permits($document->scan_state)])->all()];
     }
 
     public function save(string $org, string $id, array $data, int $version): void
@@ -106,12 +106,12 @@ class Onboarding
         $this->checkVersion($r->version, $version);
         abort_unless(in_array($r->status, ['draft', 'correction'], true), 409);
         $documents = DB::table('onboarding_documents')->where('org_id', $org)->where('request_id', $id)->get(['id', 'checksum', 'scan_state']);
-        if ($documents->contains(fn ($d) => $d->scan_state !== 'clean')) {
+        if ($documents->contains(fn ($d) => ! UploadSafety::permits($d->scan_state))) {
             throw ValidationException::withMessages(['file' => 'Remove unsafe files or wait for a clean scan before submitting.']);
         }
         $submission = (string) Str::uuid();
         DB::table('onboarding_submissions')->insert(['id' => $submission, 'org_id' => $org, 'request_id' => $id, 'revision' => $version,
-            'snapshot' => json_encode([...$data, 'documents' => $documents->map(fn ($d) => ['id' => $d->id, 'checksum' => $d->checksum])->all()], JSON_THROW_ON_ERROR),
+            'snapshot' => json_encode([...$data, 'documents' => $documents->map(fn ($d) => ['id' => $d->id, 'checksum' => $d->checksum, ...($d->scan_state === 'unscanned' ? ['scan_state' => 'unscanned'] : [])])->all()], JSON_THROW_ON_ERROR),
             'idempotency_key' => $key, 'payload_hash' => $hash]);
         $query->update([...$data, 'status' => 'submitted', 'version' => $version + 1]);
         $this->event($org, $id, 'submitted');

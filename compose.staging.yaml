@@ -1,0 +1,131 @@
+name: weavdash-staging
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 5m
+    max-file: '2'
+x-backend: &backend
+  image: ${STAGING_APP_IMAGE:?Set STAGING_APP_IMAGE}
+  restart: unless-stopped
+  init: true
+  logging: *logging
+  networks: [private, mail-egress]
+  env_file:
+    - path: ./smtp.env
+      format: raw
+    - path: ./storage.env
+      format: raw
+      required: false
+  environment: &runtime
+    APP_NAME: WeavDash
+    APP_ENV: production
+    APP_DEBUG: 'false'
+    APP_KEY: ${APP_KEY:?Set a fresh APP_KEY}
+    APP_URL: ${APP_URL:?Set HTTPS APP_URL}
+    STAGING_MODE: 'true'
+    UPLOADS_ENABLED: 'true'
+    STAGING_UNSCANNED_UPLOADS: 'true'
+    FILESYSTEM_DISK: local
+    DB_CONNECTION: pgsql
+    DB_HOST: postgres
+    DB_PORT: 5432
+    DB_DATABASE: weavdash
+    DB_USERNAME: weavdash_app
+    DB_PASSWORD: ${DB_PASSWORD:?Set runtime password}
+    REDIS_HOST: redis
+    REDIS_CLIENT: phpredis
+    QUEUE_CONNECTION: redis
+    CACHE_STORE: redis
+    SESSION_DRIVER: database
+    SESSION_SECURE_COOKIE: 'true'
+    SESSION_COOKIE: ${SESSION_COOKIE:-weavdash_staging_session}
+    MAIL_MAILER: smtp
+    TRANSACTIONAL_MAIL_MAILER: smtp
+    LOG_CHANNEL: stderr
+    LOG_LEVEL: warning
+  volumes:
+    - private-storage:/var/www/html/storage/app/private
+  depends_on:
+    postgres: {condition: service_healthy}
+    redis: {condition: service_healthy}
+services:
+  postgres:
+    image: postgres:16-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4
+    restart: unless-stopped
+    mem_limit: 160m
+    logging: *logging
+    networks: [private]
+    command: [postgres, -c, shared_buffers=32MB, -c, max_connections=20, -c, work_mem=2MB, -c, maintenance_work_mem=16MB]
+    environment:
+      POSTGRES_DB: weavdash
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set postgres password}
+      APP_DB_PASSWORD: ${DB_PASSWORD:?Set runtime password}
+      MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Set migration password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./src/docker/postgres/init.sh:/docker-entrypoint-initdb.d/10-weavdash.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U postgres -d weavdash']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7.4-bookworm@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
+    restart: unless-stopped
+    mem_limit: 48m
+    logging: *logging
+    networks: [private]
+    command: [redis-server, --appendonly, 'yes', --maxmemory, 24mb, --maxmemory-policy, noeviction]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  app:
+    <<: *backend
+    mem_limit: 224m
+  web:
+    image: ${STAGING_WEB_IMAGE:?Set STAGING_WEB_IMAGE}
+    restart: unless-stopped
+    mem_limit: 32m
+    logging: *logging
+    networks:
+      private:
+      edge:
+        aliases: [weavdash-staging-web]
+    depends_on: [app]
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, 'http://127.0.0.1/up']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  worker:
+    <<: *backend
+    mem_limit: 112m
+    command: [php, artisan, 'queue:work', redis, '--sleep=3', '--tries=2', '--timeout=60', '--memory=80', '--max-time=3600']
+  scheduler:
+    <<: *backend
+    mem_limit: 80m
+    command: [php, artisan, 'schedule:work']
+  migrate:
+    <<: *backend
+    restart: 'no'
+    profiles: [tools]
+    mem_limit: 160m
+    environment:
+      <<: *runtime
+      DB_USERNAME: weavdash_migrator
+      DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Set migration password}
+    command: [php, artisan, migrate, --force]
+volumes:
+  private-storage:
+  postgres-data:
+  redis-data:
+networks:
+  mail-egress:
+  private:
+    internal: true
+  edge:
+    external: true
+    name: ${STAGING_EDGE_NETWORK:-edge}
