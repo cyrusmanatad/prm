@@ -97,7 +97,7 @@ class LoggedReplyTest extends AcceptanceCase
         $reminder = $this->postJson('/reminders', ['pipeline_entry_id' => $lead, 'title' => 'Contract review', 'due_at' => now()->addDay()->toIso8601String()])->assertCreated()->json('id');
         $schedule = $this->postJson('/automation/schedules', ['name' => 'Contract reminder', 'kind' => 'reminder', 'subject_id' => $reminder, 'consent' => true, 'due_at' => now()->addHour()->toIso8601String()])->assertCreated()->json('id');
         $this->postJson('/pipeline/'.$lead.'/activities', ['version' => 1, 'kind' => 'email', 'body' => 'An outbound email was sent manually.'])->assertCreated();
-        $this->assertSame('approved', $this->control->table('follow_up_drafts')->where('id', $draft)->value('state'));
+        $this->assertSame('discarded', $this->control->table('follow_up_drafts')->where('id', $draft)->value('state'));
         $this->reply($lead, 2)->assertCreated();
         $this->assertNotNull($this->control->table('pipeline_entries')->where('id', $other)->value('next_action_due'));
         $this->assertNull($this->control->table('reminders')->where('id', $reminder)->value('completed_at'));
@@ -125,7 +125,7 @@ class LoggedReplyTest extends AcceptanceCase
         $foreign = app(Workspaces::class)->create($user->id, 'Foreign reply workspace');
         $this->withSession(['active_org_id' => $foreign]);
         $this->reply($lead)->assertNotFound();
-        $this->assertSame('approved', $this->control->table('follow_up_drafts')->where('id', $draft)->value('state'));
+        $this->assertSame('discarded', $this->control->table('follow_up_drafts')->where('id', $draft)->value('state'));
         $this->assertSame(0, $this->control->table('pipeline_activities')->where('pipeline_entry_id', $lead)->where('kind', 'reply')->count());
         $this->assertSame(0, $this->control->table('audit_logs')->where('org_id', $org)->where('event', 'pipeline.reply')->count());
         $this->assertNotNull($this->control->table('pipeline_entries')->where('id', $lead)->value('next_action_due'));

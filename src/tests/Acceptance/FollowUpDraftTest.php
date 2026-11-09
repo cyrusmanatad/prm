@@ -107,7 +107,8 @@ class FollowUpDraftTest extends AcceptanceCase
                 $this->control->table('pilot_assignments')->insert(['id' => (string) Str::uuid(), 'org_id' => $org, 'plan_id' => $plan, 'version' => 1, 'starts_at' => now()->subDays(2), 'ends_at' => now()->subDay()]);
             }
             $this->assertContains($this->getJson('/automation/drafts/'.$id.'/handoff?version=2')->status(), [403, 409]);
-            $this->assertSame(2, $this->row($id)->version);
+            $this->assertSame(3, $this->row($id)->version);
+            $this->assertSame('discarded', $this->row($id)->state);
         }
     }
 

@@ -1,5 +1,7 @@
 # M6 Pilot and Production Readiness Status
 
+**M5-07 checkpoint (2026-11-09):** approval-basis invalidation and bounded expiry reconciliation are implemented on `milestone/continue-2026-11-09`, based on `a89963c`. Real PostgreSQL/Redis acceptance **122/2,708**, integration **35/635**, PHP **42/362**, frontend checks and scoped Chromium desktop/mobile regression pass. See the [contract](../m5/approval-basis-contract.md) and [verification/environment](../m5/approval-basis-evidence.md). **Next: M5-08 operator/delivery/budget contract and implementation.** Only the separate synthetic database was migrated. Two unchanged evidence-checksum scanner findings, broader small-screen/administration/provider and inherited release gates remain open; M5/M6 are incomplete. Older checkpoints below retain their historical scope.
+
 **Current execution scope (2026-10-26, D28):** Codex continues M5 backend/desktop work; Claude owns administration implementation and small-screen UI verification/refinements. M5-02 has [local backend/desktop evidence](../m5/onboarding-lifecycle-evidence.md), with mobile/provider acceptance pending; M5-03 is next for backend work. This does not advance M6 or waive D27 administration and inherited release gates.
 
 Status: **preparation started; operational implementation and acceptance pending** on 2026-10-23. M5's first slice is committed as `efd4fd6`; required M5 work remains open. The user's conditional request to advance toward M6 permits this preparation without changing the roadmap's predecessor/release gates.
@@ -16,7 +18,7 @@ This is planning/handoff progress. No M6 restore drill, monitoring implementatio
 
 ## Next work and dependencies
 
-M5-01 onboarding invitation/replacement email is implemented with [local verification](../m5/onboarding-email-evidence.md). D27 makes **ADM-01–ADM-07** the next implementation package. After it passes, resume UI-07, broader UI-05 reference/deviation acceptance, then required **M5-02** onboarding lifecycle notification work and the remaining M5 scheduling, approval and delivery/recovery tasks. Independent synthetic recovery/runbook/monitoring preparation can begin under **M6-01/M6-03/M6-04**. The [register](../shared/remaining-tasks.md) contains all other required and deferred tasks; completing this short next-step list does not close them.
+Under D28, Codex continues with **M5-08** operator/delivery/budget decisions and implementation after the locally verified [M5-07 approval work](../m5/approval-basis-evidence.md). Claude retains administration and broader small-screen acceptance; D27 still requires the remaining **ADM-01–ADM-07** launch package. Earlier notification/scheduling/draft/reply slices retain their scoped evidence and pending provider/manual checks. Independent synthetic recovery/runbook/monitoring preparation can proceed under **M6-01/M6-03/M6-04**. The [register](../shared/remaining-tasks.md) preserves all other required/deferred tasks; this does not advance M6 acceptance.
 
 M6 acceptance requires implemented required predecessor workflows plus applicable manual, identity, data/privacy, recovery, hosting, security, pilot/UAT and commercial gates. User/provider/reviewer decisions remain open until recorded. Optional AI/mailbox integration and future M7–M9 scope are tracked without becoming mandatory M6 features.
 

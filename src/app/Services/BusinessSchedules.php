@@ -33,6 +33,7 @@ class BusinessSchedules
     {
         DB::transaction(function () use ($actor, $org, $data): void {
             $this->writer($actor, $org);
+            $this->entitlementLock($org);
             $existing = $this->preferences($actor, $org);
             $p = $this->lockPreferences($actor, $org);
             $this->version($existing->version === 0 && $p->version === 1 ? 0 : $p->version, $data['version']);
@@ -112,6 +113,7 @@ class BusinessSchedules
     {
         DB::transaction(function () use ($actor, $org, $id, $version): void {
             $this->writer($actor, $org);
+            $this->entitlementLock($org);
             $this->lockPreferences($actor, $org);
             $s = DB::table('business_schedules')->where('id', $id)->lockForUpdate()->first();
             abort_unless($s, 404);

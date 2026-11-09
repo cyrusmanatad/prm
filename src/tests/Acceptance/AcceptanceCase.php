@@ -79,6 +79,8 @@ abstract class AcceptanceCase extends TestCase
         $this->assertTrue($process->isSuccessful(), $process->getOutput().$process->getErrorOutput());
         $lines = explode("\n", trim($process->getOutput()));
 
+        $this->assertJson(end($lines), 'Probe output: '.$process->getOutput().$process->getErrorOutput());
+
         return json_decode(end($lines), true, flags: JSON_THROW_ON_ERROR);
     }
 }

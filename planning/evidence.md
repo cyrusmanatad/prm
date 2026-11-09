@@ -28,7 +28,7 @@ Follow the [planning index](README.md#document-organization) for new milestones.
 | M3 — onboarding and public presence | [Onboarding and public-presence verification](m3/evidence.md) |
 | M3A — connected portals | [Portal verification](m3a/evidence.md), [reference inventory](m3a/reference-evidence.md), [brand avatar](m3a/brand-avatar-evidence.md), [Partner navigation](m3a/partner-navigation-evidence.md) |
 | M4 — finance and entitlements | [Finance verification](m4/evidence.md) |
-| M5 — automation and notifications | [Milestone overview](m5/evidence.md), [onboarding email](m5/onboarding-email-evidence.md), [onboarding lifecycle](m5/onboarding-lifecycle-evidence.md), [schedules](m5/schedules-evidence.md), [scheduled delivery](m5/scheduled-delivery-evidence.md), [follow-up drafts](m5/follow-up-drafts-evidence.md), [logged replies](m5/logged-reply-evidence.md), [four-space formatting](m5/four-space-formatting-evidence.md) |
+| M5 — automation and notifications | [Milestone overview](m5/evidence.md), [onboarding email](m5/onboarding-email-evidence.md), [onboarding lifecycle](m5/onboarding-lifecycle-evidence.md), [schedules](m5/schedules-evidence.md), [scheduled delivery](m5/scheduled-delivery-evidence.md), [follow-up drafts](m5/follow-up-drafts-evidence.md), [logged replies](m5/logged-reply-evidence.md), [approval invalidation](m5/approval-basis-evidence.md), [four-space formatting](m5/four-space-formatting-evidence.md) |
 
 ## Workstream and shared reports
 

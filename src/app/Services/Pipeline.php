@@ -92,6 +92,7 @@ class Pipeline
     public function change(int $actorId, string $orgId, string $id, int $version, string $kind, array $changes): void
     {
         abort_unless($this->canWrite($actorId, $orgId), 403);
+        DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ['pilot:'.$orgId]);
         $entry = $this->entries($orgId)->where('id', $id)->lockForUpdate()->first();
         abort_unless($entry, 404);
         $this->checkVersion($entry->version, $version);
@@ -107,10 +108,7 @@ class Pipeline
     public function addActivity(int $actorId, string $orgId, string $id, int $version, string $kind, string $body): void
     {
         abort_unless($this->canWrite($actorId, $orgId), 403);
-        if ($kind === 'reply') {
-            // Serialize cancellation with scheduled preparation and private draft handoff.
-            DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ['pilot:'.$orgId]);
-        }
+        DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ['pilot:'.$orgId]);
         $entry = $this->entries($orgId)->where('id', $id)->lockForUpdate()->first();
         abort_unless($entry, 404);
         $this->checkVersion($entry->version, $version);
@@ -128,6 +126,7 @@ class Pipeline
     public function delete(int $actorId, string $orgId, string $id, int $version): void
     {
         abort_unless($this->canWrite($actorId, $orgId), 403);
+        DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ['pilot:'.$orgId]);
         $entry = $this->entries($orgId)->where('id', $id)->lockForUpdate()->first();
         abort_unless($entry, 404);
         $this->checkVersion($entry->version, $version);

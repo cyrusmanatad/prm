@@ -1,3 +1,5 @@
+**M5-07 checkpoint (2026-11-09):** approval-basis invalidation and bounded expiry reconciliation are implemented on `milestone/continue-2026-11-09`, based on `a89963c`. Real PostgreSQL/Redis acceptance **122/2,708**, integration **35/635**, PHP **42/362**, frontend checks and scoped Chromium desktop/mobile regression pass. See the [contract](../m5/approval-basis-contract.md) and [verification/environment](../m5/approval-basis-evidence.md). **Next: M5-08 operator/delivery/budget contract and implementation.** Only the separate synthetic database was migrated. Two unchanged evidence-checksum scanner findings, broader small-screen/administration/provider and inherited release gates remain open; M5/M6 are incomplete. Older checkpoints below retain their historical scope.
+
 **2026-11-07 checkpoint:** the [Professional Hub](../professional/hub-status.md) and its necessary ADM-01/02/04 dependencies have local implementation evidence. M5-07 follows; the remainder of administration and all inherited release gates remain open.
 
 # Implementation Roadmap

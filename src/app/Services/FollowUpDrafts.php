@@ -14,6 +14,7 @@ class FollowUpDrafts
     public function dispatch(): int
     {
         DB::select('SELECT app_reconcile_schedules()');
+        DB::select('SELECT app_reconcile_follow_up_approvals()');
         $rows = DB::select('SELECT * FROM app_ready_follow_up_drafts()');
         foreach ($rows as $r) {
             PrepareFollowUp::dispatch($r->actor_id, $r->org_id, $r->schedule_id, $r->id);
