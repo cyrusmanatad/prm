@@ -6,11 +6,9 @@ import { fixture, login, mutate } from './helpers';
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 function compose(args: string[]): void {
-    execFileSync(
-        'docker',
-        ['compose', '--env-file', 'src/.env', '-p', process.env.COMPOSE_PROJECT_NAME ?? 'weavdash', ...args],
-        { cwd: repo, stdio: 'pipe' },
-    );
+    const base = ['compose', '--env-file', 'src/.env', '-p', process.env.COMPOSE_PROJECT_NAME ?? 'weavdash'];
+    if (process.env.DELIVERY_TEST_COMPOSE) base.push('-f', process.env.DELIVERY_TEST_COMPOSE);
+    execFileSync('docker', [...base, ...args], { cwd: repo, stdio: 'pipe' });
 }
 
 test('reminder email consent, scheduled capture, history and withdrawal', async ({ page }, info) => {
@@ -56,7 +54,12 @@ test('reminder email consent, scheduled capture, history and withdrawal', async 
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-        await page.screenshot({ path: info.outputPath(`scheduled-delivery-${width}.png`), fullPage: true });
+        if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
+            await page.screenshot({
+                path: `${process.env.DELIVERY_VISUAL_DIR}/scheduled-delivery-${width}.png`,
+                fullPage: true,
+            });
+        }
     }
     const trigger = page.getByRole('button', { name: 'Withdraw consent for Proposal review notice', exact: true });
     await trigger.click();

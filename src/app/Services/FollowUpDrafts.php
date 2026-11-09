@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-/** Private preparation and manual handoff only. This service never sends email. */
+/** Private preparation, approval and explicit durable delivery intent. SMTP runs only in the worker. */
 class FollowUpDrafts
 {
     public function dispatch(): int
     {
         DB::select('SELECT app_reconcile_schedules()');
+        DB::select('SELECT app_reconcile_follow_up_approvals()');
         $rows = DB::select('SELECT * FROM app_ready_follow_up_drafts()');
         foreach ($rows as $r) {
             PrepareFollowUp::dispatch($r->actor_id, $r->org_id, $r->schedule_id, $r->id);
@@ -98,12 +99,33 @@ class FollowUpDrafts
         return null;
     }
 
+    public function queueSend(int $actor, string $org, string $id, int $version): string
+    {
+        // Reuse exact-version approval, current-basis checks and the established locks.
+        $this->transition($actor, $org, $id, $version, 'handoff');
+        $existing = DB::table('notification_outbox')->where('kind', 'follow_up.outreach')->where('follow_up_draft_id', $id)->where('follow_up_version', $version)->value('id');
+        if ($existing) {
+            return $existing;
+        }
+        $notice = (string) Str::uuid();
+        DB::table('notification_outbox')->insert(['id' => $notice, 'org_id' => $org, 'actor_id' => $actor,
+            'kind' => 'follow_up.outreach', 'follow_up_draft_id' => $id, 'follow_up_version' => $version]);
+        app(Audit::class)->record($actor, $org, 'follow_up.send_requested', $notice);
+
+        return $notice;
+    }
+
     private function insert(int $actor, string $org, string $entry, int $version, array $content, ?string $run = null): string
     {
         $id = (string) Str::uuid();
         DB::table('follow_up_drafts')->insert([...$content, 'id' => $id, 'org_id' => $org, 'actor_id' => $actor,
             'pipeline_entry_id' => $entry, 'subject_version' => $version, 'schedule_run_id' => $run]);
         app(Audit::class)->record($actor, $org, 'follow_up.created', $id);
+        $preferences = DB::table('automation_preferences')->where(['org_id' => $org, 'actor_id' => $actor])->first();
+        if ($preferences?->follow_up_reviews) {
+            DB::table('notification_outbox')->insert(['id' => (string) Str::uuid(), 'org_id' => $org, 'actor_id' => $actor,
+                'kind' => 'follow_up.review', 'follow_up_draft_id' => $id, 'follow_up_version' => 1, 'follow_up_preference_version' => $preferences->version]);
+        }
 
         return $id;
     }

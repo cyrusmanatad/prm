@@ -22,8 +22,8 @@ class AutomationController extends Controller
         $payload = ['workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')],
             'preferences' => $schedules->preferences($actor, $org), 'schedules' => DB::table('business_schedules')->orderByDesc('created_at')->limit(100)->get(),
             'reminders' => DB::table('reminders')->whereNull('completed_at')->orderBy('due_at')->orderBy('id')->limit(100)->get(['id', 'title', 'due_at']),
-            'notices' => DB::table('notification_outbox')->where('actor_id', $actor)->whereNotNull('schedule_run_id')->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(['id', 'kind', 'state', 'created_at']),
-            'drafts' => DB::table('follow_up_drafts')->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(),
+            'notices' => DB::table('notification_outbox')->where('actor_id', $actor)->where(fn ($q) => $q->whereNotNull('schedule_run_id')->orWhereNotNull('follow_up_draft_id'))->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(['id', 'kind', 'state', 'created_at', 'available_at', 'failure_code']),
+            'drafts' => DB::table('follow_up_drafts')->select('follow_up_drafts.*')->selectSub(DB::table('notification_outbox')->select('state')->where('kind', 'follow_up.outreach')->whereColumn('follow_up_draft_id', 'follow_up_drafts.id')->whereColumn('follow_up_version', 'follow_up_drafts.version')->limit(1), 'outreach_state')->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(),
             'leads' => DB::table('pipeline_entries')->where('stage', '<>', 'lost')->orderByDesc('created_at')->orderByDesc('id')->limit(100)->get(['id', 'brand_name']),
             'canWrite' => $pipeline->canWrite($actor, $org), 'timezones' => DateTimeZone::listIdentifiers()];
 
@@ -34,7 +34,7 @@ class AutomationController extends Controller
     {
         $data = $request->validate(['version' => ['required', 'integer', 'min:0', 'max:2147483646'],
             'timezone' => ['required', Rule::in(DateTimeZone::listIdentifiers())],
-            'reminders' => ['required', 'boolean'], 'weekly_digest' => ['required', 'boolean'], 'follow_up_drafts' => ['required', 'boolean']]);
+            'reminders' => ['required', 'boolean'], 'weekly_digest' => ['required', 'boolean'], 'follow_up_drafts' => ['required', 'boolean'], 'follow_up_reviews' => ['sometimes', 'boolean']]);
         $schedules->savePreferences((int) $request->user()->id, $request->session()->get('active_org_id'), $data);
 
         return $this->completed($request, ['message' => 'Automation preferences saved'], '/automation');

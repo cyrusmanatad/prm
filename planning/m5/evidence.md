@@ -1,5 +1,9 @@
 # M5 First-Slice Verification Evidence
 
+**M5-08 (2026-11-09):** [delivery operations verification](delivery-operations-evidence.md) covers explicit approved outreach, review notices, fair dispatch/backoff/budgets, scoped MFA diagnostics/resolution and remaining provider/production gates.
+
+**M5-07 (2026-11-09):** [approval invalidation verification](approval-basis-evidence.md) covers the current-basis contract, real PostgreSQL races/reconciliation, retained private history, scoped Chromium checks and remaining gates.
+
 **M5-04 (2026-10-31):** [reminder and weekly digest/review delivery evidence](scheduled-delivery-evidence.md), including PostgreSQL/Redis/SMTP recovery, consent races, desktop screenshots and remaining acceptance gates.
 
 Status: local automated checks passed on 2026-10-23. Scope: durable outbox and explicitly requested partner invitation email only; full M5 remains incomplete. See the [contract](notification-contract.md) and [status](status.md).

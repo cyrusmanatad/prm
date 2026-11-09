@@ -78,7 +78,7 @@ class BusinessScheduleTest extends AcceptanceCase
         $this->postJson('/automation/schedules', $this->weekly())->assertUnprocessable()->assertJsonValidationErrors('kind');
         $this->patchJson('/automation/schedules/'.$id, $this->weekly(['version' => 99]))->assertConflict();
         $this->patchJson('/automation/schedules/'.$id, $this->weekly(['version' => 1, 'local_time' => '10:00']))->assertOk();
-        $this->assertSame(5, $this->control->table('automation_consent_events')->where('org_id', $org)->count());
+        $this->assertSame(6, $this->control->table('automation_consent_events')->where('org_id', $org)->count());
         $this->assertSame(1, $this->control->table('business_schedules')->where('id', $id)->value('rule_version'));
     }
 

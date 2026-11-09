@@ -235,6 +235,8 @@ class NotificationOutboxTest extends AcceptanceCase
     {
         [$user, $org, , , $row] = $this->invitation();
         $this->control->beginTransaction();
+        // Match send reservation and the Professional write guard before locking the row.
+        $this->control->select('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ['pilot:'.$org]);
         $this->control->table('notification_outbox')->where('id', $row->id)->lockForUpdate()->first();
         $process = new Process([PHP_BINARY, 'tests/Fixtures/notification-probe.php', (string) $user->id, $org, $row->id], base_path(), ['APP_ENV' => 'testing', 'MAIL_MAILER' => 'array', 'TEST_MIGRATION_DB_PASSWORD' => false]);
         $process->setTimeout(15);

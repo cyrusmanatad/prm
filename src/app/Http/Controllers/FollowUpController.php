@@ -33,6 +33,14 @@ class FollowUpController extends Controller
             ->header('Content-Disposition', 'attachment; filename="follow-up.txt"')->header('Cache-Control', 'no-store, private');
     }
 
+    public function send(Request $request, FollowUpDrafts $drafts, string $draft): JsonResponse|RedirectResponse
+    {
+        $data = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']]);
+        $id = $drafts->queueSend((int) $request->user()->id, $request->session()->get('active_org_id'), $draft, $data['version']);
+
+        return $this->completed($request, ['id' => $id, 'message' => 'Follow-up email queued; receipt is not confirmed'], '/automation');
+    }
+
     public function transition(Request $request, FollowUpDrafts $drafts, string $draft, string $action): JsonResponse|RedirectResponse
     {
         $data = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']]);

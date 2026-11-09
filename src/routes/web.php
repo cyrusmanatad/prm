@@ -15,6 +15,7 @@ use App\Http\Controllers\OutreachTemplateController;
 use App\Http\Controllers\PartnerJoinController;
 use App\Http\Controllers\PipelineController;
 use App\Http\Controllers\PlatformController;
+use App\Http\Controllers\PlatformNotificationController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\PublicPresenceController;
@@ -80,6 +81,8 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/admin/security', [PlatformController::class, 'security']);
         Route::post('/admin/security/enroll', [PlatformController::class, 'enroll'])->middleware('throttle:5,1,admin-enroll:');
         Route::post('/admin/security/verify', [PlatformController::class, 'verify'])->middleware('throttle:5,1,admin-mfa:');
+        Route::get('/admin/notifications', [PlatformNotificationController::class, 'index']);
+        Route::post('/admin/notifications/{notification}/resolve', [PlatformNotificationController::class, 'resolve'])->whereUuid('notification')->middleware('throttle:10,1,notification-resolution:');
         Route::get('/admin', [PlatformController::class, 'index']);
         Route::post('/admin/assignments', [PlatformController::class, 'assign'])->middleware('throttle:10,1,admin-assign:');
         Route::get('/join/select', [PartnerJoinController::class, 'select']);
@@ -99,6 +102,7 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/automation/drafts/{draft}/handoff', [FollowUpController::class, 'handoff'])->whereUuid('draft');
             Route::post('/automation/drafts', [FollowUpController::class, 'save']);
             Route::patch('/automation/drafts/{draft}', [FollowUpController::class, 'save'])->whereUuid('draft');
+            Route::post('/automation/drafts/{draft}/send', [FollowUpController::class, 'send'])->whereUuid('draft')->middleware('throttle:10,1,follow-up-send:');
             Route::post('/automation/drafts/{draft}/{action}', [FollowUpController::class, 'transition'])->whereUuid('draft')->whereIn('action', ['approve', 'discard']);
             Route::get('/automation', [AutomationController::class, 'index']);
             Route::put('/automation/preferences', [AutomationController::class, 'preferences']);
