@@ -7,7 +7,7 @@ permissions:
 jobs:
   backend:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -46,10 +46,29 @@ jobs:
           docker compose --env-file src/.env exec -T postgres psql -U postgres -d weavdash -v ON_ERROR_STOP=1 < src/tests/Integration/rls.sql
       - name: Run PostgreSQL isolation and real Redis worker tests
         run: docker compose --env-file src/.env run --rm -T app vendor/bin/phpunit -c phpunit.pgsql.xml
-      - name: Verify membership concurrency and process recovery
+      - name: Verify membership concurrency and synthetic recovery
+        env:
+          RECOVERY_IMAGE: weavdash-app:latest
+          PYTHONDONTWRITEBYTECODE: '1'
         run: |
-          docker compose --env-file src/.env run --rm -T acceptance
-          python3 src/scripts/check-process-restarts.py --project weavdash
+          python3 src/scripts/test-recovery-guard.py
+          RECOVERY_SOURCE="$(mktemp -d /tmp/weavdash-m5-recovery-ci-XXXXXX)"
+          export RECOVERY_SOURCE
+          recovery_export="$(docker create "$RECOVERY_IMAGE")"
+          cleanup_recovery_source() {
+            docker rm -f "$recovery_export" >/dev/null
+            # Runtime tests can create files owned by the container user.
+            docker run --rm --network none --user 0:0 \
+              -v "$RECOVERY_SOURCE:/recovery-source" "$RECOVERY_IMAGE" \
+              chmod -R a+rwX /recovery-source
+            rm -rf -- "$RECOVERY_SOURCE"
+          }
+          trap cleanup_recovery_source EXIT
+          docker cp "$recovery_export:/var/www/html/." "$RECOVERY_SOURCE"
+          chmod a+rx "$RECOVERY_SOURCE"
+          chmod -R a+rwX "$RECOVERY_SOURCE/storage" "$RECOVERY_SOURCE/bootstrap/cache"
+          python3 src/scripts/check-recovery.py \
+            --project "weavdash-m5-recovery-ci${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}"
       - name: Smoke test backend container
         run: |
           docker compose --env-file src/.env up -d --wait app

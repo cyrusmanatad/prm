@@ -55,6 +55,8 @@ class DeliveryOperationsTest extends AcceptanceCase
         $this->postJson('/automation/drafts/'.$draft.'/send', ['version' => 1])->assertConflict();
         $notice = $this->queueSend($draft);
         $this->postJson('/automation/drafts/'.$draft.'/send', ['version' => 2])->assertOk()->assertJsonPath('id', $notice);
+        $this->recoveryFault('redis-restart');
+        $this->recoveryFault('redis-loss');
         $this->assertNull($this->row($notice)->encrypted_payload);
         $this->assertSame(1, $this->control->table('notification_outbox')->where('follow_up_draft_id', $draft)->count());
         app(NotificationOutbox::class)->deliver($user->id, $org, $notice);
@@ -78,6 +80,7 @@ class DeliveryOperationsTest extends AcceptanceCase
         Mail::fake();
         [$user, $org, , $draft] = $this->draft(true);
         $notice = $this->control->table('notification_outbox')->where('follow_up_draft_id', $draft)->where('kind', 'follow_up.review')->value('id');
+        $this->recoveryFault('redis-loss');
         app(NotificationOutbox::class)->deliver($user->id, $org, $notice);
         Mail::assertSent(FollowUpNotice::class, function ($mail) use ($user) {
             $this->assertTrue($mail->review);
@@ -120,7 +123,12 @@ class DeliveryOperationsTest extends AcceptanceCase
                 $this->control->table('memberships')->where('org_id', $org)->where('user_id', $user->id)->update(['revoked_at' => now()]);
             }
             $this->assertSame('cancelled', $this->row($notice)->state);
+            $this->recoveryFault('redis-restart');
+            if ($change === 'revoked') {
+                $this->control->table('memberships')->where('org_id', $org)->where('user_id', $user->id)->update(['revoked_at' => null]);
+            }
             app(NotificationOutbox::class)->deliver($user->id, $org, $notice);
+            $this->assertSame('cancelled', $this->row($notice)->state);
         }
         Mail::assertNothingSent();
     }
@@ -138,6 +146,7 @@ class DeliveryOperationsTest extends AcceptanceCase
         $this->assertSame('pending', $this->row($second)->state);
         $this->assertSame('workspace_budget', $this->row($second)->failure_code);
         $this->assertSame(1, $this->row($second)->defer_count);
+        $this->recoveryFault('redis-restart');
         app(NotificationOutbox::class)->deliver($user->id, $org, $second);
         $this->assertSame(1, $this->row($second)->defer_count);
         $this->control->table('notification_outbox')->where('id', $second)->update(['available_at' => now()->subMinute()]);
@@ -166,6 +175,7 @@ class DeliveryOperationsTest extends AcceptanceCase
         [$peer, $foreign, , $other] = $this->draft();
         $otherNotice = $this->queueSend($other);
         app(TenantContext::class)->run($user->id, $org, fn () => DB::select('SELECT app_notification_budget(0,0)'));
+        $this->recoveryFault('redis-restart');
         $routes = collect(DB::select('SELECT * FROM app_pending_notifications()'));
         $ours = $routes->filter(fn ($route) => in_array($route->org_id, [$org, $foreign], true))->values();
         $this->assertSame($otherNotice, $ours->first()->id);
@@ -195,6 +205,7 @@ class DeliveryOperationsTest extends AcceptanceCase
         $data = ['version' => 0, 'resolution' => 'not_sent', 'reason' => 'Synthetic provider evidence'];
         $this->postJson('/admin/notifications/'.$notice.'/resolve', $data)->assertOk();
         $this->postJson('/admin/notifications/'.$notice.'/resolve', $data)->assertConflict();
+        $this->recoveryFault('redis-loss');
         $this->assertSame('uncertain', $this->row($notice)->state);
         $this->assertSame(1, $this->control->table('notification_resolutions')->where('notification_id', $notice)->count());
         $this->assertSame(1, $this->control->table('platform_audit')->where('target', $notice)->where('event', 'notification.resolved')->count());

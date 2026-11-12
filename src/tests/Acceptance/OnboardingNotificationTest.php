@@ -98,6 +98,7 @@ class OnboardingNotificationTest extends AcceptanceCase
         $this->assertSame(2, $this->control->table('notification_outbox')->where('onboarding_request_id', $result['id'])->count());
         $this->getJson('/onboarding/form/'.$result['id'])->assertForbidden();
         $this->postJson('/onboarding/session', ['token' => $token])->assertNotFound();
+        $this->recoveryFault('redis-loss');
         app(NotificationOutbox::class)->deliver($user->id, $org, $row->id);
         $this->assertSame('cancelled', $this->state($row->id)->state);
         $fresh = $this->control->table('notification_outbox')->where('onboarding_request_id', $result['id'])->where('id', '!=', $row->id)->first();
@@ -207,6 +208,7 @@ class OnboardingNotificationTest extends AcceptanceCase
         $queue = Queue::connection('redis');
         try {
             $queue->push(new DeliverNotification($user->id, $org, $row->id), '', $name);
+            $this->recoveryFault('redis-loss');
             $queue->clear($name);
             $pending = collect(DB::select('SELECT * FROM app_pending_notifications()'))->firstWhere('id', $row->id);
             $this->assertNotNull($pending);

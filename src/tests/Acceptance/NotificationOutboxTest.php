@@ -117,6 +117,12 @@ class NotificationOutboxTest extends AcceptanceCase
             app(NotificationOutbox::class)->deliver($user->id, $org, $row->id);
             $this->assertSame('cancelled', $this->state($row->id)->state, $reason);
             $this->assertNull($this->state($row->id)->encrypted_payload);
+            if ($reason === 'membership') {
+                $this->control->table('memberships')->where('org_id', $org)->update(['revoked_at' => null]);
+                $this->recoveryFault('redis-restart');
+                app(NotificationOutbox::class)->deliver($user->id, $org, $row->id);
+                $this->assertSame('cancelled', $this->state($row->id)->state);
+            }
         }
         Mail::assertNothingSent();
     }
@@ -156,6 +162,9 @@ class NotificationOutboxTest extends AcceptanceCase
         try {
             $queue->push($job, '', $queueName);
             $this->assertSame(1, $queue->size($queueName));
+            $this->recoveryFault('redis-restart');
+            $this->assertSame(1, $queue->size($queueName));
+            $this->recoveryFault('redis-loss');
             $queue->clear($queueName);
             $this->assertSame('pending', $this->state($row->id)->state);
             // The PostgreSQL dispatcher can rediscover the record after Redis lost it.

@@ -1,0 +1,122 @@
+name: weavdash-m5-recovery
+x-runtime: &runtime
+  APP_ENV: testing
+  APP_KEY: base64:V2VhdkRhc2hTeW50aGV0aWNSZWNvdmVyeUtleTAwMDA=
+  APP_URL: http://recovery.invalid
+  DB_CONNECTION: pgsql
+  DB_HOST: postgres
+  DB_DATABASE: weavdash
+  DB_USERNAME: weavdash_app
+  DB_PASSWORD: synthetic-runtime-only
+  REDIS_HOST: redis
+  REDIS_PREFIX: m5_recovery_
+  REDIS_CLIENT: phpredis
+  QUEUE_CONNECTION: redis
+  CACHE_STORE: redis
+  SESSION_DRIVER: array
+  MAIL_MAILER: smtp
+  MAIL_HOST: smtp
+  MAIL_PORT: 1025
+  MAIL_SCHEME: smtp
+  MAIL_FROM_ADDRESS: recovery@example.test
+  MAIL_FROM_NAME: Synthetic recovery
+  CLAMAV_HOST: clamav
+  NOTIFICATION_WORKSPACE_PER_MINUTE: 0
+  NOTIFICATION_GLOBAL_PER_MINUTE: 0
+x-backend: &backend
+  image: ${RECOVERY_IMAGE:-weavdash-app:latest}
+  working_dir: /var/www/html
+  environment: *runtime
+  labels:
+    weavdash.recovery: synthetic-disposable
+  volumes:
+    - ${RECOVERY_SOURCE:?Set dedicated source directory}:/var/www/html
+    - private-storage:/var/www/html/storage/app/private
+  networks: [recovery]
+services:
+  clamav:
+    image: clamav/clamav:stable@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
+    labels:
+      weavdash.recovery: synthetic-disposable
+    # Offline synthetic signature database; no freshclam/provider network required.
+    entrypoint: [clamd, --foreground=true]
+    volumes:
+      - ./src/tests/Fixtures/recovery-signatures.hdb:/var/lib/clamav/recovery.hdb:ro
+    healthcheck:
+      test: [CMD, clamdscan, --ping, '1']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [recovery]
+  postgres:
+    image: postgres:16-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4
+    labels:
+      weavdash.recovery: synthetic-disposable
+    environment:
+      POSTGRES_DB: weavdash
+      POSTGRES_PASSWORD: synthetic-control-only
+      APP_DB_PASSWORD: synthetic-runtime-only
+      MIGRATION_DB_PASSWORD: synthetic-migration-only
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./src/docker/postgres/init.sh:/docker-entrypoint-initdb.d/10-weavdash.sh:ro
+    healthcheck:
+      test: [CMD, pg_isready, -U, postgres, -d, weavdash]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    networks: [recovery]
+  redis:
+    image: redis:7.4-bookworm@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
+    labels:
+      weavdash.recovery: synthetic-disposable
+    command: [redis-server, --appendonly, 'yes', --appendfsync, always]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    networks: [recovery]
+  smtp:
+    <<: *backend
+    # The test-only capture volume starts root-owned; application workers remain unprivileged.
+    user: '0:0'
+    command: [php, tests/Fixtures/smtp-server.php]
+    healthcheck:
+      test: [CMD, php, -r, "exit(@fsockopen('127.0.0.1', 1025) ? 0 : 1);"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - ${RECOVERY_SOURCE:?Set dedicated source directory}:/var/www/html:ro
+      - smtp-capture:/capture
+  worker:
+    <<: *backend
+    init: true
+    command: [php, artisan, 'queue:work', redis, '--sleep=1', '--tries=3', '--timeout=60']
+    restart: unless-stopped
+  scheduler:
+    <<: *backend
+    init: true
+    command: [php, artisan, 'schedule:work']
+    restart: unless-stopped
+  acceptance:
+    <<: *backend
+    environment:
+      <<: *runtime
+      TEST_MIGRATION_DB_PASSWORD: synthetic-migration-only
+      RECOVERY_CONTROL: /recovery-control
+    volumes:
+      - ${RECOVERY_SOURCE:?Set dedicated source directory}:/var/www/html
+      - private-storage:/var/www/html/storage/app/private
+      - ${RECOVERY_CONTROL:?Set temporary control directory}:/recovery-control
+    command: [vendor/bin/phpunit, '-c', phpunit.acceptance.xml]
+networks:
+  recovery:
+    internal: true
+volumes:
+  postgres-data:
+  redis-data:
+  private-storage:
+  smtp-capture:

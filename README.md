@@ -68,14 +68,13 @@ For the concurrency and process tests, run from the repository root against a mi
 
 ```sh
 docker compose --env-file src/.env run --rm -T acceptance
-python3 src/scripts/check-process-restarts.py --project weavdash
 ```
 
-For the retained `weavdash-m1` project, add `-p weavdash-m1` to Compose commands and use `--project weavdash-m1` for the restart script; the restart command requires an explicit project and deliberately SIGKILLs only its worker/scheduler Artisan processes. Both services use an init process for child reaping. The isolated `acceptance` service uses runtime credentials plus a separate migration-role fixture connection; this control credential is absent from web/worker/scheduler services and removed from runtime probe subprocesses. Fourteen tests passed with 312 assertions, including all five roles, forged identity/tenant fields, revoked membership, and adversarial partial props. The scheduler crash test waits for a real one-minute Redis lock expiry, so the suite takes about 70 seconds.
+For the retained `weavdash-m1` project, add `-p weavdash-m1` to Compose commands. Actual worker/scheduler service crashes now use the dedicated [M5 recovery runner and environment](planning/m5/recovery-evidence.md); the restart script accepts only inspected disposable recovery projects. Both services use an init process for child reaping. The isolated `acceptance` service uses runtime credentials plus a separate migration-role fixture connection; this control credential is absent from web/worker/scheduler services and removed from runtime probe subprocesses. The historical foundation run passed fourteen tests with 312 assertions, including all five roles, forged identity/tenant fields, revoked membership, and adversarial partial props. The scheduler crash test waits for a real one-minute Redis lock expiry.
 
 Concurrent revocation and role demotion are tested in both lock orderings, with PostgreSQL reporting the blocked backend. In-flight authorized transactions finish before membership changes commit; changes that lock first cause waiting writes to fail. A scoped security-definer function locks only the current actor's active membership in the selected workspace. Rollbacks release locks and audit writes. A fresh disposable database also passed full migration rollback/reapply and SQL RLS/function-privilege checks.
 
-Process tests kill a worker after writes but before commit, reclaim its expired Redis reservation in a replacement worker, and verify one committed audit per tenant. Synthetic scheduler tests cover task exceptions, overlapping runs, SIGKILL, real overlap-lock expiration, and dispatch after restart. Docker restart counters also increased after killing the actual worker/scheduler processes. Application schedules remain empty; these tests do not establish external-action idempotency, which belongs to M5.
+Process tests kill a worker after writes but before commit, reclaim its expired Redis reservation in a replacement worker, and verify one committed audit per tenant. Synthetic scheduler tests cover task exceptions, overlapping runs, SIGKILL, real overlap-lock expiration, and dispatch after restart. Docker restart counters also increased after killing the actual worker/scheduler processes. M5 extends this baseline with [durable workflow and SMTP recovery acceptance](planning/m5/recovery-contract.md).
 
 ## Frontend and browser verification
 
@@ -126,6 +125,8 @@ The frontend workflow checks dependency advisories, types, interactions, and the
 ## Milestone status
 
 M5-08 adds explicit approved follow-up email, account-only opt-in review notices, delivery backoff/rate controls and MFA-protected operator diagnostics. See the [contract and remaining production gates](planning/m5/delivery-operations-contract.md). Local synthetic verification does not establish provider receipt or approved production budgets.
+
+M5-10 synthetic recovery acceptance is locally complete; see the [fault matrix and verification](planning/m5/recovery-evidence.md). Provider trials, production budgets, administration and inherited M5/M6 release gates remain open.
 
 Start from the [current handoff](planning/shared/implementation-handoff.md) and [remaining-task register](planning/shared/remaining-tasks.md). M5's first notification slice is committed and locally verified; required M5 work remains open. [M6 preparation](planning/m6/status.md) has started; acceptance and inherited release gates remain pending.
 
