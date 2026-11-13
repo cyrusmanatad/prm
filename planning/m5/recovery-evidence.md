@@ -1,3 +1,5 @@
+CI repair and final PR verification: [repair evidence](ci-repair-evidence.md).
+
 # M5-10 synthetic recovery evidence — 2026-11-12
 
 Status: **implemented and locally verified**. Working tree based on `41e0cd46da3c02047d2c8abcfaa631cb8dfd9db7` (`main`). [Recovery contract](recovery-contract.md). No application behavior, schema, endpoints or UI changed. M5/M6 remain incomplete.

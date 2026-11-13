@@ -1,4 +1,4 @@
-**PR #16 CI repair (2026-11-13):** [repair scope and verification](m5/ci-repair-evidence.md). Merge readiness is pending; milestone advancement remains on hold.
+**PR #16 CI repair (2026-11-13):** [repair scope and verification](m5/ci-repair-evidence.md). Final revision checks and the merge recommendation are tracked in PR #16; milestone advancement remains on hold.
 
 **M5-10 recovery (2026-11-12):** [synthetic recovery results and environment](m5/recovery-evidence.md), with the [recovery contract](m5/recovery-contract.md). Local synthetic gates passed; provider/production/release acceptance remains separate.
 
