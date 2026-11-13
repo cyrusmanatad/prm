@@ -1,10 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createHmac } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { login, mutate, migrationFixture } from './helpers';
-const repo = fileURLToPath(new URL('../../../', import.meta.url));
 function seed(email: string, workspaceName: string) {
     return JSON.parse(migrationFixture('professional-fixture.php', email, workspaceName));
 }

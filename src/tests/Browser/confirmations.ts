@@ -44,7 +44,7 @@ export async function confirmMutation(page: Page, trigger: Locator, title: strin
         });
         const scan = await new AxeBuilder({ page }).analyze();
         expect(scan.violations).toEqual([]);
-        if (info)
+        if (info && process.env.CAPTURE_BROWSER_IMAGES === '1')
             await page.screenshot({
                 path: info.outputPath(`confirm-${title.toLowerCase().replaceAll(' ', '-')}.png`),
                 fullPage: true,

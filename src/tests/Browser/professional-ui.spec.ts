@@ -3,9 +3,6 @@ import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
 import { fixture, login, migrationFixture } from './helpers';
 import AxeBuilder from '@axe-core/playwright';
-import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-const repo = fileURLToPath(new URL('../../../', import.meta.url));
 const routes = [
     '',
     'leads',
@@ -19,7 +16,7 @@ const routes = [
 ];
 async function startProfessional(page: Page, project: string) {
     page.setDefaultTimeout(15_000);
-    await page.setViewportSize({ width: project === 'mobile' ? 390 : 1440, height: 900 });
+    await page.setViewportSize({ width: project.includes('mobile') ? 390 : 1440, height: 900 });
     const email = `m1-browser-professional-ui-${project}-${Date.now()}@example.test`;
     migrationFixture('professional-fixture.php', email);
     await page.goto('/professional/login');
@@ -33,7 +30,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
     test.setTimeout(240_000);
     const before = process.env.PROFESSIONAL_UI_BEFORE === '1';
     await startProfessional(page, info.project.name);
-    await page.setViewportSize({ width: info.project.name === 'mobile' ? 390 : 1440, height: 900 });
+    await page.setViewportSize({ width: info.project.name.includes('mobile') ? 390 : 1440, height: 900 });
     for (const route of routes) {
         await page.goto(`/professional${route ? '/' + route : ''}`);
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -42,7 +39,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
             if (route === 'contacts')
                 await expect(page.getByRole('heading', { level: 1 })).toHaveCSS(
                     'font-size',
-                    info.project.name === 'mobile' ? '28px' : '34px',
+                    info.project.name.includes('mobile') ? '28px' : '34px',
                 );
             expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

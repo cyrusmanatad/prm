@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import signal
 import shutil
 import subprocess
 import tempfile
@@ -78,9 +79,23 @@ def main():
             print(f'Clean setup: {name}', flush=True)
             with (logs / (name+'.log')).open('w') as output:
                 with open(input_file, 'rb') if input_file else open(os.devnull, 'rb') as stdin:
-                    result = subprocess.run(command, cwd=cwd or source, env=env if env is not None else clean_environment,
-                                            stdin=stdin, stdout=output, stderr=subprocess.STDOUT, timeout=timeout)
-            if result.returncode:
+                    process = subprocess.Popen(command, cwd=cwd or source,
+                                               env=env if env is not None else clean_environment,
+                                               stdin=stdin, stdout=output, stderr=subprocess.STDOUT,
+                                               start_new_session=True)
+                    try:
+                        returncode = process.wait(timeout=timeout)
+                    except subprocess.TimeoutExpired:
+                        # npm and Playwright children must stop before stack teardown.
+                        os.killpg(process.pid, signal.SIGTERM)
+                        try:
+                            process.wait(timeout=10)
+                        except subprocess.TimeoutExpired:
+                            os.killpg(process.pid, signal.SIGKILL)
+                            process.wait(timeout=10)
+                        raise
+
+            if returncode:
                 raise RuntimeError(f'{name} failed; inspect {logs / (name+".log")}')
             phases.append(name)
 
