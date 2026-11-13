@@ -426,7 +426,10 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
     await page.goto('/professional');
     for (const resource of ['leads', 'contacts', 'reminders', 'invoices', 'payments']) {
         const download = page.waitForEvent('download');
-        await page.getByRole('link', { name: `Export ${resource} as CSV`, exact: true }).click();
+        const exportLink = page.getByRole('link', { name: `Export ${resource} as CSV`, exact: true });
+        await expect(exportLink).toHaveAttribute('download', `professional-${resource}.csv`);
+        await exportLink.click();
         expect((await download).suggestedFilename()).toBe(`professional-${resource}.csv`);
+        await expect(page).toHaveURL(/\/professional$/);
     }
 });

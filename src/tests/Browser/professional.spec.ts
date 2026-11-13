@@ -46,8 +46,11 @@ test('professional workspace, shared client tools, exports and administrator MFA
         });
     await page.goto('/professional');
     const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('link', { name: 'Export leads as CSV', exact: true }).click();
+    const exportLink = page.getByRole('link', { name: 'Export leads as CSV', exact: true });
+    await expect(exportLink).toHaveAttribute('download', 'professional-leads.csv');
+    await exportLink.click();
     expect((await downloadPromise).suggestedFilename()).toBe('professional-leads.csv');
+    await expect(page).toHaveURL(/\/professional$/);
     await page.goto('/admin/security');
     await expect(page.getByRole('heading', { name: 'Verify your identity' })).toBeVisible();
     await page.getByLabel('Password', { exact: true }).fill('browser-password-123');
@@ -70,7 +73,9 @@ test('professional workspace, shared client tools, exports and administrator MFA
     await expect(page.getByRole('heading', { name: 'Accounts and workspaces' })).toBeVisible();
     await page.getByLabel('Search names').fill(workspaceName);
     await page.getByRole('button', { name: 'Search', exact: true }).click();
-    await page.locator('#assign-workspace').selectOption(fixture.org);
+    await expect(page).toHaveURL((url) => url.pathname === '/admin' && url.searchParams.get('q') === workspaceName);
+    await page.getByRole('combobox', { name: 'Workspace', exact: true }).click();
+    await page.getByRole('option', { name: workspaceName, exact: true }).click();
     await page.getByLabel('Plan name', { exact: true }).fill('Synthetic renewed subscription');
     await page.locator('#assign-start').fill(new Date(Date.now() - 60000).toISOString());
     await page.locator('#assign-end').fill(new Date(Date.now() + 86400000).toISOString());

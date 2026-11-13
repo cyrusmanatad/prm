@@ -48,6 +48,10 @@ watch(confirmation, async (value, old) => {
 });
 const invitationDialog = ref<HTMLDialogElement | null>(null);
 const invitationLink = ref<string | null>(null);
+function onInvitationClose(): void {
+    // A queued native close event can arrive after a confirmation restores this dialog.
+    if (!joinTrigger && !invitationDialog.value?.open) inviting.value = false;
+}
 function openInvitation(): void {
     invitationLink.value = null;
     form.clearErrors();
@@ -141,7 +145,7 @@ function endPartnership(id: string, trigger: HTMLElement): void {
         ref="invitationDialog"
         class="wd-dialog"
         aria-labelledby="invitation-title"
-        @close="inviting = false"
+        @close="onInvitationClose"
         @cancel="inviting = false"
         @keydown="containDialogFocus($event, invitationDialog)"
     >

@@ -1,8 +1,10 @@
 import { expect, type Locator, type Page, type TestInfo } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { dismissNotifications } from './feedback';
 
 /** Exercise the real modal lifecycle and count mutation requests, including cancellation. */
 export async function confirmMutation(page: Page, trigger: Locator, title: string, info?: TestInfo) {
+    await dismissNotifications(page);
     const requests: string[] = [];
     const track = (request: import('@playwright/test').Request) => {
         if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(request.method())) requests.push(request.url());
