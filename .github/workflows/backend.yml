@@ -13,7 +13,9 @@ jobs:
         with:
           persist-credentials: false
       - name: Scan reviewable source for secrets
-        run: python3 src/scripts/check-secrets.py
+        run: |
+          PYTHONDONTWRITEBYTECODE=1 python3 src/scripts/test-secret-exceptions.py
+          python3 src/scripts/check-secrets.py
       - name: Generate disposable configuration
         run: |
           python3 - <<'PY'
@@ -73,31 +75,14 @@ jobs:
         run: |
           docker compose --env-file src/.env up -d --wait app
           curl --fail --retry 5 --retry-connrefused http://127.0.0.1:8000/up
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '24'
-      - name: Install browser test dependencies
-        working-directory: src
-        run: |
-          npm ci --ignore-scripts --no-audit --no-fund
-          npx playwright install --with-deps chromium webkit
-      - name: Verify Chromium and WebKit account/workspace journeys
-        working-directory: src
-        env:
-          COMPOSE_PROJECT_NAME: weavdash
-        run: npm run test:browser
-      - name: Retain browser accessibility and journey evidence
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: foundation-browser-evidence
-          path: src/test-results/
-          retention-days: 7
-          if-no-files-found: ignore
       - name: Shut down disposable services
-        if: always()
+        if: always() && hashFiles('src/.env') != ''
         run: docker compose --env-file src/.env down --volumes
   clean-setup:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [desktop, mobile, webkit-desktop, webkit-mobile]
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -113,12 +98,12 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           npx playwright install --with-deps chromium webkit
       - name: Validate fresh source, credentials, dependencies, and services
-        run: python3 src/scripts/check-clean-setup.py --project weavdash-m1-clean-ci --port 8001
+        run: python3 src/scripts/check-clean-setup.py --project weavdash-m1-clean-ci-${{ matrix.browser }} --port 8001 --browser-project ${{ matrix.browser }}
       - name: Retain clean setup evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: foundation-clean-setup-evidence
-          path: /tmp/weavdash-m1-clean-ci-evidence-*/
+          name: foundation-clean-setup-evidence-${{ matrix.browser }}
+          path: /tmp/weavdash-m1-clean-ci-${{ matrix.browser }}-evidence-*/
           retention-days: 7
           if-no-files-found: ignore

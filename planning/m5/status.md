@@ -1,3 +1,5 @@
+**PR #16 CI repair (2026-11-13):** [repair scope and verification](ci-repair-evidence.md). Merge readiness is pending; milestone advancement remains on hold.
+
 **M5-10 checkpoint (2026-11-12):** synthetic recovery acceptance is complete locally: PostgreSQL/Redis **144/3,403**, integration **35/635**, PHP **42/362**, Pint and target guards passed. See the [contract](recovery-contract.md) and [evidence](recovery-evidence.md). Eligible pending work reconstructs from PostgreSQL; uncertain sends remain terminal. M5-09, production budgets, administration and inherited M5/M6 gates remain open. Older checkpoints below retain their historical scope.
 
 # M5 Durable Automation and Notifications Status

@@ -12,7 +12,8 @@ async function scan(page: Page, info: TestInfo, name: string): Promise<void> {
     });
     expect(result.violations.map((v) => v.id)).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true });
 }
 
 test('creator invites brand, brand resumes, uploads, submits and corrects; creator revokes', async ({

@@ -8,6 +8,15 @@ const appRoot = fileURLToPath(new URL('../', import.meta.url));
 const repoRoot = path.resolve(appRoot, '..');
 const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).split('\0').filter(Boolean);
 const base = process.env.PRETTIER_BASE_REF || 'HEAD';
+try {
+    git('rev-parse', '--show-toplevel');
+    if (!/^0+$/.test(base)) git('rev-parse', '--verify', `${base}^{commit}`);
+} catch {
+    console.error(
+        `Cannot compare frontend files in ${repoRoot} against ${base}. Verify Git ownership and fetch the base commit.`,
+    );
+    process.exit(1);
+}
 // A first push has no previous commit. Check all source files in that case.
 const changed = /^0+$/.test(base)
     ? git('ls-files', '-z')

@@ -31,7 +31,8 @@ test('private draft exact money, edit and terminal void', async ({ page }, info)
     await expect(staleDialog.getByRole('alert')).toBeFocused();
     await expect(staleDialog.getByRole('alert')).toContainText('Reload before continuing');
     await expect(staleDialog.getByRole('button', { name: 'Void draft', exact: true })).toBeDisabled();
-    await stale.screenshot({ path: info.outputPath('confirmation-stale-record.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await stale.screenshot({ path: info.outputPath('confirmation-stale-record.png'), fullPage: true });
     await staleDialog.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(stale.getByRole('alert')).toContainText('Reload before continuing');
     await expect(stale.getByLabel('Recipient business name')).toHaveValue('Unsaved stale finance');
@@ -40,7 +41,8 @@ test('private draft exact money, edit and terminal void', async ({ page }, info)
     await expect(stale.getByLabel('Recipient business name')).toHaveValue('Updated finance');
     await stale.close();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath('draft.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('draft.png'), fullPage: true });
     await confirmMutation(page, page.getByRole('button', { name: 'Void draft', exact: true }), 'Void draft', info);
     await expect(page.getByText(/Version 3/)).toContainText('voided');
     await expect(page.getByRole('button', { name: 'Save draft', exact: true })).toBeDisabled();
@@ -75,7 +77,8 @@ test('manual receipt allocation, reversal, void and entitlement visibility', asy
     await page.getByRole('button', { name: 'Allocate receipt' }).click();
     await expect(page.getByText(/Allocated 500/)).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath('payments.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('payments.png'), fullPage: true });
     await page.getByLabel('Reason for reversing an allocation').fill('Correct allocation');
     await confirmMutation(
         page,

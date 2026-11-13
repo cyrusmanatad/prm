@@ -4,7 +4,6 @@ import { readFile } from 'node:fs/promises';
 import { fixture, login, mutate } from './helpers';
 
 test('manual follow-up approval, download, edit invalidation and confirmed discard', async ({ page }, info) => {
-    test.skip(info.project.name.includes('mobile'), 'Small-screen acceptance belongs to Claude under D28.');
     await page.setViewportSize({ width: 1440, height: 1080 });
     const email = `m1-browser-drafts-${Date.now()}@example.test`;
     fixture('seed', email);
@@ -52,7 +51,8 @@ test('manual follow-up approval, download, edit invalidation and confirmed disca
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-        await page.screenshot({ path: info.outputPath(`follow-up-drafts-${width}.png`), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({ path: info.outputPath(`follow-up-drafts-${width}.png`), fullPage: true });
     }
     await page.getByRole('button', { name: 'Edit Collaboration next steps', exact: true }).click();
     await page.getByLabel('Message', { exact: true }).fill('An edited message needs fresh approval.');
@@ -72,7 +72,6 @@ test('manual follow-up approval, download, edit invalidation and confirmed disca
 });
 
 test('scheduled preparation produces a private draft requiring recipient review', async ({ page }, info) => {
-    test.skip(info.project.name.includes('mobile'), 'Small-screen acceptance belongs to Claude under D28.');
     test.setTimeout(120_000);
     const { execFileSync } = await import('node:child_process');
     const { fileURLToPath } = await import('node:url');

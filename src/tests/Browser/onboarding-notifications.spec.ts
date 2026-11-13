@@ -45,7 +45,8 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     await page.getByLabel('Email this onboarding invitation').check();
     await page.getByLabel('Invitation recipient email').fill('recipient@example.test');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath('onboarding-email-controls.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('onboarding-email-controls.png'), fullPage: true });
     await page.getByRole('button', { name: 'Start onboarding', exact: true }).click();
     const history = page.getByRole('region', { name: 'Onboarding email history' });
     await expect(history).toContainText('Email pending');
@@ -94,7 +95,8 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     await expect(history).toContainText('Email captured locally; no external delivery');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath('onboarding-email-history.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('onboarding-email-history.png'), fullPage: true });
     await recipientPage.goto(replacement);
     await recipientPage.getByRole('button', { name: 'Open invitation', exact: true }).click();
     await expect(

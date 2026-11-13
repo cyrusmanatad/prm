@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
-import { fixture, login } from './helpers';
+import { fixture, login, migrationFixture } from './helpers';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -21,29 +21,7 @@ async function startProfessional(page: Page, project: string) {
     page.setDefaultTimeout(15_000);
     await page.setViewportSize({ width: project === 'mobile' ? 390 : 1440, height: 900 });
     const email = `m1-browser-professional-ui-${project}-${Date.now()}@example.test`;
-    execFileSync(
-        'docker',
-        [
-            'compose',
-            '--env-file',
-            'src/.env',
-            '-p',
-            'weavdash-professional',
-            'run',
-            '--rm',
-            '-T',
-            '--no-deps',
-            '--user',
-            '1000:1000',
-            '-v',
-            `${repo}src:/var/www/html`,
-            'migrate',
-            'php',
-            'tests/Browser/professional-fixture.php',
-            email,
-        ],
-        { cwd: repo, stdio: 'pipe' },
-    );
+    migrationFixture('professional-fixture.php', email);
     await page.goto('/professional/login');
     await page.getByLabel('Email address').fill(email);
     await page.getByLabel('Password', { exact: true }).fill('browser-password-123');
@@ -69,10 +47,11 @@ test('Professional presentation, destinations and editor cancellation', async ({
             expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         }
-        await page.screenshot({
-            path: `/tmp/weavdash-professional-ui/${before ? 'before' : 'after'}-${info.project.name}-${route.replaceAll('/', '-') || 'hub'}.png`,
-            fullPage: true,
-        });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({
+                path: info.outputPath('professional-ui.spec-capture-3009.png'),
+                fullPage: true,
+            });
     }
     if (before) return;
     await page.goto('/professional/leads');
@@ -102,20 +81,22 @@ test('Professional presentation, destinations and editor cancellation', async ({
     await add.click();
     const editor = page.getByRole('dialog');
     await expect(editor).toBeVisible();
-    await page.screenshot({
-        path: `/tmp/weavdash-professional-ui/editor-${info.project.name}-contact.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('professional-ui.spec-capture-4770.png'),
+            fullPage: true,
+        });
     await editor.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(editor).not.toBeVisible();
     await expect(add).toBeFocused();
     const reminder = page.getByRole('button', { name: 'New reminder', exact: true });
     await reminder.click();
     await expect(page.getByLabel('Reminder title', { exact: true })).toBeFocused();
-    await page.screenshot({
-        path: `/tmp/weavdash-professional-ui/editor-${info.project.name}-reminder.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('professional-ui.spec-capture-5275.png'),
+            fullPage: true,
+        });
     await editor.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(editor).not.toBeVisible();
     await expect(reminder).toBeFocused();
@@ -139,13 +120,15 @@ test('Professional presentation, destinations and editor cancellation', async ({
                     await expect(badge).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.12)');
                     await expect(badge).toHaveCSS('font-size', '12px');
                     await expect(badge).toHaveCSS('padding', '3px 8px');
-                    await page.locator('.pro-header').screenshot({
-                        path: `/tmp/weavdash-professional-ui/header-${width}.png`,
-                    });
-                    await page.screenshot({
-                        path: `/tmp/weavdash-professional-ui/hub-${width}.png`,
-                        fullPage: true,
-                    });
+                    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                        await page.locator('.pro-header').screenshot({
+                            path: info.outputPath('professional-ui.spec-capture-6964.png'),
+                        });
+                    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                        await page.screenshot({
+                            path: info.outputPath('professional-ui.spec-capture-7138.png'),
+                            fullPage: true,
+                        });
                     const trigger = page.getByRole('button', {
                         name: width < 1024 ? 'Menu' : 'Client work',
                         exact: true,
@@ -179,10 +162,11 @@ test('Professional presentation, destinations and editor cancellation', async ({
     const nav = page.getByRole('menu', { name: 'Menu', exact: true });
     await expect(nav.getByRole('menuitem')).toHaveCount(9);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({
-        path: `/tmp/weavdash-professional-ui/menu-${info.project.name}.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('professional-ui.spec-capture-9220.png'),
+            fullPage: true,
+        });
     await page.keyboard.press('Escape');
     await expect(menu).toBeFocused();
     await expect(nav).not.toBeVisible();
@@ -203,10 +187,11 @@ test('Professional pipeline panels retain empty and populated partnerships acros
     const email = await startProfessional(page, info.project.name);
     await page.goto('/professional/leads');
     await expect(page.getByText('No active partnerships. Accept a brand invitation to connect.')).toBeVisible();
-    await page.screenshot({
-        path: `/tmp/weavdash-professional-ui/panels-empty-${info.project.name}.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('professional-ui.spec-capture-10277.png'),
+            fullPage: true,
+        });
     const brandEmail = `m1-browser-panel-brand-${info.project.name}-${Date.now()}@example.test`;
     fixture('seed', brandEmail);
     const brand = await browser.newContext();
@@ -270,10 +255,11 @@ test('Professional pipeline panels retain empty and populated partnerships acros
             expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
             await page.keyboard.press('Escape');
             await expect(account).toBeFocused();
-            await page.screenshot({
-                path: `/tmp/weavdash-professional-ui/panels-${info.project.name}-${width}.png`,
-                fullPage: true,
-            });
+            if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                await page.screenshot({
+                    path: info.outputPath('professional-ui.spec-capture-14509.png'),
+                    fullPage: true,
+                });
         }
         const end = page.getByRole('button', { name: 'End partnership', exact: true });
         await end.click();
@@ -302,10 +288,11 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
     const capture = async (name: string) => {
         await dismissNotifications(page);
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-        await page.screenshot({
-            path: `/tmp/weavdash-professional-ui/workflow-${info.project.name}-${name}.png`,
-            fullPage: true,
-        });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({
+                path: info.outputPath('professional-ui.spec-capture-16086.png'),
+                fullPage: true,
+            });
     };
     await page.goto('/professional/leads');
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();

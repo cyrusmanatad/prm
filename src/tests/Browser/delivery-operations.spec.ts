@@ -50,10 +50,11 @@ test('explicit approved sending and MFA-protected resolution never replay uncert
     await expect(page.getByRole('heading', { name: 'Approved follow-up email', exact: true })).toBeVisible();
     await expect(send).toHaveCount(0);
     if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
-        await page.screenshot({
-            path: `${process.env.DELIVERY_VISUAL_DIR}/automation-${info.project.name}.png`,
-            fullPage: true,
-        });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({
+                path: `${process.env.DELIVERY_VISUAL_DIR}/automation-${info.project.name}.png`,
+                fullPage: true,
+            });
     }
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     const compose = ['compose', '--env-file', 'src/.env', '-p', process.env.COMPOSE_PROJECT_NAME ?? 'weavdash-m1'];
@@ -97,10 +98,11 @@ test('explicit approved sending and MFA-protected resolution never replay uncert
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
-            await page.screenshot({
-                path: `${process.env.DELIVERY_VISUAL_DIR}/${info.project.name}-${size}.png`,
-                fullPage: true,
-            });
+            if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                await page.screenshot({
+                    path: `${process.env.DELIVERY_VISUAL_DIR}/${info.project.name}-${size}.png`,
+                    fullPage: true,
+                });
         }
     }
 });
@@ -140,10 +142,11 @@ test('directory navigation reaches delivery diagnostics with scoped read permiss
     expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
-        await page.screenshot({
-            path: `${process.env.DELIVERY_VISUAL_DIR}/directory-${info.project.name}.png`,
-            fullPage: true,
-        });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({
+                path: `${process.env.DELIVERY_VISUAL_DIR}/directory-${info.project.name}.png`,
+                fullPage: true,
+            });
     }
     await link.click();
     await expect(page.getByRole('heading', { name: 'Delivery diagnostics', exact: true })).toBeVisible();

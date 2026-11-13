@@ -39,7 +39,8 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
                 const second = await cards.nth(1).boundingBox();
                 expect(second!.y).toBeGreaterThanOrEqual(first!.y + first!.height);
             }
-            await page.screenshot({ path: info.outputPath(`${name}-${width}.png`), fullPage: true });
+            if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                await page.screenshot({ path: info.outputPath(`${name}-${width}.png`), fullPage: true });
         }
         await page.goto('/partner/leads');
         const trigger = page.getByRole('button', { name: '+ Add lead', exact: true });
@@ -53,7 +54,8 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
         expect(await background('Cancel')).not.toBe(await background('Capture lead'));
         await expect(page.getByLabel('Brand name', { exact: true })).toBeFocused();
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-        await page.screenshot({ path: info.outputPath(`add-lead-${width}.png`), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({ path: info.outputPath(`add-lead-${width}.png`), fullPage: true });
         await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
         await expect(dialog).not.toBeVisible();
         await expect(trigger).toBeFocused();
@@ -77,5 +79,6 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
     await expect(disclosure).toBeFocused();
     await drawer.getByRole('button', { name: 'Close lead', exact: true }).click();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath('pipeline-populated-390.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('pipeline-populated-390.png'), fullPage: true });
 });

@@ -11,7 +11,8 @@ test('registration, verification, workspace errors, create, and settings', async
     await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(page.getByLabel('Email address')).toBeFocused();
-    await page.screenshot({ path: info.outputPath('login.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('login.png'), fullPage: true });
     await page.getByRole('button', { name: 'Create an account' }).click();
     await page.getByLabel('Your name').fill('Browser Creator');
     await page.getByLabel('Email address').fill(email);
@@ -28,7 +29,8 @@ test('registration, verification, workspace errors, create, and settings', async
     await create.getByRole('button', { name: 'Create workspace' }).click();
     await expect(create.getByRole('alert')).toBeVisible();
     await expect(create.getByLabel('Workspace name')).toBeFocused();
-    await page.screenshot({ path: info.outputPath('workspace-error.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('workspace-error.png'), fullPage: true });
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {
         release = resolve;
@@ -41,7 +43,8 @@ test('registration, verification, workspace errors, create, and settings', async
     await create.getByRole('button', { name: 'Create workspace' }).click();
     try {
         await expect(create.getByRole('button', { name: 'Creating…' })).toBeDisabled();
-        await page.screenshot({ path: info.outputPath('workspace-loading.png'), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({ path: info.outputPath('workspace-loading.png'), fullPage: true });
     } finally {
         release();
     }
@@ -53,7 +56,8 @@ test('registration, verification, workspace errors, create, and settings', async
     await expect(page.getByRole('region', { name: 'Renamed browser workspace', exact: true })).toBeVisible();
     await expect(page.locator('#nprogress')).toHaveCount(0);
     await expect(page.locator('body')).toHaveJSProperty('scrollWidth', await page.evaluate(() => innerWidth));
-    await page.screenshot({ path: info.outputPath('workspaces.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('workspaces.png'), fullPage: true });
     expect(errors).toEqual([]);
 });
 

@@ -1,13 +1,13 @@
 name: weavdash-m5-recovery
 x-runtime: &runtime
   APP_ENV: testing
-  APP_KEY: base64:V2VhdkRhc2hTeW50aGV0aWNSZWNvdmVyeUtleTAwMDA=
+  APP_KEY: ${RECOVERY_APP_KEY:?Run check-recovery.py to generate credentials}
   APP_URL: http://recovery.invalid
   DB_CONNECTION: pgsql
   DB_HOST: postgres
   DB_DATABASE: weavdash
   DB_USERNAME: weavdash_app
-  DB_PASSWORD: synthetic-runtime-only
+  DB_PASSWORD: ${RECOVERY_DB_PASSWORD:?Run check-recovery.py to generate credentials}
   REDIS_HOST: redis
   REDIS_PREFIX: m5_recovery_
   REDIS_CLIENT: phpredis
@@ -54,9 +54,9 @@ services:
       weavdash.recovery: synthetic-disposable
     environment:
       POSTGRES_DB: weavdash
-      POSTGRES_PASSWORD: synthetic-control-only
-      APP_DB_PASSWORD: synthetic-runtime-only
-      MIGRATION_DB_PASSWORD: synthetic-migration-only
+      POSTGRES_PASSWORD: ${RECOVERY_POSTGRES_PASSWORD:?Run check-recovery.py to generate credentials}
+      APP_DB_PASSWORD: ${RECOVERY_DB_PASSWORD:?Run check-recovery.py to generate credentials}
+      MIGRATION_DB_PASSWORD: ${RECOVERY_MIGRATION_PASSWORD:?Run check-recovery.py to generate credentials}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./src/docker/postgres/init.sh:/docker-entrypoint-initdb.d/10-weavdash.sh:ro
@@ -105,7 +105,7 @@ services:
     <<: *backend
     environment:
       <<: *runtime
-      TEST_MIGRATION_DB_PASSWORD: synthetic-migration-only
+      TEST_MIGRATION_DB_PASSWORD: ${RECOVERY_MIGRATION_PASSWORD:?Run check-recovery.py to generate credentials}
       RECOVERY_CONTROL: /recovery-control
     volumes:
       - ${RECOVERY_SOURCE:?Set dedicated source directory}:/var/www/html

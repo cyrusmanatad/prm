@@ -93,7 +93,8 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     });
     expect(scan.violations.map((item) => item.id)).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath('templates.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('templates.png'), fullPage: true });
     await confirmMutation(
         page,
         page.getByRole('button', { name: 'Delete template', exact: true }),

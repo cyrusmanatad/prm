@@ -46,7 +46,8 @@ test('confirmation prevents duplicate requests while pending and retains passwor
     await expect(alert).toBeFocused();
     expect(requests).toBe(1);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath('confirmation-password-error.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('confirmation-password-error.png'), fullPage: true });
     await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(trigger).toBeFocused();
     await expect(page).toHaveURL(/\/workspaces$/);

@@ -7,16 +7,48 @@ export function fixture(action: 'seed' | 'seed-unverified', email: string): { em
 export function fixture(action: 'seed-workspaces', email: string): { own: string; foreign: string };
 export function fixture(action: 'verify' | 'reset', email: string): { url: string };
 export function fixture(action: string, email: string): Record<string, string> {
-    return JSON.parse(execFileSync('docker', [
-        'compose', '--env-file', 'src/.env', '-p', process.env.COMPOSE_PROJECT_NAME ?? 'weavdash-m1',
-        'exec', '-T', 'app', 'php', 'tests/Browser/fixture.php', action, email,
-    ], { cwd: repo, encoding: 'utf8' }));
+    return JSON.parse(
+        execFileSync(
+            'docker',
+            [
+                'compose',
+                '--env-file',
+                'src/.env',
+                '-p',
+                process.env.COMPOSE_PROJECT_NAME ?? 'weavdash-m1',
+                'exec',
+                '-T',
+                'app',
+                'php',
+                'tests/Browser/fixture.php',
+                action,
+                email,
+            ],
+            { cwd: repo, encoding: 'utf8' },
+        ),
+    );
 }
 export function changeRole(email: string, role: string): void {
-    execFileSync('docker', [
-        'compose', '--env-file', 'src/.env', '-p', process.env.COMPOSE_PROJECT_NAME ?? 'weavdash-m1',
-        'run', '--rm', '-T', '--no-deps', 'migrate', 'php', 'tests/Browser/role-fixture.php', email, role,
-    ], { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    execFileSync(
+        'docker',
+        [
+            'compose',
+            '--env-file',
+            'src/.env',
+            '-p',
+            process.env.COMPOSE_PROJECT_NAME ?? 'weavdash-m1',
+            'run',
+            '--rm',
+            '-T',
+            '--no-deps',
+            'migrate',
+            'php',
+            'tests/Browser/role-fixture.php',
+            email,
+            role,
+        ],
+        { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+    );
 }
 export async function login(page: Page, email: string, password = 'browser-password-123') {
     await page.goto('/login');
@@ -26,12 +58,56 @@ export async function login(page: Page, email: string, password = 'browser-passw
     await expect(page).toHaveURL(/\/workspaces$/);
 }
 export async function mutate(page: Page, path: string, method: string, data: Record<string, string>): Promise<number> {
-    return page.evaluate(async ({ path, method, data }) => {
-        const csrf = document.cookie.split('; ').find(cookie => cookie.startsWith('XSRF-TOKEN='))?.split('=').slice(1).join('=') ?? '';
-        const response = await fetch(path, {
-            method, headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-XSRF-TOKEN': decodeURIComponent(csrf) },
-            body: JSON.stringify(data),
-        });
-        return response.status;
-    }, { path, method, data });
+    return page.evaluate(
+        async ({ path, method, data }) => {
+            const csrf =
+                document.cookie
+                    .split('; ')
+                    .find((cookie) => cookie.startsWith('XSRF-TOKEN='))
+                    ?.split('=')
+                    .slice(1)
+                    .join('=') ?? '';
+            const response = await fetch(path, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-XSRF-TOKEN': decodeURIComponent(csrf),
+                },
+                body: JSON.stringify(data),
+            });
+            return response.status;
+        },
+        { path, method, data },
+    );
+}
+
+// Fixtures use the same disposable image and stack as the browser, with no host mounts.
+export function migrationFixture(script: string, ...args: string[]): string {
+    const compose = ['compose', '--env-file', 'src/.env', '-p', process.env.COMPOSE_PROJECT_NAME ?? 'weavdash-m1'];
+    const runtimePassword = execFileSync('docker', [...compose, 'exec', '-T', 'app', 'printenv', 'DB_PASSWORD'], {
+        cwd: repo,
+        encoding: 'utf8',
+    }).trim();
+    return execFileSync(
+        'docker',
+        [
+            ...compose,
+            'run',
+            '--rm',
+            '-T',
+            '--no-deps',
+            '-e',
+            'BROWSER_RUNTIME_PASSWORD',
+            'migrate',
+            'php',
+            `tests/Browser/${script}`,
+            ...args,
+        ],
+        {
+            cwd: repo,
+            encoding: 'utf8',
+            env: { ...process.env, BROWSER_RUNTIME_PASSWORD: runtimePassword },
+        },
+    );
 }

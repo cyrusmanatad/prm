@@ -41,7 +41,7 @@ The successful PHP follow-up used:
 
 ```sh
 docker run --rm --network none -e APP_ENV=testing \
-  -e APP_KEY=base64:V2VhdkRhc2hTeW50aGV0aWNSZWNvdmVyeUtleTAwMDA= \
+  -e APP_KEY="$(php -r 'echo "base64:".base64_encode(random_bytes(32));')" \
   -v /tmp/weavdash-m5-recovery-verified:/var/www/html \
   -w /var/www/html weavdash-app:latest vendor/bin/phpunit -c phpunit.xml
 ```

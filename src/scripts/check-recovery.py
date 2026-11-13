@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Run M5 synthetic faults on a fresh, dedicated internal-only Compose project."""
 import argparse
+import base64
+import secrets
 import json
 import os
 from pathlib import Path
@@ -16,11 +18,17 @@ class RecoveryStack:
             raise ValueError('Refusing non-disposable project name')
         self.project = project
         self.root = Path(__file__).resolve().parents[2]
+        # Always replace inherited recovery credentials; each stack is disposable.
+        self.environment = {**os.environ,
+                            'RECOVERY_APP_KEY': 'base64:' + base64.b64encode(secrets.token_bytes(32)).decode(),
+                            'RECOVERY_DB_PASSWORD': secrets.token_hex(24),
+                            'RECOVERY_MIGRATION_PASSWORD': secrets.token_hex(24),
+                            'RECOVERY_POSTGRES_PASSWORD': secrets.token_hex(24)}
         self.compose = ['docker', 'compose', '-p', project, '-f', str(self.root / 'compose.recovery.yaml')]
 
     def run(self, *args, check=True):
         result = subprocess.run([*self.compose, *args], cwd=self.root, text=True,
-                                capture_output=True, timeout=120)
+                                capture_output=True, timeout=120, env=self.environment)
         if check and result.returncode:
             raise RuntimeError(result.stdout + result.stderr)
         return result
@@ -132,13 +140,14 @@ def main():
     with tempfile.TemporaryDirectory(prefix='weavdash-recovery-control-') as control:
         os.chmod(control, 0o777)
         os.environ['RECOVERY_CONTROL'] = control
+        stack.environment['RECOVERY_CONTROL'] = control
         started = time.monotonic()
         try:
             stack.run('up', '-d', '--wait', 'postgres', 'redis', 'smtp', 'clamav')
             for service in ['postgres', 'redis', 'smtp', 'clamav']:
                 stack.validate(service)
             migration = ['run', '--rm', '-T', '--no-deps', '-e', 'DB_USERNAME=weavdash_migrator',
-                         '-e', 'DB_PASSWORD=synthetic-migration-only', 'acceptance']
+                         '-e', 'DB_PASSWORD=' + stack.environment['RECOVERY_MIGRATION_PASSWORD'], 'acceptance']
             stack.run(*migration, 'php', 'artisan', 'migrate', '--force')
             stack.run(*migration, 'php', 'scripts/grant-runtime.php')
             stack.run('up', '-d', 'worker', 'scheduler')
@@ -151,7 +160,7 @@ def main():
                 if args.filter and config == 'phpunit.acceptance.xml':
                     command.extend(['--filter', args.filter])
                 with tempfile.TemporaryFile(mode='w+') as log:
-                    process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
+                    process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, env=stack.environment)
                     try:
                         while process.poll() is None:
                             for request in Path(control).glob('*.request'):

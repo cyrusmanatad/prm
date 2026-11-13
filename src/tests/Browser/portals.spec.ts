@@ -95,13 +95,15 @@ test('same relationship appears in both portals, private leads survive removal, 
         await expect(pp.getByRole('region', { name: 'Five-stage pipeline' })).toContainText('Private portal prospect');
         await expect(pp.getByRole('button', { name: 'Smart follow-ups: unavailable' })).toBeDisabled();
         await clean(pp);
-        await pp.screenshot({ path: info.outputPath(`portal-partner-${info.project.name}.png`), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await pp.screenshot({ path: info.outputPath(`portal-partner-${info.project.name}.png`), fullPage: true });
         const partnerEnd = pp.getByRole('button', { name: 'End partnership', exact: true });
         await partnerEnd.click();
         const partnerConfirmation = pp.getByRole('dialog', { name: 'End partnership?', exact: true });
         await expect(partnerConfirmation).toContainText('Habi Home');
         await clean(pp);
-        await pp.screenshot({ path: info.outputPath('confirm-partner-end-partnership.png'), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await pp.screenshot({ path: info.outputPath('confirm-partner-end-partnership.png'), fullPage: true });
         await pp.keyboard.press('Escape');
         await expect(partnerEnd).toBeFocused();
         await bp.reload();
@@ -109,7 +111,8 @@ test('same relationship appears in both portals, private leads survive removal, 
         await expect(bp.locator('body')).not.toContainText('Private portal prospect');
         await expect(bp.locator('body')).not.toContainText('Private portal note');
         await clean(bp);
-        await bp.screenshot({ path: info.outputPath(`portal-brand-${info.project.name}.png`), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await bp.screenshot({ path: info.outputPath(`portal-brand-${info.project.name}.png`), fullPage: true });
         await confirmMutation(
             bp,
             bp.getByRole('button', { name: 'End partnership', exact: true }),

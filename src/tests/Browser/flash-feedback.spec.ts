@@ -39,7 +39,8 @@ test('repeated actions, history and network recovery retain honest accessible fe
     const network = page.locator('.Toastify__toast').filter({ hasText: 'Connection lost' });
     await expect(network).toContainText('Check the current record before trying again');
     await expect(network).toBeVisible();
-    await page.screenshot({ path: info.outputPath('network-feedback.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('network-feedback.png'), fullPage: true });
     if (info.project.name === 'desktop') {
         const original = page.viewportSize()!;
         for (const width of [320, 768, 1024, 1440]) {
@@ -48,7 +49,8 @@ test('repeated actions, history and network recovery retain honest accessible fe
             expect(box).not.toBeNull();
             expect(box!.x).toBeGreaterThanOrEqual(0);
             expect(box!.x + box!.width).toBeLessThanOrEqual(width);
-            await page.screenshot({ path: info.outputPath(`network-feedback-${width}.png`), fullPage: true });
+            if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                await page.screenshot({ path: info.outputPath(`network-feedback-${width}.png`), fullPage: true });
         }
         await page.setViewportSize(original);
     }

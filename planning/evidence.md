@@ -1,3 +1,5 @@
+**PR #16 CI repair (2026-11-13):** [repair scope and verification](m5/ci-repair-evidence.md). Merge readiness is pending; milestone advancement remains on hold.
+
 **M5-10 recovery (2026-11-12):** [synthetic recovery results and environment](m5/recovery-evidence.md), with the [recovery contract](m5/recovery-contract.md). Local synthetic gates passed; provider/production/release acceptance remains separate.
 
 **Staging R2 deployed (2026-11-09):** private onboarding attachments now use Cloudflare R2 bucket `weavdash`; local development remains local. Existing attachment copied and checksum-verified after backup; live upload/removal, authorization, scan-state guards, desktop/mobile journeys and container-replacement persistence passed. See [migration/recovery](shared/staging-r2-storage.md) and [verification / remaining gates](shared/staging-r2-evidence.md). Existing staging fixes are included; dependency advisories and inherited release gates remain open.

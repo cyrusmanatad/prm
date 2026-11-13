@@ -3,36 +3,12 @@ import AxeBuilder from '@axe-core/playwright';
 import { createHmac } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { login, mutate } from './helpers';
+import { login, mutate, migrationFixture } from './helpers';
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 function seed(email: string, workspaceName: string) {
-    return JSON.parse(
-        execFileSync(
-            'docker',
-            [
-                'compose',
-                '--env-file',
-                'src/.env',
-                '-p',
-                'weavdash-professional',
-                'run',
-                '--rm',
-                '-T',
-                '--no-deps',
-                '--user',
-                '1000:1000',
-                '-v',
-                '/home/cyrusadmin/weavdash/src:/var/www/html',
-                'migrate',
-                'php',
-                'tests/Browser/professional-fixture.php',
-                email,
-                workspaceName,
-            ],
-            { cwd: repo, encoding: 'utf8' },
-        ),
-    );
+    return JSON.parse(migrationFixture('professional-fixture.php', email, workspaceName));
 }
+
 test('professional workspace, shared client tools, exports and administrator MFA', async ({ page }, info) => {
     test.setTimeout(120_000);
     page.setDefaultTimeout(15_000);
@@ -48,10 +24,11 @@ test('professional workspace, shared client tools, exports and administrator MFA
     await expect(page.getByRole('heading', { name: 'Professional Hub', exact: true })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({
-        path: `../planning/evidence/professional-hub/${info.project.name}-hub.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('professional.spec-capture-2359.png'),
+            fullPage: true,
+        });
     await page
         .getByRole('main')
         .getByRole('link', { name: /^Client leads/ })
@@ -65,10 +42,11 @@ test('professional workspace, shared client tools, exports and administrator MFA
     await page.goto('/professional/profile');
     await expect(page.getByRole('heading', { name: 'Professional profile / portfolio', exact: true })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({
-        path: `../planning/evidence/professional-hub/${info.project.name}-profile.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('professional.spec-capture-3380.png'),
+            fullPage: true,
+        });
     await page.goto('/professional');
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('link', { name: 'Export leads as CSV', exact: true }).click();
@@ -122,10 +100,11 @@ test('professional workspace, shared client tools, exports and administrator MFA
     await dialog.getByRole('button', { name: 'Record subscription assignment', exact: true }).click();
     await expect(dialog).not.toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({
-        path: `../planning/evidence/professional-hub/${info.project.name}-administration.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('professional.spec-capture-6858.png'),
+            fullPage: true,
+        });
     await page.goto('/professional/contacts');
     await expect(page.getByRole('heading', { name: 'Contacts and reminders', exact: true })).toBeVisible();
     for (const route of ['onboarding', 'outreach-templates', 'automation', 'finance/invoices', 'finance/payments']) {

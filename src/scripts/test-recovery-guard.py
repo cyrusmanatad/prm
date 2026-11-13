@@ -22,6 +22,18 @@ class GuardTest(unittest.TestCase):
                     recovery.RecoveryStack(project)
                 run.assert_not_called()
 
+    def test_credentials_are_fresh_and_inherited_values_are_replaced(self):
+        with patch.dict(os.environ, {'RECOVERY_DB_PASSWORD': 'inherited-value'}):
+            first = recovery.RecoveryStack('weavdash-m5-recovery-first')
+            second = recovery.RecoveryStack('weavdash-m5-recovery-second')
+        for key in ['RECOVERY_APP_KEY', 'RECOVERY_DB_PASSWORD',
+                    'RECOVERY_MIGRATION_PASSWORD', 'RECOVERY_POSTGRES_PASSWORD']:
+            self.assertNotEqual(first.environment[key], second.environment[key])
+            self.assertNotEqual(first.environment[key], 'inherited-value')
+        with patch.object(recovery.subprocess, 'run', return_value=SimpleNamespace(returncode=0)) as run:
+            first.run('config', '--quiet')
+            self.assertEqual(first.environment, run.call_args.kwargs['env'])
+
     def test_inspected_identity_network_ports_and_mounts_fail_closed(self):
         stack = recovery.RecoveryStack('weavdash-m5-recovery-guard')
         container = {'Config': {'Labels': {

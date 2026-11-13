@@ -17,6 +17,16 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Verify checkout and formatting base
+        env:
+          PRETTIER_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git -C "$GITHUB_WORKSPACE" rev-parse --show-toplevel
+          case "$PRETTIER_BASE_REF" in
+            ''|0000000000000000000000000000000000000000) ;;
+            *) git -C "$GITHUB_WORKSPACE" cat-file -e "$PRETTIER_BASE_REF^{commit}" ;;
+          esac
       - name: Install locked dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Check changed frontend formatting
