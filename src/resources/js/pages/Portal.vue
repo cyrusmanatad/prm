@@ -34,17 +34,16 @@ async function confirmJoin(
 }
 async function restoreJoinFocus(): Promise<void> {
     await nextTick();
+    // WebKit must process re-enabled controls before they can receive focus.
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     if (confirmation.value || !invitationDialog.value?.open || !joinTrigger) return;
     const trigger = joinTrigger.isConnected ? joinTrigger : document.getElementById('join-link-create');
     if (trigger instanceof HTMLButtonElement && trigger.disabled) return;
     trigger?.focus();
     joinTrigger = null;
 }
-watch(confirmation, async (value, old) => {
-    if (value || !old || !joinTrigger) return;
-    inviting.value = true;
-    await nextTick();
-    await restoreJoinFocus();
+watch(confirmation, (value, old) => {
+    if (!value && old && joinTrigger) inviting.value = true;
 });
 const invitationDialog = ref<HTMLDialogElement | null>(null);
 const invitationLink = ref<string | null>(null);
@@ -63,7 +62,8 @@ watch(inviting, async (value) => {
     await nextTick();
     if (value) {
         invitationDialog.value?.showModal();
-        document.getElementById(invitationLink.value ? 'invite-url' : 'invite-email')?.focus();
+        if (joinTrigger) await restoreJoinFocus();
+        else document.getElementById(invitationLink.value ? 'invite-url' : 'invite-email')?.focus();
     } else {
         invitationDialog.value?.close();
     }
