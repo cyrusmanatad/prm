@@ -22,9 +22,11 @@ Use application-sent transactional mail through a configured mail transport. Rea
 
 ## Delivery acceptance
 
+Current M5-09 execution plan: [provider matrix, proposed limits and runbook](provider-delivery-acceptance.md); [preflight and trial evidence](provider-delivery-evidence.md). PR #16 is merged at `c13e960`; synthetic recovery and its CI repair are complete. Provider receipt/link opening and actual budget approval remain open.
+
 - Persist business notification intent transactionally with its event; dispatch through the M5 outbox/queue design. Define how the existing account notification paths fit without weakening their token or throttling guarantees.
 - Verify message content, intended recipient, absolute links, expiry/revocation, and tenant boundaries. Keep capability tokens protected in queued payloads and out of logs and audit events.
-- Make app and worker mail configuration consistent. The current external-mail trial override enables SMTP only on the app service; that is insufficient evidence for future queued business mail.
+- Make app and worker mail configuration consistent. The external-mail trial override now selects SMTP for app, worker and scheduler together. Validate the merged and effective runtime configuration before any authorized queued trial; the override alone proves no delivery.
 - Cover retries, worker recovery, cancellation, and delivery failures. A successful queue submission is not proof of receipt. SMTP alone cannot guarantee exactly-once delivery after an ambiguous transport failure; define reconciliation and retry behavior instead of claiming an unsupported guarantee.
 - Use automated mail fakes/capture to validate all required events and a separately authorized recipient-controlled delivery check to verify the configured transport, queued path, and links. Do not send trial mail to real contacts during development merely to validate the implementation.
 - Record actual delivery evidence and any configuration blockers before declaring email notifications complete. Gmail/Outlook syncing is not an acceptance dependency.

@@ -1,3 +1,5 @@
+**M5-09 update deployed (2026-11-14):** matching app/web images `c13e960-providertrial`, three additive M5-07/M5-08 migrations, restricted runtime grants and approved trial rate settings are deployed after database/configuration/referenced-R2 backups and verified off-host copies. Reviewer desktop/mobile smoke and retained file checks pass. Staging SMTP is restored; local development stays captured. The separately authorized provider trial is in progress; [scope and current results](../m5/provider-delivery-evidence.md). M5/M6 and production budgets remain open.
+
 # Staging deployment
 
 **R2 deployed (2026-11-09):** private staging attachments now use bucket `weavdash`, with app/web images tagged `20261109-r2`. See [private R2 configuration, migration and recovery](staging-r2-storage.md) and [live verification](staging-r2-evidence.md). The local-storage deployment evidence below is historical; the original private volume is retained for recovery. Staging upload limits and unscanned labels remain unchanged.

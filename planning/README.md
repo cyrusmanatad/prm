@@ -1,4 +1,6 @@
-**PR #16 CI repair (2026-11-13):** [repair scope and verification](m5/ci-repair-evidence.md). Final revision checks and the merge recommendation are tracked in PR #16; milestone advancement remains on hold.
+**M5-09 preparation (2026-11-14):** [matrix, proposed limits and runbook](m5/provider-delivery-acceptance.md); [preflight evidence and pending gates](m5/provider-delivery-evidence.md). The controlled-recipient trial is authorized and staging has been updated to `c13e960`; receipt/link trials are in progress. Production budgets stay open.
+
+**PR #16 merged (2026-11-14):** recovery implementation and CI repair are complete on `main` at `c13e960`. See [repair scope and verification](m5/ci-repair-evidence.md). Next: M5-09 provider delivery/link-opening acceptance and actual budget approval; M5/M6 advancement remains gated.
 
 **M5-10 checkpoint (2026-11-12):** synthetic recovery acceptance is complete locally: PostgreSQL/Redis **144/3,403**, integration **35/635**, PHP **42/362**, Pint and target guards passed. See the [recovery contract](m5/recovery-contract.md) and [evidence](m5/recovery-evidence.md). M5-09 provider trials, production budget approval, administration and inherited M5/M6 release gates remain open. Older checkpoints below retain their historical scope.
 
