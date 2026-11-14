@@ -129,6 +129,7 @@ class FollowUpDraftTest extends AcceptanceCase
         }
         $this->assertSame('ready', $this->control->table('schedule_runs')->where('id', $run)->value('state'));
         $this->assertSame(0, $this->control->table('follow_up_drafts')->where('subject', 'Rollback')->count());
+        $this->recoveryFault('redis-loss');
         app(FollowUpDrafts::class)->consume($user->id, $org, $schedule, $run);
         app(FollowUpDrafts::class)->consume($user->id, $org, $schedule, $run);
         $this->assertSame(1, $this->control->table('follow_up_drafts')->where('schedule_run_id', $run)->count());

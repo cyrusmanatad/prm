@@ -4,12 +4,31 @@ namespace Tests\Acceptance;
 
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 abstract class AcceptanceCase extends TestCase
 {
     protected Connection $control;
+
+    /** Host broker alone owns Docker access; ordinary acceptance runs need none. */
+    protected function recoveryFault(string $fault): void
+    {
+        $directory = getenv('RECOVERY_CONTROL');
+        if (! $directory) {
+            return;
+        }
+        $id = bin2hex(random_bytes(12));
+        $request = $directory.'/'.$id;
+        file_put_contents($request.'.tmp', json_encode(['fault' => $fault], JSON_THROW_ON_ERROR));
+        rename($request.'.tmp', $request.'.request');
+        $this->eventually(fn () => is_file($request.'.done'), 'Recovery broker did not finish '.$fault, seconds: 55);
+        $this->assertSame('ok', trim(file_get_contents($request.'.done')));
+        // Existing persistent connections must reconnect to the restarted service.
+        Redis::purge('default');
+        Redis::purge('cache');
+    }
 
     protected function setUp(): void
     {

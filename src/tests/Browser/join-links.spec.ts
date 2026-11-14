@@ -34,7 +34,8 @@ test('reusable brand codes support signup, verified consent, replacement and saf
         await bp.getByRole('button', { name: 'Copy code', exact: true }).click();
         await expect(bp.getByText(/Sign-up code copied|Couldn't copy the sign-up code/)).toBeVisible();
         await clean(bp);
-        await bp.screenshot({ path: info.outputPath('brand-link.png'), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await bp.screenshot({ path: info.outputPath('brand-link.png'), fullPage: true });
         await bp.getByRole('button', { name: 'Replace link', exact: true }).click();
         const confirmation = bp.getByRole('dialog', { name: 'Replace sign-up link?' });
         await expect(confirmation).toBeVisible();
@@ -58,7 +59,8 @@ test('reusable brand codes support signup, verified consent, replacement and saf
         await expect(pp).toHaveURL(/\/join$/);
         await expect(pp.getByText('Joining Partner', { exact: true })).toBeVisible();
         await clean(pp);
-        await pp.screenshot({ path: info.outputPath('join-consent.png'), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await pp.screenshot({ path: info.outputPath('join-consent.png'), fullPage: true });
         await pp.getByLabel(/I accept this partnership/).check();
         await pp.getByRole('button', { name: 'Join partnership', exact: true }).click();
         await expect(pp).toHaveURL(/\/partner\/leads$/);

@@ -334,6 +334,9 @@ class OnboardingLifecycleTest extends AcceptanceCase
         $name = 'lifecycle-test-'.$notice->id;
         try {
             $queue->push(new DeliverNotification($user->id, $org, $notice->id), '', $name);
+            $this->recoveryFault('redis-restart');
+            $this->assertSame(1, $queue->size($name));
+            $this->recoveryFault('redis-loss');
             $queue->clear($name);
             $this->assertNotNull(collect(DB::select('SELECT * FROM app_pending_notifications()'))->firstWhere('id', $notice->id));
             for ($i = 0; $i < 2; $i++) {

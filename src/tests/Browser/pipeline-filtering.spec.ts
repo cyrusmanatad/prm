@@ -111,5 +111,6 @@ test('pipeline filters query every page and preserve stages, money, URL and draw
     expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth),
     ).toBe(true);
-    await page.screenshot({ path: info.outputPath('pipeline-filtered-pages.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('pipeline-filtered-pages.png'), fullPage: true });
 });

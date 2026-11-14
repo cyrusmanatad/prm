@@ -5,7 +5,6 @@ use App\Models\User;
 use App\Services\Pipeline;
 use App\Services\Workspaces;
 use App\Tenancy\TenantContext;
-use Dotenv\Dotenv;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -21,8 +20,12 @@ if (! in_array($state, ['active', 'expired'], true) || PHP_SAPI !== 'cli' || ! $
     throw new RuntimeException('Disposable migration-role fixture required.');
 }
 $user = User::factory()->create(['email' => $email, 'password' => 'browser-password-123']);
-$environment = Dotenv::parse(file_get_contents(base_path('.env')));
-config(['database.connections.browser_runtime' => [...config('database.connections.pgsql'), 'username' => 'weavdash_app', 'password' => $environment['DB_PASSWORD']]]);
+// Supplied only to this migration-role fixture from the disposable app container.
+$runtimePassword = getenv('BROWSER_RUNTIME_PASSWORD');
+if (! is_string($runtimePassword) || $runtimePassword === '') {
+    throw new RuntimeException('Disposable runtime credential required.');
+}
+config(['database.connections.browser_runtime' => [...config('database.connections.pgsql'), 'username' => 'weavdash_app', 'password' => $runtimePassword]]);
 DB::setDefaultConnection('browser_runtime');
 $org = app(Workspaces::class)->create($user->id, 'Professional drag workspace', experience: 'professional');
 DB::setDefaultConnection('pgsql');

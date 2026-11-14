@@ -91,6 +91,7 @@ class FollowUpApprovalTest extends AcceptanceCase
             } else {
                 $this->control->table('schedule_runs')->where('schedule_id', $schedule)->update(['state' => 'cancelled']);
             }
+            $this->recoveryFault('redis-restart');
             $this->assertInvalidated($id, $version);
             app(FollowUpDrafts::class)->dispatch();
             $this->assertSame($version + 1, $this->control->table('follow_up_drafts')->where('id', $id)->value('version'));
@@ -116,6 +117,7 @@ class FollowUpApprovalTest extends AcceptanceCase
                 $this->control->table('users')->where('id', $user->id)->update($basis === 'email' ? ['email' => 'changed-'.$user->id.'@example.test'] : ['email_verified_at' => null]);
                 $this->control->table('users')->where('id', $user->id)->update(['email' => $user->email, 'email_verified_at' => now()]);
             }
+            $this->recoveryFault('redis-restart');
             $this->assertInvalidated($id, $version);
         }
     }

@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import signal
 import shutil
 import subprocess
 import tempfile
@@ -21,6 +22,7 @@ import time
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project', required=True)
+    parser.add_argument('--browser-project', choices=['desktop', 'mobile', 'webkit-desktop', 'webkit-mobile'])
     parser.add_argument('--port', type=int, default=8001)
     parser.add_argument('--verify-portal-rollback', action='store_true', help='Exercise M3A rollback/reapply with retained synthetic creator records')
     args = parser.parse_args()
@@ -29,7 +31,7 @@ def main():
     root = Path(__file__).resolve().parents[2]
     logs = Path(tempfile.mkdtemp(prefix=args.project+'-evidence-'))
     logs.chmod(0o755)  # Synthetic evidence remains readable when run in the test container.
-    for resource in ['ps', 'volume ls']:
+    for resource in ['ps -a', 'volume ls', 'network ls']:
         command = ['docker', *resource.split(), '-q', '--filter', 'label=com.docker.compose.project='+args.project]
         if subprocess.run(command, check=True, capture_output=True, text=True).stdout.strip():
             raise RuntimeError('Refusing to reuse existing project resources.')
@@ -68,7 +70,8 @@ def main():
         (source / 'compose.clean.yaml').write_text(
             'services:\n  app:\n    ports: !override\n'
             f'      - "127.0.0.1:{args.port}:8000"\n'
-            f'    environment:\n      APP_URL: http://localhost:{args.port}\n')
+            f'    environment:\n      APP_URL: http://localhost:{args.port}\n'
+            '  postgres:\n    ports: !reset []\n')
         compose = ['docker', 'compose', '--env-file', 'src/.env', '-p', args.project,
                    '-f', 'compose.yaml', '-f', 'compose.clean.yaml']
 
@@ -76,9 +79,23 @@ def main():
             print(f'Clean setup: {name}', flush=True)
             with (logs / (name+'.log')).open('w') as output:
                 with open(input_file, 'rb') if input_file else open(os.devnull, 'rb') as stdin:
-                    result = subprocess.run(command, cwd=cwd or source, env=env if env is not None else clean_environment,
-                                            stdin=stdin, stdout=output, stderr=subprocess.STDOUT, timeout=timeout)
-            if result.returncode:
+                    process = subprocess.Popen(command, cwd=cwd or source,
+                                               env=env if env is not None else clean_environment,
+                                               stdin=stdin, stdout=output, stderr=subprocess.STDOUT,
+                                               start_new_session=True)
+                    try:
+                        returncode = process.wait(timeout=timeout)
+                    except subprocess.TimeoutExpired:
+                        # npm and Playwright children must stop before stack teardown.
+                        os.killpg(process.pid, signal.SIGTERM)
+                        try:
+                            process.wait(timeout=10)
+                        except subprocess.TimeoutExpired:
+                            os.killpg(process.pid, signal.SIGKILL)
+                            process.wait(timeout=10)
+                        raise
+
+            if returncode:
                 raise RuntimeError(f'{name} failed; inspect {logs / (name+".log")}')
             phases.append(name)
 
@@ -100,7 +117,7 @@ def main():
                       input_file=source / f'src/tests/Integration/{name}.sql')
             phase('identity', compose+['run', '--rm', '-T', 'app', 'php', 'artisan', 'test', '--compact'])
             phase('integration', compose+['run', '--rm', '-T', 'app', 'vendor/bin/phpunit', '-c', 'phpunit.pgsql.xml'])
-            phase('acceptance', compose+['run', '--rm', '-T', 'acceptance'], timeout=180)
+            phase('acceptance', compose+['run', '--rm', '-T', 'acceptance'], timeout=600)
             phase('app', compose+['up', '-d', '--wait', 'app'])
             phase('npm-ci', ['npm', 'ci', '--ignore-scripts', '--no-fund'], cwd=source / 'src')
             phase('frontend-types', ['npm', 'run', 'typecheck'], cwd=source / 'src')
@@ -109,14 +126,18 @@ def main():
             phase('browsers', ['npx', 'playwright', 'install', 'chromium', 'webkit'], cwd=source / 'src')
             browser_env = {**clean_environment, 'COMPOSE_PROJECT_NAME': args.project,
                            'COMPOSE_FILE': str(source / 'compose.yaml')+os.pathsep+str(source / 'compose.clean.yaml'),
-                           'PLAYWRIGHT_BASE_URL': f'http://localhost:{args.port}'}
-            phase('browser', ['npm', 'run', 'test:browser'], cwd=source / 'src', env=browser_env, timeout=900)
+                           'PLAYWRIGHT_BASE_URL': f'http://localhost:{args.port}',
+                           'PLAYWRIGHT_OUTPUT_DIR': str(logs / 'browser-results')}
+            browser_command = ['npm', 'run', 'test:browser']
+            if args.browser_project:
+                browser_command += ['--', '--project=' + args.browser_project]
+            phase('browser', browser_command, cwd=source / 'src', env=browser_env, timeout=900 if args.browser_project else 3600)
         finally:
             browser_results = source / 'src/test-results'
             if browser_results.exists():
                 shutil.copytree(browser_results, logs / 'browser', dirs_exist_ok=True)
             phase('cleanup', compose+['down', '--volumes'], timeout=90)
-    summary = {'project': args.project, 'phases': phases, 'elapsed_seconds': round(time.monotonic()-started),
+    summary = {'project': args.project, 'browser_project': args.browser_project, 'phases': phases, 'elapsed_seconds': round(time.monotonic()-started),
                'host_dependencies_copied': False, 'reused_local_credentials': False,
                'build_cache_may_be_reused': True,
                'remote_ci_executed': os.environ.get('GITHUB_ACTIONS') == 'true'}

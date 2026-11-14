@@ -41,7 +41,11 @@ test('explicit invitation email shows queue capture and cancellation without ext
     await page.getByLabel('Recipient email').fill(email.replace('@', '-recipient@'));
     await page.getByLabel('Email this invitation to the recipient').check();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath(`notification-dialog-${info.project.name}.png`), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath(`notification-dialog-${info.project.name}.png`),
+            fullPage: true,
+        });
     await page.getByRole('button', { name: 'Create and email invitation', exact: true }).click();
     await expect(page.getByRole('dialog', { name: 'Copy invitation link', exact: true })).toBeVisible();
     const queued = page.locator('.Toastify__toast').filter({ hasText: 'Invitation email queued for' });
@@ -60,7 +64,11 @@ test('explicit invitation email shows queue capture and cancellation without ext
             { timeout: 3000 },
         )
         .toBe(true);
-    await page.screenshot({ path: info.outputPath(`notification-queued-${info.project.name}.png`), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath(`notification-queued-${info.project.name}.png`),
+            fullPage: true,
+        });
     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
     const history = page.getByRole('region', { name: 'Invitation history' });
@@ -91,5 +99,9 @@ test('explicit invitation email shows queue capture and cancellation without ext
     await expect(history).toContainText('Email cancelled');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath(`notification-history-${info.project.name}.png`), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath(`notification-history-${info.project.name}.png`),
+            fullPage: true,
+        });
 });

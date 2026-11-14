@@ -5,7 +5,6 @@ import { fixture, login } from './helpers';
 test('desktop automation preferences persist consent and timezone with confirmed withdrawal', async ({
     page,
 }, info) => {
-    test.skip(info.project.name.includes('mobile'), 'Small-screen acceptance is assigned to Claude.');
     await page.setViewportSize({ width: 1440, height: 1080 });
     const email = `m1-browser-schedules-${Date.now()}@example.test`;
     fixture('seed', email);
@@ -34,7 +33,8 @@ test('desktop automation preferences persist consent and timezone with confirmed
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-        await page.screenshot({ path: info.outputPath(`automation-${width}.png`), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({ path: info.outputPath(`automation-${width}.png`), fullPage: true });
     }
     const withdraw = page.getByRole('button', { name: 'Withdraw consent for Monday review', exact: true });
     await withdraw.click();

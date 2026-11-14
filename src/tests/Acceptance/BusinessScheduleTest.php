@@ -142,6 +142,7 @@ class BusinessScheduleTest extends AcceptanceCase
         $this->assertSame('cancelled', $this->occurrence($id)->state);
         $this->assertFalse($this->control->table('business_schedules')->where('id', $id)->value('enabled'));
         $this->putJson('/automation/preferences', $this->preferences(['version' => 3]))->assertOk();
+        $this->recoveryFault('redis-restart');
         app(BusinessSchedules::class)->execute($user->id, $org, $id, $this->occurrence($id)->id, fn () => $this->fail('Withdrawn run executed'));
         $this->assertFalse($this->control->table('business_schedules')->where('id', $id)->value('enabled'));
         $this->patchJson('/automation/schedules/'.$id, $this->weekly(['version' => 2]))->assertOk();
@@ -170,6 +171,7 @@ class BusinessScheduleTest extends AcceptanceCase
         $name = 'schedule-'.$id;
         try {
             $queue->push(new MaterializeSchedule($user->id, $org, $id), '', $name);
+            $this->recoveryFault('redis-loss');
             $queue->clear($name);
             $this->assertNotNull(collect(DB::select('SELECT * FROM app_due_schedules()'))->firstWhere('id', $id));
             for ($i = 0; $i < 2; $i++) {

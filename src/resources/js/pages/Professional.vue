@@ -124,7 +124,10 @@ function subscriptionDate(value: string): string {
             >
                 <ul class="pro-exports">
                     <li v-for="resource in ['leads', 'contacts', 'reminders', 'invoices', 'payments']" :key="resource">
-                        <a class="wd-link inline-flex min-h-11 items-center" :href="`/professional/exports/${resource}`"
+                        <a
+                            class="wd-link inline-flex min-h-11 items-center"
+                            :href="`/professional/exports/${resource}`"
+                            :download="`professional-${resource}.csv`"
                             >Export {{ resource }} as CSV</a
                         >
                     </li>

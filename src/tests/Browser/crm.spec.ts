@@ -67,7 +67,8 @@ test('contacts are reusable and reminders snooze, complete and reopen', async ({
     });
     expect(scan.violations.map((item) => item.id)).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath('crm.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('crm.png'), fullPage: true });
     await page.getByRole('button', { name: 'All', exact: true }).click();
     await expect(page).toHaveURL(/state=all/);
     await page.getByRole('button', { name: 'Edit Check in', exact: true }).click();
@@ -193,11 +194,13 @@ test('CRM filters reset paged lists, restore history and retain actionable stale
     await expect(page.getByRole('alert').filter({ hasText: 'This record changed.' }).first()).toBeVisible();
     await expect(page.getByLabel('Private notes', { exact: true })).toHaveValue('Keep my draft');
     await expect(page.getByRole('button', { name: 'Save contact', exact: true })).toBeDisabled();
-    await page.screenshot({ path: info.outputPath('crm-stale-editor.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('crm-stale-editor.png'), fullPage: true });
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Reload latest records', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Save contact', exact: true })).not.toBeVisible();
     await expect(page).toHaveURL(filteredUrl);
     await expect(contacts.getByText('Older target updated', { exact: true })).toBeVisible();
-    await page.screenshot({ path: info.outputPath('crm-paged.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('crm-paged.png'), fullPage: true });
 });

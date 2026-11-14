@@ -78,7 +78,8 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     });
     expect(scan.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) }))).toEqual([]);
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath('pipeline-detail.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('pipeline-detail.png'), fullPage: true });
     await page.getByRole('button', { name: 'Close lead', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Close lead', exact: true })).toHaveCount(0);
     await page.getByRole('checkbox', { name: 'Due next actions', exact: true }).check();

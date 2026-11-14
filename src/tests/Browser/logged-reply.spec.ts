@@ -3,7 +3,6 @@ import AxeBuilder from '@axe-core/playwright';
 import { fixture, login } from './helpers';
 
 test('confirmed reply clears next action and cancels approved follow-up history', async ({ page }, info) => {
-    test.skip(info.project.name.includes('mobile'), 'Small-screen acceptance belongs to Claude under D28.');
     await page.setViewportSize({ width: 1440, height: 1080 });
     const email = `m1-browser-reply-${Date.now()}@example.test`;
     fixture('seed-workspaces', email);
@@ -60,7 +59,8 @@ test('confirmed reply clears next action and cancels approved follow-up history'
     await expect(dialog).toContainText('Synthetic reply lead');
     await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath('reply-confirmation-1440.png'), fullPage: true });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({ path: info.outputPath('reply-confirmation-1440.png'), fullPage: true });
     await page.keyboard.press('Escape');
     await expect(trigger).toBeFocused();
     expect(await page.request.get(`/automation/drafts/${draft}/handoff?version=2`).then((r) => r.status())).toBe(200);
@@ -87,6 +87,7 @@ test('confirmed reply clears next action and cancels approved follow-up history'
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-        await page.screenshot({ path: info.outputPath(`reply-inbox-${width}.png`), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({ path: info.outputPath(`reply-inbox-${width}.png`), fullPage: true });
     }
 });

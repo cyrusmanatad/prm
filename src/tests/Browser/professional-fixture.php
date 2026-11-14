@@ -2,7 +2,6 @@
 
 use App\Models\User;
 use App\Services\Workspaces;
-use Dotenv\Dotenv;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -15,11 +14,12 @@ if (PHP_SAPI !== 'cli' || ! $app->environment(['local', 'testing']) || DB::selec
     throw new RuntimeException('Disposable migration-role fixture required.');
 }
 $user = User::factory()->create(['name' => 'Independent Professional', 'email' => $email, 'password' => 'browser-password-123']);
-// Workspace creation deliberately requires the restricted runtime role.
-config(['database.connections.browser_runtime' => [...config('database.connections.pgsql'), 'username' => 'weavdash_app', 'password' => getenv('APP_DB_PASSWORD') ?: getenv('BROWSER_RUNTIME_PASSWORD')]]);
-// Compose migrate overrides DB_PASSWORD. Read the supplied .env only inside this CLI fixture.
-$environment = Dotenv::parse(file_get_contents(base_path('.env')));
-config(['database.connections.browser_runtime.password' => $environment['DB_PASSWORD']]);
+// Supplied only to this migration-role fixture from the disposable app container.
+$runtimePassword = getenv('BROWSER_RUNTIME_PASSWORD');
+if (! is_string($runtimePassword) || $runtimePassword === '') {
+    throw new RuntimeException('Disposable runtime credential required.');
+}
+config(['database.connections.browser_runtime' => [...config('database.connections.pgsql'), 'username' => 'weavdash_app', 'password' => $runtimePassword]]);
 DB::setDefaultConnection('browser_runtime');
 $org = app(Workspaces::class)->create($user->id, $argv[2] ?? 'Independent consulting', experience: 'professional');
 DB::setDefaultConnection('pgsql');

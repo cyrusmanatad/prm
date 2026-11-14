@@ -9,3 +9,14 @@ export async function dismissNotifications(page: Page): Promise<void> {
         await expect(notifications).toHaveCount(0, { timeout: 250 });
     }).toPass({ timeout: 10_000 });
 }
+
+/** Measure settled toast colors without waiting for descendant countdown timers. */
+export async function settleNotificationAnimations(page: Page): Promise<void> {
+    await page.locator('.Toastify__toast').evaluateAll(async (toasts) => {
+        await Promise.all(
+            toasts.flatMap((toast) =>
+                toast.getAnimations().map((animation) => animation.finished.catch(() => undefined)),
+            ),
+        );
+    });
+}

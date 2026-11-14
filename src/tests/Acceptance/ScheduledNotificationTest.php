@@ -61,6 +61,7 @@ class ScheduledNotificationTest extends AcceptanceCase
             [$user, $org, $schedule, $run] = $f;
             $n = $this->consume($f);
             $this->consume($f);
+            $this->recoveryFault('redis-loss');
             $this->assertSame(1, $this->control->table('notification_outbox')->where('schedule_run_id', $run)->count());
             $this->assertSame('completed', $this->control->table('schedule_runs')->where('id', $run)->value('state'));
             $this->assertNull($n->encrypted_payload);
@@ -213,6 +214,7 @@ class ScheduledNotificationTest extends AcceptanceCase
             $job = new QueueScheduleNotice($user->id, $org, $schedule, $run);
             $this->assertStringNotContainsString($user->email, serialize($job));
             $queue->push($job, '', $name);
+            $this->recoveryFault('redis-loss');
             $queue->clear($name);
             $this->assertNotNull(collect(DB::select('SELECT * FROM app_ready_schedule_notices()'))->firstWhere('id', $run));
             for ($i = 0; $i < 2; $i++) {
@@ -221,6 +223,7 @@ class ScheduledNotificationTest extends AcceptanceCase
             }
             $n = $this->control->table('notification_outbox')->where('schedule_run_id', $run)->first();
             $queue->push(new DeliverNotification($user->id, $org, $n->id), '', $name);
+            $this->recoveryFault('redis-loss');
             $queue->clear($name);
             $this->assertNotNull(collect(DB::select('SELECT * FROM app_pending_notifications()'))->firstWhere('id', $n->id));
             for ($i = 0; $i < 2; $i++) {

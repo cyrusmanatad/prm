@@ -12,7 +12,6 @@ function compose(args: string[]): void {
 }
 
 test('reminder email consent, scheduled capture, history and withdrawal', async ({ page }, info) => {
-    test.skip(info.project.name.includes('mobile'), 'Small-screen acceptance is assigned to Claude under D28.');
     await page.setViewportSize({ width: 1440, height: 1080 });
     const email = `m1-browser-scheduled-${Date.now()}@example.test`;
     fixture('seed', email);
@@ -55,10 +54,11 @@ test('reminder email consent, scheduled capture, history and withdrawal', async 
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
-            await page.screenshot({
-                path: `${process.env.DELIVERY_VISUAL_DIR}/scheduled-delivery-${width}.png`,
-                fullPage: true,
-            });
+            if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                await page.screenshot({
+                    path: `${process.env.DELIVERY_VISUAL_DIR}/scheduled-delivery-${width}.png`,
+                    fullPage: true,
+                });
         }
     }
     const trigger = page.getByRole('button', { name: 'Withdraw consent for Proposal review notice', exact: true });

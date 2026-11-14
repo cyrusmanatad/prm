@@ -31,7 +31,6 @@ test('desktop onboarding lifecycle controls queue explicit outcomes and open fre
     page,
     browser,
 }, info) => {
-    test.skip(info.project.name.includes('mobile'), 'Small-screen acceptance is assigned to Claude.');
     test.setTimeout(150_000);
     await page.setViewportSize({ width: 1440, height: 1000 });
     const email = `m1-browser-notifications-lifecycle-${Date.now()}@example.test`;
@@ -53,9 +52,9 @@ test('desktop onboarding lifecycle controls queue explicit outcomes and open fre
     try {
         await recipient.goto(invitation);
         await recipient.getByRole('button', { name: 'Open invitation', exact: true }).click();
-        await recipient.getByLabel('Business name', { exact: true }).fill('Lifecycle business');
+        await recipient.getByLabel('Client name (individual or business)', { exact: true }).fill('Lifecycle business');
         await recipient.getByLabel('Contact name', { exact: true }).fill('Synthetic Contact');
-        await recipient.getByLabel('Business email', { exact: true }).fill('untrusted@example.test');
+        await recipient.getByLabel('Client email', { exact: true }).fill('untrusted@example.test');
         await recipient.getByLabel('Collaboration brief', { exact: true }).fill('Initial collaboration brief.');
         await recipient.getByLabel(/I agree to share/).check();
         await recipient.getByRole('button', { name: 'Submit for review', exact: true }).click();
@@ -75,7 +74,8 @@ test('desktop onboarding lifecycle controls queue explicit outcomes and open fre
             await page.setViewportSize({ width, height: 1080 });
             expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-            await page.screenshot({ path: info.outputPath(`outcome-review-${width}.png`), fullPage: true });
+            if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                await page.screenshot({ path: info.outputPath(`outcome-review-${width}.png`), fullPage: true });
         }
         await page.getByRole('button', { name: 'Request correction', exact: true }).click();
         await expect(history).toContainText('Correction request');
@@ -104,10 +104,12 @@ test('desktop onboarding lifecycle controls queue explicit outcomes and open fre
         await expect(recipient.getByText('This form is read-only.', { exact: false })).toBeVisible();
         await expect(recipient.getByRole('button', { name: 'Save draft', exact: true })).toHaveCount(0);
         expect((await new AxeBuilder({ page: recipient }).analyze()).violations).toEqual([]);
-        await recipient.screenshot({ path: info.outputPath('accepted-return-desktop.png'), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await recipient.screenshot({ path: info.outputPath('accepted-return-desktop.png'), fullPage: true });
         await page.reload();
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-        await page.screenshot({ path: info.outputPath('lifecycle-history-desktop.png'), fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({ path: info.outputPath('lifecycle-history-desktop.png'), fullPage: true });
     } finally {
         await context.close();
     }

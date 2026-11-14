@@ -28,6 +28,11 @@ while (($line = fgets($client)) !== false) {
             $data .= str_starts_with($part, '..') ? substr($part, 1) : $part;
         }
         echo json_encode(['recipient' => $recipient, 'data' => base64_encode($data)])."\n";
+        if (($argv[1] ?? '') === 'disconnect') {
+            fclose($client);
+            fclose($server);
+            exit(0);
+        }
         if (($argv[1] ?? '') === 'hold') {
             sleep(20);
         }

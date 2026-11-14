@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { changeRole, fixture, login, mutate } from './helpers';
+import { changeRole, fixture, login, mutate, migrationFixture } from './helpers';
 
 test('board drag persists, retains filters, recovers stale versions and keeps the stage selector accessible', async ({
     page,
@@ -44,7 +44,8 @@ test('board drag persists, retains filters, recovers stale versions and keeps th
         await card.dispatchEvent('dragstart', { dataTransfer });
         await column('Pitched').dispatchEvent('dragover', { dataTransfer });
         await expect(column('Pitched')).toHaveClass(/column-over/);
-        await page.screenshot({ path: '../planning/evidence/pipeline-drag/desktop-drag-target.png', fullPage: true });
+        if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+            await page.screenshot({ path: info.outputPath('pipeline-drag.spec-capture-2273.png'), fullPage: true });
         await card.dispatchEvent('dragend', { dataTransfer });
         await dataTransfer.dispose();
         await page.route(
@@ -52,10 +53,11 @@ test('board drag persists, retains filters, recovers stale versions and keeps th
             async (route) => {
                 await expect(column('Pitched').locator('.lead-card')).toHaveClass(/lead-moving/);
                 await expect(card).toHaveAttribute('draggable', 'false');
-                await page.screenshot({
-                    path: '../planning/evidence/pipeline-drag/desktop-pending.png',
-                    fullPage: true,
-                });
+                if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+                    await page.screenshot({
+                        path: info.outputPath('pipeline-drag.spec-capture-2769.png'),
+                        fullPage: true,
+                    });
                 await route.continue();
             },
             { times: 1 },
@@ -99,10 +101,11 @@ test('board drag persists, retains filters, recovers stale versions and keeps th
     await expect(column('Negotiating').locator('.lead-card')).toHaveCount(1);
     await card.scrollIntoViewIfNeeded();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({
-        path: `../planning/evidence/pipeline-drag/${info.project.name}-board.png`,
-        fullPage: true,
-    });
+    if (process.env.CAPTURE_BROWSER_IMAGES === '1')
+        await page.screenshot({
+            path: info.outputPath('pipeline-drag.spec-capture-5409.png'),
+            fullPage: true,
+        });
     changeRole(email, 'viewer');
     await page.reload();
     await expect(card).toHaveAttribute('draggable', 'false');
@@ -113,36 +116,8 @@ test('board drag persists, retains filters, recovers stale versions and keeps th
 
 for (const state of ['active', 'expired']) {
     test(`Professional ${state} subscription applies board move access and retains routes`, async ({ page }, info) => {
-        const { execFileSync } = await import('node:child_process');
-        const { fileURLToPath } = await import('node:url');
-        const repo = fileURLToPath(new URL('../../../', import.meta.url));
         const email = `m1-browser-drag-expired-${info.project.name}-${Date.now()}@example.test`;
-        const data = JSON.parse(
-            execFileSync(
-                'docker',
-                [
-                    'compose',
-                    '--env-file',
-                    'src/.env',
-                    '-p',
-                    process.env.COMPOSE_PROJECT_NAME ?? 'weavdash-professional',
-                    'run',
-                    '--rm',
-                    '-T',
-                    '--no-deps',
-                    '--user',
-                    '1000:1000',
-                    '-v',
-                    `${repo}src:/var/www/html`,
-                    'migrate',
-                    'php',
-                    'tests/Browser/pipeline-access-fixture.php',
-                    email,
-                    state,
-                ],
-                { cwd: repo, encoding: 'utf8' },
-            ),
-        );
+        const data = JSON.parse(migrationFixture('pipeline-access-fixture.php', email, state));
         await login(page, email);
         expect(await mutate(page, '/workspace/select', 'POST', { org_id: data.org })).toBe(200);
         await page.goto('/professional/leads');
