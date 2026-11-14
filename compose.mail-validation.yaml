@@ -1,5 +1,11 @@
-# Explicit opt-in for an external SMTP delivery trial; default Compose stays in memory.
+# Use only after recipient, budget and external-trial authorization.
+# Apply to an isolated trial project with a reviewed queue; default Compose stays in memory.
+x-trial-mail: &trial-mail
+  MAIL_MAILER: smtp
 services:
   app:
-    environment:
-      MAIL_MAILER: smtp
+    environment: *trial-mail
+  worker:
+    environment: *trial-mail
+  scheduler:
+    environment: *trial-mail

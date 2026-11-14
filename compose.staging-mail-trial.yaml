@@ -1,0 +1,16 @@
+# Staging M5-09 trial only. Apply with compose.staging.yaml after rollout approval.
+# SMTP is off by default. Production outbox defers array transport; account mail is captured.
+# SMTP requires the already authorized recipient-controlled run.
+# Daily/total/spend ceilings are operator/provider controls, not application counters.
+x-trial-runtime: &trial-runtime
+  MAIL_MAILER: ${PROVIDER_TRIAL_MAILER:-array}
+  TRANSACTIONAL_MAIL_MAILER: ${PROVIDER_TRIAL_MAILER:-array}
+  NOTIFICATION_WORKSPACE_PER_MINUTE: 1
+  NOTIFICATION_GLOBAL_PER_MINUTE: 2
+services:
+  app:
+    environment: *trial-runtime
+  worker:
+    environment: *trial-runtime
+  scheduler:
+    environment: *trial-runtime

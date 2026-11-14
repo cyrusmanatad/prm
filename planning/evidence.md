@@ -1,4 +1,6 @@
-**PR #16 CI repair (2026-11-13):** [repair scope and verification](m5/ci-repair-evidence.md). Final revision checks and the merge recommendation are tracked in PR #16; milestone advancement remains on hold.
+**M5-09 preparation (2026-11-14):** [matrix, proposed limits and runbook](m5/provider-delivery-acceptance.md); [preflight evidence and pending gates](m5/provider-delivery-evidence.md). The controlled-recipient trial is authorized and staging has been updated to `c13e960`; receipt/link trials are in progress. Production budgets stay open.
+
+**PR #16 merged (2026-11-14):** recovery implementation and CI repair are complete on `main` at `c13e960`. See [repair scope and verification](m5/ci-repair-evidence.md). Next: M5-09 provider delivery/link-opening acceptance and actual budget approval; M5/M6 advancement remains gated.
 
 **M5-10 recovery (2026-11-12):** [synthetic recovery results and environment](m5/recovery-evidence.md), with the [recovery contract](m5/recovery-contract.md). Local synthetic gates passed; provider/production/release acceptance remains separate.
 
