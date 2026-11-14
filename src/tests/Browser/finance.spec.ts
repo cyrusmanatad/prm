@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
 import { fixture, login } from './helpers';
+import { settleNotificationAnimations } from './feedback';
 
 test('private draft exact money, edit and terminal void', async ({ page }, info) => {
     const email = `m1-browser-finance-${Date.now()}@example.test`;
@@ -40,6 +41,7 @@ test('private draft exact money, edit and terminal void', async ({ page }, info)
     await stale.getByRole('link', { name: 'Reload draft' }).click();
     await expect(stale.getByLabel('Recipient business name')).toHaveValue('Updated finance');
     await stale.close();
+    await settleNotificationAnimations(page);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
         await page.screenshot({ path: info.outputPath('draft.png'), fullPage: true });
@@ -76,6 +78,7 @@ test('manual receipt allocation, reversal, void and entitlement visibility', asy
     await page.getByLabel('Allocation in minor units').fill('500');
     await page.getByRole('button', { name: 'Allocate receipt' }).click();
     await expect(page.getByText(/Allocated 500/)).toBeVisible();
+    await settleNotificationAnimations(page);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
         await page.screenshot({ path: info.outputPath('payments.png'), fullPage: true });
@@ -97,6 +100,7 @@ test('manual receipt allocation, reversal, void and entitlement visibility', asy
     await page.getByRole('link', { name: 'Private invoice drafts' }).click();
     await page.getByRole('link', { name: 'Pilot entitlements' }).click();
     await expect(page.getByText('State: unassigned-development')).toBeVisible();
+    await settleNotificationAnimations(page);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     execFileSync(
         'docker',
