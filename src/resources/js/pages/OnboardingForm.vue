@@ -81,7 +81,7 @@ function pick(event: Event): void {
                     >
                 </p>
             </div>
-            <p class="wd-hint">Status: {{ form.status }}</p>
+            <p class="wd-hint mb-3">Status: {{ form.status }}</p>
             <div v-if="errors?.version" role="alert" class="wd-banner">
                 <p>{{ errors.version }}</p>
                 <button

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { fixture, login } from './helpers';
+import { fixture, isMobile, login, smallTouchTargets } from './helpers';
 import { confirmMutation } from './confirmations';
 
 function deliver(email: string): void {
@@ -97,6 +97,14 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
         await page.screenshot({ path: info.outputPath('onboarding-email-history.png'), fullPage: true });
+    if (isMobile(info)) {
+        const size = page.viewportSize()!;
+        expect(await smallTouchTargets(page)).toEqual([]);
+        await page.setViewportSize({ width: 320, height: size.height });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        expect(await smallTouchTargets(page)).toEqual([]);
+        await page.setViewportSize(size);
+    }
     await recipientPage.goto(replacement);
     await recipientPage.getByRole('button', { name: 'Open invitation', exact: true }).click();
     await expect(

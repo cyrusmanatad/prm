@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { fixture, login, mutate } from './helpers';
+import { baseWidth, fixture, isMobile, login, mutate, reviewWidths, smallTouchTargets } from './helpers';
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 function compose(args: string[]): void {
@@ -12,7 +12,7 @@ function compose(args: string[]): void {
 }
 
 test('reminder email consent, scheduled capture, history and withdrawal', async ({ page }, info) => {
-    await page.setViewportSize({ width: 1440, height: 1080 });
+    await page.setViewportSize({ width: baseWidth(info), height: 1080 });
     const email = `m1-browser-scheduled-${Date.now()}@example.test`;
     fixture('seed', email);
     await login(page, email);
@@ -49,10 +49,11 @@ test('reminder email consent, scheduled capture, history and withdrawal', async 
     compose(['exec', '-T', 'app', 'php', 'artisan', 'queue:work', 'redis', '--stop-when-empty']);
     await page.reload();
     await expect(page.getByText('Captured locally; no external email sent', { exact: true })).toBeVisible();
-    for (const width of [1440, 1920]) {
+    for (const width of reviewWidths(info)) {
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        if (isMobile(info)) expect(await smallTouchTargets(page)).toEqual([]);
         if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
             if (process.env.CAPTURE_BROWSER_IMAGES === '1')
                 await page.screenshot({

@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
-import { fixture, login, mutate } from './helpers';
+import { baseWidth, fixture, isMobile, login, mutate, reviewWidths, smallTouchTargets } from './helpers';
 
 test('manual follow-up approval, download, edit invalidation and confirmed discard', async ({ page }, info) => {
-    await page.setViewportSize({ width: 1440, height: 1080 });
+    await page.setViewportSize({ width: baseWidth(info), height: 1080 });
     const email = `m1-browser-drafts-${Date.now()}@example.test`;
     fixture('seed', email);
     await login(page, email);
@@ -47,10 +47,11 @@ test('manual follow-up approval, download, edit invalidation and confirmed disca
     expect(await readFile((await download.path())!, 'utf8')).toContain(
         'To: recipient@example.test\nSubject: Collaboration next steps',
     );
-    for (const width of [1440, 1920]) {
+    for (const width of reviewWidths(info)) {
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        if (isMobile(info)) expect(await smallTouchTargets(page)).toEqual([]);
         if (process.env.CAPTURE_BROWSER_IMAGES === '1')
             await page.screenshot({ path: info.outputPath(`follow-up-drafts-${width}.png`), fullPage: true });
     }

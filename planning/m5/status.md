@@ -1,3 +1,5 @@
+**M5 small-screen acceptance (2026-11-17):** the phone-width checks carried to Claude for M5-02 to M5-06 passed locally in Chromium at 390 and 320 px after small touch-target and readability fixes; see the [small-screen evidence](small-screen-evidence.md). Provider delivery (M5-09) and inherited manual reviews remain open.
+
 **M5-09 preparation (2026-11-14):** [matrix, proposed limits and runbook](provider-delivery-acceptance.md); [preflight evidence and pending gates](provider-delivery-evidence.md). The controlled-recipient trial is authorized and staging has been updated to `c13e960`; receipt/link trials are in progress. Production budgets stay open.
 
 **PR #16 merged (2026-11-14):** recovery implementation and CI repair are complete on `main` at `c13e960`. See [repair scope and verification](ci-repair-evidence.md). Next: M5-09 provider delivery/link-opening acceptance and actual budget approval; M5/M6 advancement remains gated.

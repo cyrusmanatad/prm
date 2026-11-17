@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { fixture, login } from './helpers';
+import { baseWidth, fixture, isMobile, login, reviewWidths, smallTouchTargets } from './helpers';
 
 function deliver(email: string): Record<string, string> {
     return JSON.parse(
@@ -27,12 +27,12 @@ function deliver(email: string): Record<string, string> {
     ).links;
 }
 
-test('desktop onboarding lifecycle controls queue explicit outcomes and open fresh scoped return links', async ({
+test('onboarding lifecycle controls queue explicit outcomes and open fresh scoped return links', async ({
     page,
     browser,
 }, info) => {
     test.setTimeout(150_000);
-    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.setViewportSize({ width: baseWidth(info), height: 1000 });
     const email = `m1-browser-notifications-lifecycle-${Date.now()}@example.test`;
     fixture('seed', email);
     await login(page, email);
@@ -47,7 +47,7 @@ test('desktop onboarding lifecycle controls queue explicit outcomes and open fre
     await page.getByRole('button', { name: 'Start onboarding', exact: true }).click();
     const invitation = await page.getByLabel('Private invitation link (copy now)').inputValue();
     const reviewUrl = page.url();
-    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+    const context = await browser.newContext({ viewport: { width: baseWidth(info), height: 1000 } });
     const recipient = await context.newPage();
     try {
         await recipient.goto(invitation);
@@ -70,10 +70,11 @@ test('desktop onboarding lifecycle controls queue explicit outcomes and open fre
         await expect(page.getByLabel('Outcome recipient email')).toBeFocused();
         await expect(page.getByLabel('Outcome recipient email')).toHaveValue('');
         await page.getByLabel('Outcome recipient email').fill('explicit@example.test');
-        for (const width of [1440, 1920]) {
+        for (const width of reviewWidths(info)) {
             await page.setViewportSize({ width, height: 1080 });
             expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+            if (isMobile(info)) expect(await smallTouchTargets(page)).toEqual([]);
             if (process.env.CAPTURE_BROWSER_IMAGES === '1')
                 await page.screenshot({ path: info.outputPath(`outcome-review-${width}.png`), fullPage: true });
         }

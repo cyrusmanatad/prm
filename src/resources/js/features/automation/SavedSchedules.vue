@@ -32,7 +32,7 @@ function due(schedule: Schedule): string {
         <p v-if="!schedules.length" class="wd-empty">
             No schedules yet. Enable weekly digest in your preferences, then save a weekly schedule.
         </p>
-        <article v-for="schedule in schedules" :key="schedule.id" class="wd-section-stack">
+        <article v-for="schedule in schedules" :key="schedule.id" class="wd-record">
             <h3>{{ schedule.name }}</h3>
             <p>{{ schedule.enabled ? 'Consent active' : 'Disabled' }} · {{ schedule.kind.replaceAll('_', ' ') }}</p>
             <p class="wd-hint">{{ due(schedule) }} · {{ schedule.timezone }}</p>

@@ -111,3 +111,41 @@ export function migrationFixture(script: string, ...args: string[]): string {
         },
     );
 }
+
+type Project = { project: { name: string } };
+/** The mobile projects run each journey at phone widths; desktop projects keep the desktop widths. */
+export const isMobile = (info: Project): boolean => info.project.name.includes('mobile');
+export const baseWidth = (info: Project): number => (isMobile(info) ? 390 : 1440);
+export const reviewWidths = (info: Project): number[] => (isMobile(info) ? [390, 320] : [1440, 1920]);
+
+/**
+ * Visible controls in the main content that are smaller than the 44px touch target.
+ * Links inside running text are exempt, and a checkbox or radio is measured with its label.
+ */
+export async function smallTouchTargets(page: Page): Promise<string[]> {
+    return page.evaluate(() => {
+        const found: string[] = [];
+        const controls = document.querySelectorAll<HTMLElement>(
+            'main a[href], main button, main input:not([type=hidden]), main select, main textarea, main [role=combobox], [role=dialog] button, [role=dialog] a[href]',
+        );
+        for (const control of controls) {
+            if (!control.checkVisibility({ visibilityProperty: true }) || control.closest('.wd-sr-only')) continue;
+            let box = control.getBoundingClientRect();
+            if (box.width === 0 || box.height === 0) continue;
+            if (control instanceof HTMLInputElement && ['checkbox', 'radio'].includes(control.type)) {
+                const label = control.closest('label') ?? document.querySelector(`label[for="${control.id}"]`);
+                if (label) box = label.getBoundingClientRect();
+            } else if (control.tagName === 'A' && getComputedStyle(control).display === 'inline') {
+                const parent = control.parentElement;
+                if (parent && (parent.textContent ?? '').trim() !== (control.textContent ?? '').trim()) continue;
+            }
+            if (box.height < 43.5 || box.width < 43.5) {
+                const name = (control.getAttribute('aria-label') ?? control.textContent ?? '').trim().slice(0, 50);
+                found.push(
+                    `${control.tagName.toLowerCase()} "${name}" ${Math.round(box.width)}×${Math.round(box.height)}`,
+                );
+            }
+        }
+        return [...new Set(found)];
+    });
+}

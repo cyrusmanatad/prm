@@ -9,7 +9,7 @@ const recipient = defineModel<string>('recipient', { default: '' });
 
 <template>
     <div class="wd-fields">
-        <label :for="`${prefix}-send-email`" class="flex items-start gap-2">
+        <label :for="`${prefix}-send-email`" class="wd-checkbox">
             <input
                 :id="`${prefix}-send-email`"
                 v-model="sendEmail"
