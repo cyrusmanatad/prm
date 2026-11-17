@@ -5,6 +5,8 @@ export interface Relationship {
     creator_name: string;
     status: string;
     accepted_at: string;
+    /** The other party's workspace is suspended. No reason is disclosed. */
+    paused?: boolean;
 }
 export interface JoinLink {
     id: string;

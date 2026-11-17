@@ -84,7 +84,7 @@ From `src/`, against a running disposable stack (see [browser verification](#fro
 COMPOSE_PROJECT_NAME=weavdash npm run test:browser -- administration.spec.ts --project=desktop --project=mobile
 ```
 
-The desktop journey passed on every run. **The mobile journey is intermittent** (3 of 6 runs passed, failing at different steps) and its cause is not established, so treat mobile coverage of administration as unverified. The PostgreSQL integration suite, the `rls.sql` checks and WebKit have not been run for administration. See the [console evidence](planning/administration/console-evidence.md#unverified-gates).
+The journey was intermittent on mobile when first written (3 of 6 runs). A follow-up fixed one timing defect in the test and then passed 21 consecutive desktop and mobile runs; the original mobile failures did not reproduce, so their cause is not established. The journey is slow against the single-process development server when another browser is using it; setting `PHP_CLI_SERVER_WORKERS=4` on the `app` service avoids that. The integration suite and `rls.sql` (which now includes platform checks) pass for administration on a fresh database. WebKit runs in CI only. See the [follow-up evidence](planning/administration/follow-up-evidence.md).
 
 Concurrent revocation and role demotion are tested in both lock orderings, with PostgreSQL reporting the blocked backend. In-flight authorized transactions finish before membership changes commit; changes that lock first cause waiting writes to fail. A scoped security-definer function locks only the current actor's active membership in the selected workspace. Rollbacks release locks and audit writes. A fresh disposable database also passed full migration rollback/reapply and SQL RLS/function-privilege checks.
 
@@ -192,6 +192,7 @@ The console covers account and workspace directories, plans and assignments, not
 
 - **Support access needs the workspace owner's approval.** An operator requests read-only access to named record areas for at most 24 hours; an owner approves, declines or ends it at `/workspace/support-access`, linked from workspace settings.
 - **Cleanup is dry run only.** Operators mark synthetic accounts and workspaces and record a manifest of what a cleanup would touch. Nothing in the application deletes them.
+- **Suspension pauses, it does not delete.** The other party in a partnership sees it as Paused. Scheduled work and email that fall due during a suspension are skipped or cancelled and are not sent after reactivation.
 - **Diagnostics are not monitoring.** `/admin/operations` needs the scheduler running for its heartbeat and does not report worker, scanner or mail-provider health.
 
 ## Durable partner invitation email (M5 first slice)

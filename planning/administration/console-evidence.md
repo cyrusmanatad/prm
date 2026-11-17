@@ -33,7 +33,7 @@ New capabilities: `operations.read`, `audit.read`, `access.manage`, `support.req
 
 **Cleanup dry runs.** Records are marked one at a time with evidence. A dry run stores an immutable manifest: per marked record, the proposed disposition, the reasons and related record counts. Blocked: a workspace with finance records, an unmarked member, a partnership outside the batch or unsettled notifications; an account in a blocked or unmarked workspace or named in audit history. Protected: any account holding a platform grant. Audit history is excluded from every manifest. There is no function, route or control that deletes.
 
-**Not built from the confirmed rules:** the partner's portal does not yet label a suspended workspace's partnership as paused; work refused at execution because of suspension is not separately recorded as "skipped".
+**Not built from the confirmed rules in this slice:** the partner's portal did not label a suspended workspace's partnership as paused, and work refused at execution because of suspension was not recorded as "skipped". Both were added on 2026-11-17; see the [follow-up evidence](follow-up-evidence.md).
 
 ## Reused and new shared components
 

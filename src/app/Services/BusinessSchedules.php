@@ -132,12 +132,26 @@ class BusinessSchedules
     public function dispatch(): int
     {
         DB::select('SELECT app_reconcile_schedules()');
+        $this->skipSuspended();
         $rows = DB::select('SELECT * FROM app_due_schedules()');
         foreach ($rows as $s) {
             MaterializeSchedule::dispatch($s->actor_id, $s->org_id, $s->id);
         }
 
         return count($rows);
+    }
+
+    /**
+     * Work that falls due while its workspace or actor is suspended is recorded as skipped and never replayed.
+     * The database decides what is suspended; this only supplies the next weekly occurrence.
+     */
+    public function skipSuspended(): void
+    {
+        DB::select('SELECT app_skip_suspended_work()');
+        foreach (DB::select('SELECT * FROM app_suspended_due_schedules()') as $s) {
+            $next = $s->kind === 'weekly_digest' ? app(ScheduleClock::class)->nextWeekly($s->timezone, (int) $s->weekday, $s->local_time, CarbonImmutable::now())->toIso8601String() : null;
+            DB::select('SELECT app_skip_due_schedule(?::uuid,?::timestamptz)', [$s->id, $next]);
+        }
     }
 
     public function materialize(int $actor, string $org, string $id): void

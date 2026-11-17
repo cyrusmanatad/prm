@@ -62,6 +62,9 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
     // Codes are single use and only valid near the current 30-second step, so take a fresh, newer one each time.
     let used = 0;
     const code = async (offset = 0) => {
+        // An earlier step leaves room for the later single-use codes, but it expires when the clock ticks over.
+        // Use it only when the current step has time left for the request to arrive.
+        if (offset < 0 && 30000 - (Date.now() % 30000) < 8000) offset = 0;
         const wanted = Math.max(Math.floor(Date.now() / 30000) + offset, used + 1);
         // The server accepts the current step and its neighbours; wait rather than send a step it would reject.
         while (wanted > Math.floor(Date.now() / 30000) + 1) await page.waitForTimeout(1000);
@@ -130,6 +133,23 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
     await page.goBack();
     await expect(page.getByLabel('Name, email or account ID', { exact: true })).toHaveValue(email);
     await expect(page.getByText('Showing 1–1 of 1 matching accounts, all pages', { exact: true })).toBeVisible();
+    // Joined-date range: labelled date inputs, inclusive end date, reported as applied and restored from the URL.
+    const today = new Date().toISOString().slice(0, 10);
+    await page.getByLabel('Joined from', { exact: true }).fill(today);
+    await page.getByLabel('Joined to (inclusive)', { exact: true }).fill(today);
+    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await expect(page).toHaveURL(
+        (url) => url.searchParams.get('from') === today && url.searchParams.get('to') === today,
+    );
+    await expect(page.getByRole('list', { name: 'Applied filters' })).toContainText(`Joined to: ${today}`);
+    await expect(page.getByText('Showing 1–1 of 1 matching accounts, all pages', { exact: true })).toBeVisible();
+    await clean(page);
+    await page.getByLabel('Joined from', { exact: true }).fill('2000-01-01');
+    await page.getByLabel('Joined to (inclusive)', { exact: true }).fill('2000-01-02');
+    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'No accounts match these filters' })).toBeVisible();
+    await page.goBack();
+    await expect(page.getByLabel('Joined from', { exact: true })).toHaveValue(today);
     await page.getByRole('table', { name: 'Accounts' }).getByRole('link').first().click();
     await expect(page.getByText('You cannot suspend your own account', { exact: false })).toBeVisible();
     await capture(page, info, 'account');

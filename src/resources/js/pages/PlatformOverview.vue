@@ -28,6 +28,8 @@ const props = defineProps<{
         operators_without_mfa: number | null;
         long_suspensions: number | null;
         support_awaiting: number | null;
+        support_expiring: number | null;
+        cleanup_blocked: number | null;
         activity: Activity[] | null;
     };
 }>();
@@ -111,6 +113,24 @@ const attention = computed(() => {
             next: 'Only a workspace owner can approve. Withdraw requests that are no longer needed.',
             href: '/admin/support-access?state=requested',
             link: 'View support requests',
+        });
+    if (o.support_expiring)
+        items.push({
+            key: 'support-expiring',
+            tone: 'warning',
+            title: `${o.support_expiring} support ${o.support_expiring === 1 ? 'grant ends' : 'grants end'} within two hours`,
+            next: 'Access stops at the approved time. It cannot be extended; a new request needs a new owner approval.',
+            href: '/admin/support-access?state=approved',
+            link: 'View active support access',
+        });
+    if (o.cleanup_blocked)
+        items.push({
+            key: 'cleanup-blocked',
+            tone: 'warning',
+            title: `${o.cleanup_blocked} cleanup ${o.cleanup_blocked === 1 ? 'batch has' : 'batches have'} blocked records in the latest dry run`,
+            next: 'Open the dry run to see why each record is blocked. Dry runs delete nothing.',
+            href: '/admin/cleanup',
+            link: 'Review cleanup batches',
         });
     return items;
 });

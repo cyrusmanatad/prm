@@ -1,3 +1,5 @@
+**Administration follow-up (2026-11-17):** [paused label, skipped work, date filters, overview items, journey investigation and gates](administration/follow-up-evidence.md). Local disposable stacks only.
+
 **Administration console (2026-11-16):** [implementation, commands, rendering findings and unverified gates](administration/console-evidence.md). Local disposable stack only.
 
 **M5-09 preparation (2026-11-14):** [matrix, proposed limits and runbook](m5/provider-delivery-acceptance.md); [preflight evidence and pending gates](m5/provider-delivery-evidence.md). The controlled-recipient trial is authorized and staging has been updated to `c13e960`; receipt/link trials are in progress. Production budgets stay open.

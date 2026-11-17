@@ -2,13 +2,19 @@
 
 namespace Tests\Acceptance;
 
+use App\Jobs\DeliverNotification;
+use App\Jobs\MaterializeSchedule;
 use App\Models\User;
+use App\Services\BusinessSchedules;
+use App\Services\NotificationOutbox;
 use App\Services\PlatformAdministration;
 use App\Services\Workspaces;
 use App\Tenancy\TenantContext;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -327,5 +333,159 @@ class PlatformGovernanceTest extends AcceptanceCase
         }
         $this->assertSame(1, $this->control->table('cleanup_runs')->where('id', $run)->count());
         $this->assertSame(1, $this->control->table('platform_audit')->where(['event' => 'cleanup.dry_run', 'target' => $run])->count());
+    }
+
+    /** Suspends or lifts directly through the migration connection; the operator flow is covered above. */
+    private function suspend(string $subject, int|string $reference, bool $lift = false): void
+    {
+        $column = $subject === 'account' ? 'user_id' : 'org_id';
+        $by = $this->control->table('platform_grants')->value('user_id');
+        if ($lift) {
+            $this->control->table('platform_suspensions')->where($column, $reference)->whereNull('lifted_at')->update(['lifted_at' => now(), 'lifted_by' => $by, 'lift_reason' => 'Synthetic lift']);
+        } else {
+            $this->control->table('platform_suspensions')->insert(['subject' => $subject, $column => $reference, 'reason' => 'Synthetic suspension', 'suspended_by' => $by]);
+        }
+    }
+
+    public function test_the_other_party_sees_a_suspended_workspaces_partnership_as_paused_and_nothing_more(): void
+    {
+        $this->operator('{access.manage}');
+        [$brandOwner, $brand] = $this->workspace('brand');
+        [$creator, $creatorOrg] = $this->workspace();
+        [$outsider, $outsiderOrg] = $this->workspace();
+        $invitation = (string) Str::uuid();
+        $partnership = (string) Str::uuid();
+        $this->control->table('partner_invitations')->insert(['id' => $invitation, 'brand_org_id' => $brand, 'recipient_email' => $creator->email, 'token_hash' => hash('sha256', $invitation), 'status' => 'accepted', 'expires_at' => now()->addDay()]);
+        $this->control->table('partnerships')->insert(['id' => $partnership, 'brand_org_id' => $brand, 'creator_org_id' => $creatorOrg, 'brand_name' => 'Synthetic brand', 'creator_name' => 'Synthetic creator', 'invitation_id' => $invitation]);
+        $paused = fn (User $user, string $org) => (bool) app(TenantContext::class)->run($user->id, $org, fn () => DB::selectOne('SELECT app_partnership_paused(?::uuid) AS p', [$partnership])->p);
+
+        $this->member($brandOwner, $brand)->getJson('/brand')->assertOk()->assertJsonPath('relationships.0.id', $partnership)->assertJsonPath('relationships.0.paused', false);
+        $this->member($creator, $creatorOrg)->getJson('/partner')->assertOk()->assertJsonPath('relationships.0.paused', false);
+
+        $this->suspend('workspace', $creatorOrg);
+        // The brand keeps the relationship and learns only that it is paused: no reason, time or operator.
+        $row = $this->member($brandOwner, $brand)->getJson('/brand')->assertOk()->assertJsonCount(1, 'relationships')->assertJsonPath('relationships.0.paused', true)->json('relationships.0');
+        $this->assertSame(['accepted_at', 'brand_name', 'creator_name', 'id', 'paused', 'status'], collect($row)->keys()->sort()->values()->all());
+        $this->member($creator, $creatorOrg)->getJson('/partner')->assertForbidden();
+        // A workspace outside the partnership learns nothing, and the brand cannot read the suspension record.
+        $this->assertFalse($paused($outsider, $outsiderOrg));
+        $this->assertSame(0, app(TenantContext::class)->run($brandOwner->id, $brand, fn () => DB::table('platform_suspensions')->count()));
+        $this->assertSame('active', $this->control->table('partnerships')->where('id', $partnership)->value('status'));
+
+        $this->suspend('workspace', $creatorOrg, true);
+        $this->member($brandOwner, $brand)->getJson('/brand')->assertOk()->assertJsonPath('relationships.0.paused', false);
+        // The label works in both directions.
+        $this->suspend('workspace', $brand);
+        $this->member($creator, $creatorOrg)->getJson('/partner')->assertOk()->assertJsonPath('relationships.0.paused', true);
+        $this->assertSame(0, app(TenantContext::class)->run($creator->id, $creatorOrg, fn () => DB::table('platform_suspensions')->count()));
+    }
+
+    public function test_work_due_during_suspension_is_recorded_as_skipped_and_never_replayed(): void
+    {
+        Queue::fake();
+        $this->operator('{access.manage}');
+        $schedules = app(BusinessSchedules::class);
+        [$actor, $org] = $this->workspace('brand');
+        $this->member($actor, $org)->putJson('/automation/preferences', ['version' => 0, 'timezone' => 'Asia/Manila', 'reminders' => true, 'weekly_digest' => true, 'follow_up_drafts' => true])->assertOk();
+        $schedule = $this->postJson('/automation/schedules', ['name' => 'Weekly review', 'kind' => 'weekly_digest', 'weekday' => 1, 'local_time' => '09:00', 'consent' => true])->assertCreated()->json('id');
+        $due = now()->subMinutes(5)->startOfMinute();
+        $this->control->table('business_schedules')->where('id', $schedule)->update(['next_due_at' => $due]);
+        $invitation = $this->postJson('/partner-invitations', ['email' => 'skipped-'.Str::uuid().'@example.test', 'send_email' => true])->assertCreated()->json('id');
+        $notice = $this->control->table('notification_outbox')->where('subject_id', $invitation)->value('id');
+        $runs = fn () => $this->control->table('schedule_runs')->where('schedule_id', $schedule)->orderBy('due_at')->get();
+
+        // The runtime role cannot use the skip function on work that is not suspended.
+        $this->assertFalse((bool) DB::selectOne('SELECT app_skip_due_schedule(?::uuid,?::timestamptz) AS ok', [$schedule, now()->addWeek()])->ok);
+        $this->assertCount(0, $runs());
+
+        // Due while the actor is suspended: recorded as skipped, moved to the next occurrence, not queued.
+        $this->suspend('account', $actor->id);
+        $schedules->dispatch();
+        $schedules->dispatch();
+        $this->assertCount(1, $runs());
+        $skipped = $runs()->first();
+        $this->assertSame('skipped', $skipped->state);
+        $this->assertNotNull($skipped->completed_at);
+        $this->assertTrue(CarbonImmutable::parse($skipped->due_at)->equalTo($due));
+        $this->assertTrue(CarbonImmutable::parse($this->control->table('business_schedules')->where('id', $schedule)->value('next_due_at'))->isFuture());
+        $this->assertSame(1, $this->control->table('audit_logs')->where(['org_id' => $org, 'event' => 'automation.run.skipped', 'subject_id' => $skipped->id])->count());
+        Queue::assertNotPushed(MaterializeSchedule::class, fn ($job) => $job->scheduleId === $schedule);
+
+        // Email waiting for the suspended actor is cancelled, not held.
+        app(NotificationOutbox::class)->dispatch();
+        $this->assertSame('cancelled', $this->control->table('notification_outbox')->where('id', $notice)->value('state'));
+        $this->assertNull($this->control->table('notification_outbox')->where('id', $notice)->value('encrypted_payload'));
+        Queue::assertNotPushed(DeliverNotification::class, fn ($job) => $job->notificationId === $notice);
+
+        // A run that was already ready when the actor was suspended is skipped when it would have executed.
+        $this->suspend('account', $actor->id, true);
+        $this->control->table('business_schedules')->where('id', $schedule)->update(['next_due_at' => now()->subMinute()]);
+        $schedules->materialize($actor->id, $org, $schedule);
+        $ready = $runs()->firstWhere('state', 'ready');
+        $this->assertNotNull($ready);
+        $this->suspend('account', $actor->id);
+        $schedules->dispatch();
+        $this->assertSame('skipped', $this->control->table('schedule_runs')->where('id', $ready->id)->value('state'));
+        $this->assertSame(1, $this->control->table('audit_logs')->where(['event' => 'automation.run.skipped', 'subject_id' => $ready->id])->count());
+
+        // Reactivation restores access from now on: nothing skipped or cancelled comes back.
+        $this->suspend('account', $actor->id, true);
+        $schedules->dispatch();
+        app(NotificationOutbox::class)->dispatch();
+        $schedules->execute($actor->id, $org, $schedule, $ready->id, fn () => $this->fail('A skipped run executed after reactivation.'));
+        $this->assertSame(['skipped', 'skipped'], $runs()->pluck('state')->all());
+        $this->assertSame('cancelled', $this->control->table('notification_outbox')->where('id', $notice)->value('state'));
+        $this->assertTrue((bool) $this->control->table('business_schedules')->where('id', $schedule)->value('enabled'));
+        // The runtime role still cannot write the state directly for another actor's run.
+        [$other, $otherOrg] = $this->workspace();
+        $this->assertSame(0, app(TenantContext::class)->run($other->id, $otherOrg, fn () => DB::table('schedule_runs')->where('id', $ready->id)->update(['state' => 'ready'])));
+    }
+
+    public function test_directories_filter_by_created_date_and_the_overview_reports_expiring_support_and_blocked_cleanup(): void
+    {
+        $reader = $this->operator('{directory.read}');
+        $account = User::factory()->create();
+        [, $org] = $this->workspace();
+        // Acceptance data is not rolled back, so each run uses its own day and compares against what was there before.
+        $day = CarbonImmutable::parse('1990-01-01')->addDays(random_int(0, 3000));
+        [$on, $before, $after] = [$day->format('Y-m-d'), $day->subDay()->format('Y-m-d'), $day->addDay()->format('Y-m-d')];
+        $this->verified($reader);
+        $existing = ['accounts' => $this->getJson("/admin/accounts?from=$on&to=$on")->assertOk()->json('accounts.total'), 'workspaces' => $this->getJson("/admin/workspaces?from=$on&to=$on")->assertOk()->json('workspaces.total')];
+        $this->control->table('users')->where('id', $account->id)->update(['created_at' => $on.' 23:30:00']);
+        $this->control->table('organizations')->where('id', $org)->update(['created_at' => $on.' 00:10:00']);
+        foreach (['accounts' => $account->id, 'workspaces' => $org] as $list => $id) {
+            // The end date is inclusive and both dates are whole UTC days.
+            $found = $this->getJson("/admin/$list?from=$on&to=$on")->assertOk()->assertJsonPath("$list.total", $existing[$list] + 1)->assertJsonPath('filters.from', $on)->assertJsonPath('filters.to', $on)->json("$list.rows");
+            $this->assertContains($id, array_column($found, 'id'));
+            $this->assertNotContains($id, array_column($this->getJson("/admin/$list?to=$before")->assertOk()->json("$list.rows"), 'id'));
+            $this->assertNotContains($id, array_column($this->getJson("/admin/$list?from=$after")->assertOk()->json("$list.rows"), 'id'));
+            $this->assertNotContains($id, array_column($this->getJson("/admin/$list?from=$before&to=$before")->assertOk()->json("$list.rows"), 'id'));
+            $this->getJson("/admin/$list?from=$after&to=$on")->assertUnprocessable();
+            $this->getJson("/admin/$list?from=03/02/2001")->assertUnprocessable();
+        }
+
+        $overview = fn (User $user) => app(TenantContext::class)->run($user->id, null, function () {
+            DB::select("SELECT set_config('app.admin_version','1',true)");
+
+            return json_decode(DB::selectOne('SELECT app_platform_overview() AS data')->data, true, flags: JSON_THROW_ON_ERROR);
+        });
+        // Figures outside the caller's capabilities are null, never zero.
+        $this->assertNull($overview($reader)['support_expiring']);
+        $this->assertNull($overview($reader)['cleanup_blocked']);
+        $operator = $this->operator('{support.request,cleanup.review}');
+        $baseline = $overview($operator);
+        $grant = fn (string $expires) => $this->control->table('support_grants')->insert(['id' => (string) Str::uuid(), 'org_id' => $this->workspace()[1], 'operator_id' => $operator->id, 'purpose' => 'Synthetic', 'resources' => '{reminders}',
+            'hours' => 24, 'state' => 'approved', 'decided_at' => now(), 'expires_at' => $expires]);
+        $grant(now()->addHour());
+        $grant(now()->addHours(5));
+        $batch = (string) Str::uuid();
+        $this->control->table('fixture_batches')->insert(['id' => $batch, 'name' => 'Overview '.$batch, 'reason' => 'Synthetic', 'created_by' => $operator->id]);
+        $this->control->table('cleanup_runs')->insert(['id' => (string) Str::uuid(), 'batch_id' => $batch, 'batch_version' => 1, 'manifest' => '[]', 'eligible' => 0, 'blocked' => 2, 'protected' => 0, 'created_by' => $operator->id]);
+        $after = $overview($operator);
+        $this->assertSame($baseline['support_expiring'] + 1, $after['support_expiring']);
+        $this->assertSame($baseline['cleanup_blocked'] + 1, $after['cleanup_blocked']);
+        // A dry run that no longer matches its batch is not counted.
+        $this->control->table('fixture_batches')->where('id', $batch)->update(['version' => 2]);
+        $this->assertSame($baseline['cleanup_blocked'], $overview($operator)['cleanup_blocked']);
     }
 }

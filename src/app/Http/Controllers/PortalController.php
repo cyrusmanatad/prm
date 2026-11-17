@@ -75,7 +75,8 @@ class PortalController extends Controller
         if ($request->is('partner') && (! $request->expectsJson() || $request->header('X-Inertia'))) {
             return redirect('/partner/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
-        $relationships = DB::table('partnerships')->orderBy('accepted_at')->get(['id', 'brand_name', 'creator_name', 'status', 'accepted_at'])->all();
+        // `paused` tells a participant only that the other party's workspace is suspended; the relationship itself is unchanged.
+        $relationships = DB::table('partnerships')->orderBy('accepted_at')->get(['id', 'brand_name', 'creator_name', 'status', 'accepted_at', DB::raw('app_partnership_paused(id) AS paused')])->all();
         $data = ['portal' => $portal, 'workspace' => $workspace, 'relationships' => $relationships,
             'canManage' => (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$org])->allowed,
             'invitations' => DB::table('partner_invitations as i')->leftJoin('notification_outbox as n', 'n.subject_id', '=', 'i.id')

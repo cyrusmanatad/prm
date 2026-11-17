@@ -206,6 +206,8 @@ test('Professional pipeline panels retain empty and populated partnerships acros
         await page.goto(invitation);
         await page.getByLabel(/I accept this partnership/).check();
         await page.getByRole('button', { name: 'Accept partnership', exact: true }).click();
+        // Wait for the acceptance to land before navigating; a server with several workers can answer the next page first.
+        await expect(page).toHaveURL(/\/professional\/leads$/);
         await page.goto('/professional/leads');
         await expect(page.getByText('Panel Brand', { exact: true })).toBeVisible();
         await expect(page.getByRole('heading', { name: 'From your brand partners' })).toHaveCSS(

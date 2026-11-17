@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AccountMenu from '../../components/AccountMenu.vue';
+import StatusBadge from '../../components/StatusBadge.vue';
 import type { PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
 // Synthetic reference content cannot be enabled in a production build.
@@ -408,7 +409,14 @@ const summary = computed(() => [
                                     <tr v-for="row in data.relationships" :key="row.id" class="border-t border-line">
                                         <td class="p-3">
                                             {{ row.creator_name }}
-                                            <p class="text-[12px] text-muted">Active partnership</p>
+                                            <p v-if="row.paused" class="mt-1">
+                                                <StatusBadge label="Paused" tone="warning" />
+                                                <span class="mt-1 block text-[12px] text-muted"
+                                                    >This partner's workspace is currently unavailable. The partnership
+                                                    is kept.</span
+                                                >
+                                            </p>
+                                            <p v-else class="text-[12px] text-muted">Active partnership</p>
                                         </td>
                                         <td v-for="column in 6" :key="column" class="p-3 text-muted">Unavailable</td>
                                         <td class="p-3">

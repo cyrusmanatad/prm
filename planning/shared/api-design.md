@@ -76,8 +76,8 @@ Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/part
 |---|---|---|
 | `GET /admin` | Any; JSON needs `directory.read` | Overview page. JSON clients receive the original directory payload (`q`, `page`) |
 | `GET /admin/security` | Grant only (no step-up) | Authenticator enrollment or challenge |
-| `GET /admin/accounts`, `/admin/accounts/{account}` | `directory.read` | Account list and detail; the access-impact review is included only with `access.manage` |
-| `GET /admin/workspaces`, `/admin/workspaces/{workspace}` | `directory.read` | Workspace list and detail (members, entitlement, usage and operational counts) |
+| `GET /admin/accounts`, `/admin/accounts/{account}` | `directory.read` | Account list and detail; the access-impact review is included only with `access.manage`. The list accepts `from` and `to` (joined date, `YYYY-MM-DD`, UTC days, `to` inclusive) |
+| `GET /admin/workspaces`, `/admin/workspaces/{workspace}` | `directory.read` | Workspace list and detail (members, entitlement, usage and operational counts). The list accepts `from` and `to` (created date, same format) |
 | `GET /admin/plans`, `/admin/plans/{plan}` | `plans.assign` | Plan versions and one version with its assignments |
 | `GET /admin/assignments` | `plans.assign` | Assignments with derived state and history |
 | `GET /admin/assignments/create?workspace=` | `plans.assign` and `directory.read` | Assignment form for one workspace |
@@ -116,6 +116,7 @@ Common behaviour:
 - **404** for unknown records. **409** with an `expected_version` error for a stale version (the notification resolution reports it on `version`). **422** for validation and rule violations, such as targeting your own grant or the last usable platform owner. **429** from per-route throttles.
 - **Fresh proof.** "Fresh proof" above means `password` and a new six-digit `code` in the request body, in addition to the step-up. Codes are single use.
 - **Paging.** Lists use `page` with 25 rows and a server `total`; filters are allowlisted. This differs from the cursor pagination proposed for tenant resources.
+- **Partner portals.** Each row of `relationships` on `GET /brand` and `GET /partner` carries `paused`: true when the other party's workspace is suspended. No reason or other suspension detail is returned.
 - No route changes a membership or role, deletes an account or workspace, executes a cleanup or exports audit data. The `/orgs/{orgId}/memberships` row above remains a tenant owner/admin responsibility.
 
 ## M5-03 implemented automation settings

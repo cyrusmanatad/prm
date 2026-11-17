@@ -35,6 +35,8 @@ class NotificationOutbox
     public function dispatch(): int
     {
         DB::select('SELECT app_reconcile_notifications()');
+        // Email waiting for a suspended workspace or actor is cancelled rather than held for reactivation.
+        DB::select('SELECT app_skip_suspended_work()');
         $rows = DB::select('SELECT * FROM app_claim_notifications()');
         $queued = 0;
         foreach ($rows as $row) {
