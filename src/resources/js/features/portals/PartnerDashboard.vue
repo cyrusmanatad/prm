@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
 const { professional, path, clientLabel } = useWorkspaceExperience();
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import LeadManager from '../pipeline/LeadManager.vue';
 import PipelineBoard from '../pipeline/PipelineBoard.vue';
@@ -14,7 +14,21 @@ const props = defineProps<{ data: PortalData; fixture?: boolean }>();
 const fixture = import.meta.env.DEV && props.fixture === true;
 defineEmits<{ invite: []; remove: [id: string, trigger: HTMLElement] }>();
 const leadManager = ref<InstanceType<typeof LeadManager> | null>(null);
-const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+// Date uses the browser's local timezone rather than the application server's timezone.
+const now = ref(new Date());
+const today = computed(() => now.value.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }));
+const greeting = computed(() => {
+    const hour = now.value.getHours();
+    return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+});
+let clock: ReturnType<typeof setInterval> | undefined;
+onMounted(() => {
+    now.value = new Date();
+    clock = setInterval(() => {
+        now.value = new Date();
+    }, 60_000);
+});
+onUnmounted(() => clearInterval(clock));
 function open(path: string): void {
     if (!fixture) router.get(path);
 }
@@ -49,9 +63,7 @@ const summary = computed(() => [
                         {{
                             professional
                                 ? 'Client leads'
-                                : fixture
-                                  ? 'Magandang umaga, Bea'
-                                  : `Magandang umaga, ${data.account.name.split(' ')[0]}`
+                                : `${greeting}, ${fixture ? 'Bea' : data.account.name.split(' ')[0]}`
                         }}
                     </h1>
                     <p class="mt-2 text-[15px] text-ink-soft">
