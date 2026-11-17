@@ -705,3 +705,28 @@ it('presents a cleanup dry run as a preview with reasons and no way to execute i
     ).toHaveLength(0);
     expect(wrapper.findAll('form')).toHaveLength(0);
 });
+
+it('draws the enrollment QR code in the browser from the setup key', async () => {
+    const { default: PlatformSecurity } = await import('../../resources/js/pages/PlatformSecurity.vue');
+    const { enrollmentUri } = await import('../../resources/js/features/admin/enrollment');
+    const request = vi.spyOn(globalThis, 'fetch');
+    page.value.props.account = { name: 'Example Owner', email: 'owner+admin@example.test' };
+    const secret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
+
+    expect(enrollmentUri(secret, 'owner+admin@example.test')).toBe(
+        `otpauth://totp/WeavDash%20Admin:owner%2Badmin%40example.test?secret=${secret}&issuer=WeavDash%20Admin&algorithm=SHA1&digits=6&period=30`,
+    );
+
+    const pending = render(PlatformSecurity, { enrolled: false, secret });
+    const code = pending.get('svg[role="img"]');
+    expect(code.attributes('aria-label')).toBe('QR code for authenticator setup');
+    expect(code.get('path').attributes('d')).toMatch(/^(M\d+ \d+h1v1h-1z)+$/);
+    // The secret appears only as the copyable setup key: never in an image address or a request.
+    expect(pending.find('img').exists()).toBe(false);
+    expect(code.html()).not.toContain(secret);
+    expect(pending.get('code').text()).toBe(secret);
+    expect(request).not.toHaveBeenCalled();
+
+    expect(render(PlatformSecurity, { enrolled: false }).find('svg[role="img"]').exists()).toBe(false);
+    expect(render(PlatformSecurity, { enrolled: true }).find('svg[role="img"]').exists()).toBe(false);
+});

@@ -5,7 +5,7 @@
 > **Policies this brief lists as Assumption / Open that are now Confirmed:** MFA method and recovery (D31); suspension effects ([suspension rules](suspension-proposal.md), D32); support approval, scope and duration, and cleanup scope and retention (D32).
 >
 > **Where the implementation differs from this brief:**
-> - No separate `/admin/login`; administration uses the shared sign-in, then the authenticator step at `/admin/security`. No QR code or recovery codes.
+> - No separate `/admin/login`; administration uses the shared sign-in, then the authenticator step at `/admin/security`. No recovery codes. A QR code on enrollment was added on 2026-11-17 (D33).
 > - Support access is approved by a workspace owner inside their workspace, not by a platform approver, and shows no "policy not configured" state. Free-text notes, template bodies, onboarding answers, documents and payment evidence are never shown.
 > - Cleanup stops at the dry-run manifest (§5.13 steps 1–2). Review, confirm-execution and results stages are not built; nothing can be deleted.
 > - Not built: column chooser, quick-inspection drawers, fixture/protected and date filters on directories, plan-version create form (versions are created by recording an assignment), tenant audit events, audit export, support-expiry and cleanup items in the overview attention list, membership changes, the partner-side "paused" label.

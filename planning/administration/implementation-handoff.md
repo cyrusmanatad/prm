@@ -2,7 +2,7 @@
 
 Written 2026-11-17, after the administration console merged to `main` at `f16fd09` ([PR #18](https://github.com/cyrusmanatad/prm/pull/18)). This is a self-contained brief for the next session. It covers three things: documentation that still has to catch up with the code, administration work that is not yet implemented, and decisions that need the user's approval.
 
-**Confirmed:** Part A was the only work authorized when this was written. The Part C decisions were made on 2026-11-17 (D33). Of the items that waited on them, only B7 is authorized for implementation; the second founder's staging grant and B13 need the steps named in their rows.
+**Confirmed:** Part A was the only work authorized when this was written. The Part C decisions were made on 2026-11-17 (D33). Of the items that waited on them, only B7 was authorized for implementation, and it is done; the second founder's staging grant and B13 need the steps named in their rows.
 
 ## Read first
 
@@ -97,7 +97,7 @@ B1–B6 were worked on 2026-11-17 on branch `administration/part-b`; results are
 | B4 | Record work refused at execution because of suspension as "skipped" (rule 5 says skipped and recorded; today it is only refused). | ADM-03 | **Done 2026-11-17**, including the same handling for account suspension. |
 | B5 | Directory extras from the design brief: joined/created date filters, fixture/protected classification filters once B11 exists, optional column chooser. | ADM-02 | **Done 2026-11-17** for the date filters; classification filters wait for B11; column chooser not built. |
 | B6 | Overview attention items for support access nearing expiry and blocked cleanup reviews. | ADM-05/06 | **Done 2026-11-17.** |
-| B7 | QR code on authenticator enrollment. Needs a new frontend dependency. | ADM-01 | **Approved (D33).** Not started. One small client-side library; the secret is rendered in the browser only. |
+| B7 | QR code on authenticator enrollment. Needs a new frontend dependency. | ADM-01 | **Done 2026-11-17 (D33).** Drawn in the browser with one small library (`uqr`); the setup key stays as the manual alternative. See the [enrollment QR evidence](enrollment-qr-evidence.md). |
 | B8 | Worker heartbeat, scanner health and mail-provider health on `/admin/operations`. Overlaps M6-03 monitoring. | ADM-05 | **Not in the console (D33).** Left to M6-03 monitoring. |
 | B9 | Membership role change or revocation from administration. Read-only today. | ADM-03 | **Not for launch (D33).** Stays read-only. |
 | B10 | Emergency support access. None exists. | ADM-06 | **Not for launch (D33).** Offline procedure only. |
@@ -120,7 +120,7 @@ Optional UI proposals from the original plan, outside administration scope and n
 | C3 | Membership role change or revocation from administration? | Stay read-only; workspace owners manage their members. |
 | C4 | Cleanup execution: approval, backup evidence, environments? | Deferred until M3-02 retention policy. Dry run only; never in production without a reviewed backup. |
 | C5 | Audit export and tenant audit browsing? | Not for launch. |
-| C6 | QR library for authenticator enrollment? | Approved (B7). |
+| C6 | QR library for authenticator enrollment? | Approved (B7, done). |
 | C7 | Worker/scanner/provider health in the console? | Left to M6-03. |
 | C8 | Owner and operator roster? | The two founders are platform owners; no other operators yet. Staging state and next steps are in row B13. |
 | C9 | Accept B3 and B4 as follow-ups? | Not needed: both were implemented on 2026-11-17. |

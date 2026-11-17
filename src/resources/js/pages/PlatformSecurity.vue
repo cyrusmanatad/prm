@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import AdminShell from '../layouts/AdminShell.vue';
 import ContentSection from '../components/ContentSection.vue';
 import CopyReference from '../components/CopyReference.vue';
@@ -8,8 +8,14 @@ import FormField from '../components/FormField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { Button } from '../components/ui/button';
 import { useValidationFocus } from '../composables/useValidationFocus';
+import EnrollmentQr from '../features/admin/EnrollmentQr.vue';
+import { enrollmentUri } from '../features/admin/enrollment';
 
 const props = defineProps<{ enrolled: boolean; secret?: string }>();
+const page = usePage<{ account?: { name: string; email: string } | null }>();
+const enrollment = computed(() =>
+    props.secret ? enrollmentUri(props.secret, page.props.account?.email ?? 'Administrator') : null,
+);
 const root = ref<HTMLElement>();
 const form = useForm({ password: '', code: '' });
 useValidationFocus(
@@ -40,8 +46,13 @@ function submit() {
             </p>
             <div v-if="secret" class="adm-setup-key">
                 <p>
-                    Add this setup key to your authenticator app as a time-based, six-digit account, then enter the
-                    current code. The key is shown once and expires in 10 minutes.
+                    Scan this QR code with your authenticator app, then enter the current code. The setup key is shown
+                    once and expires in 10 minutes.
+                </p>
+                <EnrollmentQr v-if="enrollment" :value="enrollment" label="QR code for authenticator setup" />
+                <p>
+                    If you cannot scan the code, add the setup key to your authenticator app as a time-based, six-digit
+                    account.
                 </p>
                 <p>Setup key: <CopyReference :value="secret" label="setup key" /></p>
             </div>
