@@ -1,5 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
+import { nextTick } from 'vue';
 import BrandDashboard from '../../resources/js/features/portals/BrandDashboard.vue';
 import PartnerDashboard from '../../resources/js/features/portals/PartnerDashboard.vue';
 
@@ -8,15 +9,21 @@ vi.mock('@inertiajs/vue3', () => ({
     router: { get: vi.fn(), post: vi.fn() },
     usePage: () => ({ url: '/brand', props: {} }),
 }));
-vi.mock('../../resources/js/composables/useWorkspaceExperience', () => ({
-    useWorkspaceExperience: () => ({
-        professional: { value: false },
-        path: (value: string) => value,
-        clientLabel: 'brand',
-    }),
-}));
+vi.mock('../../resources/js/composables/useWorkspaceExperience', async () => {
+    const { ref } = await import('vue');
+    return {
+        useWorkspaceExperience: () => ({
+            professional: ref(false),
+            path: (value: string) => value,
+            clientLabel: 'brand',
+        }),
+    };
+});
 const wrappers: VueWrapper[] = [];
-afterEach(() => wrappers.splice(0).forEach((wrapper) => wrapper.unmount()));
+afterEach(() => {
+    wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+    vi.useRealTimers();
+});
 
 const relationship = (paused: boolean) => ({
     id: paused ? 'paused' : 'active',
@@ -39,6 +46,40 @@ const stubs = {
     LeadManager: true,
     PipelineBoard: true,
 };
+
+it.each([
+    [0, 'Good morning'],
+    [11, 'Good morning'],
+    [12, 'Good afternoon'],
+    [17, 'Good afternoon'],
+    [18, 'Good evening'],
+    [23, 'Good evening'],
+])('greets the partner in English at local hour %i', (hour, greeting) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 17, hour, 0));
+    const wrapper = mount(PartnerDashboard, { props: { data: data('creator') }, global: { stubs } });
+    wrappers.push(wrapper);
+    expect(wrapper.get('h1').text()).toBe(`${greeting}, Jordan`);
+});
+
+it('updates the greeting at noon and evening, updates the date at midnight, and stops its clock on unmount', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 17, 11, 59));
+    const wrapper = mount(PartnerDashboard, { props: { data: data('creator') }, global: { stubs } });
+    expect(wrapper.get('h1').text()).toBe('Good morning, Jordan');
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(wrapper.get('h1').text()).toBe('Good afternoon, Jordan');
+    vi.setSystemTime(new Date(2026, 10, 17, 17, 59));
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(wrapper.get('h1').text()).toBe('Good evening, Jordan');
+    vi.setSystemTime(new Date(2026, 10, 17, 23, 59));
+    await vi.advanceTimersByTimeAsync(60_000);
+    await nextTick();
+    expect(wrapper.get('h1').text()).toBe('Good morning, Jordan');
+    expect(wrapper.text()).toContain('Wednesday 18 November');
+    wrapper.unmount();
+    expect(vi.getTimerCount()).toBe(0);
+});
 
 it('labels a partner whose workspace is suspended as paused on the brand roster, in words, and keeps the partnership manageable', () => {
     const wrapper = mount(BrandDashboard, { props: { data: data('brand') }, global: { stubs } });

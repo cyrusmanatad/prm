@@ -16,3 +16,14 @@ Backend verification passed 26 identity tests/252 assertions, 27 PostgreSQL test
 The drawer captures are full-page browser screenshots: the fixed dialog/backdrop occupy the viewport, with the rest of the underlying document retained below. Native modal focus and scrolling were exercised by the browser journeys.
 
 Manual screen-reader, actual full-browser zoom and native Safari reviews remain pending. No production deployment, external messaging or M4 implementation was performed.
+
+## Local-time English greeting (2026-11-17)
+
+**Confirmed:** replace the static partner greeting with English based on the user's browser timezone. Working-tree change based on `e6c4a5a`: morning before 12:00, afternoon from 12:00 to 17:59, evening from 18:00. Refresh every minute while mounted; the real-account date also follows local midnight. Reuses `PartnerDashboard` and its existing heading styles and `PartnerChrome`; no new presentation components or data contracts. Professional leads retain their existing page title.
+
+- `npm run format:check:changed`, `npm run typecheck`, and `npm run build`: passed.
+- `npm test -- tests/Frontend/PartnershipPaused.test.ts`: 9 passed, including greeting boundaries, noon/evening/midnight updates and timer cleanup. Corrected the existing experience mock to use a Vue ref so partner branches are actually exercised.
+- `node /tmp/weavdash-greeting-check.mjs`: Chromium synthetic portal checks passed. At the same instant, Manila showed evening, Los Angeles morning and London afternoon; an open page changed greeting at noon without reloading. No page errors. Heading bounds checked at widths 320, 390, 768, 1024 and 1440px (1000px height).
+- Visually inspected temporary 390×1000 and 1440×1000 captures: greeting legible, aligned with existing date/actions, no clipping. Captures removed after inspection; no new images retained.
+
+Scope: production Vue component in the existing development fixture plus real-account component tests. Authenticated app journeys, WebKit/native Safari and remote CI were not rerun for this text/clock change; inherited release gates remain open. No deployment performed.
