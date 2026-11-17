@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { fixture, login } from './helpers';
+import { baseWidth, fixture, isMobile, login, reviewWidths, smallTouchTargets } from './helpers';
 
 test('confirmed reply clears next action and cancels approved follow-up history', async ({ page }, info) => {
-    await page.setViewportSize({ width: 1440, height: 1080 });
+    await page.setViewportSize({ width: baseWidth(info), height: 1080 });
     const email = `m1-browser-reply-${Date.now()}@example.test`;
     fixture('seed-workspaces', email);
     await login(page, email);
@@ -83,10 +83,11 @@ test('confirmed reply clears next action and cancels approved follow-up history'
     await expect(page.getByText('Cancelled after a reply · Version 3', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Download approved message' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Edit Obsolete follow-up', exact: true })).toHaveCount(0);
-    for (const width of [1440, 1920]) {
+    for (const width of reviewWidths(info)) {
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        if (isMobile(info)) expect(await smallTouchTargets(page)).toEqual([]);
         if (process.env.CAPTURE_BROWSER_IMAGES === '1')
             await page.screenshot({ path: info.outputPath(`reply-inbox-${width}.png`), fullPage: true });
     }

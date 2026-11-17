@@ -139,7 +139,9 @@ function review(action: string): void {
         @logout="router.post('/logout')"
         ><div class="wd-workspace-content wd-onboarding-admin">
             <nav aria-label="Workspace">
-                <Link class="wd-link" :href="path('/partner/leads')">Back to leads</Link>
+                <Link class="wd-link inline-flex min-h-11 items-center" :href="path('/partner/leads')"
+                    >Back to leads</Link
+                >
             </nav>
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
@@ -195,15 +197,20 @@ function review(action: string): void {
                 <p v-if="$page.props.unscannedUploadsAllowed" class="wd-banner">
                     Staging uploads are not scanned for malware. Download only test files you trust.
                 </p>
-                <dl class="pro-request-details">
+                <dl class="wd-detail-list pro-request-details">
                     <dt>Client</dt>
-                    <dd>{{ selected.business_name }}</dd>
+                    <dd>{{ selected.business_name || 'Not provided' }}</dd>
                     <dt>Contact</dt>
-                    <dd>{{ selected.contact_name }} · {{ selected.business_email }}</dd>
+                    <dd>
+                        {{
+                            [selected.contact_name, selected.business_email].filter(Boolean).join(' · ') ||
+                            'Not provided'
+                        }}
+                    </dd>
                     <dt>Website</dt>
-                    <dd>{{ selected.website }}</dd>
+                    <dd>{{ selected.website || 'Not provided' }}</dd>
                     <dt>Brief</dt>
-                    <dd class="wd-pipeline-note">{{ selected.brief }}</dd>
+                    <dd class="wd-pipeline-note">{{ selected.brief || 'Not provided' }}</dd>
                 </dl>
                 <ul>
                     <li v-for="doc in selected.documents" :key="doc.id">
@@ -272,7 +279,7 @@ function review(action: string): void {
                         @submit.prevent="replace"
                     >
                         <fieldset class="wd-fields" :disabled="busy || !!errors?.version">
-                            <legend>Replacement invitation</legend>
+                            <legend class="wd-subheading">Replacement invitation</legend>
                             <OnboardingEmailFields
                                 prefix="replacement"
                                 v-model:send-email="sendEmail"
@@ -306,31 +313,22 @@ function review(action: string): void {
                         >Revoke invitation access</Button
                     ></template
                 >
-                <h3>Submission history</h3>
+                <h3 class="wd-subheading">Submission history</h3>
+                <p v-if="!submissions.length" class="wd-empty">Nothing has been submitted yet.</p>
                 <details v-for="submission in submissions" :key="submission.id">
                     <summary>Submission version {{ submission.revision }}</summary>
                     <p>Consent recorded: {{ submission.consent_at }}</p>
-                    <dl class="wd-fields">
-                        <div>
-                            <dt>Client</dt>
-                            <dd>{{ submission.snapshot.business_name }}</dd>
-                        </div>
-                        <div>
-                            <dt>Contact</dt>
-                            <dd>{{ submission.snapshot.contact_name }}</dd>
-                        </div>
-                        <div>
-                            <dt>Client email</dt>
-                            <dd>{{ submission.snapshot.business_email }}</dd>
-                        </div>
-                        <div>
-                            <dt>Website</dt>
-                            <dd>{{ submission.snapshot.website || 'Not provided' }}</dd>
-                        </div>
-                        <div>
-                            <dt>Collaboration brief</dt>
-                            <dd>{{ submission.snapshot.brief }}</dd>
-                        </div>
+                    <dl class="wd-detail-list">
+                        <dt>Client</dt>
+                        <dd>{{ submission.snapshot.business_name }}</dd>
+                        <dt>Contact</dt>
+                        <dd>{{ submission.snapshot.contact_name }}</dd>
+                        <dt>Client email</dt>
+                        <dd>{{ submission.snapshot.business_email }}</dd>
+                        <dt>Website</dt>
+                        <dd>{{ submission.snapshot.website || 'Not provided' }}</dd>
+                        <dt>Collaboration brief</dt>
+                        <dd>{{ submission.snapshot.brief }}</dd>
                     </dl>
                     <p>{{ submission.snapshot.documents?.length ?? 0 }} reference files shared with this submission.</p>
                 </details>
@@ -341,7 +339,7 @@ function review(action: string): void {
                     cancel obsolete pending notices; mail already sending cannot be recalled.
                 </p>
                 <p v-if="!emails.length">No email requested or queued for this request.</p>
-                <ul v-else>
+                <ul v-else class="email-history">
                     <li v-for="email in emails" :key="email.id">
                         {{ emailKinds[email.kind] ?? 'Onboarding notice' }} ·
                         {{ new Date(email.created_at).toLocaleString() }} · {{ emailStates[email.state] }}
@@ -360,7 +358,21 @@ dd {
     overflow-wrap: anywhere;
     white-space: pre-wrap;
 }
-input {
+input:not([type='checkbox']) {
     width: 100%;
+}
+summary {
+    cursor: pointer;
+    padding: 10px 0;
+}
+.email-history {
+    padding-left: 0;
+    list-style: none;
+}
+.email-history li {
+    padding: 8px 0;
+}
+.email-history li + li {
+    border-top: 1px solid var(--wd-line);
 }
 </style>
