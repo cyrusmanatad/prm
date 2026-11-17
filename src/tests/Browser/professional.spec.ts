@@ -70,15 +70,28 @@ test('professional workspace, shared client tools, exports and administrator MFA
     await page.getByLabel('Password', { exact: true }).fill('browser-password-123');
     await page.getByLabel('Authenticator code').fill(code);
     await page.getByRole('button', { name: 'Verify and continue' }).click();
-    await expect(page.getByRole('heading', { name: 'Accounts and workspaces' })).toBeVisible();
-    await page.getByLabel('Search names').fill(workspaceName);
-    await page.getByRole('button', { name: 'Search', exact: true }).click();
-    await expect(page).toHaveURL((url) => url.pathname === '/admin' && url.searchParams.get('q') === workspaceName);
-    await page.getByRole('combobox', { name: 'Workspace', exact: true }).click();
-    await page.getByRole('option', { name: workspaceName, exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Overview', level: 1 })).toBeVisible();
+    await page.goto('/admin/workspaces');
+    await page.getByLabel('Name or workspace ID', { exact: true }).fill(workspaceName);
+    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await expect(page).toHaveURL(
+        (url) => url.pathname === '/admin/workspaces' && url.searchParams.get('q') === workspaceName,
+    );
+    await page
+        .getByRole('table', { name: 'Workspaces' })
+        .getByRole('link', { name: workspaceName, exact: true })
+        .click();
+    await page
+        .getByRole('navigation', { name: 'Workspace sections', exact: true })
+        .getByRole('link', { name: 'Entitlements', exact: true })
+        .click();
+    await page.getByRole('link', { name: /^(Replace|Record) assignment$/ }).click();
     await page.getByLabel('Plan name', { exact: true }).fill('Synthetic renewed subscription');
-    await page.locator('#assign-start').fill(new Date(Date.now() - 60000).toISOString());
-    await page.locator('#assign-end').fill(new Date(Date.now() + 86400000).toISOString());
+    // datetime-local takes the browser's local wall time; the page converts it to an ISO instant.
+    const local = (date: Date) =>
+        new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    await page.locator('#assign-start').fill(local(new Date(Date.now() - 120000)));
+    await page.locator('#assign-end').fill(local(new Date(Date.now() + 86400000)));
     for (const resource of [
         'pipeline_entries',
         'brand_contacts',

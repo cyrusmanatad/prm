@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnforceAccountAccess;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\UploadRestrictions;
+use App\Http\Middleware\WorkspaceContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [UploadRestrictions::class, HandleInertiaRequests::class]);
+        $middleware->web(append: [UploadRestrictions::class, HandleInertiaRequests::class, EnforceAccountAccess::class]);
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
     })
@@ -62,8 +64,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 $messages[409] = 'This submission changed. Reload the form before trying again.';
             }
             $status = $response->getStatusCode();
+            // A suspended workspace tells its members why they cannot open it, without giving the reason.
+            if ($status === 403 && $exception->getMessage() === WorkspaceContext::SUSPENDED) {
+                $messages[403] = WorkspaceContext::SUSPENDED;
+            }
             if ((! $request->expectsJson() || $request->header('X-Inertia')) && isset($messages[$status])) {
-                return Inertia::render('Error', ['statusCode' => $status, 'message' => $messages[$status]])
+                // Administration denials stay generic: no module names or records are enumerated.
+                return Inertia::render($status === 403 && $request->is('admin', 'admin/*') ? 'PlatformDenied' : 'Error', ['statusCode' => $status, 'message' => $messages[$status]])
                     ->toResponse($request)->setStatusCode($status)
                     ->withHeaders(array_filter([
                         'Cache-Control' => 'no-store, private',

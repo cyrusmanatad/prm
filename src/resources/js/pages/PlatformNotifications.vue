@@ -1,141 +1,124 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import FoundationShell from '../layouts/FoundationShell.vue';
+import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
+import AdminShell from '../layouts/AdminShell.vue';
 import ContentSection from '../components/ContentSection.vue';
+import DataTable from '../components/DataTable.vue';
+import EmptyState from '../components/EmptyState.vue';
+import FilterBar from '../components/FilterBar.vue';
 import FormField from '../components/FormField.vue';
+import Pagination from '../components/Pagination.vue';
 import SelectField from '../components/SelectField.vue';
-import ActionGroup from '../components/ActionGroup.vue';
-import { Button } from '../components/ui/button';
-
-import ResolutionForm from '../features/platform-notifications/ResolutionForm.vue';
+import StatusBadge from '../components/StatusBadge.vue';
+import { useListFilters } from '../composables/useListFilters';
 import { resolutionOptions as resolutions, type DeliveryNotice } from '../features/platform-notifications/types';
+import { dateTime, notificationStates as states } from '../features/admin/format';
 
+type Filters = { q: string; workspace: string; state: string };
 const props = defineProps<{
-    account: { name: string; email: string };
     notices: DeliveryNotice[];
+    total: number;
     workspace: string;
+    q: string;
     state: string;
     page: number;
     canResolve: boolean;
-    canDirectory: boolean;
 }>();
-const workspace = ref(props.workspace);
-const state = ref(props.state);
-const selected = ref<DeliveryNotice | null>(null);
-const resolving = ref(false);
-const states = {
-    pending: 'Queued; delivery pending',
-    sending: 'Send reserved; outcome pending',
-    sent: 'Accepted by mail transport; receipt unconfirmed',
-    captured: 'Captured locally; no external email sent',
-    cancelled: 'Cancelled before sending',
-    uncertain: 'Uncertain; automatic resend blocked',
-};
-const failures: Record<string, string> = {
-    transport_unavailable: 'Mail transport was unavailable',
-    workspace_budget: 'Workspace delivery budget blocked this attempt',
-    global_budget: 'Application delivery budget blocked this attempt',
-    queue_unavailable: 'Queue publication was unavailable',
-};
-function choose(notice: DeliveryNotice) {
-    selected.value = notice;
-}
-function load(page = 1) {
-    router.get(
-        '/admin/notifications',
-        { workspace: workspace.value || undefined, state: state.value || undefined, page },
-        { preserveState: false },
-    );
+const filters = computed<Filters>(() => ({ q: props.q, workspace: props.workspace, state: props.state }));
+const { draft, pending, submit, clear, href } = useListFilters<Filters>('/admin/notifications', () => filters.value);
+const applied = computed(() => [
+    ...(props.q ? [{ label: 'Search', value: props.q }] : []),
+    ...(props.workspace ? [{ label: 'Workspace', value: props.notices[0]?.workspace ?? props.workspace }] : []),
+    ...(props.state ? [{ label: 'State', value: states[props.state]?.label ?? props.state }] : []),
+]);
+const columns = [
+    { key: 'kind', label: 'Notification' },
+    { key: 'workspace', label: 'Workspace' },
+    { key: 'state', label: 'State' },
+    { key: 'created_at', label: 'Created' },
+    { key: 'next', label: 'Next step' },
+];
+function next(notice: DeliveryNotice): string {
+    if (notice.resolution)
+        return `Resolved: ${resolutions.find((option) => option.value === notice.resolution)?.label ?? notice.resolution}`;
+    if (notice.state === 'uncertain') return props.canResolve ? 'Review delivery' : 'Awaiting review';
+    return 'None';
 }
 </script>
+
 <template>
-    <Head title="Delivery diagnostics" />
-    <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
-        <div class="wd-workspace-content wd-finance wd-finance-sections">
-            <header class="wd-page-heading">
-                <span class="wd-eyebrow">Platform administration</span>
-                <h1>Delivery diagnostics</h1>
-                <p class="wd-description">
-                    Review delivery state and record provider evidence without opening private messages.
-                </p>
-            </header>
-            <Link v-if="canDirectory" href="/admin" class="wd-link inline-flex min-h-11 items-center"
-                >Accounts and workspaces</Link
+    <AdminShell
+        title="Notifications"
+        description="Delivery state for notification intents. Message bodies, recipients and links are never shown, and nothing is resent from here."
+        eyebrow="Operations"
+    >
+        <ContentSection title="Find deliveries">
+            <FilterBar
+                label="Filter deliveries"
+                :applied="applied"
+                :pending="pending"
+                submit-label="Filter deliveries"
+                @submit="submit"
+                @clear="clear"
             >
-            <ContentSection title="Find deliveries">
-                <form @submit.prevent="load()">
-                    <div class="wd-fields">
-                        <FormField
-                            id="delivery-workspace"
-                            v-model="workspace"
-                            label="Workspace ID (optional)"
-                            :required="false"
-                        /><SelectField
-                            id="delivery-state"
-                            v-model="state"
-                            label="Delivery state"
-                            :options="[
-                                { value: '', label: 'All states' },
-                                ...Object.keys(states).map((key) => ({
-                                    value: key,
-                                    label: states[key as keyof typeof states],
-                                })),
-                            ]"
-                        /><Button class="wd-button wd-button-secondary" type="submit">Filter deliveries</Button>
-                    </div>
-                </form>
-            </ContentSection>
-            <ContentSection
-                title="Delivery history"
-                description="Latest 25 matching records per page. Transport acceptance does not confirm mailbox receipt."
-            >
-                <p v-if="!notices.length" class="wd-empty">No deliveries match these filters.</p>
-                <article v-for="notice in notices" :key="notice.id" class="wd-section-stack">
-                    <h3 class="break-all">{{ notice.id }}</h3>
-                    <p>{{ states[notice.state as keyof typeof states] }}</p>
-                    <p class="wd-hint break-all">
-                        Workspace {{ notice.org_id }} · {{ notice.kind }} ·
-                        {{ new Date(notice.created_at).toLocaleString() }}
-                    </p>
-                    <p v-if="notice.failure_code">
-                        Last deferral: {{ failures[notice.failure_code] }}. Eligible again
-                        {{ new Date(notice.available_at).toLocaleString() }}.
-                    </p>
-                    <p v-if="notice.resolution">
-                        Recorded resolution: {{ resolutions.find((row) => row.value === notice.resolution)?.label }}. No
-                        resend authorized.
-                    </p>
-                    <Button
-                        v-if="canResolve && notice.state === 'uncertain' && !notice.resolution"
-                        type="button"
-                        class="wd-button wd-button-secondary"
-                        :disabled="resolving"
-                        :ariaLabel="`Review resolution ${notice.id}`"
-                        @click="choose(notice)"
-                        >Review resolution</Button
-                    >
-                </article>
-                <ActionGroup label="Delivery history pages"
-                    ><Button v-if="page > 1" type="button" class="wd-button wd-button-secondary" @click="load(page - 1)"
-                        >Previous</Button
-                    ><Button
-                        v-if="notices.length === 25"
-                        type="button"
-                        class="wd-button wd-button-secondary"
-                        @click="load(page + 1)"
-                        >Next</Button
-                    ></ActionGroup
-                >
-            </ContentSection>
-            <ResolutionForm
-                v-if="selected && canResolve"
-                :key="selected.id"
-                :notice="selected"
-                :filters="{ workspace: props.workspace, state: props.state, page: props.page }"
-                @busy="resolving = $event"
-                @close="selected = null"
+                <FormField
+                    id="delivery-search"
+                    v-model="draft.q"
+                    label="Workspace name, workspace ID or notification ID"
+                    :required="false"
+                    :maxlength="120"
+                />
+                <SelectField
+                    id="delivery-state"
+                    v-model="draft.state"
+                    label="Delivery state"
+                    :options="[
+                        { value: '', label: 'All states' },
+                        ...Object.entries(states).map(([value, entry]) => ({ value, label: entry.label })),
+                    ]"
+                />
+            </FilterBar>
+        </ContentSection>
+        <ContentSection
+            title="Delivery history"
+            description="Newest first. Accepted by transport does not confirm that a recipient received the message."
+        >
+            <EmptyState
+                v-if="!notices.length && applied.length"
+                title="No deliveries match these filters"
+                description="Change or clear the filters to see other deliveries."
             />
-        </div>
-    </FoundationShell>
+            <EmptyState
+                v-else-if="!notices.length"
+                title="No deliveries recorded"
+                description="Notification intents appear here once a workspace queues an email."
+            />
+            <DataTable v-else caption="Delivery history" :columns="columns" :rows="notices" :row-key="(row) => row.id">
+                <template #cell-kind="{ row }"
+                    ><Link
+                        :href="`/admin/notifications/${row.id}`"
+                        v-bind="{ 'aria-label': `${row.kind}, notification ${row.id}` }"
+                        >{{ row.kind }}</Link
+                    ><span class="wd-data-secondary">{{ row.id.slice(0, 8) }}…</span></template
+                >
+                <template #cell-state="{ row }">
+                    <StatusBadge
+                        :label="states[row.state]?.label ?? row.state"
+                        :tone="states[row.state]?.tone ?? 'neutral'"
+                    />
+                </template>
+                <template #cell-created_at="{ row }">{{ dateTime(row.created_at) }}</template>
+                <template #cell-next="{ row }">{{ next(row) }}</template>
+            </DataTable>
+            <Pagination
+                label="Delivery history pages"
+                :page="page"
+                :per-page="25"
+                :count="notices.length"
+                :total="total"
+                noun="deliveries"
+                :href-for="href"
+            />
+        </ContentSection>
+    </AdminShell>
 </template>

@@ -1244,3 +1244,394 @@ summary:focus-visible {
     line-height: 1.5;
     text-align: center;
 }
+
+/* Shared record presentation: tables, badges, filters, paging, tabs and summaries. */
+.wd-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    color: var(--wd-body);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.wd-badge svg {
+    flex-shrink: 0;
+}
+.wd-badge-success {
+    background: var(--wd-success-bg);
+    color: var(--wd-success);
+}
+.wd-badge-warning {
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+}
+.wd-badge-danger {
+    background: var(--wd-danger-bg);
+    color: var(--wd-danger);
+}
+.wd-data-region {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    contain: inline-size;
+}
+.wd-data-region:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.wd-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+.wd-data-table caption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+.wd-data-table th,
+.wd-data-table td {
+    padding: 12px 16px;
+    vertical-align: top;
+    /* Whole words stay intact; a crowded table scrolls inside its region instead of splitting short labels. */
+    overflow-wrap: break-word;
+}
+.wd-data-table thead th {
+    background: var(--wd-paper);
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--wd-line);
+}
+.wd-data-table tbody tr + tr > * {
+    border-top: 1px solid var(--wd-divider);
+}
+.wd-data-table tbody th {
+    font-weight: 700;
+    color: var(--wd-ink);
+    min-width: 180px;
+}
+.wd-data-table .wd-data-numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+/* A status must stay readable: let the table scroll before a badge breaks mid-word. */
+.wd-data-table .wd-badge {
+    white-space: nowrap;
+}
+.wd-data-region:not(.wd-data-stacked) .wd-data-table {
+    min-width: 560px;
+}
+@media (min-width: 600px) {
+    /* Above the compact-record breakpoint a crowded table scrolls inside its region. */
+    .wd-data-table {
+        min-width: 560px;
+    }
+}
+.wd-data-table .wd-data-secondary {
+    display: block;
+    color: var(--wd-muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+.wd-data-table a {
+    color: var(--wd-brand);
+    font-weight: 700;
+    text-underline-offset: 4px;
+}
+.wd-data-table a:focus-visible,
+.wd-tabs a:focus-visible,
+.wd-pagination a:focus-visible,
+.wd-stat-card a:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+.wd-filter-bar {
+    display: grid;
+    gap: 12px;
+}
+.wd-filter-bar .wd-toolbar > .wd-action-group {
+    flex: 0 0 auto;
+}
+.wd-filter-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    color: var(--wd-body);
+}
+.wd-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+}
+.wd-pagination p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--wd-body);
+}
+.wd-pagination-links {
+    display: flex;
+    gap: 8px;
+}
+.wd-pagination-links a,
+.wd-pagination-links span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font-weight: 600;
+    text-decoration: none;
+}
+.wd-pagination-links a:hover {
+    background: var(--wd-paper);
+    color: var(--wd-brand);
+}
+.wd-pagination-links span {
+    color: var(--wd-muted);
+    background: var(--wd-divider);
+    border-color: var(--wd-divider);
+}
+.wd-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--wd-line);
+    contain: inline-size;
+}
+.wd-tabs ul {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.wd-tabs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-bottom: 3px solid transparent;
+    color: var(--wd-body);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.wd-tabs a:hover {
+    color: var(--wd-brand);
+}
+.wd-tabs a[aria-current='page'] {
+    border-bottom-color: var(--wd-brand);
+    color: var(--wd-brand);
+    font-weight: 700;
+}
+.wd-empty-state {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+    padding: 24px;
+    border: 1px dashed var(--wd-control-line);
+    border-radius: 12px;
+    background: var(--wd-paper);
+}
+.wd-empty-state h3,
+.wd-empty-state p {
+    margin: 0;
+}
+.wd-empty-state h3 {
+    font-size: 15px;
+}
+.wd-empty-state p {
+    color: var(--wd-body);
+}
+.wd-detail-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px 24px;
+    margin: 0;
+}
+.wd-detail-list dt {
+    font-size: 13px;
+    color: var(--wd-muted);
+}
+.wd-detail-list dd {
+    margin: 0 0 12px;
+    overflow-wrap: anywhere;
+}
+.wd-copy-reference {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    max-width: 100%;
+}
+.wd-copy-reference code {
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--wd-divider);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+.wd-copy-reference button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--wd-brand);
+}
+.wd-copy-reference button:hover {
+    background: var(--wd-paper);
+}
+.wd-copy-reference button:focus-visible {
+    outline-offset: 0;
+}
+.wd-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+.wd-stat-card {
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--wd-line);
+    border-radius: 16px;
+    background: var(--wd-surface);
+}
+.wd-stat-card h3,
+.wd-stat-card p {
+    margin: 0;
+}
+.wd-stat-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wd-body);
+}
+.wd-stat-value {
+    font-family: var(--wd-font-display);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--wd-ink);
+}
+.wd-stat-value-unavailable {
+    font-family: var(--wd-font-body);
+    font-size: 16px;
+    color: var(--wd-muted);
+}
+.wd-stat-card a {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--wd-brand);
+    font-weight: 700;
+    text-underline-offset: 4px;
+}
+.wd-unavailable {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 12px;
+    padding: 16px;
+    border: 1px solid var(--wd-wood);
+    border-radius: 12px;
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+}
+.wd-unavailable svg {
+    grid-row: span 3;
+    margin-top: 2px;
+}
+.wd-unavailable h3,
+.wd-unavailable p {
+    grid-column: 2;
+    margin: 0;
+}
+.wd-unavailable h3 {
+    font-size: 15px;
+}
+.wd-unavailable p {
+    color: var(--wd-ink);
+}
+@media (min-width: 768px) {
+    .wd-detail-list {
+        grid-template-columns: minmax(140px, 220px) minmax(0, 1fr);
+    }
+}
+@media (max-width: 599px) {
+    /* Compact records: each row becomes a labelled card; explicit ARIA roles keep table semantics. */
+    .wd-data-stacked {
+        border: 0;
+        border-radius: 0;
+        overflow: visible;
+    }
+    .wd-data-stacked .wd-data-table,
+    .wd-data-stacked .wd-data-table tbody,
+    .wd-data-stacked .wd-data-table tr,
+    .wd-data-stacked .wd-data-table th,
+    .wd-data-stacked .wd-data-table td {
+        display: block;
+    }
+    .wd-data-stacked .wd-data-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+    .wd-data-stacked .wd-data-table tbody tr {
+        padding: 12px 16px;
+        border: 1px solid var(--wd-line);
+        border-radius: 12px;
+        background: var(--wd-surface);
+    }
+    .wd-data-stacked .wd-data-table tbody tr + tr {
+        margin-top: 12px;
+    }
+    .wd-data-stacked .wd-data-table tbody tr > * {
+        min-width: 0;
+        padding: 4px 0;
+        border: 0;
+        text-align: left;
+    }
+    .wd-data-stacked .wd-data-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--wd-muted);
+        font-size: 12px;
+        font-weight: 700;
+    }
+}

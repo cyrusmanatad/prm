@@ -43,7 +43,8 @@ class PartnerJoinController extends Controller
     {
         $data = $request->validate(['code' => ['required', 'string', 'max:32']]);
         $code = PartnershipInvitation::normalizeCode($data['code']);
-        $brand = $code ? DB::selectOne('SELECT app_join_link_brand(?::text) AS name', [hash('sha256', $code)])->name : null;
+        $brand = $code && ! DB::selectOne("SELECT app_public_link_suspended('join',?) AS suspended", [hash('sha256', $code)])->suspended
+            ? DB::selectOne('SELECT app_join_link_brand(?::text) AS name', [hash('sha256', $code)])->name : null;
         if (! $brand) {
             $message = 'This sign-up link or code is not active. Check it with the brand.';
             abort_if($request->expectsJson() && ! $request->header('X-Inertia'), 404, $message);
@@ -61,7 +62,7 @@ class PartnerJoinController extends Controller
     {
         $request->validate(['consent' => ['accepted']]);
         $join = PartnershipInvitation::join($request);
-        $ok = $join && DB::selectOne('SELECT app_join_partner(?::text,?::uuid) AS allowed', [hash('sha256', $join['code']), (string) Str::uuid()])->allowed;
+        $ok = $join && ! DB::selectOne("SELECT app_public_link_suspended('join',?) AS suspended", [hash('sha256', $join['code'])])->suspended && DB::selectOne('SELECT app_join_partner(?::text,?::uuid) AS allowed', [hash('sha256', $join['code']), (string) Str::uuid()])->allowed;
         if (! $ok) {
             $message = $join
                 ? 'This account cannot join. You may already be partnered with this brand, or the brand may have replaced its link.'

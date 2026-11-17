@@ -49,6 +49,7 @@ class Onboarding
 
     public function exchange(string $token): string
     {
+        abort_if(DB::selectOne("SELECT app_public_link_suspended('onboarding',?) AS suspended", [hash('sha256', $token)])->suspended, 404);
         $session = bin2hex(random_bytes(32));
         $ok = DB::selectOne('SELECT app_exchange_onboarding(?,?,?::uuid) AS ok', [hash('sha256', $token), hash('sha256', $session), (string) Str::uuid()]);
         if (! $ok?->ok) {
@@ -65,6 +66,7 @@ class Onboarding
             $hash = hash('sha256', $secret);
             $scope = DB::selectOne('SELECT * FROM app_onboarding_scope(?)', [$hash]);
             abort_unless($scope, 403);
+            abort_if(DB::selectOne('SELECT app_workspace_suspended(?::uuid) AS suspended', [$scope->org])->suspended, 403);
             DB::selectOne("SELECT set_config('app.capability',?,true),set_config('app.org_id',?,true)", [$hash, $scope->org]);
 
             app(ProfessionalAccess::class)->requireActive($scope->org);

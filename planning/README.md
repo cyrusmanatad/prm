@@ -1,3 +1,5 @@
+**Administration console (2026-11-17, D31/D32):** shell, directories, entitlements, diagnostics, audit, operator management, suspension, owner-approved support access and cleanup dry runs are implemented and locally verified on `administration/console`; see the [console evidence](administration/console-evidence.md) and [confirmed suspension rules](administration/suspension-proposal.md). Cleanup execution and real-owner provisioning remain separate steps. No ADM package is closed.
+
 **M5-09 preparation (2026-11-14):** [matrix, proposed limits and runbook](m5/provider-delivery-acceptance.md); [preflight evidence and pending gates](m5/provider-delivery-evidence.md). The controlled-recipient trial is authorized and staging has been updated to `c13e960`; receipt/link trials are in progress. Production budgets stay open.
 
 **PR #16 merged (2026-11-14):** recovery implementation and CI repair are complete on `main` at `c13e960`. See [repair scope and verification](m5/ci-repair-evidence.md). Next: M5-09 provider delivery/link-opening acceptance and actual budget approval; M5/M6 advancement remains gated.
@@ -33,7 +35,7 @@
 | `m5/` | [Status](m5/status.md), [notification contract](m5/notification-contract.md), [evidence](m5/evidence.md), [recovery](m5/recovery-contract.md), [recovery evidence](m5/recovery-evidence.md) |
 | `m6/` | [Status](m6/status.md), [readiness contract](m6/readiness-contract.md) |
 | `shared/` | [Current handoff](shared/implementation-handoff.md), [remaining tasks](shared/remaining-tasks.md), [roadmap](shared/implementation-roadmap.md), [decisions](shared/decisions.md); project-wide architecture and requirements follow the reading order below |
-| `administration/` | [Contract](administration/contract.md), [design handoff](administration/design-handoff.md) |
+| `administration/` | [Contract](administration/contract.md), [design handoff](administration/design-handoff.md), [console evidence](administration/console-evidence.md), [suspension rules](administration/suspension-proposal.md) |
 | `professional/` | [Status](professional/hub-status.md), [contract](professional/hub-contract.md), [UI handoff](professional/ui-handoff.md) |
 
 The [evidence index](evidence.md) lists verification Markdown in these folders. Existing non-Markdown artifacts remain under `planning/evidence/`; moved reports link to them at their original locations. New evidence retains concise text records and no screenshots by default. This organization changes document locations only; milestone scope, decisions and acceptance gates remain unchanged. Older flat-path references in external skills should be resolved through this index.

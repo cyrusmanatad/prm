@@ -187,6 +187,9 @@ defineExpose({
                     <ActionGroup v-if="selected.role === 'owner'">
                         <Link class="wd-link wd-link-pill" href="/finance/invoices">Private finance records</Link>
                         <Link class="wd-link wd-link-pill" href="/workspace/entitlements">Pilot entitlements</Link>
+                        <Link class="wd-link wd-link-pill" href="/workspace/support-access"
+                            >Support access requests</Link
+                        >
                     </ActionGroup>
                     <p v-if="!canEdit" class="wd-description">
                         Your {{ selected.role }} role does not include workspace settings changes.

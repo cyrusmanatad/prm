@@ -14,12 +14,14 @@ class PlatformNotificationController extends Controller
 {
     public function index(Request $request, PlatformAdministration $admin): mixed
     {
-        $data = $request->validate(['workspace' => ['nullable', 'uuid'], 'state' => ['nullable', Rule::in(['pending', 'sending', 'sent', 'captured', 'cancelled', 'uncertain'])], 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
+        $data = $request->validate(['workspace' => ['nullable', 'uuid'], 'q' => ['nullable', 'string', 'max:120'], 'state' => ['nullable', Rule::in(['pending', 'sending', 'sent', 'captured', 'cancelled', 'uncertain'])], 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
 
         return $admin->run($request, function () use ($request, $data) {
             abort_unless(DB::selectOne("SELECT app_platform_allowed('notifications.read') AS ok")->ok, 403);
-            $notices = json_decode(DB::selectOne('SELECT app_platform_notifications(?::uuid,?,?) AS data', [$data['workspace'] ?? null, $data['state'] ?? null, $data['page'] ?? 1])->data, true, flags: JSON_THROW_ON_ERROR);
-            $payload = ['notices' => $notices, 'workspace' => $data['workspace'] ?? '', 'state' => $data['state'] ?? '', 'page' => (int) ($data['page'] ?? 1),
+            $filters = json_encode((object) array_filter(['workspace' => $data['workspace'] ?? null, 'q' => $data['q'] ?? null, 'state' => $data['state'] ?? null]), JSON_THROW_ON_ERROR);
+            $list = json_decode(DB::selectOne('SELECT app_platform_notification_list(?::jsonb,?) AS data', [$filters, $data['page'] ?? 1])->data, true, flags: JSON_THROW_ON_ERROR);
+            // `notices` keeps its original shape for JSON clients; `total` and `q` are additions.
+            $payload = ['notices' => $list['rows'], 'total' => $list['total'], 'workspace' => $data['workspace'] ?? '', 'q' => $data['q'] ?? '', 'state' => $data['state'] ?? '', 'page' => (int) ($data['page'] ?? 1),
                 'canResolve' => DB::selectOne("SELECT app_platform_allowed('notifications.reconcile') AS ok")->ok,
                 'canDirectory' => DB::selectOne("SELECT app_platform_allowed('directory.read') AS ok")->ok];
 
@@ -37,7 +39,7 @@ class PlatformNotificationController extends Controller
                 abort_unless(DB::selectOne("SELECT app_platform_allowed('notifications.reconcile') AS ok")->ok, 403);
                 DB::select('SELECT app_platform_resolve_notification(?::uuid,?,?,?)', [$notification, $data['version'], $data['resolution'], trim($data['reason'])]);
 
-                return $this->completed($request, ['message' => 'Resolution recorded; no email resent'], '/admin/notifications?'.http_build_query(array_intersect_key($data, array_flip(['workspace', 'state', 'page']))));
+                return $this->completed($request, ['message' => 'Resolution recorded; no email resent'], '/admin/notifications/'.$notification);
             });
         } catch (QueryException $error) {
             if (($error->errorInfo[0] ?? '') === '40001') {
