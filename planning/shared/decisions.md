@@ -147,3 +147,8 @@ This authorizes no implementation. Code, migrations and tests still wait for the
 - **Accounts with a platform grant:** no recovery codes and no console reset; the offline reset in D31 remains the only route. This confirms the proposal recorded in D34.
 
 This authorizes no implementation; code still waits for the user's explicit go-ahead.
+
+
+## D36 — Workspace-owner MFA is off on staging for now
+
+**Confirmed (2026-11-17):** the user chose to run staging with `OWNER_MFA_ENFORCED=false` for now, so the shared reviewer accounts keep password-only sign-in. `compose.staging.yaml` defaults the setting to `false`; setting it to `true` in `staging.env` turns enforcement on. Production is unaffected: it ignores the setting and always enforces (D35). While it is off, staging does not exercise owner MFA; turning it on later needs a decision on the shared reviewer accounts.

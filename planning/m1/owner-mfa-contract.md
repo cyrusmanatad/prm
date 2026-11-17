@@ -59,5 +59,5 @@ Claude holds UI/UX responsibility (D31). Reuse `FoundationShell`, the auth card,
 ## Open
 
 - **Assumption / Open:** the written identity-check procedure itself (who confirms, through which channel) belongs with M6-06.
-- **Assumption / Open:** whether staging runs with enforcement on, and how the shared reviewer accounts are handled if so.
+- **Confirmed (D36):** staging runs with enforcement off for now. How the shared reviewer accounts are handled when it is switched on remains **Assumption / Open**.
 - With enforcement off outside production, only the dedicated tests prove enforcement; the existing suites do not.

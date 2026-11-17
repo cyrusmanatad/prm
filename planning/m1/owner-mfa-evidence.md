@@ -43,6 +43,6 @@ Viewports 1440×1000 and 390×1000. Axe scans report no violations and no page h
 - WebKit does not run on this host. CI uses `.env.example`, where enforcement is off, so `owner-mfa.spec.ts` skips there until a job sets `OWNER_MFA_ENFORCED=true`.
 - With enforcement off, the existing suites do not prove enforcement; only the dedicated tests do (D35).
 - `rls.sql` was not extended; isolation of the new tables is covered by `OwnerMfaTest`.
-- Staging: the Compose default is on. The shared reviewer accounts will be asked to enroll unless staging sets `OWNER_MFA_ENFORCED=false`. **Assumption / Open.**
+- Staging: **Confirmed (D36)** off for now; `compose.staging.yaml` defaults `OWNER_MFA_ENFORCED` to `false`. Staging therefore does not exercise owner MFA until it is switched on.
 - The written identity-check procedure for operator resets belongs with M6-06. **Assumption / Open.**
 - Screen-reader and native Safari review were not done.
