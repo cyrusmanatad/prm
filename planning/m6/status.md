@@ -8,7 +8,7 @@
 
 Status: **preparation started; operational implementation and acceptance pending** on 2026-10-23. M5's first slice is committed as `efd4fd6`; required M5 work remains open. The user's conditional request to advance toward M6 permits this preparation without changing the roadmap's predecessor/release gates.
 
-**Confirmed D27 priority (2026-10-25):** required platform-owner/super-admin administration is brought forward as ADM-01–ADM-07 before advancing milestones. Start ADM-01 authorization/MFA/bootstrap, then the remaining [administration contract](../administration/contract.md). At that date no admin feature existed. Current status: the console slice is implemented and locally verified ([evidence](../administration/console-evidence.md)); no real owner account exists and no test data has been removed. M5 remains incomplete and its required work is preserved.
+**Confirmed D27 priority (2026-10-25):** required platform-owner/super-admin administration is brought forward as ADM-01–ADM-07 before advancing milestones. *(Baseline wording; see current status at the end of this paragraph.)* Start ADM-01 authorization/MFA/bootstrap, then the remaining [administration contract](../administration/contract.md). At that date no admin feature existed. Current status: the console slice is implemented and locally verified ([evidence](../administration/console-evidence.md)); no real owner account exists and no test data has been removed. M5 remains incomplete and its required work is preserved.
 
 ## Prepared
 

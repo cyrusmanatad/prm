@@ -40,6 +40,8 @@ Local verification of this standards update: `npm run format:changed` and `npm r
 
 ## Open decisions and release gates
 
+**Administration update (2026-11-17):** platform operator authorization and MFA are now implemented and the MFA method is confirmed (D31); plans and assignments are managed in the administration console ([evidence](../administration/console-evidence.md)). The production operator roster and commercial items below remain open.
+
 **Assumption / Open:** pricing, the commercial “active brand” definition, numerical quotas, renewal/grace policy, storage/member/API/AI caps, production operator identity/authorization/MFA, evidence authenticity and retention/pruning remain undecided. The implemented record-count pilot experiments do not settle them. Future-dated assignments block creates until their explicit start; expired assignments never silently fall back to another plan. No production administration interface is enabled.
 
 **Proposal / implementation defaults:** finance remains owner-only. Delegated finance roles, accounting approval, tax treatment and real invoice numbering/issuance require a subsequent contract. Existing M1–M3A manual release reviews and production MFA enforcement remain carried forward. Pilot validation and commercial launch acceptance remain open; this status does not approve production release.
