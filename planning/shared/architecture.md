@@ -55,7 +55,7 @@ Public media-kit metadata and social previews can use Laravel-rendered HTML/Blad
 - **Support access is the only path to private workspace records.** One function, `app_support_records`, requires the operator's own owner-approved, unexpired grant covering the requested area, returns a fixed read-only projection and writes the view to both `platform_audit` and the workspace's `audit_logs`. A grant confers no membership. Omitting free-text and document content from that projection is a **Proposal** awaiting confirmation (handoff decision C1).
 - **Cleanup is a dry run.** Marking and manifests record what a cleanup would touch; no function, route or control deletes.
 
-**Assumption / Open:** the production operator roster and first owner, emergency support access, membership changes from administration, cleanup execution, audit export and health telemetry beyond the scheduler heartbeat. These are listed with recommendations in the [administration handoff](../administration/implementation-handoff.md#part-c--decisions-needed-from-the-user).
+**Confirmed (D33, 2026-11-17):** the two founders are the platform owners; emergency support access, membership changes from administration and audit export are not built for launch; cleanup execution waits for the retention policy (M3-02); health telemetry beyond the scheduler heartbeat belongs to M6-03 monitoring. See the [administration handoff](../administration/implementation-handoff.md#part-c--decisions-from-the-user). **Assumption / Open:** production provisioning of the owners.
 
 ## Reliable jobs and automation
 

@@ -40,4 +40,4 @@ Before live data: restore database plus documents, test tenant isolation on depl
 - **What `/admin/operations` observes:** the latest scheduler heartbeat and its age, whether Redis is reachable and the pending depth of the configured queue (unknown when Redis cannot be read), the notification outbox backlog and unresolved uncertain sends, and failed jobs with only a job class and exception class. **It does not observe** worker liveness, scanner health or mail-provider health, keeps no history and sends no alerts.
 - This is a diagnostic page, not monitoring or alerting. M6-03 stays open.
 
-**Assumption / Open:** the real first owner and operator roster, and a rehearsed bootstrap and recovery on a disposable environment (handoff items B13 and C8). No real operator has been provisioned in any environment.
+**Confirmed (D33):** the two founders are the platform owners. Staging holds one owner grant, for the first founder; the second founder's grant waits for a verified staging account. **Assumption / Open:** production provisioning and a rehearsed bootstrap and recovery on a disposable environment (handoff item B13). No production operator has been provisioned.

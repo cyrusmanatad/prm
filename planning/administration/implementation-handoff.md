@@ -2,7 +2,7 @@
 
 Written 2026-11-17, after the administration console merged to `main` at `f16fd09` ([PR #18](https://github.com/cyrusmanatad/prm/pull/18)). This is a self-contained brief for the next session. It covers three things: documentation that still has to catch up with the code, administration work that is not yet implemented, and decisions that need the user's approval.
 
-**Confirmed:** nothing here is authorized for implementation beyond Part A. Part B items marked "needs approval" wait for the decisions in Part C.
+**Confirmed:** Part A was the only work authorized when this was written. The Part C decisions were made on 2026-11-17 (D33). Of the items that waited on them, only B7 is authorized for implementation; the second founder's staging grant and B13 need the steps named in their rows.
 
 ## Read first
 
@@ -87,7 +87,7 @@ Verify relative links, run `git diff --check`, update the [planning index](../RE
 
 ## Part B — administration work not yet implemented
 
-B1–B6 were worked on 2026-11-17 on branch `administration/part-b`; results are in the [follow-up evidence](follow-up-evidence.md). B7–B13 still wait for the decisions in Part C.
+B1–B6 were worked on 2026-11-17 on branch `administration/part-b`; results are in the [follow-up evidence](follow-up-evidence.md). B7–B13 were decided on 2026-11-17 (D33); their rows give the outcome.
 
 | # | Item | Package | State |
 |---|---|---|---|
@@ -97,31 +97,33 @@ B1–B6 were worked on 2026-11-17 on branch `administration/part-b`; results are
 | B4 | Record work refused at execution because of suspension as "skipped" (rule 5 says skipped and recorded; today it is only refused). | ADM-03 | **Done 2026-11-17**, including the same handling for account suspension. |
 | B5 | Directory extras from the design brief: joined/created date filters, fixture/protected classification filters once B11 exists, optional column chooser. | ADM-02 | **Done 2026-11-17** for the date filters; classification filters wait for B11; column chooser not built. |
 | B6 | Overview attention items for support access nearing expiry and blocked cleanup reviews. | ADM-05/06 | **Done 2026-11-17.** |
-| B7 | QR code on authenticator enrollment. Needs a new frontend dependency. | ADM-01 | Needs approval (C6) |
-| B8 | Worker heartbeat, scanner health and mail-provider health on `/admin/operations`. Overlaps M6-03 monitoring. | ADM-05 | Needs approval (C7) |
-| B9 | Membership role change or revocation from administration. Read-only today. | ADM-03 | Needs approval (C3) |
-| B10 | Emergency support access. None exists. | ADM-06 | Needs approval (C2) |
-| B11 | Cleanup beyond the dry run: review/approval step, execution, results, and inventory of uploaded files and object storage. | ADM-07 | Needs approval (C4), and M3-02 retention policy |
-| B12 | Tenant audit-event browsing and audit export. | ADM-06 | Needs approval (C5) |
-| B13 | Real platform-owner provisioning and a rehearsed bootstrap/recovery on a disposable environment. No real operator exists. | ADM-01/07 | Needs approval (C8) |
+| B7 | QR code on authenticator enrollment. Needs a new frontend dependency. | ADM-01 | **Approved (D33).** Not started. One small client-side library; the secret is rendered in the browser only. |
+| B8 | Worker heartbeat, scanner health and mail-provider health on `/admin/operations`. Overlaps M6-03 monitoring. | ADM-05 | **Not in the console (D33).** Left to M6-03 monitoring. |
+| B9 | Membership role change or revocation from administration. Read-only today. | ADM-03 | **Not for launch (D33).** Stays read-only. |
+| B10 | Emergency support access. None exists. | ADM-06 | **Not for launch (D33).** Offline procedure only. |
+| B11 | Cleanup beyond the dry run: review/approval step, execution, results, and inventory of uploaded files and object storage. | ADM-07 | **Deferred (D33)** until M3-02 retention policy; dry run only until then. |
+| B12 | Tenant audit-event browsing and audit export. | ADM-06 | **Not for launch (D33).** |
+| B13 | Real platform-owner provisioning and a rehearsed bootstrap/recovery on a disposable environment. No real operator exists. | ADM-01/07 | **Roster decided (D33):** the two founders are platform owners. Staging has the first founder's grant; the second founder must register and verify there before a grant can be recorded. Production provisioning and the rehearsal on a disposable environment are not done and need a go-ahead when an environment exists. |
 | B14 | Workspace-owner MFA. | M1-04 | Not started; separate task |
 | B15 | Final administration acceptance: manual keyboard, screen-reader, zoom and native Safari review; then close ADM packages with evidence. | ADM-07 | After B1–B4 |
 
 Optional UI proposals from the original plan, outside administration scope and not done: adopt `StatusBadge`, `Pagination` and `FilterBar` in CRM, Payments, Invoices and portal dashboards; replace CRM's hand-rolled buttons; fix the CRM mobile `h1` size (`Crm.vue`); fix the undefined `--wd-text` token on `.wd-staging-banner` (`foundation.css`).
 
-## Part C — decisions needed from the user
+## Part C — decisions from the user
 
-| # | Decision | Why it is needed | Recommendation |
-|---|---|---|---|
-| C1 | **Support view content.** Inside an approved area the view hides free-text notes, template bodies, onboarding answers, documents and payment evidence. D32 said "view-only", which did not require this. Keep it, or show notes? | It was my implementation choice, recorded as a **Proposal**. | Keep hidden; add specific fields later if support cannot do its job. |
-| C2 | **Emergency support access.** Should any path exist when no workspace owner can approve (for example a locked-out sole owner)? | D32 did not cover it; none is built. | None for launch; handle such cases through the offline procedure. |
-| C3 | **Membership changes from administration.** May operators change a role or revoke a membership, and what protects the last workspace owner? | The design brief leaves this policy-dependent. | Leave read-only; workspace owners manage their members. |
-| C4 | **Cleanup execution.** Who approves a manifest, what backup evidence is required, and in which environments may it run? | D32 chose dry run only and kept execution a separately reviewed step. | Decide after M3-02 retention policy; never in production without a reviewed backup. |
-| C5 | **Audit export and tenant audit browsing.** Allowed, and for whom? | Not authorized by any decision. | Not for launch. |
-| C6 | **QR code dependency.** Approve adding a small QR library for enrollment? | Adds a dependency. | Approve; it removes manual key entry. |
-| C7 | **Health telemetry scope.** Build worker/scanner/provider health in the console, or leave to M6-03 monitoring? | Avoids building it twice. | Leave to M6-03. |
-| C8 | **Real owner and operator roster.** Which identity is the first platform owner, who else gets which capabilities, and when to provision. | Still **Assumption / Open** in the contract; needed before launch. | Decide before the bootstrap rehearsal (B13); name at least two owners so last-owner protection is not the only safeguard. |
-| C9 | **Confirm the suspension implementation notes.** Accept B3 and B4 as follow-ups rather than blockers? | They were gaps against the confirmed rules. | No longer needed: B3 and B4 are implemented (2026-11-17). |
+**Confirmed (2026-11-17, D33):** all eight open questions are answered. Full wording is in [decisions](../shared/decisions.md).
+
+| # | Question | Decision |
+|---|---|---|
+| C1 | Support view content: keep notes, template bodies, onboarding answers, documents and payment evidence hidden inside an approved area? | Keep hidden. Add specific fields later only if support cannot do its job. |
+| C2 | Emergency support access when no workspace owner can approve? | None for launch; offline procedure. |
+| C3 | Membership role change or revocation from administration? | Stay read-only; workspace owners manage their members. |
+| C4 | Cleanup execution: approval, backup evidence, environments? | Deferred until M3-02 retention policy. Dry run only; never in production without a reviewed backup. |
+| C5 | Audit export and tenant audit browsing? | Not for launch. |
+| C6 | QR library for authenticator enrollment? | Approved (B7). |
+| C7 | Worker/scanner/provider health in the console? | Left to M6-03. |
+| C8 | Owner and operator roster? | The two founders are platform owners; no other operators yet. Staging state and next steps are in row B13. |
+| C9 | Accept B3 and B4 as follow-ups? | Not needed: both were implemented on 2026-11-17. |
 
 Related decisions owned elsewhere and still open: retention and privacy (M3-02), commercial prices and quotas (M4-01), production roster (M4-02), incident and support ownership (M6-06).
 

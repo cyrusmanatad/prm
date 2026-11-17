@@ -101,4 +101,22 @@ When localhost and browser tooling become available, inspect all seven boards at
 - **Cleanup:** dry run only. Operators mark synthetic accounts and workspaces into a named batch and generate an exact manifest; no deletion is possible from the console and execution remains a separately reviewed step.
 - **Retention:** a workspace holding invoice drafts or payment records is blocked from cleanup, audit history is always kept, and accounts holding a platform grant are always protected. Only explicitly marked records are considered.
 
-**Implementation choice within the support scope (Proposal, for review):** the support view omits free-text notes, template bodies, onboarding answers, documents and payment evidence even inside an approved area. See the [console evidence](../administration/console-evidence.md). This closes no ADM package and changes no release gate; real-environment cleanup and real-owner provisioning keep their separate authorization.
+**Implementation choice within the support scope (Proposal at the time; Confirmed by D33):** the support view omits free-text notes, template bodies, onboarding answers, documents and payment evidence even inside an approved area. See the [console evidence](../administration/console-evidence.md). This closes no ADM package and changes no release gate; real-environment cleanup and real-owner provisioning keep their separate authorization.
+
+
+## D33 — Administration follow-up decisions (handoff Part C)
+
+**Confirmed (2026-11-17):** the user answered the eight open questions in the [administration handoff](../administration/implementation-handoff.md#part-c--decisions-from-the-user):
+
+- **Support view content (C1):** keep free-text notes, template bodies, onboarding answers, documents and payment evidence hidden inside an approved area. Specific fields may be proposed later if support cannot do its job.
+- **Emergency support access (C2):** none for launch. A workspace with no owner able to approve is handled through the offline procedure.
+- **Membership changes (C3):** administration stays read-only for memberships. Workspace owners manage their members.
+- **Cleanup execution (C4):** deferred until the retention policy (M3-02) is decided. The console stays dry run only; nothing runs in production without a reviewed backup.
+- **Audit export and tenant audit browsing (C5):** not for launch.
+- **QR code on enrollment (C6):** approved, including one small client-side QR library. The enrollment secret must be rendered in the browser and never sent to a third party. This authorizes handoff item B7.
+- **Health telemetry (C7):** worker, scanner and mail-provider health are left to M6-03 monitoring. The console keeps the scheduler heartbeat only.
+- **Owner roster (C8):** the two founders, Cyrus Manatad and Belle Belgar, are the platform owners (`platform.owner`). No other operator or narrower capability is assigned yet. Sign-in identities are kept outside the repository.
+
+**Roster state on staging (read-only check, 2026-11-17):** one active `platform.owner` grant exists, for the first founder, with a verified email and a confirmed authenticator. The second founder has no staging account yet; `platform:grant` requires an existing verified identity, so that grant waits for registration and email verification. Nothing was changed on staging. No production environment exists; production provisioning stays with the bootstrap rehearsal (handoff B13).
+
+This closes no ADM package and changes no release gate. C2, C3 and C5 are launch-scope decisions, not permanent refusals; reopening any of them needs a new decision.

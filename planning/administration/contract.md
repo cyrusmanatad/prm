@@ -10,17 +10,17 @@ Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a
 
 | Package | Implemented | Still open |
 |---|---|---|
-| ADM-01 | Platform grants, TOTP step-up, offline bootstrap/recovery, runtime operator grant/change/revoke with fresh proof | Real-owner provisioning; workspace-owner MFA (M1-04) |
+| ADM-01 | Platform grants, TOTP step-up, offline bootstrap/recovery, runtime operator grant/change/revoke with fresh proof | QR code on enrollment (approved, D33); second founder's grant and production provisioning; workspace-owner MFA (M1-04) |
 | ADM-02 | Administration shell, overview, account and workspace directories and details, created-date filters; integration and RLS scripts run ([follow-up evidence](follow-up-evidence.md)) | Local WebKit and manual accessibility review |
-| ADM-03 | Grant revoke/reduce; account and workspace suspend/reactivate; session sign-out; partner-side "Paused" label; work due during suspension recorded as skipped ([confirmed rules](suspension-proposal.md), [follow-up evidence](follow-up-evidence.md)) | Membership role changes |
+| ADM-03 | Grant revoke/reduce; account and workspace suspend/reactivate; session sign-out; partner-side "Paused" label; work due during suspension recorded as skipped ([confirmed rules](suspension-proposal.md), [follow-up evidence](follow-up-evidence.md)) | Nothing for launch: membership changes stay with workspace owners (D33) |
 | ADM-04 | Plans, assignments, usage and the reviewed assignment page | Commercial prices/quotas (M4-01); production roster (M4-02) |
-| ADM-05 | Notification list/detail/resolution; failed jobs; queue depth; scheduler heartbeat | Worker, scanner and provider health; M6-03 monitoring |
-| ADM-06 | Audit review; workspace-owner-approved, read-only support access of at most 24 hours | Emergency access (none); tenant audit browsing; export |
-| ADM-07 | Fixture batches, explicit marking, immutable cleanup dry runs | Cleanup execution and its approval; file/object-storage inventory; owner bootstrap rehearsal; final acceptance |
+| ADM-05 | Notification list/detail/resolution; failed jobs; queue depth; scheduler heartbeat | Worker, scanner and provider health, left to M6-03 monitoring (D33) |
+| ADM-06 | Audit review; workspace-owner-approved, read-only support access of at most 24 hours | Nothing for launch: no emergency access, tenant audit browsing or export (D33) |
+| ADM-07 | Fixture batches, explicit marking, immutable cleanup dry runs | Cleanup execution, deferred until M3-02 (D33); file/object-storage inventory; owner bootstrap rehearsal; final acceptance |
 
-**Capabilities in use:** `platform.owner` (implies all), `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`. Decisions: D27, D29, D30, D31, D32 in [decisions](../shared/decisions.md).
+**Capabilities in use:** `platform.owner` (implies all), `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`. Decisions: D27, D29, D30, D31, D32, D33 in [decisions](../shared/decisions.md).
 
-Remaining implementation and approval items are listed in the [next-session handoff](implementation-handoff.md); its documentation updates (Part A) are done.
+Remaining implementation items and the recorded decisions are listed in the [next-session handoff](implementation-handoff.md); its documentation updates (Part A) are done.
 
 The sections below are the original contract. Where they say administration is unimplemented or that ADM-01 is next, read them as the planning baseline; the table above is current.
 
@@ -56,7 +56,7 @@ ADM-01 precedes the admin shell and mutations. ADM-02 precedes ADM-03–ADM-06 i
 
 Platform operators need narrowly scoped cross-workspace metadata and administration capabilities, not ordinary membership in every tenant. Design and test those paths explicitly with PostgreSQL RLS; tenant web requests, workers and normal runtime queries retain existing isolation. Do not introduce a general-purpose runtime superuser or migration-role connection. Required schema/permission changes need migration/rollback and denied-operation coverage against real PostgreSQL.
 
-Audit successful and rejected privileged actions without passwords, MFA secrets, reset/invitation URLs, document contents or private notes. Version checks and transactional writes must keep access state, entitlement changes and audit consistent. The MFA method and recovery policy are now **Confirmed** (D31: TOTP with offline recovery). The initial account/recovery identity and exact production operator roster are **Assumption / Open**; do not create a guessed account or put credentials in planning files. Actual hosting, privacy/retention policy, commercial packaging and uncertain-send decisions remain under their existing task IDs.
+Audit successful and rejected privileged actions without passwords, MFA secrets, reset/invitation URLs, document contents or private notes. Version checks and transactional writes must keep access state, entitlement changes and audit consistent. The MFA method and recovery policy are now **Confirmed** (D31: TOTP with offline recovery). The owner roster is **Confirmed** (D33): the two founders are platform owners. Their sign-in identities and the timing of production provisioning stay outside planning files; do not create a guessed account or put credentials in planning files. Actual hosting, privacy/retention policy, commercial packaging and uncertain-send decisions remain under their existing task IDs.
 
 ## Verification and completion boundary
 
