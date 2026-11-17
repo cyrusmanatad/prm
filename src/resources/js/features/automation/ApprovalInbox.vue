@@ -50,7 +50,7 @@ function transition(draft: FollowUpDraft, kind: 'approve' | 'discard' | 'send', 
         <p v-if="!drafts.length" class="wd-empty">
             No follow-up drafts yet. Write a message below or schedule a private draft.
         </p>
-        <article v-for="draft in drafts" :key="draft.id" class="wd-section-stack">
+        <article v-for="draft in drafts" :key="draft.id" class="wd-record">
             <h3>{{ draft.subject || 'Untitled follow-up' }}</h3>
             <p>
                 {{

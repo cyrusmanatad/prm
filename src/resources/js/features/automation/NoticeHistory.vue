@@ -26,7 +26,7 @@ const states: Record<string, string> = {
         description="Your latest 50 notices in this workspace. A queued email is not proof of delivery. Refresh to check the latest status."
     >
         <p v-if="!notices.length" class="wd-empty">No scheduled email notices yet.</p>
-        <article v-for="notice in notices" :key="notice.id" class="wd-section-stack">
+        <article v-for="notice in notices" :key="notice.id" class="wd-record">
             <h3>
                 {{
                     notice.kind === 'schedule.reminder'

@@ -5,7 +5,7 @@ const enabled = defineModel<boolean>({ default: false });
 
 <template>
     <div class="wd-fields">
-        <label :for="`${prefix}-notify-submission`" class="flex items-start gap-2">
+        <label :for="`${prefix}-notify-submission`" class="wd-checkbox">
             <input
                 :id="`${prefix}-notify-submission`"
                 v-model="enabled"

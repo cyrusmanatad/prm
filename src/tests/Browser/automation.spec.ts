@@ -1,11 +1,9 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { fixture, login } from './helpers';
+import { baseWidth, fixture, isMobile, login, reviewWidths, smallTouchTargets } from './helpers';
 
-test('desktop automation preferences persist consent and timezone with confirmed withdrawal', async ({
-    page,
-}, info) => {
-    await page.setViewportSize({ width: 1440, height: 1080 });
+test('automation preferences persist consent and timezone with confirmed withdrawal', async ({ page }, info) => {
+    await page.setViewportSize({ width: baseWidth(info), height: 1080 });
     const email = `m1-browser-schedules-${Date.now()}@example.test`;
     fixture('seed', email);
     await login(page, email);
@@ -29,10 +27,11 @@ test('desktop automation preferences persist consent and timezone with confirmed
     await page.reload();
     await expect(page.getByLabel('Weekly digest', { exact: true })).toBeChecked();
     await expect(page.getByText('Consent active', { exact: false })).toBeVisible();
-    for (const width of [1440, 1920]) {
+    for (const width of reviewWidths(info)) {
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        if (isMobile(info)) expect(await smallTouchTargets(page)).toEqual([]);
         if (process.env.CAPTURE_BROWSER_IMAGES === '1')
             await page.screenshot({ path: info.outputPath(`automation-${width}.png`), fullPage: true });
     }
