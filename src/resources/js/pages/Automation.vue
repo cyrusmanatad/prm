@@ -90,7 +90,7 @@ function withdraw(s: Schedule, event: Event): void {
     <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
         <div ref="root" class="wd-workspace-content wd-section-stack">
             <nav v-if="!professional" aria-label="Workspace">
-                <Link class="wd-link" href="/workspaces">Back to workspaces</Link>
+                <Link class="wd-link inline-flex min-h-11 items-center" href="/workspaces">Back to workspaces</Link>
             </nav>
             <div class="wd-page-heading">
                 <span class="wd-eyebrow">{{ workspace.name }}</span>
