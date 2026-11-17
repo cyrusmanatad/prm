@@ -20,6 +20,8 @@ Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a
 
 **Capabilities in use:** `platform.owner` (implies all), `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`. Decisions: D27, D29, D30, D31, D32 in [decisions](../shared/decisions.md).
 
+Remaining documentation, implementation and approval items are listed in the [next-session handoff](implementation-handoff.md).
+
 The sections below are the original contract. Where they say administration is unimplemented or that ADM-01 is next, read them as the planning baseline; the table above is current.
 
 Historical status: **partially implemented as of 2026-11-07**: the [Professional Hub dependency slice](../professional/hub-status.md) implements explicit platform grants/MFA/offline recovery, the necessary metadata directory/shell and runtime plan assignments. Full ADM-01–ADM-07 package acceptance remains open. Historical planning baseline: required and prioritized, implementation not started on 2026-10-25. **Confirmed D27:** the user requires application-wide administration and prioritizes it before proceeding to the next milestone. This work is brought forward from M6 identity/operations readiness as a prerequisite work package, tracked as **ADM-01–ADM-07**. Existing milestone numbers remain unchanged; M5 remains incomplete.
