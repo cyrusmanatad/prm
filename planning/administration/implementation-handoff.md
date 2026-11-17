@@ -2,7 +2,7 @@
 
 Written 2026-11-17, after the administration console merged to `main` at `f16fd09` ([PR #18](https://github.com/cyrusmanatad/prm/pull/18)). This is a self-contained brief for the next session. It covers three things: documentation that still has to catch up with the code, administration work that is not yet implemented, and decisions that need the user's approval.
 
-**Confirmed:** Part A was the only work authorized when this was written. The Part C decisions were made on 2026-11-17 (D33). Of the items that waited on them, only B7 was authorized for implementation, and it is done; the second founder's staging grant and B13 need the steps named in their rows.
+**Confirmed:** Part A was the only work authorized when this was written. The Part C decisions were made on 2026-11-17 (D33). Of the items that waited on them, only B7 was authorized for implementation, and it is done; the second founder's staging grant has since been recorded, and B13 needs the steps named in its row.
 
 ## Read first
 
@@ -103,7 +103,7 @@ B1–B6 were worked on 2026-11-17 on branch `administration/part-b`; results are
 | B10 | Emergency support access. None exists. | ADM-06 | **Not for launch (D33).** Offline procedure only. |
 | B11 | Cleanup beyond the dry run: review/approval step, execution, results, and inventory of uploaded files and object storage. | ADM-07 | **Deferred (D33)** until M3-02 retention policy; dry run only until then. |
 | B12 | Tenant audit-event browsing and audit export. | ADM-06 | **Not for launch (D33).** |
-| B13 | Real platform-owner provisioning and a rehearsed bootstrap/recovery on a disposable environment. No real operator exists. | ADM-01/07 | **Roster decided (D33):** the two founders are platform owners. Staging has the first founder's grant; the second founder must register and verify there before a grant can be recorded. Production provisioning and the rehearsal on a disposable environment are not done and need a go-ahead when an environment exists. |
+| B13 | Real platform-owner provisioning and a rehearsed bootstrap/recovery on a disposable environment. No real operator exists. | ADM-01/07 | **Roster decided (D33):** the two founders are platform owners. Staging has both founders' grants (2026-11-17); the second founder's is not usable until they enroll an authenticator at `/admin/security`. Production provisioning and the rehearsal on a disposable environment are not done and need a go-ahead when an environment exists. |
 | B14 | Workspace-owner MFA. | M1-04 | Not started; separate task |
 | B15 | Final administration acceptance: manual keyboard, screen-reader, zoom and native Safari review; then close ADM packages with evidence. | ADM-07 | After B1–B4 |
 
