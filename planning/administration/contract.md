@@ -10,7 +10,7 @@ Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a
 
 | Package | Implemented | Still open |
 |---|---|---|
-| ADM-01 | Platform grants, TOTP step-up, offline bootstrap/recovery, runtime operator grant/change/revoke with fresh proof | QR code on enrollment (approved, D33); second founder's grant and production provisioning; workspace-owner MFA (M1-04) |
+| ADM-01 | Platform grants, TOTP step-up, offline bootstrap/recovery, runtime operator grant/change/revoke with fresh proof, QR code on enrollment (D33) | second founder's grant and production provisioning; workspace-owner MFA (M1-04) |
 | ADM-02 | Administration shell, overview, account and workspace directories and details, created-date filters; integration and RLS scripts run ([follow-up evidence](follow-up-evidence.md)) | Local WebKit and manual accessibility review |
 | ADM-03 | Grant revoke/reduce; account and workspace suspend/reactivate; session sign-out; partner-side "Paused" label; work due during suspension recorded as skipped ([confirmed rules](suspension-proposal.md), [follow-up evidence](follow-up-evidence.md)) | Nothing for launch: membership changes stay with workspace owners (D33) |
 | ADM-04 | Plans, assignments, usage and the reviewed assignment page | Commercial prices/quotas (M4-01); production roster (M4-02) |

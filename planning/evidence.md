@@ -1,3 +1,5 @@
+**Administration enrollment QR code (2026-11-17):** [B7 implementation and verification](administration/enrollment-qr-evidence.md). Local disposable stack only.
+
 **Administration follow-up (2026-11-17):** [paused label, skipped work, date filters, overview items, journey investigation and gates](administration/follow-up-evidence.md). Local disposable stacks only.
 
 **Administration console (2026-11-16):** [implementation, commands, rendering findings and unverified gates](administration/console-evidence.md). Local disposable stack only.

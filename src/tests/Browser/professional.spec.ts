@@ -58,6 +58,7 @@ test('professional workspace, shared client tools, exports and administrator MFA
     const setup = await page.locator('code').textContent();
     expect(setup?.length).toBe(32);
     await expect(page.getByLabel('Authenticator code')).toBeVisible();
+    await expect(page.getByRole('img', { name: 'QR code for authenticator setup' })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     const bits = [...setup!]
         .map((c) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'.indexOf(c).toString(2).padStart(5, '0'))
