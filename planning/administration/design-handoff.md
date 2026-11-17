@@ -1,5 +1,17 @@
 # WeavDash Administration — Claude Design Handoff
 
+> **Implementation status (2026-11-17).** This brief was never sent out for a separate visual prototype. Under D31 the console was built directly from it and the existing approved UI, and is recorded in the [console evidence](console-evidence.md). The brief below is kept unchanged as the original specification; statements that screens, routes or capabilities "do not exist" describe 2026-10-25.
+>
+> **Policies this brief lists as Assumption / Open that are now Confirmed:** MFA method and recovery (D31); suspension effects ([suspension rules](suspension-proposal.md), D32); support approval, scope and duration, and cleanup scope and retention (D32).
+>
+> **Where the implementation differs from this brief:**
+> - No separate `/admin/login`; administration uses the shared sign-in, then the authenticator step at `/admin/security`. No QR code or recovery codes.
+> - Support access is approved by a workspace owner inside their workspace, not by a platform approver, and shows no "policy not configured" state. Free-text notes, template bodies, onboarding answers, documents and payment evidence are never shown.
+> - Cleanup stops at the dry-run manifest (§5.13 steps 1–2). Review, confirm-execution and results stages are not built; nothing can be deleted.
+> - Not built: column chooser, quick-inspection drawers, fixture/protected and date filters on directories, plan-version create form (versions are created by recording an assignment), tenant audit events, audit export, support-expiry and cleanup items in the overview attention list, membership changes, the partner-side "paused" label.
+> - Worker, scanner and mail-provider health are shown as Unknown or Not configured because nothing collects them.
+> - Capability names differ from §7's groupings; the implemented list is in the [contract](contract.md#current-status-2026-11-17).
+
 ## 1. Instruction to Claude Design
 
 Design a complete, responsive **WeavDash Administration** interface for the owner and authorized operators of a multi-tenant creator/brand collaboration application. Deliver connected screens and interaction states that engineers can later implement in the existing application. Prioritize a coherent, usable administration console with realistic tables, details, forms, security flows and confirmations.

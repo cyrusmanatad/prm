@@ -4,6 +4,8 @@
 
 The [Professional UI refinement handoff](ui-handoff.md) records the subsequent presentation-only work, responsive screenshots and verification. It does not change the backend scope or remaining release gates below.
 
+**Administration update (2026-11-17):** the PRO-02 directory and assignment screen at `/admin` described below has been replaced by the administration console: `/admin` is now the Overview, the directory is at `/admin/accounts` and `/admin/workspaces`, and assignments are recorded from a workspace's Entitlements tab. The `POST /admin/assignments` contract and the JSON response of `/admin` are unchanged. See the [console evidence](../administration/console-evidence.md).
+
 ## Delivered
 
 - **PRO-01:** explicit platform grants, independent of tenant membership; verified identity, encrypted TOTP enrollment, password plus replay-protected TOTP step-up (15 minutes), throttling, grant-version invalidation, denied-action audit and an offline accountable bootstrap/recovery/revocation command. Runtime credentials cannot bootstrap. Last-owner protection and recovery are rehearsed on synthetic identities.

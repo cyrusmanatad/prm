@@ -4,7 +4,25 @@
 
 # Platform Administration Contract
 
-Status: **partially implemented as of 2026-11-07**: the [Professional Hub dependency slice](../professional/hub-status.md) implements explicit platform grants/MFA/offline recovery, the necessary metadata directory/shell and runtime plan assignments. Full ADM-01–ADM-07 package acceptance remains open. Historical planning baseline: required and prioritized, implementation not started on 2026-10-25. **Confirmed D27:** the user requires application-wide administration and prioritizes it before proceeding to the next milestone. This work is brought forward from M6 identity/operations readiness as a prerequisite work package, tracked as **ADM-01–ADM-07**. Existing milestone numbers remain unchanged; M5 remains incomplete.
+## Current status (2026-11-17)
+
+Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a`, [PR #18](https://github.com/cyrusmanatad/prm/pull/18)); see the [console evidence](console-evidence.md). **No ADM package is closed**: each still has open items and unrun gates.
+
+| Package | Implemented | Still open |
+|---|---|---|
+| ADM-01 | Platform grants, TOTP step-up, offline bootstrap/recovery, runtime operator grant/change/revoke with fresh proof | Real-owner provisioning; workspace-owner MFA (M1-04) |
+| ADM-02 | Administration shell, overview, account and workspace directories and details | Integration/RLS scripts, WebKit and manual accessibility review |
+| ADM-03 | Grant revoke/reduce; account and workspace suspend/reactivate; session sign-out ([confirmed rules](suspension-proposal.md)) | Partner-side "paused" label; membership role changes |
+| ADM-04 | Plans, assignments, usage and the reviewed assignment page | Commercial prices/quotas (M4-01); production roster (M4-02) |
+| ADM-05 | Notification list/detail/resolution; failed jobs; queue depth; scheduler heartbeat | Worker, scanner and provider health; M6-03 monitoring |
+| ADM-06 | Audit review; workspace-owner-approved, read-only support access of at most 24 hours | Emergency access (none); tenant audit browsing; export |
+| ADM-07 | Fixture batches, explicit marking, immutable cleanup dry runs | Cleanup execution and its approval; file/object-storage inventory; owner bootstrap rehearsal; final acceptance |
+
+**Capabilities in use:** `platform.owner` (implies all), `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`. Decisions: D27, D29, D30, D31, D32 in [decisions](../shared/decisions.md).
+
+The sections below are the original contract. Where they say administration is unimplemented or that ADM-01 is next, read them as the planning baseline; the table above is current.
+
+Historical status: **partially implemented as of 2026-11-07**: the [Professional Hub dependency slice](../professional/hub-status.md) implements explicit platform grants/MFA/offline recovery, the necessary metadata directory/shell and runtime plan assignments. Full ADM-01–ADM-07 package acceptance remains open. Historical planning baseline: required and prioritized, implementation not started on 2026-10-25. **Confirmed D27:** the user requires application-wide administration and prioritizes it before proceeding to the next milestone. This work is brought forward from M6 identity/operations readiness as a prerequisite work package, tracked as **ADM-01–ADM-07**. Existing milestone numbers remain unchanged; M5 remains incomplete.
 
 ## Design reference handoff
 
@@ -12,7 +30,7 @@ The [Claude Design handoff](design-handoff.md) is the self-contained brief for t
 
 ## Priority and scope
 
-Implement this package next, starting with ADM-01. Then resume broader UI-05 reference/deviation acceptance and M5-02–M5-10. UI-07 was locally verified during the user’s session-specific hold on administrator implementation; see [notification feedback evidence](../shared/notification-feedback-2026-10-25-evidence.md). Administration itself remains unimplemented. Do not advance to the next milestone or declare launch readiness before the required administration gates pass. Existing UI-06 changes are checkpointed in `2aaeca1`; all unfinished tasks remain preserved. That 2026-10-25 planning update implemented no administrator behavior; the dependency slice above now supersedes that implementation status. No real operator was provisioned and no cleanup occurred.
+*(Planning baseline, 2026-10-25; superseded by Current status above.)* Implement this package next, starting with ADM-01. Then resume broader UI-05 reference/deviation acceptance and M5-02–M5-10. UI-07 was locally verified during the user’s session-specific hold on administrator implementation; see [notification feedback evidence](../shared/notification-feedback-2026-10-25-evidence.md). Administration itself remains unimplemented. Do not advance to the next milestone or declare launch readiness before the required administration gates pass. Existing UI-06 changes are checkpointed in `2aaeca1`; all unfinished tasks remain preserved. That 2026-10-25 planning update implemented no administrator behavior; the dependency slice above now supersedes that implementation status. No real operator was provisioned and no cleanup occurred.
 
 Required outcomes are a platform-owner/super-admin access path, account/workspace management, plan/entitlement administration, notification/job diagnostics, audit review and controlled support access. The initial real platform-owner account must survive test-data cleanup and be provisioned separately from synthetic fixtures. Platform administration remains distinct from tenant Owner/Admin membership.
 
@@ -36,7 +54,7 @@ ADM-01 precedes the admin shell and mutations. ADM-02 precedes ADM-03–ADM-06 i
 
 Platform operators need narrowly scoped cross-workspace metadata and administration capabilities, not ordinary membership in every tenant. Design and test those paths explicitly with PostgreSQL RLS; tenant web requests, workers and normal runtime queries retain existing isolation. Do not introduce a general-purpose runtime superuser or migration-role connection. Required schema/permission changes need migration/rollback and denied-operation coverage against real PostgreSQL.
 
-Audit successful and rejected privileged actions without passwords, MFA secrets, reset/invitation URLs, document contents or private notes. Version checks and transactional writes must keep access state, entitlement changes and audit consistent. The initial account/recovery identity and exact production operator roster are **Assumption / Open**; do not create a guessed account or put credentials in planning files. Actual hosting, privacy/retention policy, commercial packaging and uncertain-send decisions remain under their existing task IDs.
+Audit successful and rejected privileged actions without passwords, MFA secrets, reset/invitation URLs, document contents or private notes. Version checks and transactional writes must keep access state, entitlement changes and audit consistent. The MFA method and recovery policy are now **Confirmed** (D31: TOTP with offline recovery). The initial account/recovery identity and exact production operator roster are **Assumption / Open**; do not create a guessed account or put credentials in planning files. Actual hosting, privacy/retention policy, commercial packaging and uncertain-send decisions remain under their existing task IDs.
 
 ## Verification and completion boundary
 

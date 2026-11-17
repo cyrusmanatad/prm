@@ -1,6 +1,6 @@
 # Administration console — implementation and verification
 
-Scope: administration console slices approved under D31 (2026-11-16) and D32 (2026-11-17: suspension, support access, cleanup dry runs). Dates: 2026-11-16 to 2026-11-17. Revision: uncommitted working tree on `administration/console`, based on `main` at `ddd6c53`. Environment: disposable local Compose project `weavdash-admin` (PostgreSQL 16, Redis, application on `localhost:8010`, array mail, no ClamAV service), migrated from empty to `2026_11_16_000001_add_platform_console`. No shared, staging or production system was touched. No real operator was provisioned, no data was cleaned and no email was sent.
+Scope: administration console slices approved under D31 (2026-11-16) and D32 (2026-11-17: suspension, support access, cleanup dry runs). Dates: 2026-11-16 to 2026-11-17. Revision: verified as a working tree on `administration/console`, based on `main` at `ddd6c53`, then committed unchanged as `1edc00a` and merged to `main` at `f16fd09` ([PR #18](https://github.com/cyrusmanatad/prm/pull/18)). Environment: disposable local Compose project `weavdash-admin` (PostgreSQL 16, Redis, application on `localhost:8010`, array mail, no ClamAV service), migrated from empty to `2026_11_16_000001_add_platform_console`. No shared, staging or production system was touched. No real operator was provisioned, no data was cleaned and no email was sent.
 
 ## What was implemented
 
@@ -81,7 +81,7 @@ Inspected with temporary captures (removed) and automated checks at 1440, 1024 a
 - The mobile administration journey is intermittent (see Commands and results); its cause is not established.
 - PostgreSQL integration suite (`phpunit.pgsql.xml`) and the `rls.sql` scripts: not run; they need a freshly migrated database with their fixtures.
 - WebKit desktop/mobile projects and the remaining browser specs: not run. Native Safari, screen-reader and browser-zoom review: not done.
-- GitHub Actions: not run; nothing has been committed or pushed.
+- GitHub Actions: not run locally; they run on PR #18 and their result is not recorded here.
 - The scheduler heartbeat was exercised through its database function, not by a running scheduler in this stack.
 - Reduced-motion behaviour: no new animation was added; not separately tested.
 - Staging and production behaviour, real-owner bootstrap and recovery rehearsal: not performed.
