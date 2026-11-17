@@ -128,7 +128,7 @@ class PlatformConsoleTest extends AcceptanceCase
             fn () => DB::select('SELECT app_platform_activity(?,NULL)', [(string) $operator->id]),
             fn () => DB::select('SELECT app_entitlement_state(?::uuid)', [(string) Str::uuid()]),
             fn () => DB::statement("INSERT INTO platform_observations(source,observed_at) VALUES('scheduler',now())"),
-            fn () => DB::statement("SELECT app_record_observation('worker')"),
+            fn () => DB::statement("SELECT app_record_observation('scanner')"),
         ];
         foreach ($attempts as $index => $attempt) {
             try {

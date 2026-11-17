@@ -57,5 +57,6 @@ These now sit with their owning milestone/workstream topics. Their inclusion her
 | Shared interactions | [Confirmation dialogs](shared/confirmation-modals-evidence.md), [notification feedback](shared/notification-feedback-2026-10-25-evidence.md) |
 | Visual reviews | [October 24 review](shared/ui-review-2026-10-24-evidence.md), [October 25 plan review](shared/ui-plan-review-2026-10-25-evidence.md), [UI refinement](shared/ui-refinement-2026-10-25-evidence.md), [portal reference review](shared/portal-reference-review-2026-10-26-evidence.md) |
 | Branding | [Favicon](shared/favicon-evidence.md) |
+| Monitoring | [M6-03 first slice](m6/monitoring-evidence.md) |
 
 - [Staging deployment and verification](shared/staging-deployment.md) — registration, persistent local test uploads, email, data-preserving staging rename, resource trial and recovery.

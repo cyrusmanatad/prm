@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnforceAccountAccess;
 use App\Http\Middleware\EnforceOwnerMfa;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RequestTelemetry;
 use App\Http\Middleware\UploadRestrictions;
 use App\Http\Middleware\WorkspaceContext;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(RequestTelemetry::class);
         $middleware->web(append: [UploadRestrictions::class, HandleInertiaRequests::class, EnforceAccountAccess::class, EnforceOwnerMfa::class]);
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
