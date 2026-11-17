@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Authenticator;
 use App\Services\PlatformAdministration;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class PlatformController extends Controller
         return $admin->run($request, function () use ($request, $data) {
             abort_unless(Hash::check($data['password'], $request->user()->password), 403);
             abort_if($request->user()->admin_totp_confirmed_at, 409);
-            $secret = implode('', array_map(fn () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'[random_int(0, 31)], range(1, 32)));
+            $secret = app(Authenticator::class)->secret();
             $request->session()->put('platform_enrollment', ['secret' => encrypt($secret), 'until' => time() + 600]);
 
             return Inertia::render('PlatformSecurity', ['enrolled' => false, 'secret' => $secret]);
@@ -45,13 +46,7 @@ class PlatformController extends Controller
             $encrypted = $user->admin_totp_secret ?? (is_array($pending) && $pending['until'] > time() ? $pending['secret'] : null);
             abort_unless($encrypted, 403);
             $secret = decrypt($encrypted);
-            $matched = null;
-            foreach ([intdiv(time(), 30) - 1, intdiv(time(), 30), intdiv(time(), 30) + 1] as $counter) {
-                if ($counter > ($user->admin_totp_counter ?? -1) && hash_equals($admin->code($secret, $counter), $data['code'])) {
-                    $matched = $counter;
-                    break;
-                }
-            }
+            $matched = app(Authenticator::class)->match($secret, $user->admin_totp_counter, $data['code']);
             if ($matched === null) {
                 throw ValidationException::withMessages(['code' => 'Enter a fresh authenticator code.']);
             }
@@ -59,6 +54,8 @@ class PlatformController extends Controller
             DB::select('SELECT app_platform_audit(?,?,?)', [$user->admin_totp_confirmed_at ? 'mfa.verified' : 'mfa.enrolled', (string) $user->id, 'Password and authenticator verified']);
             $request->session()->forget('platform_enrollment');
             $request->session()->regenerate();
+            // Password and a fresh code also satisfy the account's sign-in check.
+            $request->session()->put('account_mfa', ['user' => (int) $user->id, 'at' => time()]);
             $request->session()->put('platform_mfa', ['user' => $user->id, 'version' => $grant->version, 'until' => time() + 900]);
 
             DB::select("SELECT set_config('app.admin_version',?,true)", [(string) $grant->version]);

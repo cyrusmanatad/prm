@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\AuthenticatorController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -80,6 +81,12 @@ Route::middleware('auth')->group(function (): void {
         'user' => $request->user()->only(['id', 'name', 'email', 'email_verified_at']),
     ]));
     Route::middleware('verified')->group(function (): void {
+        Route::get('/account/authenticator', [AuthenticatorController::class, 'show']);
+        Route::post('/account/authenticator/enroll', [AuthenticatorController::class, 'enroll'])->middleware('throttle:5,1,account-enroll:');
+        Route::delete('/account/authenticator/enroll', [AuthenticatorController::class, 'cancel']);
+        Route::post('/account/authenticator/verify', [AuthenticatorController::class, 'verify'])->middleware('throttle:10,1,account-mfa:');
+        Route::post('/account/authenticator/recover', [AuthenticatorController::class, 'recover'])->middleware('throttle:10,1,account-mfa:');
+        Route::post('/account/authenticator/recovery-codes', [AuthenticatorController::class, 'regenerate'])->middleware('throttle:5,1,account-codes:');
         Route::get('/admin/security', [PlatformController::class, 'security']);
         Route::post('/admin/security/enroll', [PlatformController::class, 'enroll'])->middleware('throttle:5,1,admin-enroll:');
         Route::post('/admin/security/verify', [PlatformController::class, 'verify'])->middleware('throttle:5,1,admin-mfa:');
@@ -102,6 +109,7 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/admin/operators', [PlatformConsoleController::class, 'saveOperator'])->middleware('throttle:10,1,admin-operators:');
         Route::post('/admin/{kind}/{reference}/{action}', [PlatformGovernanceController::class, 'access'])->whereIn('kind', ['accounts', 'workspaces'])->where('reference', '[0-9a-f-]{1,36}')->whereIn('action', ['suspend', 'reactivate'])->middleware('throttle:10,1,admin-access:');
         Route::post('/admin/accounts/{account}/sign-out', [PlatformGovernanceController::class, 'signOut'])->whereNumber('account')->middleware('throttle:10,1,admin-access:');
+        Route::post('/admin/accounts/{account}/reset-authenticator', [PlatformGovernanceController::class, 'resetAuthenticator'])->whereNumber('account')->middleware('throttle:10,1,admin-access:');
         Route::get('/admin/support-access', [PlatformGovernanceController::class, 'support']);
         Route::post('/admin/support-access', [PlatformGovernanceController::class, 'requestSupport'])->middleware('throttle:30,1,admin-support:');
         Route::get('/admin/support-access/{grant}', [PlatformGovernanceController::class, 'supportGrant'])->whereUuid('grant');

@@ -1,3 +1,4 @@
+**Workspace-owner MFA (M1-04) (2026-11-17):** rules decided (D34, D35), implemented and locally verified on branch `feat/owner-mfa`; see the [contract](m1/owner-mfa-contract.md) and [evidence](m1/owner-mfa-evidence.md). Not deployed; staging keeps enforcement off for now (D36) and the reset procedure remains open.
 **Workspace-owner MFA (M1-04) handoff (2026-11-17):** [start conditions, open recovery decision, reusable pieces and environment notes](m1/owner-mfa-handoff.md). Not started; waits for the user's go-ahead.
 **M5 small-screen acceptance (2026-11-17):** the phone-width checks carried to Claude for M5-02 to M5-06 passed locally in Chromium at 390 and 320 px after small touch-target and readability fixes; see the [small-screen evidence](m5/small-screen-evidence.md). Provider delivery (M5-09) and inherited manual reviews remain open.
 
@@ -30,7 +31,7 @@
 | Folder | Starting points |
 | --- | --- |
 | `m0/` | [Delivery backlog](m0/backlog.md) |
-| `m1/` | [Status](m1/status.md), [manual acceptance](m1/manual-acceptance.md), [evidence](m1/evidence.md) |
+| `m1/` | [Status](m1/status.md), [manual acceptance](m1/manual-acceptance.md), [evidence](m1/evidence.md), [owner MFA contract](m1/owner-mfa-contract.md), [owner MFA evidence](m1/owner-mfa-evidence.md), [owner MFA handoff](m1/owner-mfa-handoff.md) |
 | `m2/` | [Status](m2/status.md), [pipeline](m2/pipeline-contract.md), [contacts/reminders](m2/crm-contract.md), [templates](m2/outreach-template-contract.md), [evidence](m2/evidence.md) |
 | `m3/` | [Status](m3/status.md), [onboarding/public presence](m3/onboarding-contract.md), [evidence](m3/evidence.md) |
 | `m3a/` | [Status](m3a/status.md), [portal contract](m3a/portal-contract.md), [handoff](m3a/implementation-handoff.md), [UI alignment](m3a/ui-alignment.md), [evidence](m3a/evidence.md) |

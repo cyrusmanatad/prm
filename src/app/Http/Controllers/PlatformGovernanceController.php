@@ -42,6 +42,18 @@ class PlatformGovernanceController extends PlatformConsoleController
         }, 'This account changed. Reload it before trying again.');
     }
 
+    /** Clears a workspace owner's authenticator after the written identity check (D35). Operators recover offline. */
+    public function resetAuthenticator(Request $request, PlatformAdministration $admin, int $account): mixed
+    {
+        $data = $request->validate(['reason' => ['required', 'string', 'max:240', 'not_regex:/^\s*$/'], 'password' => ['required', 'string'], 'code' => ['required', 'regex:/^[0-9]{6}$/D']]);
+
+        return $this->change($request, $admin, 'access.manage', $data, function () use ($request, $account, $data) {
+            $ended = DB::selectOne('SELECT app_platform_reset_authenticator(?,?) AS ended', [$account, trim($data['reason'])])->ended;
+
+            return $this->completed($request, ['ended' => $ended, 'message' => 'Authenticator reset. The account must set up a new one at its next sign-in.'], '/admin/accounts/'.$account.'?tab=security');
+        }, 'This account changed. Reload it before trying again.');
+    }
+
     public function support(Request $request, PlatformAdministration $admin): mixed
     {
         $filters = $request->validate(['state' => ['nullable', Rule::in(['requested', 'approved', 'declined', 'revoked', 'cancelled', 'expired'])], 'workspace' => ['nullable', 'uuid'], 'request' => ['nullable', 'uuid'], 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);

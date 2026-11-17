@@ -122,3 +122,35 @@ When localhost and browser tooling become available, inspect all seven boards at
 **Update (read-only check, later on 2026-11-17):** the second founder registered and verified a staging account, and the first founder granted it platform-owner access from the console. That grant is active but not yet usable: its authenticator is not enrolled.
 
 This closes no ADM package and changes no release gate. C2, C3 and C5 are launch-scope decisions, not permanent refusals; reopening any of them needs a new decision.
+
+
+## D34 — Workspace-owner MFA rules (M1-04)
+
+**Confirmed (2026-11-17):** the user answered the opening questions in the [workspace-owner MFA handoff](../m1/owner-mfa-handoff.md#decision-needed-before-starting):
+
+- **Recovery:** both routes. One-time recovery codes are shown at enrollment, and a platform operator can reset an owner's authenticator after an identity check when the codes are lost too.
+- **Role scope:** the `owner` role only, as D18 states. Admins, managers, members and viewers keep password-and-session sign-in.
+- **Challenge:** an enrolled owner enters a code at every sign-in.
+- **Authenticator:** one per account. A person who is both a workspace owner and a platform operator enrolls once.
+
+The remaining questions and the platform-grant proposal raised here were settled by D35.
+
+This authorizes no implementation. Code, migrations and tests still wait for the user's explicit go-ahead and the planning phase described in the handoff.
+
+
+## D35 — Workspace-owner MFA scope and operation (M1-04)
+
+**Confirmed (2026-11-17):** the user accepted five recommendations from the planning phase; see the [contract](../m1/owner-mfa-contract.md):
+
+- **Scope:** every account with an `owner` membership must set up an authenticator. Because the product assigns no other role today, this covers brands, partners and professionals at first entry.
+- **Enforcement setting:** always on in production; it can be turned off for staging and the existing test suites. Only the dedicated MFA tests then prove enforcement.
+- **Demoted owner:** the authenticator stays enrolled and the code is still asked at sign-in.
+- **Identity check before an operator reset:** a written procedure (confirm through the account's verified email and record the reason), not a built feature.
+- **Accounts with a platform grant:** no recovery codes and no console reset; the offline reset in D31 remains the only route. This confirms the proposal recorded in D34.
+
+This authorizes no implementation; code still waits for the user's explicit go-ahead.
+
+
+## D36 — Workspace-owner MFA is off on staging for now
+
+**Confirmed (2026-11-17):** the user chose to run staging with `OWNER_MFA_ENFORCED=false` for now, so the shared reviewer accounts keep password-only sign-in. `compose.staging.yaml` defaults the setting to `false`; setting it to `true` in `staging.env` turns enforcement on. Production is unaffected: it ignores the setting and always enforces (D35). While it is off, staging does not exercise owner MFA; turning it on later needs a decision on the shared reviewer accounts.

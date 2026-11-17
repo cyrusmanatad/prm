@@ -17,6 +17,8 @@ x-backend: &backend
     SESSION_DRIVER: database
     MAIL_MAILER: ${TRANSACTIONAL_MAIL_MAILER:-array}
     CLAMAV_HOST: clamav
+    # Workspace-owner MFA (D35). Production always enforces it regardless of this value.
+    OWNER_MFA_ENFORCED: ${OWNER_MFA_ENFORCED:-true}
     MIGRATION_DB_PASSWORD: ''
     MIGRATION_DB_USERNAME: ''
     POSTGRES_PASSWORD: ''

@@ -37,7 +37,7 @@ An owner cannot change their own grant, and the last usable platform owner canno
 
 **Support-access consent (implemented, D32).** Platform ownership grants no default access to tenant-private CRM, files or message content. An operator with `support.request` names a workspace, a purpose, record areas and a duration of 1 to 24 hours. Only an active owner of that workspace can approve, decline or later end the request, at `/workspace/support-access`. Approved access is read-only, limited to the named areas, expires on time without a job, confers no membership, and every view is written to both the administration audit and the workspace's audit log. There is no emergency path when no owner can approve (**Assumption / Open**, handoff decision C2).
 
-M1-04 remains open for workspace-owner MFA, which is **not implemented**: workspace owners sign in with password and session only.
+**Workspace-owner MFA (implemented locally, D34/D35; M1-04 verification pending).** An account with an active `owner` membership must set up an authenticator and enter a code at every sign-in; an enrolled account keeps being asked after it stops being an owner. Until the session passes the check, only `/account/authenticator`, sign-out and email verification are reachable. One authenticator per account is shared with platform step-up, which is unchanged. Recovery is by ten single-use recovery codes or an operator reset with `access.manage`; accounts holding a platform grant have neither and keep the offline reset. Enforcement is always on in production and controlled by `OWNER_MFA_ENFORCED` elsewhere. See the [contract](../m1/owner-mfa-contract.md) and [evidence](../m1/owner-mfa-evidence.md).
 
 ## Organization permissions
 

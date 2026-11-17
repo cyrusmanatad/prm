@@ -49,13 +49,11 @@ class PlatformAdministration
             throw ValidationException::withMessages(['password' => 'Enter your current password.']);
         }
         abort_unless($user->admin_totp_secret, 403);
-        $secret = decrypt($user->admin_totp_secret);
-        foreach ([intdiv(time(), 30) - 1, intdiv(time(), 30), intdiv(time(), 30) + 1] as $counter) {
-            if ($counter > ($user->admin_totp_counter ?? -1) && hash_equals($this->code($secret, $counter), $code)) {
-                DB::table('users')->where('id', $user->id)->update(['admin_totp_counter' => $counter]);
+        $counter = app(Authenticator::class)->match(decrypt($user->admin_totp_secret), $user->admin_totp_counter, $code);
+        if ($counter !== null) {
+            DB::table('users')->where('id', $user->id)->update(['admin_totp_counter' => $counter]);
 
-                return;
-            }
+            return;
         }
         throw ValidationException::withMessages(['code' => 'Enter a fresh authenticator code.']);
     }
@@ -73,23 +71,9 @@ class PlatformAdministration
         return is_string($path) && preg_match('#^/admin(?:[/?]|$)#', $path) && ! str_starts_with($path, '/admin/security') ? $path : $fallback;
     }
 
-    /** RFC 6238 SHA-1, six digits, thirty seconds; counters are consumed once. */
+    /** The shared authenticator computes codes; kept here for existing callers. */
     public function code(string $secret, int $counter): string
     {
-        $binary = '';
-        foreach (str_split($secret) as $character) {
-            $binary .= str_pad(decbin(strpos('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567', $character)), 5, '0', STR_PAD_LEFT);
-        }
-        $key = '';
-        foreach (str_split($binary, 8) as $byte) {
-            if (strlen($byte) === 8) {
-                $key .= chr(bindec($byte));
-            }
-        }
-        $hash = hash_hmac('sha1', pack('N2', 0, $counter), $key, true);
-        $offset = ord($hash[19]) & 15;
-        $number = unpack('N', substr($hash, $offset, 4))[1] & 0x7FFFFFFF;
-
-        return str_pad((string) ($number % 1000000), 6, '0', STR_PAD_LEFT);
+        return app(Authenticator::class)->code($secret, $counter);
     }
 }

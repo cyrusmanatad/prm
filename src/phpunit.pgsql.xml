@@ -10,6 +10,7 @@
         <server name="CACHE_STORE" value="array"/>
         <server name="MAIL_MAILER" value="array"/>
         <server name="QUEUE_CONNECTION" value="sync"/>
+        <server name="OWNER_MFA_ENFORCED" value="false" force="true"/>
         <server name="SESSION_DRIVER" value="array"/>
     </php>
 </phpunit>

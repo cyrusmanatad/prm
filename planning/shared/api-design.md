@@ -98,6 +98,7 @@ Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/part
 | `POST /admin/accounts/{account}/suspend`, `/reactivate` | `access.manage` | `expected_version`, `reason`; fresh proof |
 | `POST /admin/workspaces/{workspace}/suspend`, `/reactivate` | `access.manage` | `expected_version`, `reason`; fresh proof |
 | `POST /admin/accounts/{account}/sign-out` | `access.manage` | `reason`; fresh proof |
+| `POST /admin/accounts/{account}/reset-authenticator` | `access.manage` | `reason`; fresh proof. Refuses the caller's own account, accounts with an active platform grant and accounts with no authenticator (M1-04) |
 | `POST /admin/support-access` | `support.request` | `workspace`, `purpose`, `resources`, `hours` (1–24) |
 | `POST /admin/support-access/{grant}/end` | `support.request` (own grant) or `platform.owner` | `expected_version`, `reason` |
 | `POST /admin/cleanup` | `cleanup.review` | Create a batch: `name`, `reason` |

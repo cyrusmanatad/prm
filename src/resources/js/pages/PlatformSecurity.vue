@@ -8,13 +8,13 @@ import FormField from '../components/FormField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { Button } from '../components/ui/button';
 import { useValidationFocus } from '../composables/useValidationFocus';
-import EnrollmentQr from '../features/admin/EnrollmentQr.vue';
-import { enrollmentUri } from '../features/admin/enrollment';
+import EnrollmentQr from '../components/EnrollmentQr.vue';
+import { enrollmentUri } from '../features/auth/enrollment';
 
 const props = defineProps<{ enrolled: boolean; secret?: string }>();
 const page = usePage<{ account?: { name: string; email: string } | null }>();
 const enrollment = computed(() =>
-    props.secret ? enrollmentUri(props.secret, page.props.account?.email ?? 'Administrator') : null,
+    props.secret ? enrollmentUri(props.secret, page.props.account?.email ?? 'Administrator', 'WeavDash Admin') : null,
 );
 const root = ref<HTMLElement>();
 const form = useForm({ password: '', code: '' });
@@ -44,7 +44,7 @@ function submit() {
                 Enter your password to generate a setup key. Add the key to your authenticator app as a time-based,
                 six-digit account.
             </p>
-            <div v-if="secret" class="adm-setup-key">
+            <div v-if="secret" class="wd-setup-key">
                 <p>
                     Scan this QR code with your authenticator app, then enter the current code. The setup key is shown
                     once and expires in 10 minutes.
