@@ -5,13 +5,13 @@ import AdminShell from '../layouts/AdminShell.vue';
 import ContentSection from '../components/ContentSection.vue';
 import DataTable from '../components/DataTable.vue';
 import EmptyState from '../components/EmptyState.vue';
-import FieldGroup from '../components/FieldGroup.vue';
 import FilterBar from '../components/FilterBar.vue';
 import FormField from '../components/FormField.vue';
 import Pagination from '../components/Pagination.vue';
 import SelectField from '../components/SelectField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { useListFilters } from '../composables/useListFilters';
+import DateRangeFields from '../features/admin/DateRangeFields.vue';
 import { auditOutcomes, auditSources, dateTime } from '../features/admin/format';
 
 export type AuditRow = {
@@ -87,12 +87,7 @@ const columns = [
                         ...Object.entries(auditOutcomes).map(([value, entry]) => ({ value, label: entry.label })),
                     ]"
                 />
-                <FieldGroup id="audit-from" label="From date" :error="undefined">
-                    <template #default="{ id }"><input :id="id" v-model="draft.from" type="date" /></template>
-                </FieldGroup>
-                <FieldGroup id="audit-to" label="To date (inclusive)" :error="undefined">
-                    <template #default="{ id }"><input :id="id" v-model="draft.to" type="date" /></template>
-                </FieldGroup>
+                <DateRangeFields v-model:from="draft.from" v-model:to="draft.to" prefix="audit" />
             </FilterBar>
         </ContentSection>
         <ContentSection title="Events" description="Newest first. Dates filter on calendar days in UTC.">

@@ -8,6 +8,7 @@ import PlatformNotification from '../../resources/js/pages/PlatformNotification.
 import PlatformOperations from '../../resources/js/pages/PlatformOperations.vue';
 import PlatformOperators from '../../resources/js/pages/PlatformOperators.vue';
 import PlatformOverview from '../../resources/js/pages/PlatformOverview.vue';
+import PlatformWorkspaces from '../../resources/js/pages/PlatformWorkspaces.vue';
 import PlatformCleanupRun from '../../resources/js/pages/PlatformCleanupRun.vue';
 import PlatformSupportGrant from '../../resources/js/pages/PlatformSupportGrant.vue';
 import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
@@ -89,6 +90,8 @@ const overview = {
     operators_without_mfa: 0,
     long_suspensions: 0,
     support_awaiting: 0,
+    support_expiring: 0,
+    cleanup_blocked: 0,
     activity: [],
 };
 const entitlement = {
@@ -153,6 +156,23 @@ it('lists attention items with a next step and a link to the filtered list', () 
     expect(wrapper.text()).toContain('1 workspace has an expired assignment');
 });
 
+it('flags support access that is about to end and cleanup batches with blocked records, without offering to extend or delete', () => {
+    const wrapper = render(PlatformOverview, { overview: { ...overview, support_expiring: 1, cleanup_blocked: 2 } });
+    const items = wrapper.findAll('.adm-attention li');
+    expect(items).toHaveLength(2);
+    expect(items[0]!.text()).toContain('1 support grant ends within two hours');
+    expect(items[0]!.text()).toContain('It cannot be extended');
+    expect(items[0]!.get('a').attributes('href')).toBe('/admin/support-access?state=approved');
+    expect(items[1]!.text()).toContain('2 cleanup batches have blocked records in the latest dry run');
+    expect(items[1]!.text()).toContain('Dry runs delete nothing');
+    expect(items[1]!.get('a').attributes('href')).toBe('/admin/cleanup');
+    // Outside the operator's capabilities the figures are null and nothing is reported.
+    const hidden = render(PlatformOverview, {
+        overview: { ...overview, support_expiring: null, cleanup_blocked: null },
+    });
+    expect(hidden.text()).toContain('Nothing needs attention');
+});
+
 it('distinguishes an empty directory from no matches and restores applied filters', async () => {
     const props = { accounts: { total: 0, rows: [] }, filters: { q: '', verified: '', grant: '' }, page: 1 };
     const wrapper = render(PlatformAccounts, props);
@@ -166,6 +186,30 @@ it('distinguishes an empty directory from no matches and restores applied filter
     await wrapper.get('form').trigger('submit');
     expect(get.mock.calls[0]![0]).toBe('/admin/accounts');
     expect(get.mock.calls[0]![1]).toEqual({ q: 'unsent edit', verified: 'no' });
+});
+
+it('filters both directories by a labelled, inclusive date range and reports it as applied', async () => {
+    const accounts = render(PlatformAccounts, {
+        accounts: { total: 0, rows: [] },
+        filters: { q: '', verified: '', grant: '', access: '', from: '2026-11-01', to: '' },
+        page: 1,
+    });
+    expect(accounts.get('label[for="account-joined-from"]').text()).toBe('Joined from');
+    expect(accounts.get('label[for="account-joined-to"]').text()).toBe('Joined to (inclusive)');
+    expect((accounts.get('#account-joined-from').element as HTMLInputElement).type).toBe('date');
+    expect(accounts.get('[aria-label="Applied filters"]').text()).toContain('Joined from: 2026-11-01');
+    await accounts.get('#account-joined-to').setValue('2026-11-15');
+    expect(accounts.get('[aria-label="Applied filters"]').text()).not.toContain('Joined to');
+    await accounts.get('form').trigger('submit');
+    expect(get.mock.calls[0]![1]).toEqual({ from: '2026-11-01', to: '2026-11-15' });
+    const workspaces = render(PlatformWorkspaces, {
+        workspaces: { total: 0, rows: [] },
+        filters: { q: '', kind: '', state: '', access: '', from: '', to: '2026-11-15' },
+        page: 1,
+    });
+    expect(workspaces.get('label[for="workspace-created-to"]').text()).toBe('Created to (inclusive)');
+    expect(workspaces.get('[aria-label="Applied filters"]').text()).toContain('Created to: 2026-11-15');
+    expect(workspaces.text()).toContain('calendar days in UTC');
 });
 
 const accountImpact = {

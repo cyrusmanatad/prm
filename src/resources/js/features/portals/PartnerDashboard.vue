@@ -6,6 +6,7 @@ import { Link, router } from '@inertiajs/vue3';
 import LeadManager from '../pipeline/LeadManager.vue';
 import PipelineBoard from '../pipeline/PipelineBoard.vue';
 import PartnerChrome from './PartnerChrome.vue';
+import StatusBadge from '../../components/StatusBadge.vue';
 import { money } from '../pipeline/money';
 import type { PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
@@ -514,7 +515,13 @@ const summary = computed(() => [
                                 class="mt-3 rounded-xl bg-white/7 p-3.5"
                             >
                                 <strong>{{ row.brand_name }}</strong>
-                                <p class="text-[13px] text-lilac">
+                                <p v-if="row.paused" class="mt-1 text-[13px] text-lilac">
+                                    <StatusBadge label="Paused" tone="warning" />
+                                    <span class="mt-1 block"
+                                        >This brand's workspace is currently unavailable. The partnership is kept.</span
+                                    >
+                                </p>
+                                <p v-else class="text-[13px] text-lilac">
                                     {{
                                         professional
                                             ? 'Active partnership'

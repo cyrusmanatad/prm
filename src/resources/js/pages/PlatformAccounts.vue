@@ -11,6 +11,7 @@ import Pagination from '../components/Pagination.vue';
 import SelectField from '../components/SelectField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { useListFilters } from '../composables/useListFilters';
+import DateRangeFields from '../features/admin/DateRangeFields.vue';
 import { dateTime } from '../features/admin/format';
 
 type Account = {
@@ -23,7 +24,7 @@ type Account = {
     platform_access: boolean;
     suspended: boolean;
 };
-type Filters = { q: string; verified: string; grant: string; access: string };
+type Filters = { q: string; verified: string; grant: string; access: string; from: string; to: string };
 const props = defineProps<{ accounts: { total: number; rows: Account[] }; filters: Filters; page: number }>();
 const { draft, pending, submit, clear, href } = useListFilters<Filters>('/admin/accounts', () => props.filters);
 const applied = computed(() => [
@@ -37,6 +38,8 @@ const applied = computed(() => [
     ...(props.filters.access
         ? [{ label: 'Access', value: props.filters.access === 'suspended' ? 'Suspended' : 'Active' }]
         : []),
+    ...(props.filters.from ? [{ label: 'Joined from', value: props.filters.from }] : []),
+    ...(props.filters.to ? [{ label: 'Joined to', value: props.filters.to }] : []),
 ]);
 const columns = [
     { key: 'name', label: 'Account' },
@@ -93,9 +96,16 @@ const columns = [
                         { value: 'suspended', label: 'Suspended' },
                     ]"
                 />
+                <DateRangeFields
+                    v-model:from="draft.from"
+                    v-model:to="draft.to"
+                    prefix="account-joined"
+                    from-label="Joined from"
+                    to-label="Joined to (inclusive)"
+                />
             </FilterBar>
         </ContentSection>
-        <ContentSection title="Accounts">
+        <ContentSection title="Accounts" description="Joined dates filter on calendar days in UTC.">
             <EmptyState
                 v-if="!accounts.rows.length && applied.length"
                 title="No accounts match these filters"

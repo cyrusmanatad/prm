@@ -116,4 +116,182 @@ DO $$ BEGIN
           AND NOT EXISTS (SELECT 1 FROM aclexplode(p.proacl) a WHERE a.grantee = 0 AND a.privilege_type = 'EXECUTE')
     ) THEN RAISE EXCEPTION 'membership lock function privilege boundary unsafe'; END IF;
 END $$;
+-- Platform administration. Actor 2 still owns Creator B; actor 1's membership is revoked.
+SET ROLE weavdash_app;
+BEGIN;
+SELECT set_config('app.actor_id', '2', true);
+DO $$ BEGIN
+    IF app_platform_allowed('directory.read') OR app_platform_any() OR EXISTS (SELECT 1 FROM app_lock_platform_grant()) THEN
+        RAISE EXCEPTION 'platform access without a grant';
+    END IF;
+    BEGIN
+        PERFORM app_platform_accounts('{}'::jsonb, 1);
+        RAISE EXCEPTION 'directory readable without a grant';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO platform_grants(user_id, permissions) VALUES (2, ARRAY['platform.owner']);
+        RAISE EXCEPTION 'runtime self-granted platform access';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO platform_audit(actor_id, event, target, reason) VALUES (2, 'forged', 'x', 'forged');
+        RAISE EXCEPTION 'runtime wrote platform audit directly';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+END $$;
+COMMIT;
+RESET ROLE;
+SET ROLE weavdash_migrator;
+INSERT INTO platform_grants(user_id, permissions) VALUES (2, ARRAY['directory.read']);
+INSERT INTO platform_audit(operator, event, target, reason) VALUES ('rls-check', 'grant.assigned.offline', '2', 'RLS check');
+RESET ROLE;
+SET ROLE weavdash_app;
+BEGIN;
+SELECT set_config('app.actor_id', '2', true), set_config('app.admin_version', '1', true);
+DO $$ BEGIN
+    IF app_platform_allowed('directory.read') THEN RAISE EXCEPTION 'grant usable without a confirmed authenticator'; END IF;
+END $$;
+COMMIT;
+RESET ROLE;
+SET ROLE weavdash_migrator;
+UPDATE users SET admin_totp_confirmed_at = now() WHERE id = 2;
+RESET ROLE;
+SET ROLE weavdash_app;
+BEGIN;
+SELECT set_config('app.actor_id', '2', true);
+DO $$ BEGIN
+    IF app_platform_allowed('directory.read') THEN RAISE EXCEPTION 'grant usable without step-up'; END IF;
+    PERFORM set_config('app.admin_version', '2', true);
+    IF app_platform_allowed('directory.read') THEN RAISE EXCEPTION 'grant usable with a stale step-up version'; END IF;
+    PERFORM set_config('app.admin_version', '1', true);
+    IF NOT app_platform_allowed('directory.read') OR NOT app_platform_any() THEN RAISE EXCEPTION 'valid grant refused'; END IF;
+    IF app_platform_allowed('plans.assign') OR app_platform_allowed('platform.owner') OR app_platform_allowed('access.manage') THEN
+        RAISE EXCEPTION 'capability outside the grant accepted';
+    END IF;
+    IF (app_platform_accounts('{}'::jsonb, 1)->>'total')::int < 2 THEN RAISE EXCEPTION 'granted directory projection failed'; END IF;
+    BEGIN
+        PERFORM app_platform_operators();
+        RAISE EXCEPTION 'operator list readable without platform.owner';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        PERFORM app_platform_suspend('account', '1', 0, 'forged');
+        RAISE EXCEPTION 'suspension accepted without access.manage';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        PERFORM app_support_records('00000000-0000-4000-8000-000000000009', 'reminders', 1);
+        RAISE EXCEPTION 'support records readable without a grant';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    -- The grant row is readable only by its holder and never writable; every other platform table shows nothing.
+    IF (SELECT count(*) FROM platform_grants) <> 1 OR (SELECT count(*) FROM platform_audit) <> 0 THEN RAISE EXCEPTION 'platform table visibility wrong'; END IF;
+    UPDATE platform_grants SET permissions = ARRAY['platform.owner'];
+    DELETE FROM platform_audit;
+    IF app_platform_allowed('platform.owner') THEN RAISE EXCEPTION 'runtime changed its own grant'; END IF;
+    -- Unrelated to a suspension: the skip and pause helpers refuse ordinary or unknown records.
+    IF app_skip_due_schedule('00000000-0000-4000-8000-000000000009', NULL) OR app_partnership_paused('00000000-0000-4000-8000-000000000009') THEN
+        RAISE EXCEPTION 'suspension helper acted on an unknown record';
+    END IF;
+END $$;
+COMMIT;
+BEGIN;
+SELECT set_config('app.actor_id', '1', true), set_config('app.admin_version', '1', true);
+DO $$ BEGIN
+    IF (SELECT count(*) FROM platform_grants) <> 0 OR app_platform_allowed('directory.read') THEN RAISE EXCEPTION 'another actor used or read the grant'; END IF;
+END $$;
+COMMIT;
+RESET ROLE;
+-- Suspension is enforced by the same functions every tenant policy and worker uses.
+SET ROLE weavdash_migrator;
+INSERT INTO platform_suspensions(subject, org_id, reason, suspended_by) VALUES ('workspace', '00000000-0000-4000-8000-000000000002', 'RLS check', 2);
+RESET ROLE;
+SET ROLE weavdash_app;
+BEGIN;
+SELECT set_config('app.actor_id', '2', true), set_config('app.org_id', '00000000-0000-4000-8000-000000000002', true), set_config('app.admin_version', '1', true);
+DO $$ BEGIN
+    IF app_has_membership(app_org()) OR app_lock_membership(app_org()) OR (SELECT count(*) FROM organizations) <> 0 OR (SELECT count(*) FROM audit_logs) <> 0 THEN
+        RAISE EXCEPTION 'suspended workspace still readable';
+    END IF;
+    UPDATE organizations SET name = 'suspended write' WHERE id = app_org();
+    IF NOT app_platform_allowed('directory.read') THEN RAISE EXCEPTION 'workspace suspension blocked the operator account'; END IF;
+    IF (SELECT count(*) FROM platform_suspensions) <> 0 THEN RAISE EXCEPTION 'suspension record visible to runtime'; END IF;
+    UPDATE platform_suspensions SET lifted_at = now(), lifted_by = 2;
+END $$;
+COMMIT;
+RESET ROLE;
+SET ROLE weavdash_migrator;
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM organizations WHERE id = '00000000-0000-4000-8000-000000000002' AND name = 'Creator B')
+        OR NOT EXISTS (SELECT 1 FROM platform_suspensions WHERE lifted_at IS NULL) THEN RAISE EXCEPTION 'suspended workspace was modified or runtime lifted the suspension'; END IF;
+END $$;
+UPDATE platform_suspensions SET lifted_at = now(), lifted_by = 2, lift_reason = 'RLS check';
+INSERT INTO platform_suspensions(subject, user_id, reason, suspended_by) VALUES ('account', 2, 'RLS check', 1);
+RESET ROLE;
+SET ROLE weavdash_app;
+BEGIN;
+SELECT set_config('app.actor_id', '2', true), set_config('app.org_id', '00000000-0000-4000-8000-000000000002', true), set_config('app.admin_version', '1', true);
+DO $$ BEGIN
+    IF app_has_membership(app_org()) OR app_lock_membership(app_org()) OR (SELECT count(*) FROM organizations) <> 0 THEN RAISE EXCEPTION 'suspended account still trusted'; END IF;
+    IF app_platform_allowed('directory.read') OR app_platform_any() OR EXISTS (SELECT 1 FROM app_lock_platform_grant()) THEN
+        RAISE EXCEPTION 'suspended operator kept platform access';
+    END IF;
+END $$;
+COMMIT;
+RESET ROLE;
+SET ROLE weavdash_migrator;
+UPDATE platform_suspensions SET lifted_at = now(), lifted_by = 1, lift_reason = 'RLS check' WHERE lifted_at IS NULL;
+RESET ROLE;
+SET ROLE weavdash_app;
+BEGIN;
+SELECT set_config('app.actor_id', '2', true), set_config('app.org_id', '00000000-0000-4000-8000-000000000002', true);
+DO $$ BEGIN
+    IF NOT app_has_membership(app_org()) OR (SELECT count(*) FROM organizations) <> 1 THEN RAISE EXCEPTION 'reactivation did not restore access'; END IF;
+END $$;
+COMMIT;
+BEGIN;
+SELECT set_config('app.actor_id', '1', true), set_config('app.org_id', '00000000-0000-4000-8000-000000000001', true);
+DO $$ BEGIN
+    IF app_has_membership(app_org()) THEN RAISE EXCEPTION 'reactivation restored a revoked membership'; END IF;
+END $$;
+COMMIT;
+RESET ROLE;
+-- Leave no grant or authenticator behind for later suites; suspension and audit history is append-only by design.
+SET ROLE weavdash_migrator;
+DELETE FROM platform_grants WHERE user_id = 2;
+UPDATE users SET admin_totp_confirmed_at = NULL WHERE id = 2;
+RESET ROLE;
+-- Platform schema integrity: forced RLS, no runtime ownership, one self-read policy, gated definer functions only.
+DO $$ DECLARE unsafe text; BEGIN
+    SELECT string_agg(c.relname, ', ') INTO unsafe FROM pg_class c JOIN pg_roles r ON r.oid = c.relowner
+        WHERE c.relname IN ('platform_grants','platform_audit','notification_resolutions','platform_observations','platform_suspensions','support_grants','fixture_batches','fixture_marks','cleanup_runs')
+          AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity OR r.rolname = 'weavdash_app');
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'platform table ownership/RLS unsafe: %', unsafe; END IF;
+    IF (SELECT count(*) FROM pg_class WHERE relkind = 'r' AND relname IN ('platform_grants','platform_audit','notification_resolutions','platform_observations','platform_suspensions','support_grants','fixture_batches','fixture_marks','cleanup_runs')) <> 9 THEN
+        RAISE EXCEPTION 'platform table missing';
+    END IF;
+    SELECT string_agg(tablename || '.' || policyname, ', ') INTO unsafe FROM pg_policies
+        WHERE tablename IN ('platform_grants','platform_audit','notification_resolutions','platform_observations','platform_suspensions','support_grants','fixture_batches','fixture_marks','cleanup_runs')
+          AND NOT (tablename = 'platform_grants' AND policyname = 'grant_self_read' AND cmd = 'SELECT');
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'unexpected runtime policy on a platform table: %', unsafe; END IF;
+    -- Every function the runtime may call for administration is a definer function owned by the migration role,
+    -- with a pinned search path and no PUBLIC execute.
+    SELECT string_agg(p.oid::regprocedure::text, ', ') INTO unsafe FROM pg_proc p JOIN pg_roles r ON r.oid = p.proowner
+        WHERE p.pronamespace = 'public'::regnamespace AND (p.proname LIKE 'app\_platform\_%' OR p.proname LIKE 'app\_support\_%' OR p.proname LIKE 'app\_cleanup\_%' OR p.proname LIKE 'app\_workspace\_support\_%'
+            OR p.proname IN ('app_lock_platform_grant','app_record_observation','app_skip_suspended_work','app_skip_due_schedule','app_suspended_due_schedules','app_partnership_paused','app_account_suspended','app_workspace_suspended','app_public_link_suspended'))
+          AND has_function_privilege('weavdash_app', p.oid, 'EXECUTE')
+          AND (NOT p.prosecdef OR r.rolname <> 'weavdash_migrator' OR p.proconfig IS NULL OR NOT EXISTS (SELECT 1 FROM unnest(p.proconfig) c WHERE c LIKE 'search_path=pg_catalog%')
+            OR EXISTS (SELECT 1 FROM aclexplode(p.proacl) a WHERE a.grantee = 0 AND a.privilege_type = 'EXECUTE'));
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'platform function privilege boundary unsafe: %', unsafe; END IF;
+    -- Cross-tenant helpers stay internal.
+    SELECT string_agg(f, ', ') INTO unsafe FROM unnest(ARRAY['app_platform_require(text)','app_entitlement_state(uuid)','app_platform_activity(text,uuid)','app_suspension_version(text,bigint,uuid)',
+        'app_usable_owner_besides(bigint)','app_support_row(support_grants)','app_support_state(support_grants)','app_job_name(text)']) f
+        WHERE has_function_privilege('weavdash_app', f, 'EXECUTE');
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'internal platform helper executable by runtime: %', unsafe; END IF;
+    -- Cleanup is a dry run: nothing named for cleanup or fixtures may delete.
+    IF EXISTS (SELECT 1 FROM pg_proc p WHERE p.pronamespace = 'public'::regnamespace AND p.proname LIKE 'app\_cleanup\_%' AND p.prosrc ~* '\mDELETE\s+FROM\s+public\.(?!fixture_marks)') THEN
+        RAISE EXCEPTION 'a cleanup function deletes records';
+    END IF;
+END $$;
 SELECT 'RLS_CHECKS_PASSED';

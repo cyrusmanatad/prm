@@ -11,8 +11,8 @@ Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a
 | Package | Implemented | Still open |
 |---|---|---|
 | ADM-01 | Platform grants, TOTP step-up, offline bootstrap/recovery, runtime operator grant/change/revoke with fresh proof | Real-owner provisioning; workspace-owner MFA (M1-04) |
-| ADM-02 | Administration shell, overview, account and workspace directories and details | Integration/RLS scripts, WebKit and manual accessibility review |
-| ADM-03 | Grant revoke/reduce; account and workspace suspend/reactivate; session sign-out ([confirmed rules](suspension-proposal.md)) | Partner-side "paused" label; membership role changes |
+| ADM-02 | Administration shell, overview, account and workspace directories and details, created-date filters; integration and RLS scripts run ([follow-up evidence](follow-up-evidence.md)) | Local WebKit and manual accessibility review |
+| ADM-03 | Grant revoke/reduce; account and workspace suspend/reactivate; session sign-out; partner-side "Paused" label; work due during suspension recorded as skipped ([confirmed rules](suspension-proposal.md), [follow-up evidence](follow-up-evidence.md)) | Membership role changes |
 | ADM-04 | Plans, assignments, usage and the reviewed assignment page | Commercial prices/quotas (M4-01); production roster (M4-02) |
 | ADM-05 | Notification list/detail/resolution; failed jobs; queue depth; scheduler heartbeat | Worker, scanner and provider health; M6-03 monitoring |
 | ADM-06 | Audit review; workspace-owner-approved, read-only support access of at most 24 hours | Emergency access (none); tenant audit browsing; export |

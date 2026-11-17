@@ -11,6 +11,7 @@ import Pagination from '../components/Pagination.vue';
 import SelectField from '../components/SelectField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { useListFilters } from '../composables/useListFilters';
+import DateRangeFields from '../features/admin/DateRangeFields.vue';
 import { dateTime, entitlementStates, workspaceTypes } from '../features/admin/format';
 
 type Workspace = {
@@ -26,7 +27,7 @@ type Workspace = {
     plan: string | null;
     suspended: boolean;
 };
-type Filters = { q: string; kind: string; state: string; access: string };
+type Filters = { q: string; kind: string; state: string; access: string; from: string; to: string };
 const props = defineProps<{ workspaces: { total: number; rows: Workspace[] }; filters: Filters; page: number }>();
 const { draft, pending, submit, clear, href } = useListFilters<Filters>('/admin/workspaces', () => props.filters);
 const stateOptions = ['active', 'scheduled', 'expired', 'unassigned-development', 'pending-activation'];
@@ -39,6 +40,8 @@ const applied = computed(() => [
     ...(props.filters.access
         ? [{ label: 'Access', value: props.filters.access === 'suspended' ? 'Suspended' : 'Active' }]
         : []),
+    ...(props.filters.from ? [{ label: 'Created from', value: props.filters.from }] : []),
+    ...(props.filters.to ? [{ label: 'Created to', value: props.filters.to }] : []),
 ]);
 const columns = [
     { key: 'name', label: 'Workspace' },
@@ -95,9 +98,16 @@ const columns = [
                         { value: 'suspended', label: 'Suspended' },
                     ]"
                 />
+                <DateRangeFields
+                    v-model:from="draft.from"
+                    v-model:to="draft.to"
+                    prefix="workspace-created"
+                    from-label="Created from"
+                    to-label="Created to (inclusive)"
+                />
             </FilterBar>
         </ContentSection>
-        <ContentSection title="Workspaces">
+        <ContentSection title="Workspaces" description="Created dates filter on calendar days in UTC.">
             <EmptyState
                 v-if="!workspaces.rows.length && applied.length"
                 title="No workspaces match these filters"

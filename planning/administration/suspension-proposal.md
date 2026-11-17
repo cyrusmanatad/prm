@@ -29,6 +29,9 @@ Deletion of accounts or workspaces remains out of scope until the M3-02 retentio
 
 ## Implementation notes
 
-- Rule 4, partner view: a suspended workspace's public links and members are blocked and its relationships stay recorded, but the other party's portal does not yet label the partnership as paused. This is the one part of the confirmed rules not built.
-- Rule 5: queued notifications, ready scheduled runs and approved follow-ups are cancelled at the moment of suspension. Work that would start later is refused when it executes because membership authorization fails; such refusals are not separately recorded as "skipped".
+- Rule 4, partner view (built 2026-11-17): the other party's brand roster or partner portal labels the partnership "Paused" and says the workspace is currently unavailable and the partnership is kept. Only that fact is disclosed, through `app_partnership_paused`, to a participant of that partnership; the reason, time and operator are not. Ending the partnership remains available.
+- Rule 5, at suspension: a workspace suspension cancels its queued notifications, ready scheduled runs and approved follow-ups at once.
+- Rule 5, afterwards (built 2026-11-17): every minute the scheduler closes work that authorization would refuse. A run that is ready, or a schedule that falls due, while its workspace or actor is suspended is recorded as a `skipped` run with an `automation.run.skipped` event in the workspace audit log, and the schedule moves to its next occurrence. Email still pending and follow-ups still approved for a suspended account are cancelled. This also closes a gap for **account** suspension, where such work was previously left waiting and would have run after reactivation.
+- Rule 6: skipped and cancelled work is never replayed. Schedules themselves stay enabled and resume with their next occurrence after reactivation.
+- Not built: operators cannot see skipped runs in the console; the record is the run state and the workspace audit log (tenant audit browsing is handoff item B12).
 - Rule 9 and the capability question: `access.manage` is implemented as proposed.

@@ -87,14 +87,16 @@ Verify relative links, run `git diff --check`, update the [planning index](../RE
 
 ## Part B — administration work not yet implemented
 
+B1–B6 were worked on 2026-11-17 on branch `administration/part-b`; results are in the [follow-up evidence](follow-up-evidence.md). B7–B13 still wait for the decisions in Part C.
+
 | # | Item | Package | State |
 |---|---|---|---|
-| B1 | **Mobile administration journey is intermittent** (passed 3 of 6 runs; failures at three different steps). Find the cause. First check: run against a multi-worker server instead of the single-process PHP dev server; then look for a session race around `session()->regenerate()`. Details in the [evidence](console-evidence.md#commands-and-results). | ADM-02 | Ready to do |
-| B2 | Run the gates that were not run: `phpunit.pgsql.xml` and `tests/Integration/rls.sql` on a fresh database (add platform checks to `rls.sql`, which has none); WebKit desktop/mobile; confirm CI on `main`. | ADM-01 to 07 | Ready to do |
-| B3 | Partner-side "paused" label when the other party's workspace is suspended. This is the one confirmed suspension rule (rule 4) not built. | ADM-03 | Ready to do |
-| B4 | Record work refused at execution because of suspension as "skipped" (rule 5 says skipped and recorded; today it is only refused). | ADM-03 | Ready to do |
-| B5 | Directory extras from the design brief: joined/created date filters, fixture/protected classification filters once B11 exists, optional column chooser. | ADM-02 | Ready to do; low priority |
-| B6 | Overview attention items for support access nearing expiry and blocked cleanup reviews. | ADM-05/06 | Ready to do; low priority |
+| B1 | **Mobile administration journey is intermittent** (passed 3 of 6 runs; failures at three different steps). Find the cause. First check: run against a multi-worker server instead of the single-process PHP dev server; then look for a session race around `session()->regenerate()`. Details in the [evidence](console-evidence.md#commands-and-results). | ADM-02 | **Partly done 2026-11-17:** one test defect found and fixed; the mobile failures did not reproduce in 21 runs, so their cause is not established. See the [follow-up evidence](follow-up-evidence.md#b1--the-intermittent-administration-journey). |
+| B2 | Run the gates that were not run: `phpunit.pgsql.xml` and `tests/Integration/rls.sql` on a fresh database (add platform checks to `rls.sql`, which has none); WebKit desktop/mobile; confirm CI on `main`. | ADM-01 to 07 | **Done 2026-11-17** except local WebKit (host lacks its libraries; it runs in CI). See the [follow-up evidence](follow-up-evidence.md#commands-and-results). |
+| B3 | Partner-side "paused" label when the other party's workspace is suspended. This is the one confirmed suspension rule (rule 4) not built. | ADM-03 | **Done 2026-11-17.** |
+| B4 | Record work refused at execution because of suspension as "skipped" (rule 5 says skipped and recorded; today it is only refused). | ADM-03 | **Done 2026-11-17**, including the same handling for account suspension. |
+| B5 | Directory extras from the design brief: joined/created date filters, fixture/protected classification filters once B11 exists, optional column chooser. | ADM-02 | **Done 2026-11-17** for the date filters; classification filters wait for B11; column chooser not built. |
+| B6 | Overview attention items for support access nearing expiry and blocked cleanup reviews. | ADM-05/06 | **Done 2026-11-17.** |
 | B7 | QR code on authenticator enrollment. Needs a new frontend dependency. | ADM-01 | Needs approval (C6) |
 | B8 | Worker heartbeat, scanner health and mail-provider health on `/admin/operations`. Overlaps M6-03 monitoring. | ADM-05 | Needs approval (C7) |
 | B9 | Membership role change or revocation from administration. Read-only today. | ADM-03 | Needs approval (C3) |
@@ -119,7 +121,7 @@ Optional UI proposals from the original plan, outside administration scope and n
 | C6 | **QR code dependency.** Approve adding a small QR library for enrollment? | Adds a dependency. | Approve; it removes manual key entry. |
 | C7 | **Health telemetry scope.** Build worker/scanner/provider health in the console, or leave to M6-03 monitoring? | Avoids building it twice. | Leave to M6-03. |
 | C8 | **Real owner and operator roster.** Which identity is the first platform owner, who else gets which capabilities, and when to provision. | Still **Assumption / Open** in the contract; needed before launch. | Decide before the bootstrap rehearsal (B13); name at least two owners so last-owner protection is not the only safeguard. |
-| C9 | **Confirm the suspension implementation notes.** Accept B3 and B4 as follow-ups rather than blockers? | They are gaps against the confirmed rules. | Accept as follow-ups before closing ADM-03. |
+| C9 | **Confirm the suspension implementation notes.** Accept B3 and B4 as follow-ups rather than blockers? | They were gaps against the confirmed rules. | No longer needed: B3 and B4 are implemented (2026-11-17). |
 
 Related decisions owned elsewhere and still open: retention and privacy (M3-02), commercial prices and quotas (M4-01), production roster (M4-02), incident and support ownership (M6-06).
 

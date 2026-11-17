@@ -17,13 +17,16 @@ class PlatformConsoleController extends Controller
 {
     protected const CAPABILITIES = ['platform.owner', 'directory.read', 'plans.assign', 'notifications.read', 'notifications.reconcile', 'operations.read', 'audit.read', 'access.manage', 'support.request', 'cleanup.review'];
 
+    /** Joined/created date range shared by both directories; `to` is inclusive. */
+    private const CREATED = ['from' => ['nullable', 'date_format:Y-m-d'], 'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from']];
+
     public function accounts(Request $request, PlatformAdministration $admin): mixed
     {
-        $filters = $request->validate(['q' => ['nullable', 'string', 'max:120'], 'verified' => ['nullable', Rule::in(['yes', 'no'])], 'grant' => ['nullable', Rule::in(['yes', 'no'])], 'access' => ['nullable', Rule::in(['active', 'suspended'])], 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
+        $filters = $request->validate(['q' => ['nullable', 'string', 'max:120'], 'verified' => ['nullable', Rule::in(['yes', 'no'])], 'grant' => ['nullable', Rule::in(['yes', 'no'])], 'access' => ['nullable', Rule::in(['active', 'suspended'])], ...self::CREATED, 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
 
         return $this->read($request, $admin, 'directory.read', 'PlatformAccounts', fn () => [
-            'accounts' => $this->json('SELECT app_platform_accounts(?::jsonb,?) AS data', [$this->filters($filters), $filters['page'] ?? 1]),
-            'filters' => ['q' => $filters['q'] ?? '', 'verified' => $filters['verified'] ?? '', 'grant' => $filters['grant'] ?? '', 'access' => $filters['access'] ?? ''], 'page' => (int) ($filters['page'] ?? 1),
+            'accounts' => $this->json('SELECT app_platform_accounts(?::jsonb,?) AS data', [$this->filters($this->created($filters)), $filters['page'] ?? 1]),
+            'filters' => ['q' => $filters['q'] ?? '', 'verified' => $filters['verified'] ?? '', 'grant' => $filters['grant'] ?? '', 'access' => $filters['access'] ?? '', 'from' => $filters['from'] ?? '', 'to' => $filters['to'] ?? ''], 'page' => (int) ($filters['page'] ?? 1),
         ]);
     }
 
@@ -39,11 +42,11 @@ class PlatformConsoleController extends Controller
     public function workspaces(Request $request, PlatformAdministration $admin): mixed
     {
         $filters = $request->validate(['q' => ['nullable', 'string', 'max:120'], 'kind' => ['nullable', Rule::in(['creator', 'brand'])],
-            'state' => ['nullable', Rule::in(['active', 'scheduled', 'expired', 'unassigned-development', 'pending-activation'])], 'access' => ['nullable', Rule::in(['active', 'suspended'])], 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
+            'state' => ['nullable', Rule::in(['active', 'scheduled', 'expired', 'unassigned-development', 'pending-activation'])], 'access' => ['nullable', Rule::in(['active', 'suspended'])], ...self::CREATED, 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
 
         return $this->read($request, $admin, 'directory.read', 'PlatformWorkspaces', fn () => [
-            'workspaces' => $this->json('SELECT app_platform_workspaces(?::jsonb,?) AS data', [$this->filters($filters), $filters['page'] ?? 1]),
-            'filters' => ['q' => $filters['q'] ?? '', 'kind' => $filters['kind'] ?? '', 'state' => $filters['state'] ?? '', 'access' => $filters['access'] ?? ''], 'page' => (int) ($filters['page'] ?? 1),
+            'workspaces' => $this->json('SELECT app_platform_workspaces(?::jsonb,?) AS data', [$this->filters($this->created($filters)), $filters['page'] ?? 1]),
+            'filters' => ['q' => $filters['q'] ?? '', 'kind' => $filters['kind'] ?? '', 'state' => $filters['state'] ?? '', 'access' => $filters['access'] ?? '', 'from' => $filters['from'] ?? '', 'to' => $filters['to'] ?? ''], 'page' => (int) ($filters['page'] ?? 1),
         ]);
     }
 
@@ -201,6 +204,14 @@ class PlatformConsoleController extends Controller
     protected function json(string $sql, array $bindings = []): array
     {
         return json_decode(DB::selectOne($sql, $bindings)->data, true, flags: JSON_THROW_ON_ERROR);
+    }
+
+    /** Translates the inclusive date range into the half-open range the directory functions expect. */
+    protected function created(array $filters): array
+    {
+        $range = ['created_from' => $filters['from'] ?? null, 'created_to' => isset($filters['to']) ? date('Y-m-d', strtotime($filters['to'].' +1 day')) : null];
+
+        return [...array_diff_key($filters, ['from' => 1, 'to' => 1]), ...$range];
     }
 
     protected function filters(array $filters): string
