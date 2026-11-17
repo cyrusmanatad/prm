@@ -47,4 +47,5 @@ Artisan::command('monitor:check', function (Monitoring $monitoring) {
     }
 })->purpose('Evaluate monitoring checks and announce alert changes');
 
-Schedule::command('monitor:check')->everyMinute()->withoutOverlapping(2);
+// Scheduled in-process: the scheduler discards the output of scheduled commands, which would drop every alert log line.
+Schedule::call(fn () => app(Monitoring::class)->check())->everyMinute()->name('monitor:check')->withoutOverlapping(2);
