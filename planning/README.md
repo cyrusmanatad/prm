@@ -1,4 +1,4 @@
-**Workspace-owner MFA (M1-04) (2026-11-17):** rules decided (D34, D35), implemented, locally verified and merged to `main` at `b42b756` (PR #31); see the [contract](m1/owner-mfa-contract.md) and [evidence](m1/owner-mfa-evidence.md). Not deployed; staging keeps enforcement off for now (D36) and the reset procedure remains open. Background: [handoff](m1/owner-mfa-handoff.md).
+**Workspace-owner MFA (M1-04) (2026-11-17):** rules decided (D34, D35), implemented, locally verified and merged to `main` at `b42b756` (PR #31); see the [contract](m1/owner-mfa-contract.md) and [evidence](m1/owner-mfa-evidence.md). Deployed to staging at `211f6ab` with enforcement off (D36; [staging record](shared/staging-deployment.md)); the reset procedure remains open. Background: [handoff](m1/owner-mfa-handoff.md).
 
 **M5 small-screen acceptance (2026-11-17):** the phone-width checks carried to Claude for M5-02 to M5-06 passed locally in Chromium at 390 and 320 px after small touch-target and readability fixes; see the [small-screen evidence](m5/small-screen-evidence.md). Provider delivery (M5-09) and inherited manual reviews remain open.
 
