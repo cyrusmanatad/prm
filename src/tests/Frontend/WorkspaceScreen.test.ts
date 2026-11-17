@@ -45,7 +45,9 @@ describe('workspace screens', () => {
 
     it('allows owner settings but removes the form after switching to a viewer workspace', async () => {
         const wrapper = screen();
-        expect(wrapper.findAll('.wd-settings-card .wd-link-pill')).toHaveLength(4);
+        // Owners also see the link to review support access requests.
+        expect(wrapper.findAll('.wd-settings-card .wd-link-pill')).toHaveLength(5);
+        expect(wrapper.find('.wd-settings-card a[href="/workspace/support-access"]').exists()).toBe(true);
         expect(wrapper.find('.wd-settings-card .wd-link-pill').classes()).toContain('wd-link-pill');
         await wrapper.get('#current_workspace_name').setValue('Updated Studio');
         await wrapper.get('.wd-settings-card form').trigger('submit');

@@ -50,6 +50,8 @@ class PublicPresence
 
     public function capture(string $token, string $key, array $data): void
     {
+        // A suspended workspace's lead link answers exactly like a link that does not exist.
+        abort_if(DB::selectOne("SELECT app_public_link_suspended('lead',?) AS suspended", [hash('sha256', $token)])->suspended, 404);
         try {
             $result = DB::selectOne('SELECT app_capture_lead(?,?::uuid,?,?,?,?,?::uuid) AS ok', [hash('sha256', $token), $key, hash('sha256', json_encode($data, JSON_THROW_ON_ERROR)),
                 $data['brand_name'], $data['contact_name'], $data['email'], (string) Str::uuid()]);

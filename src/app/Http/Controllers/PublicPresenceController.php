@@ -57,6 +57,7 @@ class PublicPresenceController extends Controller
 
     public function kit(string $record): mixed
     {
+        abort_if(DB::selectOne("SELECT app_public_link_suspended('kit',?) AS suspended", [$record])->suspended, 404);
         $kit = DB::selectOne('SELECT * FROM app_public_kit(?::uuid)', [$record]);
         abort_unless($kit, 404);
 

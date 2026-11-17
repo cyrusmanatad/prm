@@ -63,7 +63,7 @@ class PlatformController extends Controller
 
             DB::select("SELECT set_config('app.admin_version',?,true)", [(string) $grant->version]);
 
-            return redirect(DB::selectOne("SELECT app_platform_allowed('directory.read') AS ok")->ok ? '/admin' : '/admin/notifications');
+            return redirect($admin->intended($request, '/admin'));
         }, false);
     }
 
@@ -72,11 +72,16 @@ class PlatformController extends Controller
         $data = $request->validate(['q' => ['nullable', 'string', 'max:120'], 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
 
         return $admin->run($request, function () use ($request, $data) {
+            if (! $request->expectsJson() || $request->header('X-Inertia')) {
+                abort_unless(DB::selectOne('SELECT app_platform_any() AS ok')->ok, 403);
+
+                return Inertia::render('PlatformOverview', ['overview' => json_decode(DB::selectOne('SELECT app_platform_overview() AS data')->data, true, flags: JSON_THROW_ON_ERROR)]);
+            }
+            // JSON clients keep the original directory contract.
             abort_unless(DB::selectOne("SELECT app_platform_allowed('directory.read') AS ok")->ok, 403);
             $directory = json_decode(DB::selectOne('SELECT app_platform_directory(?,?) AS data', [$data['q'] ?? '', $data['page'] ?? 1])->data, true);
-            $payload = [...$directory, 'q' => $data['q'] ?? '', 'page' => (int) ($data['page'] ?? 1), 'canNotifications' => DB::selectOne("SELECT app_platform_allowed('notifications.read') AS ok")->ok, 'canAssign' => DB::selectOne("SELECT app_platform_allowed('plans.assign') AS ok")->ok];
 
-            return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($payload) : Inertia::render('PlatformDirectory', $payload);
+            return response()->json([...$directory, 'q' => $data['q'] ?? '', 'page' => (int) ($data['page'] ?? 1), 'canNotifications' => DB::selectOne("SELECT app_platform_allowed('notifications.read') AS ok")->ok, 'canAssign' => DB::selectOne("SELECT app_platform_allowed('plans.assign') AS ok")->ok]);
         });
     }
 
@@ -96,13 +101,13 @@ class PlatformController extends Controller
                     $data['workspace'], $data['expected_version'], trim($data['name']), json_encode(array_map(intval(...), $data['quotas']), JSON_THROW_ON_ERROR), $data['starts_at'], $data['ends_at'], trim($data['reason']), (string) Str::uuid(), (string) Str::uuid(),
                 ])->version;
 
-                return $this->completed($request, ['version' => $version, 'message' => 'Subscription assignment recorded'], '/admin');
+                return $this->completed($request, ['version' => $version, 'message' => 'Subscription assignment recorded'], '/admin/workspaces/'.$data['workspace'].'?tab=entitlements');
             });
         } catch (QueryException $error) {
             if (($error->errorInfo[0] ?? null) !== '40001') {
                 throw $error;
             }
-            throw ValidationException::withMessages(['expected_version' => 'Assignment changed. Reload the directory before saving again.'])->status(409);
+            throw ValidationException::withMessages(['expected_version' => 'Assignment changed. Reload the workspace before saving again.'])->status(409);
         }
     }
 }

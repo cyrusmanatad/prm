@@ -13,12 +13,15 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WorkspaceContext
 {
+    public const SUSPENDED = 'This workspace\'s access is suspended. Its records are kept. Contact support.';
+
     public function __construct(private TenantContext $context) {}
 
     public function handle(Request $request, Closure $next): Response
     {
         $orgId = $request->session()->get('active_org_id');
         abort_unless(is_string($orgId), 409, 'Select a workspace first.');
+        abort_if(preg_match('/^[0-9a-f-]{36}$/', $orgId) && DB::selectOne('SELECT app_workspace_suspended(?::uuid) AS suspended', [$orgId])->suspended, 403, self::SUSPENDED);
 
         return $this->context->run((int) $request->user()->id, $orgId, function () use ($request, $next) {
 

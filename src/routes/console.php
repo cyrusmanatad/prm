@@ -5,6 +5,7 @@ use App\Services\FollowUpDrafts;
 use App\Services\NotificationOutbox;
 use App\Services\ScheduledNotifications;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('notifications:dispatch', function (NotificationOutbox $outbox) {
@@ -30,3 +31,6 @@ Artisan::command('automation:drafts', function (FollowUpDrafts $drafts) {
 })->purpose('Reconstruct private follow-up drafts from durable runs');
 
 Schedule::command('automation:drafts')->everyMinute()->withoutOverlapping(2);
+
+// Heartbeat for administration diagnostics: proves the scheduler ran, not that every task succeeded.
+Schedule::call(fn () => DB::select("SELECT app_record_observation('scheduler')"))->everyMinute()->name('platform:heartbeat');

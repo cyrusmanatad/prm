@@ -80,11 +80,18 @@ test('explicit approved sending and MFA-protected resolution never replay uncert
     await page.getByLabel('Password', { exact: true }).fill('browser-password-123');
     await page.getByLabel('Authenticator code', { exact: true }).fill(code);
     await page.getByRole('button', { name: 'Verify and continue', exact: true }).click();
-    await expect(page).toHaveURL(/\/admin\/notifications$/);
-    await page.getByLabel('Workspace ID (optional)', { exact: true }).fill(workspace);
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.goto('/admin/notifications');
+    await page.getByLabel('Workspace name, workspace ID or notification ID', { exact: true }).fill(workspace);
     await page.getByRole('button', { name: 'Filter deliveries', exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`workspace=${workspace}`));
-    await page.getByRole('button', { name: /^Review resolution / }).click();
+    await expect(page).toHaveURL(new RegExp(`q=${workspace}`));
+    await page
+        .getByRole('table', { name: 'Delivery history' })
+        .getByRole('row')
+        .filter({ hasText: 'Outcome uncertain' })
+        .getByRole('link')
+        .click();
+    await expect(page.getByText('It is never retried automatically.', { exact: false })).toHaveCount(1);
     await page.getByLabel('Reason', { exact: true }).fill('Synthetic provider investigation remains inconclusive.');
     await page.getByRole('button', { name: 'Record resolution', exact: true }).click();
     const resolution = page.getByRole('dialog', { name: 'Record delivery resolution?', exact: true });
@@ -92,7 +99,7 @@ test('explicit approved sending and MFA-protected resolution never replay uncert
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await resolution.getByRole('button', { name: 'Record delivery resolution', exact: true }).click();
     await expect(page.getByText('Recorded resolution:', { exact: false })).toBeVisible();
-    await expect(page.getByRole('button', { name: /^Review resolution / })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Record resolution', exact: true })).toHaveCount(0);
     for (const size of [320, 768, 1024, 1440]) {
         await page.setViewportSize({ width: size, height: 1000 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -137,7 +144,20 @@ test('directory navigation reaches delivery diagnostics with scoped read permiss
     await page.getByRole('button', { name: 'Verify and continue', exact: true }).click();
     await expect(page).toHaveURL(/\/admin$/);
     await page.setViewportSize({ width: info.project.name.includes('mobile') ? 320 : 1440, height: 1000 });
-    const link = page.getByRole('link', { name: 'Delivery diagnostics', exact: true });
+    // Small screens reach modules through the navigation drawer; wide screens use the sidebar.
+    const mobile = info.project.name.includes('mobile');
+    if (mobile) {
+        await page.getByRole('button', { name: 'Menu', exact: true }).click();
+        const drawer = page.getByRole('dialog', { name: 'Administration menu', exact: true });
+        await expect(drawer).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(drawer).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeFocused();
+        await page.getByRole('button', { name: 'Menu', exact: true }).click();
+    }
+    const link = page
+        .getByRole('navigation', { name: mobile ? 'Administration menu' : 'Administration', exact: true })
+        .getByRole('link', { name: 'Notifications', exact: true });
     await expect(link).toBeVisible();
     expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -149,6 +169,7 @@ test('directory navigation reaches delivery diagnostics with scoped read permiss
             });
     }
     await link.click();
-    await expect(page.getByRole('heading', { name: 'Delivery diagnostics', exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: /^Review resolution / })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Notifications', exact: true, level: 1 })).toBeVisible();
+    await expect(page.getByRole('dialog', { name: 'Administration menu', exact: true })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Record resolution', exact: true })).toHaveCount(0);
 });

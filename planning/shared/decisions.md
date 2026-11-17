@@ -85,3 +85,20 @@ When localhost and browser tooling become available, inspect all seven boards at
 ## D30 — Follow-up delivery and uncertainty operations
 
 **Confirmed (2026-11-09):** the user selected separate MFA-protected platform permissions for sanitized delivery diagnostics/reconciliation, with tenant owners unable to act as global operators. Uncertain messages are never replayed; another send requires an appropriate replacement invitation or fresh draft approval. The user also approved a separate **Send approved message** action for the draft owner's exact approved recipient/content and opt-in review notices only to that owner's verified account. Limits may be configurable; production budget acceptance remains open until provider limits are known. See the [delivery operations contract](../m5/delivery-operations-contract.md). This confirms policy for local implementation; it does not authorize external test mail, deployment, real operator provisioning or waive M5-09/M5-10 and inherited release gates.
+
+
+## D31 — Administration console scope and MFA policy
+
+**Confirmed (2026-11-16):** the user approved building the administration console from the [design handoff](../administration/design-handoff.md) and the existing approved UI, with no separate returned prototype. The first slice covers work not blocked by policy; suspension, support access and cleanup are shown as unavailable. Suspend/reactivate waits for a decision on the [suspension proposal](../administration/suspension-proposal.md). Platform-operator MFA is confirmed as built: authenticator-app TOTP with offline command-line recovery and no recovery codes. Claude holds primary UI/UX responsibility for the project from this date. See the [console evidence](../administration/console-evidence.md). This closes no ADM package and changes no release gate.
+
+
+## D32 — Suspension, support access and cleanup policy
+
+**Confirmed (2026-11-17):** the user confirmed the [suspension rules and defaults](../administration/suspension-proposal.md) as written and authorized implementing suspension, support access and cleanup with these answers:
+
+- **Support approval:** a workspace owner approves or declines each request inside their workspace. Platform access alone never opens private records.
+- **Support scope:** view-only, limited to the record areas named in the request, ending automatically after at most 24 hours. No edits, downloads or exports.
+- **Cleanup:** dry run only. Operators mark synthetic accounts and workspaces into a named batch and generate an exact manifest; no deletion is possible from the console and execution remains a separately reviewed step.
+- **Retention:** a workspace holding invoice drafts or payment records is blocked from cleanup, audit history is always kept, and accounts holding a platform grant are always protected. Only explicitly marked records are considered.
+
+**Implementation choice within the support scope (Proposal, for review):** the support view omits free-text notes, template bodies, onboarding answers, documents and payment evidence even inside an approved area. See the [console evidence](../administration/console-evidence.md). This closes no ADM package and changes no release gate; real-environment cleanup and real-owner provisioning keep their separate authorization.

@@ -4,7 +4,7 @@ withDefaults(
         id: string;
         label: string;
         type?: 'text' | 'email' | 'password' | 'datetime-local';
-        inputmode?: 'text' | 'decimal';
+        inputmode?: 'text' | 'decimal' | 'numeric';
         autocomplete?: string;
         error?: string;
         hint?: string;
