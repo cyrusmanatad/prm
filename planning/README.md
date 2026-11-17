@@ -1,4 +1,4 @@
-**Workspace-owner MFA (M1-04) handoff (2026-11-17):** [start conditions, open recovery decision, reusable pieces and environment notes](m1/owner-mfa-handoff.md). Not started; waits for the user's go-ahead.
+**Workspace-owner MFA (M1-04) (2026-11-17):** rules decided (D34, D35) and planned in the [contract](m1/owner-mfa-contract.md); background in the [handoff](m1/owner-mfa-handoff.md). Not implemented; waits for the user's go-ahead.
 
 **Administration console (2026-11-17, D31/D32):** shell, directories, entitlements, diagnostics, audit, operator management, suspension, owner-approved support access and cleanup dry runs are implemented, locally verified and merged to `main` at `f16fd09` (PR #18); see the [console evidence](administration/console-evidence.md) and [confirmed suspension rules](administration/suspension-proposal.md). Cleanup execution and real-owner provisioning remain separate steps. No ADM package is closed. The shared [architecture](shared/architecture.md#administration), [database](shared/database-design.md#administration-implementation-note), [API](shared/api-design.md#administration-routes), [operations](shared/deployment-and-operations.md) and [identity](shared/auth-and-subscriptions.md#required-platform-administration) documents now describe the console (handoff Part A, done 2026-11-17). Handoff items B1–B6 (paused label, skipped work, date filters, overview items, unrun gates, journey investigation) were worked on 2026-11-17; see the [follow-up evidence](administration/follow-up-evidence.md). The handoff's open decisions were answered on 2026-11-17 (D33): only the enrollment QR code was newly authorized, and it is implemented ([evidence](administration/enrollment-qr-evidence.md)); the two founders are the platform owners. Remaining implementation is in the [administration handoff](administration/implementation-handoff.md).
 
@@ -29,7 +29,7 @@
 | Folder | Starting points |
 | --- | --- |
 | `m0/` | [Delivery backlog](m0/backlog.md) |
-| `m1/` | [Status](m1/status.md), [manual acceptance](m1/manual-acceptance.md), [evidence](m1/evidence.md) |
+| `m1/` | [Status](m1/status.md), [manual acceptance](m1/manual-acceptance.md), [evidence](m1/evidence.md), [owner MFA contract](m1/owner-mfa-contract.md), [owner MFA handoff](m1/owner-mfa-handoff.md) |
 | `m2/` | [Status](m2/status.md), [pipeline](m2/pipeline-contract.md), [contacts/reminders](m2/crm-contract.md), [templates](m2/outreach-template-contract.md), [evidence](m2/evidence.md) |
 | `m3/` | [Status](m3/status.md), [onboarding/public presence](m3/onboarding-contract.md), [evidence](m3/evidence.md) |
 | `m3a/` | [Status](m3a/status.md), [portal contract](m3a/portal-contract.md), [handoff](m3a/implementation-handoff.md), [UI alignment](m3a/ui-alignment.md), [evidence](m3a/evidence.md) |

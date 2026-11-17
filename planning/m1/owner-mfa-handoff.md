@@ -5,7 +5,7 @@ Written 2026-11-17 for a new session. Based on `main` at `d237d13`. Nothing in t
 ## Start conditions
 
 - **Confirmed (user, 2026-11-17): do not start this work until the user gives an explicit go-ahead.** Reading and planning are fine; no code, migrations or tests before that.
-- **Assumption / Open: the recovery rule is not decided.** Ask the user before designing anything: what happens when a workspace owner loses their authenticator? See [the decision needed](#decision-needed-before-starting).
+- **Confirmed (D34, 2026-11-17): the recovery rule and three follow-up questions are decided.** See [the decisions](#decision-needed-before-starting). The rest were settled by D35; see the [contract](owner-mfa-contract.md).
 - The user expects a planning phase for larger work (findings, questions, plan, required versus optional UI fixes, verification) before code edits. Claude holds primary UI/UX responsibility (D31).
 
 ## What the task is
@@ -23,18 +23,16 @@ M1-04 as recorded: implement and verify MFA enforcement for workspace owners, in
 
 ## Decision needed before starting
 
-| Question | Options to offer |
+**Confirmed ([D34](../shared/decisions.md#d34--workspace-owner-mfa-rules-m1-04), 2026-11-17):**
+
+| Question | Answer |
 |---|---|
-| How does an owner recover a lost authenticator? | One-time recovery codes shown at enrollment; or a reset by a platform operator after an identity check; or both. Operators themselves use an offline command-line reset with no recovery codes (D31). |
+| How does an owner recover a lost authenticator? | Both: one-time recovery codes shown at enrollment, and a reset by a platform operator after an identity check. |
+| Which roles? | `owner` only (D18). |
+| When is the code asked? | At every sign-in. |
+| How many authenticators? | One per account, shared with any platform-operator use. |
 
-Questions that will probably follow, also **Assumption / Open**:
-
-- Does "owner" mean only the `owner` role, or also `admin`? `WorkspaceRole` has owner, admin, manager, member and viewer; D18 names owners only.
-- Is the code asked at every sign-in, or only before sensitive actions (as the operator step-up does, expiring after 15 minutes)?
-- A person can own one workspace and be a member of another, and can also be a platform operator. One authenticator per account, or separate ones? Today the operator secret is stored per account.
-- What existing owners see when enforcement is switched on, and whether staging owners get a grace period.
-
-Record the answers in [decisions](../shared/decisions.md) with the next D number before implementing.
+The follow-up questions were settled by D35; the plan is in the [contract](owner-mfa-contract.md). Record further answers in [decisions](../shared/decisions.md) before implementing.
 
 ## What exists to reuse
 
