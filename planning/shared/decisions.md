@@ -119,4 +119,6 @@ When localhost and browser tooling become available, inspect all seven boards at
 
 **Roster state on staging (read-only check, 2026-11-17):** one active `platform.owner` grant exists, for the first founder, with a verified email and a confirmed authenticator. The second founder has no staging account yet; `platform:grant` requires an existing verified identity, so that grant waits for registration and email verification. Nothing was changed on staging. No production environment exists; production provisioning stays with the bootstrap rehearsal (handoff B13).
 
+**Update (read-only check, later on 2026-11-17):** the second founder registered and verified a staging account, and the first founder granted it platform-owner access from the console. That grant is active but not yet usable: its authenticator is not enrolled.
+
 This closes no ADM package and changes no release gate. C2, C3 and C5 are launch-scope decisions, not permanent refusals; reopening any of them needs a new decision.
