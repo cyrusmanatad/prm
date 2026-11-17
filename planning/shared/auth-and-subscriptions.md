@@ -4,17 +4,40 @@
 
 ## Identity
 
-**Approved application stack:** Laravel with Vue/Inertia. **Initial authentication proposal:** Laravel's Vue starter-kit authentication/Fortify with native Laravel session authentication. Use the same-origin web session for Inertia; a separate JWT login system, Supabase Auth, or managed identity service is not an MVP prerequisite. Password/session login is confirmed (D15). Production MFA is required for platform operators and workspace owners (D18); enrollment, recovery, and enforcement implementation remain pending. Keep `users` independent of future provider identities; add `auth_identities` when social login or enterprise federation is introduced. Later SAML/OIDC should use a maintained integration/provider selected for budget, regional processing, and enterprise needs.
+**Approved application stack:** Laravel with Vue/Inertia. **Initial authentication proposal:** Laravel's Vue starter-kit authentication/Fortify with native Laravel session authentication. Use the same-origin web session for Inertia; a separate JWT login system, Supabase Auth, or managed identity service is not an MVP prerequisite. Password/session login is confirmed (D15). Production MFA is required for platform operators and workspace owners (D18). Operator MFA is implemented as TOTP with offline recovery (D31; see [Required platform administration](#required-platform-administration)); workspace-owner MFA (M1-04) is not implemented. Keep `users` independent of future provider identities; add `auth_identities` when social login or enterprise federation is introduced. Later SAML/OIDC should use a maintained integration/provider selected for budget, regional processing, and enterprise needs.
 
-MVP identity acceptance: verified email signup/login through Laravel, recovery, logout/session revocation, invitation acceptance, and account lock/rate limits. Decide password versus magic-link UX with pilots; do not build both automatically. **Confirmed (D18):** require MFA for platform operators and workspace owners before production. MFA for privileged finance actions remains a proposal; admin-role coverage, enrollment/recovery, and enforcement implementation must be specified and tested before production.
+MVP identity acceptance: verified email signup/login through Laravel, recovery, logout/session revocation, invitation acceptance, and account lock/rate limits. Decide password versus magic-link UX with pilots; do not build both automatically. **Confirmed (D18):** require MFA for platform operators and workspace owners before production. MFA for privileged finance actions remains a proposal. For workspace owners, admin-role coverage, enrollment/recovery, and enforcement must still be specified and tested before production; the operator side is described below.
 
 Use Laravel session authentication with secure HttpOnly cookies, explicit SameSite policy, CSRF protection, short session lifetimes with rotation, and server-side revocation. If OIDC is used, validate issuer/audience/state/nonce with a maintained client. Account linking requires verification; matching email alone must not silently merge identities. Audit sensitive login and access changes without storing secrets.
 
 ## Required platform administration
 
-**Confirmed D27:** provide platform-owner/super-admin administration before advancing milestones, as specified in the [administration contract](../administration/contract.md). Platform grants, TOTP step-up and the administration console are implemented locally ([evidence](../administration/console-evidence.md)); operator MFA is confirmed as TOTP with offline recovery (D31). Global platform grants are distinct from workspace memberships; no public registration, tenant Owner/Admin role or hard-coded email may confer platform authority. A real initial owner must be explicitly provisioned, MFA-enrolled and protected during synthetic-data cleanup. Administrative UI/API, delegation, revocation and recovery require authorization and audit; no admin feature is implemented by this document.
+**Confirmed D27:** provide platform-owner/super-admin administration before advancing milestones, as specified in the [administration contract](../administration/contract.md). Platform grants, TOTP step-up and the administration console are implemented locally ([evidence](../administration/console-evidence.md)); operator MFA is confirmed as TOTP with offline recovery (D31). Global platform grants are distinct from workspace memberships; no public registration, tenant Owner/Admin role or hard-coded email may confer platform authority. A real initial owner must be explicitly provisioned, MFA-enrolled and protected during synthetic-data cleanup; none has been provisioned (**Assumption / Open**).
 
-Preserve the existing support privacy boundary below: platform ownership does not grant default access to tenant-private CRM, files or message content. Any support access is scoped, time-limited, justified and audited. Exact platform grant/schema/recovery mechanics remain implementation design work under ADM-01; M1-04 still covers production MFA for workspace owners as well as operators.
+**Capabilities (implemented).** A grant holds one or more of:
+
+| Capability | Allows |
+|---|---|
+| `platform.owner` | Everything below, plus managing other operators' grants and ending any support grant |
+| `directory.read` | Account and workspace directories and details (metadata and counts only) |
+| `plans.assign` | Plans, assignments and recording an assignment |
+| `notifications.read` | Notification delivery metadata |
+| `notifications.reconcile` | Recording a resolution for an uncertain send |
+| `operations.read` | Jobs and health diagnostics |
+| `audit.read` | Administration audit review |
+| `access.manage` | Suspend or reactivate an account or workspace; sign out an account's sessions |
+| `support.request` | Request, view and end support access |
+| `cleanup.review` | Fixture batches, marking and cleanup dry runs |
+
+An owner cannot change their own grant, and the last usable platform owner cannot be revoked, reduced or suspended. Changing a grant ends that operator's sessions.
+
+**Step-up rule (implemented).** Operators enroll a TOTP authenticator at `/admin/security` with their password. Verifying password and code records a proof in the session that lasts 15 minutes and is bound to the user and the grant version; every other administration request requires it and PostgreSQL re-checks it. Codes are single use. Changing an operator grant, suspending, reactivating and signing out sessions each require the password and a fresh code again in the same request. A lost authenticator is recovered only through the offline `platform:grant --recover` procedure; there are no recovery codes and no self-service reset.
+
+**Suspension and sign-in (implemented, D32).** A suspended account's sessions are deleted and sign-in is refused with a neutral message; password reset and email verification do not restore access, and any surviving session is ended on its next request. Members of a suspended workspace can sign in but cannot open that workspace. A suspended operator keeps their grant but cannot use it. Reactivation restores access from that moment only. See the [confirmed suspension rules](../administration/suspension-proposal.md).
+
+**Support-access consent (implemented, D32).** Platform ownership grants no default access to tenant-private CRM, files or message content. An operator with `support.request` names a workspace, a purpose, record areas and a duration of 1 to 24 hours. Only an active owner of that workspace can approve, decline or later end the request, at `/workspace/support-access`. Approved access is read-only, limited to the named areas, expires on time without a job, confers no membership, and every view is written to both the administration audit and the workspace's audit log. There is no emergency path when no owner can approve (**Assumption / Open**, handoff decision C2).
+
+M1-04 remains open for workspace-owner MFA, which is **not implemented**: workspace owners sign in with password and session only.
 
 ## Organization permissions
 
