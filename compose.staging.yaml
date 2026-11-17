@@ -46,6 +46,10 @@ x-backend: &backend
     TRANSACTIONAL_MAIL_MAILER: smtp
     LOG_CHANNEL: stderr
     LOG_LEVEL: warning
+    LOG_STDERR_FORMATTER: Monolog\Formatter\JsonFormatter
+    # M6-03 monitoring. Empty recipients: alerts are logged only. The ping URL is the dead-man signal.
+    MONITORING_ALERT_TO: ${MONITORING_ALERT_TO:-}
+    MONITORING_PING_URL: ${MONITORING_PING_URL:-}
   volumes:
     - private-storage:/var/www/html/storage/app/private
   depends_on:
