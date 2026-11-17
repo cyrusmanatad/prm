@@ -75,6 +75,41 @@ M3 adds explicit-consent `media_kits` with manual social-account links, hashed/r
 
 **M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](../m3a/portal-contract.md). See [status and current evidence](../m3a/status.md). Prior proposal text above records the planning sequence.
 
+## Administration implementation note
+
+Implemented by `platform-activation.sql`, `delivery-controls.sql`, `platform-console.sql` and `platform-governance.sql` under `src/database/sql/`; the last two run from migration `2026_11_16_000001_add_platform_console`. See the [administration contract](../administration/contract.md) and [console evidence](../administration/console-evidence.md). Every table below has RLS enabled and forced with **no runtime policies**; the runtime role reaches them only through capability-gated SECURITY DEFINER functions. The single exception is `platform_grants`, where an actor may read their own row.
+
+| Table | Purpose | Key columns and states |
+|---|---|---|
+| `platform_grants` | Platform authority for one identity | `user_id` (primary key), `permissions text[]` limited to the ten capabilities, `version`, `revoked_at` |
+| `platform_audit` | Append-only administration audit | `actor_id` (null for offline actions), `operator` label, `event`, `target`, required `reason`, `occurred_at` |
+| `notification_resolutions` | Operator's closure of an uncertain send | `notification_id` (primary key), `resolution` in `transport_accepted`, `not_sent`, `unknown_closed`; one per notification, never changed |
+| `platform_observations` | Latest scheduler heartbeat | `source` (only `scheduler`), `observed_at` |
+| `platform_suspensions` | Suspension history | `subject` in `account`, `workspace` with exactly one of `user_id` / `org_id`; `reason`, `suspended_by`, `suspended_at`; `lifted_by`, `lifted_at`, `lift_reason`. Active while `lifted_at` is null; rows are never deleted |
+| `support_grants` | Owner-approved support access | `org_id`, `operator_id`, `purpose`, `resources text[]` (six areas), `hours` 1–24, `state` in `requested`, `approved`, `declined`, `revoked`, `cancelled`; `decided_by`, `decided_at`, `expires_at`, `ended_by`, `ended_at`, `end_reason`, `version` |
+| `fixture_batches` | Named cleanup review batch | unique `name`, `reason`, `created_by`, `version` |
+| `fixture_marks` | One explicitly marked account or workspace | `batch_id`, `subject`, one of `user_id` / `org_id`, required `evidence`, `marked_by` |
+| `cleanup_runs` | Immutable dry-run manifest | `batch_id`, `batch_version`, `manifest jsonb`, `eligible`, `blocked`, `protected` counts |
+
+Operator authenticator state is three columns on `users`: `admin_totp_secret` (encrypted), `admin_totp_confirmed_at` and `admin_totp_counter` (last accepted time step, so a code is single use).
+
+**Capabilities:** `platform.owner`, `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`. `platform.owner` implies the other nine. A check constraint on `platform_grants.permissions` rejects any other value.
+
+**Integrity rules:**
+
+- At most one active suspension per account and per workspace (partial unique indexes).
+- At most one open (`requested` or `approved`) support grant per operator and workspace.
+- An approved support grant expires at most 24 hours after the decision; approval uses one instant for both timestamps.
+- `expired` is not a stored support state. It is derived at read time from `expires_at`, so access ends on time without a job.
+- Cleanup runs are never updated. A run is shown as stale once its `batch_version` differs from the batch's current version.
+- A marked record belongs to a batch at most once; marking is by explicit ID with evidence, never by pattern.
+
+**Version checks (stale writes fail with SQLSTATE `40001`):** grant `version`, raised on every change and bound into the step-up proof; suspension version, computed as the number of suspend events plus lift events for the subject; support grant `version`; batch `version`, raised on each mark or unmark. Plan assignments and notification resolutions keep their earlier version checks.
+
+**Replaced core functions:** `app_has_membership`, `app_lock_membership`, `app_platform_allowed` and `app_lock_platform_grant` now also require that the workspace and the acting account are not suspended. `platform-governance-down.sql` restores their previous definitions. The migration's rollback refuses to run while any suspension is active or any support grant is approved, because removing them would silently change who has access. Rollback keeps `platform_audit` rows and removes the five newer capabilities from existing grants.
+
+**Audit:** `platform_audit` is append-only, with no runtime read or write policy; rows are written only by the reviewed functions and the offline command, and read only through the `audit.read` projections. Support events that concern a workspace (approval, decline, end, each record view) are also written to that workspace's `audit_logs`. There is no audit export and no browsing of tenant `audit_logs` from administration. Retention of `platform_audit` is **Assumption / Open** with M3-02.
+
 ## M5-03 implemented scheduling foundation
 
 The [schedule/consent contract](../m5/schedules-contract.md) defines forced-RLS `automation_preferences`, `business_schedules`, `schedule_runs` and append-only `automation_consent_events`. Preferences and schedules belong to a single person in a workspace. Composite routing constraints, versioned consent/rules/subjects and unique occurrence keys preserve isolation and replay safety. PostgreSQL retains due and ready work independently of Redis; the scheduling worker and downstream-intent boundary recheck current grants, verification, consent/preferences, subject version and pilot assignment. M5-04 adds unique `notification_outbox.schedule_run_id` with a composite actor/workspace/run foreign key, private actor-only scheduled-mail policies, routing-only discovery and current-basis predicates; see the [delivery contract](../m5/scheduled-delivery-contract.md). Migration rollback preserves schedules, runs and previous notification kinds; the initial entity proposals above do not imply other automation features are implemented.

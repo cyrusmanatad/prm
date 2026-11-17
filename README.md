@@ -72,6 +72,20 @@ docker compose --env-file src/.env run --rm -T acceptance
 
 For the retained `weavdash-m1` project, add `-p weavdash-m1` to Compose commands. Actual worker/scheduler service crashes now use the dedicated [M5 recovery runner and environment](planning/m5/recovery-evidence.md); the restart script accepts only inspected disposable recovery projects. Both services use an init process for child reaping. The isolated `acceptance` service uses runtime credentials plus a separate migration-role fixture connection; this control credential is absent from web/worker/scheduler services and removed from runtime probe subprocesses. The historical foundation run passed fourteen tests with 312 assertions, including all five roles, forged identity/tenant fields, revoked membership, and adversarial partial props. The scheduler crash test waits for a real one-minute Redis lock expiry.
 
+Administration is covered by two acceptance classes, `PlatformConsoleTest` and `PlatformGovernanceTest`, which run against the real runtime role in the same `acceptance` service, and by the browser journey `administration.spec.ts`:
+
+```sh
+docker compose --env-file src/.env run --rm -T acceptance vendor/bin/phpunit -c phpunit.acceptance.xml --filter 'PlatformConsoleTest|PlatformGovernanceTest'
+```
+
+From `src/`, against a running disposable stack (see [browser verification](#frontend-and-browser-verification)):
+
+```sh
+COMPOSE_PROJECT_NAME=weavdash npm run test:browser -- administration.spec.ts --project=desktop --project=mobile
+```
+
+The desktop journey passed on every run. **The mobile journey is intermittent** (3 of 6 runs passed, failing at different steps) and its cause is not established, so treat mobile coverage of administration as unverified. The PostgreSQL integration suite, the `rls.sql` checks and WebKit have not been run for administration. See the [console evidence](planning/administration/console-evidence.md#unverified-gates).
+
 Concurrent revocation and role demotion are tested in both lock orderings, with PostgreSQL reporting the blocked backend. In-flight authorized transactions finish before membership changes commit; changes that lock first cause waiting writes to fail. A scoped security-definer function locks only the current actor's active membership in the selected workspace. Rollbacks release locks and audit writes. A fresh disposable database also passed full migration rollback/reapply and SQL RLS/function-privilege checks.
 
 Process tests kill a worker after writes but before commit, reclaim its expired Redis reservation in a replacement worker, and verify one committed audit per tenant. Synthetic scheduler tests cover task exceptions, overlapping runs, SIGKILL, real overlap-lock expiration, and dispatch after restart. Docker restart counters also increased after killing the actual worker/scheduler processes. M5 extends this baseline with [durable workflow and SMTP recovery acceptance](planning/m5/recovery-contract.md).
@@ -162,7 +176,23 @@ Real dashboards use stored private pipeline estimates and accepted relationships
 
 Select a workspace you own and choose **Private finance records** at `/workspaces`. Draft invoices at `/finance/invoices` preserve exact minor-unit strings and support versioned editing and terminal voiding. `/finance/payments` records manual historical receipts, partial allocations and append-only reversals. No invoice is issued and no payment is initiated. Owners can view explicit pilot plan/usage state at `/workspace/entitlements`.
 
-Pilot administration uses local/testing migration credentials and the audited `pilot:plan` / `pilot:assign` Artisan commands. No commercial prices, quota numbers or assignments are seeded. An unassigned workspace is explicitly development use; assigned plans enforce explicit record limits transactionally, including public lead capture, while expiry/downgrade preserves existing records. See the [M4 contract](planning/m4/finance-contract.md), [status](planning/m4/status.md) and [verification evidence](planning/m4/evidence.md) for boundaries and reproducible commands. Pricing, active-brand semantics and production operator/MFA policy enforcement remain separate gates.
+Plan assignments are recorded by an authorized operator in the [administration console](#platform-administration). The audited `pilot:plan` / `pilot:assign` Artisan commands remain available with local/testing migration credentials only. No commercial prices, quota numbers or assignments are seeded. An unassigned workspace is explicitly development use; assigned plans enforce explicit record limits transactionally, including public lead capture, while expiry/downgrade preserves existing records. See the [M4 contract](planning/m4/finance-contract.md), [status](planning/m4/status.md) and [verification evidence](planning/m4/evidence.md) for boundaries and reproducible commands. Pricing, active-brand semantics and production operator/MFA policy enforcement remain separate gates.
+
+## Platform administration
+
+The console at `/admin` is for platform operators only. Workspace roles, registration and email addresses give no access to it; an explicit platform grant does. To create the first platform owner locally, register and verify an account, then run from the repository root, with that account's numeric user ID and your own reason and operator label:
+
+```sh
+docker compose --env-file src/.env run --rm migrate php artisan platform:grant <user-id> --permission=platform.owner --reason="<why>" --operator="<who ran this>"
+```
+
+Sign in as that account and enroll an authenticator at `/admin/security`. The command runs only with the migration role. `--recover` resets an operator's authenticator and `--revoke` removes a grant; both end that account's sessions. Later operators are added by a platform owner at `/admin/operators`. Use synthetic identities locally; no real operator is provisioned.
+
+The console covers account and workspace directories, plans and assignments, notification and job diagnostics, audit review, operator management, account and workspace suspension, support access and cleanup review. Operators see metadata and counts, not private workspace records. See the [administration contract](planning/administration/contract.md) for status and open items and the [console evidence](planning/administration/console-evidence.md) for what was verified.
+
+- **Support access needs the workspace owner's approval.** An operator requests read-only access to named record areas for at most 24 hours; an owner approves, declines or ends it at `/workspace/support-access`, linked from workspace settings.
+- **Cleanup is dry run only.** Operators mark synthetic accounts and workspaces and record a manifest of what a cleanup would touch. Nothing in the application deletes them.
+- **Diagnostics are not monitoring.** `/admin/operations` needs the scheduler running for its heartbeat and does not report worker, scanner or mail-provider health.
 
 ## Durable partner invitation email (M5 first slice)
 

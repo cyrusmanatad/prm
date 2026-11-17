@@ -20,7 +20,7 @@ Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a
 
 **Capabilities in use:** `platform.owner` (implies all), `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`. Decisions: D27, D29, D30, D31, D32 in [decisions](../shared/decisions.md).
 
-Remaining documentation, implementation and approval items are listed in the [next-session handoff](implementation-handoff.md).
+Remaining implementation and approval items are listed in the [next-session handoff](implementation-handoff.md); its documentation updates (Part A) are done.
 
 The sections below are the original contract. Where they say administration is unimplemented or that ADM-01 is next, read them as the planning baseline; the table above is current.
 

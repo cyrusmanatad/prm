@@ -26,6 +26,8 @@ Describe what these files do; do not restate the planning documents.
 
 ## Part A — documentation to update (authorized; documentation only)
 
+**Status: done 2026-11-17** on branch `docs/administration-part-a`. A1–A6 were written from the implementation files listed above; A7 link and whitespace checks passed. No code, test or migration changed and no gate was run. The section-by-section brief below is kept as the record of what was asked.
+
 This is register item **M6-10** for the administration part. Keep the evidence labels. Mark what is implemented as implemented, and leave genuinely open items as **Assumption / Open**. Do not present proposals as built.
 
 ### A1. `planning/shared/architecture.md`

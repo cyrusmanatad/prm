@@ -31,3 +31,13 @@ Proposal: encrypted daily development backups off-host and a tested restore befo
 Monitor API error rate/latency, DB connections/slow queries, disk/memory, queue age/failures, outbox lag, scheduled-job lateness, upload-scan backlog, notification outcomes, and provider spend. Use correlation IDs and redact TINs, tokens, account references, and document content. Begin with lightweight structured logs and external uptime/error collection; add product analytics only after consent/privacy decisions.
 
 Before live data: restore database plus documents, test tenant isolation on deployed roles, validate secret recovery/key rotation, review public uploads, exercise export/deletion, define incident response/support ownership, and measure a realistic pilot load. No production SLA, capacity target, or monthly cost is asserted without these inputs.
+
+**Platform administration operations (implemented; local verification only).**
+
+- **First owner and recovery are offline.** The first platform owner is created with `php artisan platform:grant {user} --permission=platform.owner --reason=… --operator=…`, run with the migration role through the controlled `migrate` job. The command refuses any other database role, so the web, worker and scheduler services cannot run it. `--recover` resets an operator's authenticator and `--revoke` removes a grant; each action deletes that identity's sessions, writes an audit row carrying the operator label and cannot remove the last usable platform owner. Later operators are managed by a platform owner at `/admin/operators`.
+- **After migrating, re-run `scripts/grant-runtime.php`** through the same job so the runtime role can execute newly added functions.
+- **The scheduler must be running** for the administration heartbeat; without it `/admin/operations` reports scheduler state as unknown.
+- **What `/admin/operations` observes:** the latest scheduler heartbeat and its age, whether Redis is reachable and the pending depth of the configured queue (unknown when Redis cannot be read), the notification outbox backlog and unresolved uncertain sends, and failed jobs with only a job class and exception class. **It does not observe** worker liveness, scanner health or mail-provider health, keeps no history and sends no alerts.
+- This is a diagnostic page, not monitoring or alerting. M6-03 stays open.
+
+**Assumption / Open:** the real first owner and operator roster, and a rehearsed bootstrap and recovery on a disposable environment (handoff items B13 and C8). No real operator has been provisioned in any environment.

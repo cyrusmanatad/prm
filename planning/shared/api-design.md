@@ -68,6 +68,56 @@ Subsequent M2 contracts cover [contacts/reminders](../m2/crm-contract.md) and [m
 
 Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. The old `/partner`, `/pipeline`, `/crm`, `/outreach-templates`, `/onboarding-requests` and `/public-presence` page URLs redirect with their query strings. Existing JSON clients and mutation/document endpoints remain compatible; the URL consolidation does not change authorization or storage. Inbox/Campaigns/Earnings/Autopilot URLs are reserved and not implemented. See the [partner route contract](../m3a/portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
 
+## Administration routes
+
+**Implemented** session/CSRF-protected web routes in `src/routes/web.php`; not part of the proposed `/api/v1` families above. All `/admin` routes require a signed-in, email-verified identity with an unrevoked platform grant. Every route except `/admin/security*` also requires the 15-minute authenticator step-up. "Any" means any usable grant. See the [architecture](architecture.md#administration) for the trust chain and the [administration contract](../administration/contract.md) for status.
+
+| Read route | Capability | Returns |
+|---|---|---|
+| `GET /admin` | Any; JSON needs `directory.read` | Overview page. JSON clients receive the original directory payload (`q`, `page`) |
+| `GET /admin/security` | Grant only (no step-up) | Authenticator enrollment or challenge |
+| `GET /admin/accounts`, `/admin/accounts/{account}` | `directory.read` | Account list and detail; the access-impact review is included only with `access.manage` |
+| `GET /admin/workspaces`, `/admin/workspaces/{workspace}` | `directory.read` | Workspace list and detail (members, entitlement, usage and operational counts) |
+| `GET /admin/plans`, `/admin/plans/{plan}` | `plans.assign` | Plan versions and one version with its assignments |
+| `GET /admin/assignments` | `plans.assign` | Assignments with derived state and history |
+| `GET /admin/assignments/create?workspace=` | `plans.assign` and `directory.read` | Assignment form for one workspace |
+| `GET /admin/notifications`, `/admin/notifications/{notification}` | `notifications.read` | Delivery metadata; never the payload |
+| `GET /admin/operations` | `operations.read` | Scheduler heartbeat, queue depth, outbox backlog, sanitized failed jobs |
+| `GET /admin/audit`, `/admin/audit/{source}/{event}` | `audit.read` | Administration audit; `source` is `platform` or `local-pilot` |
+| `GET /admin/operators` | `platform.owner` | Operator grants |
+| `GET /admin/support-access`, `/admin/support-access/{grant}` | `support.request` | Support requests; `?area=` reads records only for the operator's own approved grant |
+| `GET /admin/cleanup`, `/admin/cleanup/{batch}`, `/admin/cleanup/runs/{run}` | `cleanup.review` | Batches, marks and dry-run manifests |
+
+| Write route | Capability | Notes |
+|---|---|---|
+| `POST /admin/security/enroll` | Grant only | Body `password`; issues a setup key |
+| `POST /admin/security/verify` | Grant only | Body `password`, `code`; records the step-up proof |
+| `POST /admin/assignments` | `plans.assign` | Unchanged M4/PRO-02 contract; `expected_version` |
+| `POST /admin/notifications/{notification}/resolve` | `notifications.reconcile` | `version`, `resolution`, `reason`; never resends |
+| `POST /admin/operators` | `platform.owner` | Grant, change or revoke another operator; fresh proof |
+| `POST /admin/accounts/{account}/suspend`, `/reactivate` | `access.manage` | `expected_version`, `reason`; fresh proof |
+| `POST /admin/workspaces/{workspace}/suspend`, `/reactivate` | `access.manage` | `expected_version`, `reason`; fresh proof |
+| `POST /admin/accounts/{account}/sign-out` | `access.manage` | `reason`; fresh proof |
+| `POST /admin/support-access` | `support.request` | `workspace`, `purpose`, `resources`, `hours` (1–24) |
+| `POST /admin/support-access/{grant}/end` | `support.request` (own grant) or `platform.owner` | `expected_version`, `reason` |
+| `POST /admin/cleanup` | `cleanup.review` | Create a batch: `name`, `reason` |
+| `POST /admin/cleanup/{batch}/marks` | `cleanup.review` | Mark or unmark one account or workspace by ID, with `evidence` |
+| `POST /admin/cleanup/{batch}/runs` | `cleanup.review` | Record a dry run; deletes nothing |
+
+| Workspace-owner route | Requirement | Notes |
+|---|---|---|
+| `GET /workspace/support-access` | Active owner of the selected workspace | Support requests for that workspace |
+| `POST /workspace/support-access/{grant}` | Active owner of the selected workspace | `expected_version`, `decision` in `approve`, `decline`, `end` |
+
+Common behaviour:
+
+- **Response form.** A request with `Accept: application/json` and no `X-Inertia` header receives JSON; otherwise reads render Inertia pages and writes redirect with a status message. Creating a support request, batch or dry run returns 201 to JSON clients.
+- **403** without a grant, without step-up or without the capability. A browser page visit (GET) without a valid step-up is instead redirected to `/admin/security` and returned to the requested page after verification. Denied requests are recorded in the administration audit.
+- **404** for unknown records. **409** with an `expected_version` error for a stale version (the notification resolution reports it on `version`). **422** for validation and rule violations, such as targeting your own grant or the last usable platform owner. **429** from per-route throttles.
+- **Fresh proof.** "Fresh proof" above means `password` and a new six-digit `code` in the request body, in addition to the step-up. Codes are single use.
+- **Paging.** Lists use `page` with 25 rows and a server `total`; filters are allowlisted. This differs from the cursor pagination proposed for tenant resources.
+- No route changes a membership or role, deletes an account or workspace, executes a cleanup or exports audit data. The `/orgs/{orgId}/memberships` row above remains a tenant owner/admin responsibility.
+
 ## M5-03 implemented automation settings
 
 Authenticated verified members use selected-workspace `GET /automation`, `PUT /automation/preferences`, `POST /automation/schedules`, and versioned `PATCH`/`DELETE /automation/schedules/{id}`. Editing roles may manage only their own settings and schedules. DELETE withdraws consent and retains history. The [implemented contract](../m5/schedules-contract.md#api-and-database) specifies named rules, explicit opt-in, timezone and date formats, server-owned versions and stale-write behavior. These are session/CSRF-protected web/JSON routes; `GET /automation` now also projects the first 100 open reminder choices and the actor’s latest 50 scheduled-email history items (ID/kind/state/created time only). M5-04 consumes reminder/weekly review runs server-side; existing schedule endpoints now queue email when due. See the [delivery contract](../m5/scheduled-delivery-contract.md).
