@@ -23,6 +23,8 @@ x-backend: &backend
     APP_KEY: ${APP_KEY:?Set a fresh APP_KEY}
     APP_URL: ${APP_URL:?Set HTTPS APP_URL}
     STAGING_MODE: 'true'
+    # Workspace-owner MFA (D35). Staging may switch it off; production ignores the setting.
+    OWNER_MFA_ENFORCED: ${OWNER_MFA_ENFORCED:-true}
     UPLOADS_ENABLED: 'true'
     STAGING_UNSCANNED_UPLOADS: 'true'
     FILESYSTEM_DISK: local

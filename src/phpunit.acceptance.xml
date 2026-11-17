@@ -9,6 +9,7 @@
         <server name="BCRYPT_ROUNDS" value="4" force="true"/>
         <server name="CACHE_STORE" value="array" force="true"/>
         <server name="MAIL_MAILER" value="array" force="true"/>
+        <server name="OWNER_MFA_ENFORCED" value="false" force="true"/>
         <server name="SESSION_DRIVER" value="array" force="true"/>
     </php>
 </phpunit>

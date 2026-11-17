@@ -1,6 +1,6 @@
 # Workspace-owner MFA (M1-04) — implementation handoff
 
-Written 2026-11-17 for a new session. Based on `main` at `d237d13`. Nothing in this document has been implemented.
+Written 2026-11-17 for a new session. Based on `main` at `d237d13`. **Update (2026-11-17):** the work is implemented on `feat/owner-mfa`; see the [contract](owner-mfa-contract.md) and [evidence](owner-mfa-evidence.md). The rest of this document is the original handoff.
 
 ## Start conditions
 

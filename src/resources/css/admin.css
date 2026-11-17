@@ -206,18 +206,6 @@
 .wd-admin .wd-warning {
     margin: 0;
 }
-.wd-admin .adm-setup-key {
-    display: grid;
-    gap: 16px;
-    justify-items: start;
-}
-.wd-admin .adm-enrollment-qr {
-    width: 200px;
-    max-width: 100%;
-    height: auto;
-    border: 1px solid var(--wd-border);
-    border-radius: 8px;
-}
 .wd-admin .adm-quota-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

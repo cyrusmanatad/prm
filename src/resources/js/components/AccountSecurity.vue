@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
 import { confirmAction } from '../composables/useConfirmation';
 import FormField from './FormField.vue';
 import { Button } from './ui/button';
@@ -9,6 +10,10 @@ const emit = defineEmits<{ revoke: [] }>();
 <template>
     <details class="wd-card wd-security-card">
         <summary>Account security</summary>
+        <p class="wd-description">
+            Set up or replace your authenticator and manage recovery codes.
+            <Link href="/account/authenticator" class="wd-link">Authenticator and recovery codes</Link>
+        </p>
         <p class="wd-description">
             Sign out every session, including this one. Enter your current password to continue.
         </p>

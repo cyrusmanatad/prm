@@ -10,6 +10,7 @@ import EmptyState from '../components/EmptyState.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import TabNav from '../components/TabNav.vue';
 import AccessChange, { type AccessImpact } from '../features/admin/AccessChange.vue';
+import AuthenticatorReset from '../features/admin/AuthenticatorReset.vue';
 import ActivityList, { type ActivityRow } from '../features/admin/ActivityList.vue';
 import BackLink from '../features/admin/BackLink.vue';
 import { capabilityNames, dateTime, titleCase, workspaceTypes } from '../features/admin/format';
@@ -155,6 +156,38 @@ const columns = [
                     Access actions on the Overview tab.
                 </p>
             </ContentSection>
+            <ContentSection
+                title="Authenticator"
+                description="Workspace owners and platform operators sign in with a code from an authenticator app."
+            >
+                <DetailList
+                    :items="[
+                        { key: 'mfa', label: 'Authenticator' },
+                        {
+                            key: 'enrolled',
+                            label: 'Set up',
+                            value: dateTime(security.mfa_enrolled_at, 'Not set up'),
+                        },
+                    ]"
+                >
+                    <template #mfa
+                        ><StatusBadge
+                            :label="security.mfa_enrolled ? 'Set up' : 'Not set up'"
+                            :tone="security.mfa_enrolled ? 'success' : 'neutral'"
+                    /></template>
+                </DetailList>
+                <AuthenticatorReset
+                    :account="account.id"
+                    :name="account.name"
+                    :enrolled="security.mfa_enrolled"
+                    :platform-grant="grantActive"
+                    :self="access?.self ?? false"
+                    :can-manage="access !== null"
+                />
+                <p class="wd-hint">
+                    Setup keys and recovery codes are never shown here. A reset is recorded in the administration audit.
+                </p>
+            </ContentSection>
             <ContentSection title="Platform access">
                 <template v-if="security.grant">
                     <DetailList
@@ -182,7 +215,7 @@ const columns = [
                         /></template>
                     </DetailList>
                 </template>
-                <p v-else>This account has no platform grant. An authenticator is required only for platform access.</p>
+                <p v-else>This account has no platform grant.</p>
                 <Link
                     v-if="allowed(context, 'platform.owner')"
                     :href="`/admin/operators?account=${account.id}`"

@@ -41,6 +41,7 @@ class PlatformGrant extends Command
             if ($this->option('recover')) {
                 abort_unless($old && ! $old->revoked_at, 409, 'Recovery requires an active grant.');
                 DB::table('users')->where('id', $id)->update(['admin_totp_secret' => null, 'admin_totp_confirmed_at' => null, 'admin_totp_counter' => null]);
+                DB::table('account_recovery_codes')->where('user_id', $id)->delete();
             }
             DB::table('platform_grants')->updateOrInsert(['user_id' => $id], ['permissions' => $permissions ? '{'.implode(',', $permissions).'}' : $old->permissions,
                 'version' => ($old->version ?? 0) + 1, 'revoked_at' => $this->option('revoke') ? now() : null]);

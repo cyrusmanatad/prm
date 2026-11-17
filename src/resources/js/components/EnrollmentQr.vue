@@ -13,7 +13,7 @@ const code = computed(() => {
 
 <template>
     <svg
-        class="adm-enrollment-qr"
+        class="wd-enrollment-qr"
         role="img"
         :aria-label="label"
         :viewBox="`0 0 ${code.size} ${code.size}`"

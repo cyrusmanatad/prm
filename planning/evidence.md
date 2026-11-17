@@ -35,7 +35,7 @@ Follow the [planning index](README.md#document-organization) for new milestones.
 
 | Milestone | Evidence |
 | --- | --- |
-| M1 — foundation | [Account, workspace, security and setup verification](m1/evidence.md) |
+| M1 — foundation | [Account, workspace, security and setup verification](m1/evidence.md); [workspace-owner MFA](m1/owner-mfa-evidence.md) |
 | M2 — creator CRM | [CRM verification](m2/evidence.md) |
 | M3 — onboarding and public presence | [Onboarding and public-presence verification](m3/evidence.md) |
 | M3A — connected portals | [Portal verification](m3a/evidence.md), [reference inventory](m3a/reference-evidence.md), [brand avatar](m3a/brand-avatar-evidence.md), [Partner navigation](m3a/partner-navigation-evidence.md) |

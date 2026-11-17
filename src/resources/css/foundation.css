@@ -1484,6 +1484,52 @@ summary:focus-visible {
     margin: 0 0 12px;
     overflow-wrap: anywhere;
 }
+.wd-setup-key {
+    display: grid;
+    gap: 16px;
+    justify-items: start;
+}
+.wd-enrollment-qr {
+    width: 200px;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--wd-line);
+    border-radius: 8px;
+}
+.wd-recovery-codes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.wd-recovery-codes code {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--wd-divider);
+    font-size: 14px;
+    text-align: center;
+}
+.wd-authenticator {
+    display: grid;
+    gap: 20px;
+    max-width: 36rem;
+    margin-inline: auto;
+}
+.wd-authenticator .wd-card {
+    display: grid;
+    gap: 16px;
+}
+.wd-authenticator a.wd-button {
+    justify-content: center;
+    text-align: center;
+}
+.wd-authenticator .wd-card > *,
+.wd-authenticator form {
+    margin: 0;
+}
 .wd-copy-reference {
     display: inline-flex;
     flex-wrap: wrap;

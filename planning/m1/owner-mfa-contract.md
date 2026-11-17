@@ -1,6 +1,6 @@
 # M1-04 Workspace-owner MFA
 
-Status: **planned; not implemented.** Written 2026-11-17 against `main` at `d237d13`. Decisions: [D18, D34, D35](../shared/decisions.md). Background: [handoff](owner-mfa-handoff.md). Code, migrations and tests wait for the user's explicit go-ahead.
+Status: **implemented locally; verification recorded, not deployed** ([evidence](owner-mfa-evidence.md), 2026-11-17). Planned against `main` at `d237d13`. Decisions: [D18, D34, D35](../shared/decisions.md). Background: [handoff](owner-mfa-handoff.md). The user gave the go-ahead on 2026-11-17.
 
 ## Findings from the code
 

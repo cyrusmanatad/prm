@@ -708,12 +708,12 @@ it('presents a cleanup dry run as a preview with reasons and no way to execute i
 
 it('draws the enrollment QR code in the browser from the setup key', async () => {
     const { default: PlatformSecurity } = await import('../../resources/js/pages/PlatformSecurity.vue');
-    const { enrollmentUri } = await import('../../resources/js/features/admin/enrollment');
+    const { enrollmentUri } = await import('../../resources/js/features/auth/enrollment');
     const request = vi.spyOn(globalThis, 'fetch');
     page.value.props.account = { name: 'Example Owner', email: 'owner+admin@example.test' };
     const secret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
 
-    expect(enrollmentUri(secret, 'owner+admin@example.test')).toBe(
+    expect(enrollmentUri(secret, 'owner+admin@example.test', 'WeavDash Admin')).toBe(
         `otpauth://totp/WeavDash%20Admin:owner%2Badmin%40example.test?secret=${secret}&issuer=WeavDash%20Admin&algorithm=SHA1&digits=6&period=30`,
     );
 
