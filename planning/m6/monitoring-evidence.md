@@ -19,8 +19,23 @@ Environment: disposable source-mounted Compose project `weavdash-admin` (PHP 8.5
 - `app_record_observation` now accepts `worker` as well as `scheduler`. `PlatformConsoleTest` used `worker` as its example of an unknown source; it now uses `scanner`.
 - Every response carries `X-Request-Id`.
 
+## Staging exercise — 2026-11-17 UTC
+
+Deployed to staging as recorded in the [staging log](../shared/staging-deployment.md). Alert mail goes to one user-provided address through the existing SMTP provider.
+
+| Exercise | Result |
+|---|---|
+| Baseline | All fourteen checks `ok` within two minutes of the update; scheduler and worker heartbeats recorded. |
+| Real fault: worker stopped at 17:04 | `worker_heartbeat` fired at 17:10 (value 360 s: 240 s limit plus the 2-minute hold). Worker restarted at 17:10; recovered at 17:11. Both lines are in the scheduler's JSON log; no `monitor.mail_failed` was logged. |
+| Alert path by one-off threshold override (16:54) | `failed_jobs`, `outbox_lag`, `schedule_lateness`, `disk_used`, `http_errors` and `http_slow` fired from a manual `monitor:check` run with their limits set to zero, and all six recovered on the next scheduled run. This exercises alert state and mail, not a real fault in those signals. |
+| Defect found | With the staging log channel, the scheduler discards the output of scheduled commands, so alert log lines from the scheduled `monitor:check` were lost. Fixed in `3d5e593` by scheduling the check in-process; confirmed by the worker exercise above. The same loss still applies to the other scheduled commands' own output, which this change does not touch. |
+
+Expected mail: 14 messages (7 alerts, 7 recoveries). **Receipt in the inbox is not confirmed here**; for the six override alerts and their recoveries, a mail failure would not have been visible in the logs captured.
+
+Not exercised on staging: `redis`, `queue_depth`, `outbox_uncertain`, `mail_transport`, `delivery_budget`, `upload_scan_backlog` and `db_connections` (they need a sustained real fault or shared-data changes), reminders, and the dead-man request.
+
 ## Not verified
 
 - Integration suite (`phpunit.pgsql.xml`), `rls.sql`, browser journeys and CI were not run.
-- Alert mail through a real provider, the dead-man request against a real service, and behavior under a continuously running worker and scheduler.
-- `compose.staging.yaml` changes (JSON log formatter, monitoring variables) are untested on staging.
+- The dead-man request against a real service, and inbox receipt of alert mail.
+- CI results for `3d5e593`.
