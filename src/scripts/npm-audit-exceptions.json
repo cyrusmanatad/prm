@@ -1,0 +1,8 @@
+[
+    {
+        "advisory": "GHSA-fc5q-39xc-vjpf",
+        "package": "picomatch",
+        "reviewBy": "2026-12-18",
+        "reason": "No patched picomatch release exists (all versions through 4.0.7 are affected). It reaches this project only through build and test tooling (vite, vitest, vue-tsc, laravel-vite-plugin), which match glob patterns from repository configuration, not from user input. Remove this entry and upgrade as soon as a fixed version is published."
+    }
+]
