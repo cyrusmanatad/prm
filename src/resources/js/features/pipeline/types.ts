@@ -32,4 +32,6 @@ export interface PipelineWorkspace {
     selected: EntryDetail | null;
     canWrite: boolean;
     filters: { q: string; stage: string; due: boolean };
+    /** Connected Brands a new lead can optionally be registered with. Absent for older callers. */
+    registration?: { canRegister: boolean; brands: { id: string; brand_name: string; paused: boolean }[] };
 }

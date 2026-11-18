@@ -111,6 +111,15 @@ const blank = (): LeadForm => ({
     next_action_due: '',
 });
 const createForm = ref(blank());
+// Optional: the connected Brand a new lead is for. Empty keeps the lead private.
+const registerWith = ref('');
+const brandChoices = computed(() =>
+    props.registration?.canRegister
+        ? props.registration.brands
+              .filter((brand) => !brand.paused)
+              .map((brand) => ({ value: brand.id, label: brand.brand_name }))
+        : [],
+);
 const editForm = ref(blank());
 const stage = ref('lead');
 const drawerTab = ref<'details' | 'activity'>('details');
@@ -279,8 +288,9 @@ function create(): void {
     formAction.value = 'create';
     const data = details(createForm.value);
     if (data)
-        visit('post', '/pipeline', data, () => {
+        visit('post', '/pipeline', registerWith.value ? { ...data, register_with: registerWith.value } : data, () => {
             createForm.value = blank();
+            registerWith.value = '';
             creating.value = false;
         });
 }
@@ -963,6 +973,16 @@ function reloadSelected(): void {
                             v-model="createForm"
                             prefix="create"
                             :errors="formAction === 'create' ? errors : {}"
+                        />
+                        <SelectField
+                            v-if="brandChoices.length"
+                            id="create-register-with"
+                            v-model="registerWith"
+                            label="This lead is for (optional)"
+                            :options="[{ value: '', label: 'No Brand — keep this lead private' }, ...brandChoices]"
+                            :searchable="brandChoices.length > 8"
+                            hint="Choose a connected Brand to register this lead with them now. They will see the lead's name and stage, kept up to date. Notes, value and contact stay private. You can change or withdraw this in Brand sharing."
+                            :error="formAction === 'create' ? errors.register_with : undefined"
                         />
                         <div class="wd-dialog-footer">
                             <Button type="button" class="wd-button wd-button-secondary" @click="close">Cancel</Button>

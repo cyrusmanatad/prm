@@ -47,7 +47,7 @@ class WorkspaceContext
             // or deferred tenant queries may run after this middleware returns.
             $response = $next($request);
             abort_if($response instanceof StreamedResponse, 500);
-            // One workspace per sign-in. A request that fails keeps the marker, because its transaction rolls back.
+            // One workspace per sign-in: the marker is consumed by the first workspace request that returns a response.
             $request->session()->forget(self::SIGN_IN);
 
             if ($professional && $response->isRedirection()) {
