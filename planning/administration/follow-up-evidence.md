@@ -71,3 +71,18 @@ Inspected with temporary captures (removed) and automated checks at 1440 and 768
 - The scheduler-driven skip was exercised by calling the dispatch services in acceptance tests, not by a running scheduler container.
 - Staging and production behaviour: not exercised. Nothing was deployed.
 - The Playwright JSON reporter still cannot write `src/test-results/results.json` (root-owned folder); the list reporter output is the record.
+
+## Account-menu administration link — 2026-11-18
+
+Scope: branch `feat/account-menu-admin-link`, working tree based on `0adb9c7`. The shared `AccountMenu` shows a **Platform administration** link to `/admin` for an account that holds a current platform grant (verified email, not revoked, at least one permission), including before an authenticator is enrolled. It is hidden inside administration and in fixtures. The link is a navigation hint from a new shared `platformAccess` value; `/admin` authorizes and asks for step-up exactly as before. No new component, style or palette: the existing menu item markup and a Lucide icon are reused.
+
+| Gate | Result |
+|---|---|
+| Prettier (`format:check:changed`), `vue-tsc`, build | Passed; 3 changed frontend files checked. |
+| Component tests | 128 tests / 25 files passed, including the new `AccountMenu.test.ts`. |
+| Pint; PHP unit/feature | Passed; 42 tests / 362 assertions. |
+| Acceptance (`weavdash-admin`, runtime role) | New `test_the_account_menu_hint_follows_the_current_grant_and_never_grants_access` passed. One other test in `PlatformConsoleTest` failed only because that database also carries the unmerged monitoring migration from PR #34. |
+| `administration.spec.ts`, Chromium | Mobile (390×1000) and desktop (1440×1000) passed with the new menu steps. Run together, desktop exceeded the journey's eight-minute limit well after those steps; it passed alone in 7.8 minutes. |
+| Rendering | Open menu inspected at 1440×800 and 390×800: the item matches its neighbours, 41px tall, no page overflow, zero axe violations, reachable by arrow keys and Enter. Temporary captures were removed. |
+
+Not verified: WebKit, CI, and staging.

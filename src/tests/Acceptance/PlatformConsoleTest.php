@@ -115,6 +115,25 @@ class PlatformConsoleTest extends AcceptanceCase
         $this->getJson('/admin/accounts?verified=maybe')->assertUnprocessable();
     }
 
+    public function test_the_account_menu_hint_follows_the_current_grant_and_never_grants_access(): void
+    {
+        $outsider = User::factory()->create();
+        $this->actingAs($outsider)->get('/workspaces')->assertOk()->assertInertia(fn ($page) => $page->where('platformAccess', false));
+        $this->actingAs($outsider)->get('/admin')->assertForbidden();
+
+        // A grant is enough for the link, including before an authenticator is enrolled; administration still requires step-up.
+        $operator = $this->operator('{directory.read}');
+        $this->actingAs($operator)->get('/workspaces')->assertOk()->assertInertia(fn ($page) => $page->where('platformAccess', true));
+        $this->actingAs($operator)->get('/admin/accounts')->assertRedirect('/admin/security');
+
+        $unverified = User::factory()->unverified()->create();
+        $this->control->table('platform_grants')->insert(['user_id' => $unverified->id, 'permissions' => '{directory.read}']);
+        $this->actingAs($unverified)->get('/verify-email')->assertInertia(fn ($page) => $page->where('platformAccess', false));
+
+        $this->control->table('platform_grants')->where('user_id', $operator->id)->update(['revoked_at' => now()]);
+        $this->actingAs($operator)->get('/workspaces')->assertOk()->assertInertia(fn ($page) => $page->where('platformAccess', false));
+    }
+
     public function test_runtime_role_cannot_call_gated_projections_or_touch_their_tables_directly(): void
     {
         $operator = $this->operator('{platform.owner}');

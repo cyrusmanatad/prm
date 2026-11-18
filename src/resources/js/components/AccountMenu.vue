@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, type Component } from 'vue';
-import { Link } from '@inertiajs/vue3';
-import { LogOut, Settings } from '@lucide/vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { LogOut, Settings, ShieldCheck } from '@lucide/vue';
 import {
     DropdownMenuContent,
     DropdownMenuItem,
@@ -37,6 +37,12 @@ const letters = computed(
             .join(''),
 );
 
+// Shown to accounts holding a platform grant, outside administration itself. The server authorizes every admin request.
+const page = usePage<{ platformAccess?: boolean }>();
+const showAdministration = computed(
+    () => !props.fixture && page.props?.platformAccess === true && !/^\/admin(?:[/?]|$)/.test(page.url ?? ''),
+);
+
 function signOut(): void {
     if (!props.fixture) emit('logout');
 }
@@ -68,6 +74,11 @@ function signOut(): void {
                             ><component :is="link.icon" :size="18" aria-hidden="true" class="shrink-0" />{{
                                 link.label
                             }}</Link
+                        >
+                    </DropdownMenuItem>
+                    <DropdownMenuItem v-if="showAdministration" as-child>
+                        <Link href="/admin"
+                            ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Platform administration</Link
                         >
                     </DropdownMenuItem>
                     <DropdownMenuItem @select="signOut">
