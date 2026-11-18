@@ -1,5 +1,7 @@
 **M5 small-screen acceptance (2026-11-17):** the phone-width checks carried to Claude for M5-02 to M5-06 passed locally in Chromium at 390 and 320 px after small touch-target and readability fixes; see the [small-screen evidence](m5/small-screen-evidence.md). Provider delivery (M5-09) and inherited manual reviews remain open.
 
+**Brand workspace approval (2026-11-18):** [implementation, commands, rendering findings, rollout dry run and unverified gates](administration/brand-approval-evidence.md). Local disposable stack only; not deployed.
+
 **Administration enrollment QR code (2026-11-17):** [B7 implementation and verification](administration/enrollment-qr-evidence.md). Local disposable stack only.
 
 **Administration follow-up (2026-11-17):** [paused label, skipped work, date filters, overview items, journey investigation and gates](administration/follow-up-evidence.md). Local disposable stacks only.

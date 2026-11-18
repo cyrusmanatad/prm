@@ -42,6 +42,12 @@ class StagingBootstrap extends Command
                 $org = (string) Str::uuid();
                 DB::table('organizations')->insert(['id' => $org, 'name' => ucfirst($role).' Staging', 'kind' => $role === 'brand' ? 'brand' : 'creator', 'experience' => $role === 'professional' ? 'professional' : 'partner']);
                 DB::table('memberships')->insert(['org_id' => $org, 'user_id' => $user->id, 'role' => 'owner']);
+                if ($role === 'brand') {
+                    // Brand workspaces need recorded approval (D37). This synthetic reviewer workspace is recorded as a rollout approval.
+                    $approval = (string) Str::uuid();
+                    DB::table('brand_requests')->insert(['id' => $approval, 'source' => 'rollout', 'status' => 'approved', 'org_id' => $org, 'decided_at' => now()]);
+                    DB::table('brand_request_events')->insert(['id' => (string) Str::uuid(), 'request_id' => $approval, 'version' => 1, 'event' => 'rollout_approved', 'operator' => 'staging:bootstrap', 'reason' => 'Synthetic colleague review workspace']);
+                }
                 $plan = (string) Str::uuid();
                 DB::table('pilot_plan_versions')->insert(['id' => $plan, 'name' => 'Synthetic staging '.$role, 'version' => 1,
                     'quotas' => json_encode(array_fill_keys(['pipeline_entries', 'brand_contacts', 'reminders', 'onboarding_requests', 'outreach_templates', 'invoice_drafts', 'manual_payments'], 100))]);

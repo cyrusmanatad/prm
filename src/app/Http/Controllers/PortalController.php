@@ -16,6 +16,15 @@ class PortalController extends Controller
     public function enter(Request $request, Workspaces $workspaces)
     {
         $user = $request->user();
+        if ($user->registration_workspace_id && $user->registration_workspace_kind === 'brand') {
+            // A Brand workspace is created only by an approved request (D37). The registration intent stays on the
+            // account until a request is submitted, so it survives sign-out, another browser and interrupted verification.
+            if (! collect($workspaces->listing((int) $user->id))->contains('id', $user->registration_workspace_id)) {
+                return redirect('/brand/requests');
+            }
+            // Provisioned before review existed and never cleared: the workspace is already theirs.
+            $user->forceFill(['registration_workspace_id' => null, 'registration_workspace_kind' => null, 'registration_workspace_experience' => null])->save();
+        }
         if ($user->registration_workspace_id) {
             $id = $workspaces->create((int) $user->id, $user->name, $user->registration_workspace_kind, $user->registration_workspace_id, $user->registration_workspace_experience ?? 'partner');
             $request->session()->put('active_org_id', $id);
@@ -32,7 +41,8 @@ class PortalController extends Controller
             $selected = $matching->count() === 1 ? $matching->first() : null;
         }
         if (! $selected) {
-            return redirect('/workspaces');
+            // The Brand entrance with no Brand workspace leads to the request page, where review status is shown.
+            return redirect($preference === 'brand' && ! collect($listing)->contains('kind', 'brand') ? '/brand/requests' : '/workspaces');
         }
         $request->session()->put('active_org_id', $selected->id);
         $request->session()->regenerate();

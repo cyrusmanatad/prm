@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
-import { fixture, login, migrationFixture } from './helpers';
+import { approvedBrand, fixture, login, migrationFixture, openBrandHub } from './helpers';
 import AxeBuilder from '@axe-core/playwright';
 const routes = [
     '',
@@ -194,11 +194,9 @@ test('Professional pipeline panels retain empty and populated partnerships acros
     const brand = await browser.newContext();
     try {
         const bp = await brand.newPage();
+        approvedBrand(brandEmail, 'Panel Brand');
         await login(bp, brandEmail);
-        await bp.getByLabel('Workspace name', { exact: true }).fill('Panel Brand');
-        await bp.locator('#workspace-kind').selectOption('brand');
-        await bp.getByRole('button', { name: 'Create workspace', exact: true }).click();
-        await bp.getByRole('link', { name: 'Open brand hub' }).click();
+        await openBrandHub(bp, 'Panel Brand');
         await bp.getByRole('button', { name: '+ Invite partners', exact: true }).click();
         await bp.getByLabel('Recipient email').fill(email);
         await bp.getByRole('button', { name: 'Create invitation link', exact: true }).click();

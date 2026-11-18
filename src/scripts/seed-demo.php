@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Tests\Support\BrandFixture;
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
@@ -50,7 +51,17 @@ function identity(string $name, string $email, string $kind): array
     $password = 'Demo!'.bin2hex(random_bytes(9));
     $user = User::create(['name' => $name, 'email' => $email, 'password' => Hash::make($password)]);
     $user->forceFill(['email_verified_at' => now()])->save();
-    $org = app(Workspaces::class)->create($user->id, $name, $kind);
+    if ($kind === 'brand') {
+        // Brand workspaces need recorded approval (D37), which the runtime role cannot write.
+        $migration = getenv('DEMO_MIGRATION_DB_PASSWORD');
+        if (! $migration) {
+            throw new RuntimeException('Set DEMO_MIGRATION_DB_PASSWORD for this run: demo Brand workspaces are written with fixture approval through the migration role.');
+        }
+        config(['database.connections.demo_fixture' => [...config('database.connections.pgsql'), 'url' => null, 'username' => 'weavdash_migrator', 'password' => $migration]]);
+        $org = BrandFixture::create($user->id, $name, DB::connection('demo_fixture'));
+    } else {
+        $org = app(Workspaces::class)->create($user->id, $name);
+    }
     $credentials[] = "$name | $email | $password";
     $actors[] = [$user->id, $org];
 

@@ -1,6 +1,7 @@
 import type { Component } from 'vue';
 import {
     Activity,
+    BadgeCheck,
     BellRing,
     Building2,
     ClipboardList,
@@ -52,6 +53,7 @@ export const adminGroups: AdminGroup[] = [
     {
         label: 'Governance',
         links: [
+            { href: '/admin/brand-requests', label: 'Brand requests', icon: BadgeCheck, capability: 'brands.review' },
             { href: '/admin/audit', label: 'Audit', icon: ScrollText, capability: 'audit.read' },
             { href: '/admin/operators', label: 'Platform access', icon: KeyRound, capability: 'platform.owner' },
             { href: '/admin/support-access', label: 'Support access', icon: LifeBuoy, capability: 'support.request' },

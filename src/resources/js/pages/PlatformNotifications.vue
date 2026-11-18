@@ -11,12 +11,12 @@ import Pagination from '../components/Pagination.vue';
 import SelectField from '../components/SelectField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { useListFilters } from '../composables/useListFilters';
-import { resolutionOptions as resolutions, type DeliveryNotice } from '../features/platform-notifications/types';
+import { resolutionOptions as resolutions, type DeliveryRow } from '../features/platform-notifications/types';
 import { dateTime, notificationStates as states } from '../features/admin/format';
 
 type Filters = { q: string; workspace: string; state: string };
 const props = defineProps<{
-    notices: DeliveryNotice[];
+    notices: DeliveryRow[];
     total: number;
     workspace: string;
     q: string;
@@ -33,12 +33,12 @@ const applied = computed(() => [
 ]);
 const columns = [
     { key: 'kind', label: 'Notification' },
-    { key: 'workspace', label: 'Workspace' },
+    { key: 'workspace', label: 'Workspace or account' },
     { key: 'state', label: 'State' },
     { key: 'created_at', label: 'Created' },
     { key: 'next', label: 'Next step' },
 ];
-function next(notice: DeliveryNotice): string {
+function next(notice: DeliveryRow): string {
     if (notice.resolution)
         return `Resolved: ${resolutions.find((option) => option.value === notice.resolution)?.label ?? notice.resolution}`;
     if (notice.state === 'uncertain') return props.canResolve ? 'Review delivery' : 'Awaiting review';
@@ -64,7 +64,7 @@ function next(notice: DeliveryNotice): string {
                 <FormField
                     id="delivery-search"
                     v-model="draft.q"
-                    label="Workspace name, workspace ID or notification ID"
+                    label="Workspace or account name, workspace ID or notification ID"
                     :required="false"
                     :maxlength="120"
                 />
@@ -91,7 +91,7 @@ function next(notice: DeliveryNotice): string {
             <EmptyState
                 v-else-if="!notices.length"
                 title="No deliveries recorded"
-                description="Notification intents appear here once a workspace queues an email."
+                description="Notification intents appear here once a workspace or a review decision queues an email."
             />
             <DataTable v-else caption="Delivery history" :columns="columns" :rows="notices" :row-key="(row) => row.id">
                 <template #cell-kind="{ row }"
@@ -101,6 +101,7 @@ function next(notice: DeliveryNotice): string {
                         >{{ row.kind }}</Link
                     ><span class="wd-data-secondary">{{ row.id.slice(0, 8) }}…</span></template
                 >
+                <template #cell-workspace="{ row }">{{ row.workspace ?? `Account: ${row.account}` }}</template>
                 <template #cell-state="{ row }">
                     <StatusBadge
                         :label="states[row.state]?.label ?? row.state"

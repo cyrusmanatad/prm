@@ -10,6 +10,10 @@ MVP identity acceptance: verified email signup/login through Laravel, recovery, 
 
 Use Laravel session authentication with secure HttpOnly cookies, explicit SameSite policy, CSRF protection, short session lifetimes with rotation, and server-side revocation. If OIDC is used, validate issuer/audience/state/nonce with a maintained client. Account linking requires verification; matching email alone must not silently merge identities. Audit sensitive login and access changes without storing secrets.
 
+## Brand workspace approval (D37)
+
+**Implemented locally (2026-11-18):** Brand registration creates and verifies an account but no workspace. The registration intent stays on the account until a Brand request is submitted, so it survives sign-out, another browser and interrupted verification, and then leads to `/brand/requests`. A platform operator holding `brands.review` approves, asks for more information or declines. Approval creates the workspace with the applicant as owner, which brings the account under the existing workspace-owner authenticator rule (D34, D35); the reviewer gains no membership. Partner and Professional registration are unchanged. See the [contract](../administration/brand-approval-contract.md) and [evidence](../administration/brand-approval-evidence.md). Not deployed.
+
 ## Required platform administration
 
 **Confirmed D27:** provide platform-owner/super-admin administration before advancing milestones, as specified in the [administration contract](../administration/contract.md). Platform grants, TOTP step-up and the administration console are implemented locally ([evidence](../administration/console-evidence.md)); operator MFA is confirmed as TOTP with offline recovery (D31). Global platform grants are distinct from workspace memberships; no public registration, tenant Owner/Admin role or hard-coded email may confer platform authority. A real initial owner must be explicitly provisioned, MFA-enrolled and protected during synthetic-data cleanup; none has been provisioned (**Assumption / Open**).
@@ -20,6 +24,7 @@ Use Laravel session authentication with secure HttpOnly cookies, explicit SameSi
 |---|---|
 | `platform.owner` | Everything below, plus managing other operators' grants and ending any support grant |
 | `directory.read` | Account and workspace directories and details (metadata and counts only) |
+| `brands.review` | Review Brand workspace requests: approve, request more information or decline (D37). Request metadata only; no workspace records |
 | `plans.assign` | Plans, assignments and recording an assignment |
 | `notifications.read` | Notification delivery metadata |
 | `notifications.reconcile` | Recording a resolution for an uncertain send |

@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { fixture, login } from './helpers';
+import { approvedBrand, fixture, login, openBrandHub } from './helpers';
 
 async function clean(page: Page): Promise<void> {
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -21,11 +21,9 @@ test('reusable brand codes support signup, verified consent, replacement and saf
     const bp = await brand.newPage();
     const pp = await partner.newPage();
     try {
+        approvedBrand(brandEmail, 'Shared Brand');
         await login(bp, brandEmail);
-        await bp.getByLabel('Workspace name', { exact: true }).fill('Shared Brand');
-        await bp.locator('#workspace-kind').selectOption('brand');
-        await bp.getByRole('button', { name: 'Create workspace', exact: true }).click();
-        await bp.getByRole('link', { name: 'Open brand hub' }).click();
+        await openBrandHub(bp, 'Shared Brand');
         await bp.getByRole('button', { name: '+ Invite partners', exact: true }).click();
         await bp.getByRole('button', { name: 'Create sign-up link', exact: true }).click();
         await expect(bp.getByLabel('Sign-up code', { exact: true })).toHaveValue(/^[0-9A-Z]{5}-[0-9A-Z]{5}$/);
@@ -98,11 +96,9 @@ test('existing identity chooses among workspaces and can join from Professional'
     const email = `m1-browser-join-existing-${suffix}@example.test`;
     fixture('seed', brandEmail);
     fixture('seed-workspaces', email);
+    approvedBrand(brandEmail, 'Existing Brand');
     await login(page, brandEmail);
-    await page.getByLabel('Workspace name', { exact: true }).fill('Existing Brand');
-    await page.locator('#workspace-kind').selectOption('brand');
-    await page.getByRole('button', { name: 'Create workspace', exact: true }).click();
-    await page.getByRole('link', { name: 'Open brand hub' }).click();
+    await openBrandHub(page, 'Existing Brand');
     await page.getByRole('button', { name: '+ Invite partners', exact: true }).click();
     await page.getByRole('button', { name: 'Create sign-up link', exact: true }).click();
     const url = await page.getByLabel('Sign-up link', { exact: true }).inputValue();

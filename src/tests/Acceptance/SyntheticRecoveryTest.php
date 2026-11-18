@@ -15,13 +15,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
+use Tests\Support\BrandFixture;
 
 class SyntheticRecoveryTest extends AcceptanceCase
 {
     private function invitation(): object
     {
         $user = User::factory()->create();
-        $org = app(Workspaces::class)->create($user->id, 'Synthetic recovery brand', 'brand');
+        $org = BrandFixture::create($user->id, 'Synthetic recovery brand', $this->control);
         $id = $this->actingAs($user)->withSession(['active_org_id' => $org])->postJson('/partner-invitations', [
             'email' => 'recovery-'.Str::uuid().'@example.test', 'send_email' => true,
         ])->assertCreated()->json('id');

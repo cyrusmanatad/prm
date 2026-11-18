@@ -413,7 +413,7 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
         const menu = page.getByRole('button', { name: 'Menu', exact: true });
         await menu.click();
         const drawer = page.getByRole('dialog', { name: 'Administration menu', exact: true });
-        await expect(drawer.getByRole('link')).toHaveCount(12);
+        await expect(drawer.getByRole('link')).toHaveCount(13);
         await clean(page);
         await page.keyboard.press('Escape');
         await expect(menu).toBeFocused();

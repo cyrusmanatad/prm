@@ -28,7 +28,7 @@ The explicit CLI fixture is [seed-demo.php](../src/scripts/seed-demo.php). It re
 
 For an explicitly authorized disposable reset, stop app/worker/scheduler, reset the PostgreSQL public schema (including functions), recreate it owned by `weavdash_migrator`, then run `php artisan migrate:fresh --force` using the Compose migration service. Apply `src/database/sql/runtime-grants.sql` and restore runtime schema usage. Rebuild images to include current code before executing these steps.
 
-Run `php scripts/seed-demo.php` in the app container as the restricted runtime database role. Run `php scripts/seed-demo.php --pilot` through the migration service. Copy `/tmp/demo-user.txt` from the app container to `docs/demo-user.txt`. The fixture generates new unique passwords on each fresh seed. Clear obsolete queued jobs and application cache before restarting the worker/scheduler.
+Run `php scripts/seed-demo.php` in the app container as the restricted runtime database role. Since Brand workspace approval (D37), pass the migration-role password for that one run as `DEMO_MIGRATION_DB_PASSWORD` (for example `docker compose exec -e DEMO_MIGRATION_DB_PASSWORD app php scripts/seed-demo.php` with the variable set in your shell): the two demo Brand workspaces are written with synthetic fixture approval, because the runtime role cannot create a Brand workspace. Run `php scripts/seed-demo.php --pilot` through the migration service. Copy `/tmp/demo-user.txt` from the app container to `docs/demo-user.txt`. The fixture generates new unique passwords on each fresh seed. Clear obsolete queued jobs and application cache before restarting the worker/scheduler.
 
 ## Verification
 

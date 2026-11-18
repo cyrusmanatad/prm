@@ -115,6 +115,10 @@ export const capabilityLabels: Record<string, { label: string; grants: string }>
         label: 'Cleanup review',
         grants: 'Mark synthetic records and run cleanup dry runs. Cannot delete.',
     },
+    'brands.review': {
+        label: 'Brand review',
+        grants: 'Review Brand workspace requests: approve, request more information or decline. Gives no access to workspace records.',
+    },
 };
 
 /** Capability names in the order the grant form presents them, whatever order they are stored in. */

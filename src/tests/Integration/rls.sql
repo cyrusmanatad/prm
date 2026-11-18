@@ -294,4 +294,93 @@ DO $$ DECLARE unsafe text; BEGIN
         RAISE EXCEPTION 'a cleanup function deletes records';
     END IF;
 END $$;
+-- Brand workspace approval (D37): applicants see only their own requests, and the runtime role can neither
+-- create a Brand workspace nor write requests, history, decisions or account notices directly.
+SET ROLE weavdash_migrator;
+INSERT INTO users(id, name, email, email_verified_at, password, created_at, updated_at) VALUES
+    (101, 'RLS Brand Applicant A', 'rls-brand-a@example.test', now(), 'not-a-login-hash', now(), now()),
+    (102, 'RLS Brand Applicant B', 'rls-brand-b@example.test', now(), 'not-a-login-hash', now(), now());
+SELECT setval(pg_get_serial_sequence('users', 'id'), 102);
+RESET ROLE;
+SET ROLE weavdash_app;
+BEGIN;
+SELECT set_config('app.actor_id', '101', true), set_config('app.org_id', '00000000-0000-4000-8000-0000000000b2', true);
+SELECT app_brand_request_submit('00000000-0000-4000-8000-0000000000b1', 'RLS Brand', 'https://rls.example.test', 'Owner', 'RLS check');
+DO $$ BEGIN
+    IF (SELECT count(*) FROM brand_requests) <> 1 OR (SELECT count(*) FROM brand_request_events) <> 0 OR (SELECT count(*) FROM account_notification_outbox) <> 0 THEN
+        RAISE EXCEPTION 'brand request visibility wrong for the applicant';
+    END IF;
+    BEGIN
+        PERFORM app_brand_request_submit('00000000-0000-4000-8000-0000000000b3', 'Second', 'https://rls.example.test', 'Owner', 'Second open request');
+        RAISE EXCEPTION 'second open brand request accepted';
+    EXCEPTION WHEN unique_violation THEN NULL;
+    END;
+    BEGIN
+        PERFORM app_create_typed_workspace('00000000-0000-4000-8000-0000000000b2', 'Bypass', 'brand');
+        RAISE EXCEPTION 'runtime created a brand workspace';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        PERFORM app_create_experience_workspace('00000000-0000-4000-8000-0000000000b2', 'Bypass', 'brand', 'partner');
+        RAISE EXCEPTION 'runtime created a brand workspace through the experience path';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO organizations(id, name, kind) VALUES ('00000000-0000-4000-8000-0000000000b2', 'Bypass', 'brand');
+        RAISE EXCEPTION 'runtime inserted a brand workspace';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO brand_requests(id, source, status, org_id, decided_at) VALUES ('00000000-0000-4000-8000-0000000000b4', 'rollout', 'approved', '00000000-0000-4000-8000-000000000002', now());
+        RAISE EXCEPTION 'runtime forged approval provenance';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        INSERT INTO brand_request_events(id, request_id, version, event, actor_id, reason) VALUES ('00000000-0000-4000-8000-0000000000b5', '00000000-0000-4000-8000-0000000000b1', 2, 'approved', 101, 'forged');
+        RAISE EXCEPTION 'runtime forged a decision';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    UPDATE brand_requests SET status = 'approved';
+    IF (SELECT status FROM brand_requests) <> 'pending' THEN RAISE EXCEPTION 'runtime changed a request directly'; END IF;
+    BEGIN
+        PERFORM app_platform_brand_decide('00000000-0000-4000-8000-0000000000b1', 1, 'approve', 'forged', '00000000-0000-4000-8000-0000000000b5', '00000000-0000-4000-8000-0000000000b2');
+        RAISE EXCEPTION 'applicant decided a request';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+    BEGIN
+        PERFORM app_platform_brand_requests('{}'::jsonb, 1);
+        RAISE EXCEPTION 'review queue readable without the capability';
+    EXCEPTION WHEN insufficient_privilege THEN NULL;
+    END;
+END $$;
+COMMIT;
+BEGIN;
+SELECT set_config('app.actor_id', '102', true), set_config('app.org_id', '', true);
+DO $$ BEGIN
+    IF (SELECT count(*) FROM brand_requests) <> 0 OR app_brand_requests_mine() <> '[]'::jsonb THEN RAISE EXCEPTION 'another applicant read a brand request'; END IF;
+    BEGIN
+        PERFORM app_brand_request_mine('00000000-0000-4000-8000-0000000000b1');
+        RAISE EXCEPTION 'another applicant opened a brand request';
+    EXCEPTION WHEN no_data_found THEN NULL;
+    END;
+    BEGIN
+        PERFORM app_brand_request_revise('00000000-0000-4000-8000-0000000000b1', 1, 'Taken', 'https://rls.example.test', 'Owner', 'Taken over');
+        RAISE EXCEPTION 'another applicant revised a brand request';
+    EXCEPTION WHEN no_data_found THEN NULL;
+    END;
+END $$;
+COMMIT;
+RESET ROLE;
+DO $$ DECLARE unsafe text; BEGIN
+    IF (SELECT count(*) FROM pg_class WHERE relname IN ('brand_requests','brand_request_events','account_notification_outbox','account_notification_resolutions') AND relrowsecurity AND relforcerowsecurity) <> 4
+       OR (SELECT count(*) FROM pg_policy WHERE polrelid IN ('brand_requests'::regclass,'brand_request_events'::regclass,'account_notification_outbox'::regclass,'account_notification_resolutions'::regclass)) <> 1 THEN
+        RAISE EXCEPTION 'brand approval tables are not behind forced RLS with one self-read policy';
+    END IF;
+    SELECT string_agg(f, ', ') INTO unsafe FROM unnest(ARRAY['app_brand_request_row(brand_requests)','app_brand_fields(text,text,text,text)','app_brand_provenance()','app_brand_history_guard()','app_platform_capabilities()']) f
+        WHERE has_function_privilege('weavdash_app', f, 'EXECUTE');
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'internal brand helper executable by runtime: %', unsafe; END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'organization_brand_provenance' AND tgenabled = 'O' AND tgdeferrable) THEN
+        RAISE EXCEPTION 'brand provenance trigger missing or disabled';
+    END IF;
+END $$;
 SELECT 'RLS_CHECKS_PASSED';

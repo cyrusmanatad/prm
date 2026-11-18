@@ -16,6 +16,7 @@ import UsageTable from '../features/admin/UsageTable.vue';
 import type { Entitlement } from '../features/admin/types';
 import { dateTime, entitlementStates, notificationStates, titleCase, workspaceTypes } from '../features/admin/format';
 import { allowed, type AdminContext } from '../features/admin/navigation';
+import { brandSources } from '../features/brand-requests/types';
 
 type Member = {
     user_id: number;
@@ -49,6 +50,17 @@ const props = defineProps<{
     };
     activity: ActivityRow[] | null;
     tab: string;
+    /** Brand workspaces only. `unrecorded` means the workspace predates review and the rollout has not recorded it. */
+    approval?: {
+        status: 'approved' | 'unrecorded';
+        source?: string;
+        request?: string;
+        approved_at?: string;
+        reviewer?: string | null;
+        operator?: string | null;
+        reason?: string;
+    } | null;
+    canReviewBrands?: boolean;
 }>();
 const context = computed(() => usePage<{ admin?: AdminContext }>().props.admin);
 const base = computed(() => `/admin/workspaces/${props.workspace.id}`);
@@ -138,6 +150,52 @@ const summary = computed(() => [
                     >
                 </DetailList>
                 <p class="wd-hint">The workspace type is fixed when it is created and cannot be changed.</p>
+            </ContentSection>
+            <ContentSection
+                v-if="approval"
+                title="Brand approval"
+                description="Approval allows this workspace to operate as a Brand. It is not a verified-business badge and does not include a subscription."
+            >
+                <template v-if="approval.status === 'approved'">
+                    <DetailList
+                        :items="[
+                            { key: 'status', label: 'Status' },
+                            {
+                                key: 'source',
+                                label: 'Source',
+                                value: brandSources[approval.source ?? ''] ?? approval.source,
+                            },
+                            { key: 'reviewer', label: 'Approved by', value: approval.reviewer },
+                            {
+                                key: 'operator',
+                                label: 'Recorded by',
+                                value: approval.operator ?? 'The reviewer, in this console',
+                            },
+                            { key: 'approved', label: 'Approved', value: dateTime(approval.approved_at) },
+                            { key: 'reason', label: 'Reason', value: approval.reason },
+                        ]"
+                    >
+                        <template #status><StatusBadge label="Approved" tone="success" /></template>
+                    </DetailList>
+                    <p v-if="approval.source === 'rollout'" class="wd-hint">
+                        This workspace existed before review was required. Its approval was recorded during the rollout,
+                        not from a signup review, and its creation date is unchanged.
+                    </p>
+                    <Link
+                        v-if="canReviewBrands && approval.request"
+                        :href="`/admin/brand-requests/${approval.request}`"
+                        class="wd-link inline-flex min-h-11 items-center"
+                        >{{ approval.source === 'rollout' ? 'View approval record' : 'View the request' }}</Link
+                    >
+                </template>
+                <template v-else>
+                    <p><StatusBadge label="No approval recorded" tone="warning" /></p>
+                    <p>
+                        This workspace was created before review was required and keeps its access. The offline rollout
+                        command records its approval.
+                    </p>
+                </template>
+                <p class="wd-hint">To pause this workspace's access later, use suspension below.</p>
             </ContentSection>
             <ContentSection title="Access actions">
                 <AccessChange kind="workspace" :reference="workspace.id" :name="workspace.name" :access="access" />

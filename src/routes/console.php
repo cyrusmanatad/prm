@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\AccountNotifications;
 use App\Services\BusinessSchedules;
 use App\Services\FollowUpDrafts;
 use App\Services\NotificationOutbox;
@@ -8,9 +9,10 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('notifications:dispatch', function (NotificationOutbox $outbox) {
+Artisan::command('notifications:dispatch', function (NotificationOutbox $outbox, AccountNotifications $account) {
     $this->info('Queued '.$outbox->dispatch().' pending notifications.');
-})->purpose('Reconcile and dispatch committed business notification intent');
+    $this->info('Queued '.$account->dispatch().' pending account notifications.');
+})->purpose('Reconcile and dispatch committed business and account notification intent');
 
 Schedule::command('notifications:dispatch')->everyMinute()->withoutOverlapping(2);
 
