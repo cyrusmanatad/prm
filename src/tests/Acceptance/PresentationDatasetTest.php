@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
 
 /** Run once against a fresh disposable database: this deliberately exercises a real commit. */
 class PresentationDatasetTest extends AcceptanceCase
@@ -171,7 +172,7 @@ class PresentationDatasetTest extends AcceptanceCase
     {
         $manifest = app(PresentationRegistrations::class)->manifest();
         $ids = array_column($manifest['registrations'], 'registration_id');
-        $count = fn () => $this->control->table('lead_registrations')->count();
+        $count = fn () => $this->control->table('lead_registrations')->whereIn('partnership_id', array_column($manifest['registrations'], 'partnership_id'))->count();
         $brand = User::findOrFail($roster['accounts'][0]['user_id']);
         $hub = fn () => $this->actingAs($brand)->withSession(['active_org_id' => $roster['accounts'][0]['workspace_id']])->getJson('/brand')->assertOk();
         $hub()->assertJsonPath('metrics.leadsRegistered', 0);
@@ -198,6 +199,7 @@ class PresentationDatasetTest extends AcceptanceCase
             $this->control->rollBack();
             $this->assertSame(0, $count());
         }
+        $this->registrationConcurrency($manifest, $roster);
         $before = now()->subSecond();
         $this->registrations();
         $this->assertSame(13, $count());
@@ -224,6 +226,57 @@ class PresentationDatasetTest extends AcceptanceCase
             ->assertJsonPath('registration.contact_email', null)->assertDontSee('usage-rights discussion')->assertDontSee('avery.lane@example.test');
         $this->assertSame(260, $this->control->table('pipeline_entries')->whereIn('org_id', array_column($manifest['registrations'], 'creator_org_id'))->whereNotIn('id', array_column($manifest['registrations'], 'pipeline_entry_id'))->count());
         // The base dataset still verifies after registrations exist.
-        $this->assertSame(28, $this->control->table('fixture_marks')->count());
+        $this->assertSame(28, $this->control->table('fixture_marks')->where('batch_id', $manifest['dataset']['batch_id'])->count());
+    }
+
+    private function registrationConcurrency(array $manifest, array $roster): void
+    {
+        $relationship = $manifest['registrations'][0]['partnership_id'];
+        // Revocation first: the seeder must actually wait, then see the committed revoked row.
+        $this->control->beginTransaction();
+        $this->control->table('partnerships')->where('id', $relationship)->update(['status' => 'revoked', 'revoked_at' => now()]);
+        $seeder = new Process([PHP_BINARY, 'tests/Fixtures/presentation-registration-probe.php'], base_path(), [
+            'APP_ENV' => 'testing', 'DB_USERNAME' => 'weavdash_migrator',
+            'DB_PASSWORD' => getenv('TEST_MIGRATION_DB_PASSWORD'), 'TEST_MIGRATION_DB_PASSWORD' => false,
+        ]);
+        $seeder->setTimeout(15);
+        $seeder->start();
+        try {
+            $this->eventually(fn () => str_contains($seeder->getOutput(), "\n"), 'Seeder probe did not connect.');
+            $this->assertBlocked($seeder);
+            $this->control->commit();
+            $this->assertSame('refused', $this->probeResult($seeder)['status']);
+            $this->assertSame(0, $this->control->table('lead_registrations')->whereIn('partnership_id', array_column($manifest['registrations'], 'partnership_id'))->count());
+        } finally {
+            $seeder->stop(0);
+        }
+        $this->control->table('partnerships')->where('id', $relationship)->update(['status' => 'active', 'revoked_at' => null]);
+
+        // Seeder first: product revocation waits, then withdraws the committed registration.
+        $this->control->beginTransaction();
+        $this->registrations();
+        $revoker = new Process([PHP_BINARY, 'tests/Fixtures/lead-registration-probe.php', 'revoke',
+            (string) $roster['accounts'][0]['user_id'], $manifest['brand']['org_id'], $relationship], base_path(), [
+                'APP_ENV' => 'testing', 'TEST_MIGRATION_DB_PASSWORD' => false,
+            ]);
+        $revoker->setTimeout(15);
+        $revoker->start();
+        try {
+            $this->eventually(fn () => str_contains($revoker->getOutput(), "\n"), 'Revocation probe did not connect.');
+            $this->assertBlocked($revoker);
+            $this->control->commit();
+            $this->assertSame('revoked', $this->probeResult($revoker)['status']);
+            $this->assertSame('withdrawn', $this->control->table('lead_registrations')->where('partnership_id', $relationship)->value('state'));
+            $this->assertSame(0, $this->control->table('lead_registrations as r')->join('partnerships as p', 'p.id', '=', 'r.partnership_id')
+                ->whereIn('r.id', array_column($manifest['registrations'], 'registration_id'))->where('r.state', 'active')->where('p.status', 'revoked')->count());
+        } finally {
+            $revoker->stop(0);
+        }
+        // Restore only these disposable test fixtures for the remaining creation/idempotency assertions.
+        $ids = array_column($manifest['registrations'], 'registration_id');
+        $this->control->table('lead_registrations')->whereIn('id', $ids)->delete();
+        $this->control->table('audit_logs')->where('event', 'staging.presentation_registration')->whereIn('subject_id', $ids)->delete();
+        $this->control->table('fixture_batches')->where('id', $manifest['batch_id'])->delete();
+        $this->control->table('partnerships')->where('id', $relationship)->update(['status' => 'active', 'revoked_at' => null]);
     }
 }

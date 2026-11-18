@@ -91,3 +91,7 @@ M3 implements capability transactions alongside member transactions: one-use inv
 **Confirmed D23:** M3A is next before M4. Shared identity supports separate registration/login and authorized context switching; explicit relationship records connect both portals. Review migrations and permissions before coding; retain existing pipeline storage/backend support. See [M3A handoff](../m3a/implementation-handoff.md).
 
 **M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](../m3a/portal-contract.md). See [status and current evidence](../m3a/status.md). Prior proposal text above records the planning sequence.
+
+## Mail-budget boundary (2026-11-18)
+
+**Confirmed targets, local implementation:** Laravel MessageSending accounts for direct verification/reset/monitoring SMTP and both outboxes using function-only PostgreSQL receipts on an independent committed connection. Array/log capture is exempt; active enforcement refuses unreviewed envelope expansion/composite transports. Existing minute admission and current approval/access checks remain; daily denial defers unsent outbox work without consuming minute slots. Policy is inactive until explicit migration-role activation after matching-runtime/provider checks. See [budget contract](../m5/sending-budget-proposal.md) and [release runbook](../m6/release-runbook.md).

@@ -7,11 +7,12 @@ RUN npm ci --ignore-scripts --no-audit --no-fund && npm run build
 
 FROM composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac AS composer
 FROM php:8.5-cli-bookworm@sha256:819080ed413631f6ec564184dd9acd08d9425bd863b9f8b5876b5ea2147d55e7
+COPY docker/install-redis.sh /usr/local/bin/weavdash-install-redis
 # PHP 8.5 already includes DOM (with Lexbor), mbstring, and SQLite.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      git unzip libpq-dev \
+      curl git unzip libpq-dev \
     && docker-php-ext-install -j2 pdo_pgsql pcntl \
-    && pecl install redis-6.3.0 && docker-php-ext-enable redis \
+    && sh /usr/local/bin/weavdash-install-redis \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 WORKDIR /var/www/html

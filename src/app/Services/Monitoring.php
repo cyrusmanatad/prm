@@ -27,6 +27,7 @@ class Monitoring
         'outbox_uncertain' => ['Notifications with an uncertain send need an operator resolution', 'unresolved notifications'],
         'mail_transport' => ['Notifications are deferred because mail or queue transport is unavailable', 'deferred notifications'],
         'delivery_budget' => ['Notifications are deferred by a delivery budget', 'deferred notifications'],
+        'mail_budget_usage' => ['Email attempts are approaching the daily budget', 'percent of the allocation'],
         'schedule_lateness' => ['Due schedules have not been materialized', 'seconds overdue for the oldest'],
         'upload_scan_backlog' => ['Uploaded documents are waiting for a scan result', 'documents'],
         'db_connections' => ['Database connections are near the server limit', 'percent of the limit'],
@@ -55,6 +56,14 @@ class Monitoring
             'upload_scan_backlog' => $snapshot['uploads_pending'],
             'db_connections' => (int) floor(100 * $snapshot['db_connections'] / max(1, $snapshot['db_connection_limit'])),
         ];
+        $mailBudget = json_decode(DB::selectOne('SELECT app_mail_budget_snapshot() AS data')->data, true, flags: JSON_THROW_ON_ERROR);
+        if ($mailBudget['enabled']) {
+            $values['mail_budget_usage'] = (int) floor(100 * max(
+                $mailBudget['rolling_total'] / $mailBudget['total_limit'],
+                $mailBudget['rolling_business'] / $mailBudget['business_limit'],
+                $mailBudget['rolling_account'] / $mailBudget['account_limit'],
+            ));
+        }
 
         $path = (string) config('monitoring.disk_path');
         $total = @disk_total_space($path);

@@ -1,0 +1,89 @@
+name: weavdash-m6-restore
+x-database: &database
+  image: postgres:16-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4
+  environment:
+    POSTGRES_DB: weavdash
+    POSTGRES_PASSWORD: ${READINESS_POSTGRES_PASSWORD:?}
+    APP_DB_PASSWORD: ${READINESS_DB_PASSWORD:?}
+    MIGRATION_DB_PASSWORD: ${READINESS_MIGRATION_PASSWORD:?}
+  labels:
+    weavdash.readiness: synthetic-disposable
+  healthcheck:
+    test: [CMD, pg_isready, -U, postgres, -d, weavdash]
+    interval: 1s
+    timeout: 3s
+    retries: 45
+  networks: [readiness]
+x-probe: &probe
+  image: ${READINESS_IMAGE:-weavdash-app:latest}
+  user: "${READINESS_UID:?}:${READINESS_GID:?}"
+  working_dir: /var/www/html
+  entrypoint: [php]
+  environment: &runtime
+    APP_ENV: testing
+    APP_KEY: ${READINESS_APP_KEY:?}
+    APP_DEBUG: "false"
+    APP_URL: http://readiness.invalid
+    DB_CONNECTION: pgsql
+    DB_HOST: source
+    DB_DATABASE: weavdash
+    DB_USERNAME: weavdash_app
+    DB_PASSWORD: ${READINESS_DB_PASSWORD:?}
+    CACHE_STORE: array
+    SESSION_DRIVER: array
+    QUEUE_CONNECTION: sync
+    MAIL_MAILER: array
+    LOG_CHANNEL: stderr
+    ONBOARDING_STORAGE_DRIVER: local
+    READINESS_FIXTURE: synthetic-disposable
+  labels:
+    weavdash.readiness: synthetic-disposable
+  volumes:
+    - ./src:/var/www/html:ro
+    - source-objects:/objects
+  networks: [readiness]
+services:
+  source:
+    <<: *database
+    volumes:
+      - source-data:/var/lib/postgresql/data
+      - ./src/docker/postgres/init.sh:/docker-entrypoint-initdb.d/10-weavdash.sh:ro
+  restored:
+    <<: *database
+    volumes:
+      - restored-data:/var/lib/postgresql/data
+      - ./src/docker/postgres/init.sh:/docker-entrypoint-initdb.d/10-weavdash.sh:ro
+  probe:
+    <<: *probe
+  migrate:
+    <<: *probe
+    environment:
+      <<: *runtime
+      DB_USERNAME: weavdash_migrator
+      DB_PASSWORD: ${READINESS_MIGRATION_PASSWORD:?}
+  restored-probe:
+    <<: *probe
+    environment:
+      <<: *runtime
+      DB_HOST: restored
+    volumes:
+      - ./src:/var/www/html:ro
+      - restored-objects:/objects
+  restored-control:
+    <<: *probe
+    environment:
+      <<: *runtime
+      DB_HOST: restored
+      DB_USERNAME: weavdash_migrator
+      DB_PASSWORD: ${READINESS_MIGRATION_PASSWORD:?}
+    volumes:
+      - ./src:/var/www/html:ro
+      - restored-objects:/objects
+networks:
+  readiness:
+    internal: true
+volumes:
+  source-data:
+  restored-data:
+  source-objects:
+  restored-objects:

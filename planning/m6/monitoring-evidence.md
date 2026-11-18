@@ -1,3 +1,5 @@
+**2026-11-18 local follow-up:** framework exception reporting and newly persisted database-UUID failed-job exception text now exclude messages, SQL/bindings, context and trace arguments. New mail-budget monitoring warns at 80% of either active allocation. Tests, scope and remaining custom-log/historical-payload/provider-spend limits are in [readiness evidence](readiness-evidence.md). Not deployed by this change; external alert ownership/provider and final checks remain open.
+
 # M6-03 monitoring verification — 2026-11-18
 
 Scope: first monitoring slice on `feat/monitoring`, working tree based on `0adb9c7`. [Contract](monitoring-contract.md). Local verification only: no staging or production migration, deployment or external mail. **M6-03 remains open.**

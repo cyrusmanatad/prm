@@ -33,6 +33,9 @@ class AccountNotifications
 
     public function deliver(string $id): void
     {
+        if (DB::connection()->transactionLevel() !== 0) {
+            throw new \LogicException('Account mail reservation must commit before transport.');
+        }
         // Never write to logs or silently fail over to them.
         $mailer = config('mail.default');
         $ready = in_array($mailer, ['smtp', 'array'], true) && ($mailer !== 'array' || app()->environment(['local', 'testing']));
@@ -40,14 +43,16 @@ class AccountNotifications
         $account = filter_var(config('notifications.account_per_minute'), FILTER_VALIDATE_INT, $options);
         $global = filter_var(config('notifications.global_per_minute'), FILTER_VALIDATE_INT, $options);
         // The reservation commits before SMTP is contacted: a queue retry or replayed job finds it already taken.
-        $reserved = json_decode(DB::selectOne('SELECT app_account_notification_reserve(?::uuid,?::boolean,?,?) AS data', [
+        $reserved = json_decode(DB::selectOne('SELECT app_account_notification_reserve_daily(?::uuid,?::boolean,?,?,?::boolean) AS data', [
             $id, $ready ? 'true' : 'false', $account === false ? null : $account, $global === false ? null : $global,
+            $mailer === 'array' ? 'false' : 'true',
         ])->data, true, flags: JSON_THROW_ON_ERROR);
         if ($reserved['outcome'] !== 'reserved') {
             return;
         }
         try {
-            Mail::mailer($mailer)->to($reserved['recipient'])->send(new BrandRequestOutcome($reserved['kind'], rtrim(config('app.url'), '/').'/brand/requests/'.$reserved['request'], $id));
+            Mail::mailer($mailer)->to($reserved['recipient'])->send((new BrandRequestOutcome($reserved['kind'], rtrim(config('app.url'), '/').'/brand/requests/'.$reserved['request'], $id))
+                ->with('mail_budget_receipt', $reserved['mail_budget_receipt'] ?? null));
             $state = $mailer === 'array' ? 'captured' : 'sent';
         } catch (Throwable) {
             // The outcome is ambiguous and exception text can hold addresses or credentials: record

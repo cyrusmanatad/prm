@@ -1,3 +1,29 @@
+**Current result (2026-11-18 UTC, staging `39520b4`):** the authorized P02–P09 receipt/link journeys passed using two fresh synthetic Mailinator inboxes, following the user's explicit authorization. P01/P10/P11 retain their November 14 acceptance. Numerical sending targets are now [approved and implemented locally](sending-budget-proposal.md); the active staging application has not been redeployed with that enforcement. Provider-wide sharing, billing controls, owner assignment and rollout acceptance remain open. Historical preparation below retains its original date/scope.
+
+## November 18 completed trials
+
+Actor A is a fresh verified Partner account; recipient B is a synthetic onboarding guest/outreach recipient, not a registered Brand account. No real customer or private CRM content was used. The user authorized public Mailinator inboxes after the existing account's trial sessions expired; their earlier form-opening confirmation was not correlated to a newly created invitation and is not used as trial proof.
+
+| Row / attempt start UTC | Receipt and actual journey |
+| --- | --- |
+| Extra account verification / 09:13 | Received signed verification email, verified A through the received link and opened its provisioned workspace. |
+| P02 original / 09:23; replacement / 09:32 | Both received; explicit Open invitation exchanges opened the protected form. Replacement revoked the old bound session (403); replacement save/reload retained data. |
+| P03 first / 09:35; second / 09:48 | Both generic submission notices arrived at A; each actual authenticated review link opened while its version was current. No submitted fields or documents disclosed. |
+| P04 / 09:45 | Correction email received; fresh return link opened, correction saved and resubmitted. |
+| P05 / 09:52 | Acceptance received; fresh received return link opened the read-only form; attempted edit returned 409. |
+| P06 / 09:56 | Reminder received with UTC due information; received workspace, contacts and Automation links opened under authentication. |
+| P07 / 10:03 | Weekly review received in UTC; scoped counts matched 1 due reminder / 0 pending onboarding reviews. Received links opened; recurring schedule withdrawn after one occurrence. |
+| P08 / 10:13 | Generic account-only review notice received and Automation link opened. No outreach recipient, subject, body or private CRM interpolation. |
+| P09 / 10:26 | Separately approved and explicitly sent exact harmless subject/body; actual received body matched and its approved-origin `/up` link returned 200. Received Reply-To header matched A. Approval alone created no outbound send. |
+
+Business trials used committed normal product actions, real scheduler/dispatcher, Redis worker and SMTP; no direct transport probe or forced outbox replay. Verification used the normal account path. Each fresh attempt was reserved in the private ceiling ledger before triggering, paced over one minute apart. All trial outbox rows completed as `sent`; no uncertain send or retry.
+
+**Ceiling reconciliation:** 11 new actual attempts today plus 3 historical attempts = **14 actual attempts total**. Two earlier unused reservations remain conservatively charged in the operator ledger, making **16/20 ledger slots**; no allowance was reclaimed. User reported 290 Brevo sends remaining before this day's trials. No purchase, upgrade or billing change occurred; SMTP cannot independently prove provider billing/account-wide usage.
+
+**Cleanup and environment:** A's optional mail preferences are off and both synthetic schedules are disabled; delivery history retained. Final read-only checks confirm matching `39520b4` app/worker/scheduler, HTTPS origin, SMTPS 465, rates 1/workspace and 2/global, no OOM, zero pending/sending/uncertain business intent and zero failed jobs. Standing staging SMTP configuration is retained; local development remains array capture. No new application deployment, password reset, existing-account credential change, queue flush or real-data cleanup. Raw message/header inspection and screenshots are temporary outside Git; no addresses, tokens, raw MIME or credentials retained here.
+
+The receipt/link portion of M5-09 is accepted for this controlled scope. Production budget activation/provider-wide accounting, sender/domain deliverability at representative load and inherited release/manual gates remain separate; M5/M6 are not declared complete.
+
 # M5-09 preflight and delivery evidence
 
 Date/base: 2026-11-14 (Asia/Shanghai), `c13e960`, branch `m5/provider-delivery-acceptance-2026-11-14`. Scope: [matrix, budget proposal and runbook](provider-delivery-acceptance.md). **Staging update deployed; P01/P10 receipt and links pass. P11 reset/login is resolved by explicit user confirmation; remaining delivery rows are pending. Production budget approval remains open.**

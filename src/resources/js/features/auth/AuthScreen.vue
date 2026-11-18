@@ -161,7 +161,7 @@ defineExpose({ clearPasswords });
                             />
                         </template>
                         <p v-else-if="email" class="wd-verification-email">
-                            We sent a link to <strong>{{ email }}</strong
+                            Email address to verify: {{ ' ' }}<strong>{{ email }}</strong
                             >.
                         </p>
                         <Button type="submit" class="wd-button wd-button-primary">{{

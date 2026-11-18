@@ -41,3 +41,9 @@ Before live data: restore database plus documents, test tenant isolation on depl
 - This is a diagnostic page, not monitoring or alerting. Monitoring is separate: a scheduled `monitor:check` with email/log alerts and a dead-man request is implemented and running on staging, not production ([monitoring contract](../m6/monitoring-contract.md)). M6-03 stays open.
 
 **Confirmed (D33):** the two founders are the platform owners. Staging holds both founders' owner grants (2026-11-17); the second founder's is not usable until an authenticator is enrolled. **Assumption / Open:** production provisioning and a rehearsed bootstrap and recovery on a disposable environment (handoff item B13). No production operator has been provisioned.
+
+## Readiness candidate follow-up (2026-11-18)
+
+**Locally verified:** source-offline encrypted database/document/key/active-mail-ledger restore, safe framework/new-failed-job exception metadata and active mail-allocation warnings. These checks add no production recovery or alert acceptance. Historical failed-job payloads and custom logs remain review work. [Readiness evidence](../m6/readiness-evidence.md) records limits.
+
+The [prepared release runbook](../m6/release-runbook.md) covers worker drain, protected backups, matching app/web images, migration-role schema/grants, inactive-by-default budget installation and explicit audited activation. Preserve the consumption ledger after activation; older sending images bypass accounting, so pause sending before any such rollback and use a compatible forward fix. Provider-wide/billing/operator inputs, actual chosen-topology drills and rollout approval remain required.
