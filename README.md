@@ -132,6 +132,8 @@ python3 src/scripts/check-secrets.py
 python3 src/scripts/check-clean-setup.py --project weavdash-m1-clean-review --port 8001
 ```
 
+Frontend CI checks npm advisories with `node scripts/check-npm-audit.mjs` (run from `src/`). It fails on any high or critical advisory except those listed in `src/scripts/npm-audit-exceptions.json`; each entry names one advisory and package, a reason and a review-by date, and fails the check once that date passes or the advisory no longer applies. Add an entry only when no fixed version exists.
+
 The pinned source scanner tests a synthetic positive control and scans tracked/nonignored current source, not Git history or ignored credentials. The setup runner requires Docker Compose, Python 3, Node 24/npm, and Chromium system libraries. It rejects existing project resources, copies source without local dependencies/configuration, generates new credentials, installs dependencies, runs the complete application suites, and removes its own services and volumes. Existing host/build/browser caches may be reused. A local run passed; [saved evidence](planning/evidence/m1/clean-setup.json) records its scope.
 
 The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Baseline remote GitHub execution passed; expanded Chromium/WebKit desktop/mobile coverage also passed on `264e8e3` (22 tests, two intentional skips; 40 axe scans with zero violations).

@@ -34,7 +34,9 @@ jobs:
           PRETTIER_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: npm run format:check:changed
       - name: Check dependency advisories
-        run: npm audit --audit-level=high
+        run: |
+          node scripts/check-npm-audit.mjs --self-test
+          node scripts/check-npm-audit.mjs
       - name: Check component types
         run: npm run typecheck
       - name: Test authentication and workspace interactions
