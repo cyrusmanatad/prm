@@ -1,5 +1,18 @@
 # Remaining Tasks Across Milestones
 
+## Brand lead visibility workstream
+
+**Confirmed — D38 (2026-11-18):** the user requested a comprehensive handoff for Claude to implement Brand-associated lead visibility and Partner records. Planning ready; implementation has not started. This narrow follow-up is separate from the remaining M8 payout/advanced PRM scope; staging execution and inherited release gates remain separate. See the [Claude handoff](brand-lead-visibility-handoff.md).
+
+| ID | Status | Required work / acceptance |
+| --- | --- | --- |
+| BLV-01 | not started | Finalize the explicit Brand registration/shared-profile contract and additive schema, narrow runtime/RLS grants, lifecycle/version/audit rules; preserve private CRM and existing data. |
+| BLV-02 | not started | Partner-side registration/shared-field/profile producer and withdrawal flow; no automatic name-based publication; transactional source/projection updates and revocation. |
+| BLV-03 | not started | Brand consolidated registrations, Partner record/related list and read-only registered-lead detail, filters and pagination with authorized allowlist projections. |
+| BLV-04 | not started | Global registered-lead card, per-Partner rolling 30-day counts and successful-login/relevant-shared-update activity; correct totals independent of roster pages. |
+| BLV-05 | not started | Paginated Brand Partner table, linked names/counts, accessible icon action with existing modal confirmation, shared components and desktop/mobile alignment. |
+| BLV-06 | not started | Real PostgreSQL isolation/lifecycle/concurrency, MFA-aware login attribution, metric boundaries, frontend/browser/rendering acceptance, concise evidence and deployment/backfill runbook. |
+
 ## Professional Hub priority checkpoint
 
 | ID | Status | Evidence / remaining boundary |
@@ -144,7 +157,7 @@ These remain available for later implementation. They are not waived, silently c
 |---|---|---|---|
 | M7-01 | Deferred | Full campaigns, deliverables, draft/proof-of-post approvals and deal rooms; commerce connector plus CSV fallback; order/refund ingestion, attribution and immutable commission ledger. Requires M6 and validated demand; test connector signatures/replays/order/refund invariants individually. | [M7 roadmap](implementation-roadmap.md), [future scope](mvp-scope.md#explicit-future-enhancements) |
 | M8-01 | Deferred | Provider onboarding and approved funds flow; settlements, payout/batch approvals, failed/unknown transfer reconciliation, Form 2307 workflow and claims. Requires M7 and business/provider approvals; no transfer is implied by existing manual receipts. | [M8 roadmap](implementation-roadmap.md), [D12](decisions.md), [future scope](mvp-scope.md) |
-| M8-02 | Deferred | Advanced brand PRM, tiers/incentives, recruitment automation, enablement, scorecards, opt-in rankings and B2B lead protection/conflicts. Basic connected portals are already implemented. | [M8 roadmap](implementation-roadmap.md), [D21–D24](decisions.md), [future scope](mvp-scope.md) |
+| M8-02 | Deferred | Advanced brand PRM, tiers/incentives, recruitment automation, enablement, scorecards, opt-in rankings and B2B lead protection/conflicts. Basic connected portals are already implemented; the narrower Brand lead visibility/Partner-record follow-up is tracked separately under BLV-01–BLV-06 ([handoff](brand-lead-visibility-handoff.md)). | [M8 roadmap](implementation-roadmap.md), [D21–D24](decisions.md), [future scope](mvp-scope.md) |
 | M9-01 | Deferred | Agency portfolios/delegation, white-labeling, enterprise federation/SSO/SCIM, CRM integrations and contractual residency/SLAs; dedicated tenant isolation where contracts justify it. Requires adoption and signed needs. | [M9 roadmap](implementation-roadmap.md), [authentication](auth-and-subscriptions.md), [future scope](mvp-scope.md) |
 | FUT-01 | Deferred | Optional Gmail/Outlook syncing, thread import/inbound reply detection and full mailbox behavior. Required app-sent email and logged-reply cancellation must work independently. | [D25](decisions.md), [email boundary](../m5/email-notifications.md) |
 | FUT-02 | Deferred | Optional opt-in AI pitch drafting; later fit/health/rate predictions, forecasts, summaries and seasonal re-pitches. Resolve provider, consent, data processing and budget before integration; the manual path cannot depend on AI. | [D08/D15](decisions.md), [MVP scope](mvp-scope.md), [M5 contract](../m5/notification-contract.md) |

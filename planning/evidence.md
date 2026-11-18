@@ -1,3 +1,7 @@
+**Brand lead visibility handoff (2026-11-18):** [requirements, code audit, implementation sequence and acceptance matrix](shared/brand-lead-visibility-handoff.md). Documentation-only review; relative links and planning consistency checked. No feature test/rendering/deployment evidence is claimed.
+
+**Staging presentation dataset (2026-11-18):** [provisioning, PostgreSQL isolation, backups and desktop/mobile verification](shared/staging-presentation-evidence.md).
+
 **M5 small-screen acceptance (2026-11-17):** the phone-width checks carried to Claude for M5-02 to M5-06 passed locally in Chromium at 390 and 320 px after small touch-target and readability fixes; see the [small-screen evidence](m5/small-screen-evidence.md). Provider delivery (M5-09) and inherited manual reviews remain open.
 
 **Brand workspace approval (2026-11-18):** [implementation, commands, rendering findings, rollout dry run and unverified gates](administration/brand-approval-evidence.md). Local disposable stack only; not deployed.

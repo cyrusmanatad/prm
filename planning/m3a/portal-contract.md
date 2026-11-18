@@ -1,3 +1,5 @@
+**Follow-up scope (2026-11-18, D38):** the user now requires explicit Brand-associated lead visibility, Partner records, working lead metrics/activity and paginated roster/icon actions. See the [Claude handoff](../shared/brand-lead-visibility-handoff.md). The contract below describes the delivered M3A baseline; broader sharing remains unimplemented until that follow-up ships. Private source CRM remains protected.
+
 # M3A portal and relationship contract
 
 **Confirmed:** implements D21–D23 under the user's implementation request. Existing M1–M3 evidence and manual release gates remain applicable.
