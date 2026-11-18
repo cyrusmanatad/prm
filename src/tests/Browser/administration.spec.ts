@@ -58,6 +58,11 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
     await login(page, email);
     // Selecting the workspace lets this same person act as its owner when approving support access later.
     await page.getByRole('button', { name: /Role test workspace/ }).click();
+    // Without a platform grant the account menu does not offer administration.
+    await page.getByRole('button', { name: /Account menu/ }).click();
+    await expect(page.getByRole('menuitem', { name: 'Sign out' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Platform administration' })).toHaveCount(0);
+    await page.keyboard.press('Escape');
     const { secret, peer, peerEmail } = seedAdministrator(email);
     // Codes are single use and only valid near the current 30-second step, so take a fresh, newer one each time.
     let used = 0;
@@ -77,6 +82,12 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
         // Take the next step: the confirmation checks that follow can outlast the current 30-second window.
         await page.getByLabel('Your authenticator code', { exact: true }).fill(await code(1));
     };
+
+    // With a grant the account menu links to administration, which still asks for verification.
+    await page.reload();
+    await page.getByRole('button', { name: /Account menu/ }).click();
+    await page.getByRole('menuitem', { name: 'Platform administration' }).click();
+    await expect(page).toHaveURL(/\/admin\/security$/);
 
     // An unverified visit returns to the challenge and then to the page that was asked for.
     await page.goto('/admin/accounts');
