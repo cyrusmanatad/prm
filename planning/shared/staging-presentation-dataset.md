@@ -67,13 +67,13 @@ Set `PRESENTATION_EXERCISE_EDITS=1` to exercise and restore stage/reminder chang
 
 See [implementation and staging verification](staging-presentation-evidence.md) for backup identifiers, execution time and results. Fixture inventory and cleanup planning use the existing administration console; no cleanup execution is introduced.
 
-## Demonstration lead registrations (prepared, not run)
+## Demonstration lead registrations
 
-**Proposal, prepared 2026-11-18 for review. Nothing has been written to staging.** Running it needs explicit authorization.
+**Executed on staging 2026-11-18 07:54:37 UTC on the user's go-ahead:** 13 registrations created, 260 leads left private; see the [staging record](staging-deployment.md). The text below describes the manifest as prepared and reviewed.
 
 Manifest `src/database/fixtures/northline-registrations-v1.json` and command `staging:seed-presentation-registrations` register each Partner's one **Northline Living** lead with the Northline Living Brand: 13 registrations, so the Brand hub shows `Leads registered` 13 and each Partner `Leads (30d)` 1. The other 260 leads stay private. `northline-living-v1.json` is not edited; the new manifest records its checksum and refuses to run against any other dataset file.
 
-| Partner | Lead name shown to the Brand | Stage on staging now |
+| Partner | Lead name shown to the Brand | Stage when prepared |
 | --- | --- | --- |
 | Aiko Slow Home | Tokyo mindful home routines campaign | Lost |
 | Amara Everyday | Lagos family rituals campaign | Negotiating |
@@ -104,7 +104,9 @@ Manifest `src/database/fixtures/northline-registrations-v1.json` and command `st
 
 **Verification:** `PresentationDatasetTest` (fresh disposable database, real runtime and migration roles): 1 test, 197 assertions, passed. It covers refusal outside staging mode and for the runtime role, dry run, the three conflict cases, creation, repeat, partial-set refusal, and the Brand seeing exactly 13 leads with no private field.
 
-**To run, once authorized** (from `/home/cyrusadmin/weavdash-staging`, after deploying an image that contains the command and taking a database backup):
+**Update (2026-11-18 UTC):** image `22fffe0`, which contains the command, is deployed, and a dry run on staging reported `would_create`, 13 registrations and 260 leads left private ([record](staging-deployment.md)). The write was then run once on the user's go-ahead.
+
+**Commands used** (from `/home/cyrusadmin/weavdash-staging`, after taking a database backup):
 
 ```sh
 docker compose --env-file staging.env -f compose.staging.yaml -f compose.staging-mail-trial.yaml run --rm -T migrate php artisan staging:seed-presentation-registrations --dry-run
