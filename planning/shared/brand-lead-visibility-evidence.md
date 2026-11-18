@@ -50,10 +50,12 @@ Chromium, inspected by temporary full-page captures (written outside the reposit
 - **WebKit:** the host lacks WebKit system libraries (`browserType.launch` refused); only Chromium ran. Native Safari, screen-reader and browser-zoom review were not done.
 - **Full browser suite and clean-setup runner:** only the new journey and the five affected specs ran.
 - **ClamAV-dependent and SMTP-fault acceptance tests:** not available in this stack (see the table).
-- **Staging and production:** nothing was migrated, seeded or deployed. Behaviour with the real staging dataset is unverified.
+- **Staging:** deployed after merge on 2026-11-18 UTC at `daffb3b`; see the [staging record](staging-deployment.md). Migration, grants, data preservation and unauthenticated checks passed. No signed-in check of the new screens was made there and no registration was seeded. Production: nothing done.
 - **Scale:** list and roster queries were exercised with tens of rows, not measured at volume.
 
 ## Staging runbook (not executed)
+
+**Update (2026-11-18 UTC):** steps 1–3 were executed on the user's authorization after PR #38 merged; the [staging record](staging-deployment.md) has the results. Step 4 (signed-in check) and step 5 (demonstration registrations) were not done. The text below is the runbook as prepared.
 
 Requires its own authorization; the earlier presentation-seeding authorization does not cover it.
 
