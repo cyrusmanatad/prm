@@ -1,3 +1,5 @@
+**Staging at `39520b4` (2026-11-18 UTC):** the optional `This lead is for` field on the Partner Add lead form is deployed; no migration and no data change. A signed-in check remains open. See the [staging record](shared/staging-deployment.md).
+
 **Brand lead visibility demonstration data on staging (2026-11-18 UTC):** staging runs `22fffe0`; the 13 Northline Living demonstration registrations were written once on the user's go-ahead, leaving the other 260 leads private. A signed-in check of the screens remains open. See the [staging record](shared/staging-deployment.md) and the [manifest notes](shared/staging-presentation-dataset.md#demonstration-lead-registrations).
 
 **Brand lead visibility on staging (2026-11-18 UTC, D38):** merged to `main` at `daffb3b` (PR #38) and deployed to staging with its migration and refreshed runtime grants; existing data unchanged and nothing published. Signed-in checks of the new screens and any demonstration registrations remain open. See the [staging record](shared/staging-deployment.md).
