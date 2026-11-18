@@ -34,3 +34,6 @@ Thumbs.db
 /storage.env
 /staging.env
 /reviewers.json
+
+# Private presentation login roster; never commit account passwords.
+/docs/demo-stg.json

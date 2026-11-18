@@ -1,3 +1,5 @@
+**Brand lead visibility follow-up (2026-11-18, D38):** a [Claude implementation handoff](../shared/brand-lead-visibility-handoff.md) now specifies Brand-associated registrations, Partner/lead detail, roster pagination/icon action and lead/activity metrics. Implementation not started; this does not revise historical baseline acceptance or complete broader M8.
+
 # M3A Connected Portals Status
 
 **Current UI disposition (2026-10-25):** UI-02 pipeline correctness is locally verified; UI-05 mobile interaction, shared tokens, production-component visual fixture and stale browser assertions are repaired. Both portal fixtures have 1440/1024/390px evidence and bounded horizontal scrolling. Broader reference/deviation acceptance remains pending; exact parity is not claimed for the functional pipeline additions. UI-06/UI-07 and inherited release gates remain open. See [repair evidence](../m2/pipeline-repair-2026-10-25-evidence.md) and the [register](../shared/remaining-tasks.md).
