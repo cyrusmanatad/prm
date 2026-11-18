@@ -136,6 +136,20 @@ The pinned source scanner tests a synthetic positive control and scans tracked/n
 
 The frontend workflow checks dependency advisories, types, interactions, and the application build. The backend workflow includes desktop/mobile Chromium journeys after migration and isolation checks. Baseline remote GitHub execution passed; expanded Chromium/WebKit desktop/mobile coverage also passed on `264e8e3` (22 tests, two intentional skips; 40 axe scans with zero violations).
 
+## Readiness rehearsal and email limits
+
+Run the synthetic encrypted restore check from the repository root after building a compatible local PHP image and installing `src/vendor`:
+
+```sh
+python3 src/scripts/check-backup-restore.py \
+    --project weavdash-m6-restore-local \
+    --image weavdash-app:latest
+```
+
+Requires Docker Compose and GPG. The runner refuses existing resources, publishes no ports, starts no sending processes and removes its own synthetic databases, document volumes and temporary key/backup material. It checks source-offline recovery, table/document fingerprints, matching keys, runtime tenant isolation and active email-budget consumption. It does not establish production RPO/RTO or actual off-host/R2 recovery. See [readiness evidence](planning/m6/readiness-evidence.md) and the [prepared release runbook](planning/m6/release-runbook.md).
+
+The [approved email targets](planning/m5/sending-budget-proposal.md) are 250 total attempts, 200 business and 50 reserved per day, with rolling 24-hour safety and the existing business minute limits. The migration installs an **inactive** policy; audited migration-role `mail:budget-policy` controls activation after provider-wide allowance and matching-runtime checks. Array/log capture consumes no provider allowance. Do not delete consumption or roll back to an older sending image after activation. The Docker Redis installer verifies the official pinned source checksum and retries downloads.
+
 ## Milestone status
 
 M5-08 adds explicit approved follow-up email, account-only opt-in review notices, delivery backoff/rate controls and MFA-protected operator diagnostics. See the [contract and remaining production gates](planning/m5/delivery-operations-contract.md). Local synthetic verification does not establish provider receipt or approved production budgets.

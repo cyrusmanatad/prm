@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\MailBudgetExceeded;
 use App\Jobs\DeliverNotification;
 use App\Mail\FollowUpNotice;
 use App\Mail\OnboardingInvitation;
@@ -181,9 +182,11 @@ class NotificationOutbox
                 : decrypt($row->encrypted_payload);
             DB::table('notification_outbox')->where('id', $id)->update(['state' => 'sending', 'started_at' => now(), 'failure_code' => null]);
 
+            $mail = $lifecycle ? new OnboardingLifecycle($row->kind, $payload['url'], $invite->expires_at, $id)
+                : ($onboarding ? new OnboardingInvitation($payload['url'], $invite->expires_at, $id) : new PartnerInvitation($payload, $invite->expires_at, $id));
+
             return [$onboarding ? $payload['recipient'] : $invite->recipient_email,
-                $lifecycle ? new OnboardingLifecycle($row->kind, $payload['url'], $invite->expires_at, $id)
-                    : ($onboarding ? new OnboardingInvitation($payload['url'], $invite->expires_at, $id) : new PartnerInvitation($payload, $invite->expires_at, $id)), $mailer];
+                $mail->with('mail_budget_receipt', $row->mail_budget_receipt ?? null)->with('mail_budget_category', 'business'), $mailer];
         }, requireMembership: false);
         if (! $message) {
             return;
@@ -229,8 +232,9 @@ class NotificationOutbox
         ] : [];
         DB::table('notification_outbox')->where('id', $row->id)->update(['state' => 'sending', 'started_at' => now(), 'failure_code' => null]);
 
-        return [$user->email, new ScheduledNotice($row->kind, $schedule->timezone,
-            CarbonImmutable::parse($run->due_at)->setTimezone($schedule->timezone)->format('Y-m-d H:i P'), $row->org_id, $row->id, $summary), $mailer];
+        return [$user->email, (new ScheduledNotice($row->kind, $schedule->timezone,
+            CarbonImmutable::parse($run->due_at)->setTimezone($schedule->timezone)->format('Y-m-d H:i P'), $row->org_id, $row->id, $summary))
+            ->with('mail_budget_receipt', $row->mail_budget_receipt ?? null)->with('mail_budget_category', 'business'), $mailer];
     }
 
     private function reserveFollowUp(object $row, object $draft): ?array
@@ -252,7 +256,8 @@ class NotificationOutbox
         ])->validate();
         DB::table('notification_outbox')->where('id', $row->id)->update(['state' => 'sending', 'started_at' => now(), 'failure_code' => null]);
 
-        return [$recipient, new FollowUpNotice($review, $row->id, $review ? '' : $draft->subject, $review ? '' : $draft->body, User::findOrFail($row->actor_id)->email), $mailer];
+        return [$recipient, (new FollowUpNotice($review, $row->id, $review ? '' : $draft->subject, $review ? '' : $draft->body, User::findOrFail($row->actor_id)->email))
+            ->with('mail_budget_receipt', $row->mail_budget_receipt ?? null)->with('mail_budget_category', 'business'), $mailer];
     }
 
     private function budget(object $row): bool
@@ -266,7 +271,26 @@ class NotificationOutbox
 
             return false;
         }
-        $reason = DB::selectOne('SELECT app_notification_budget(?,?) AS reason', [$workspace, $global])->reason;
+        try {
+            // Roll back minute consumption when a daily denial would otherwise starve eligible mail.
+            $reason = DB::transaction(function () use ($row, $workspace, $global): ?string {
+                $minute = DB::selectOne('SELECT app_notification_budget(?,?) AS reason', [$workspace, $global])->reason;
+                if ($minute !== null) {
+                    return $minute;
+                }
+                if (config('mail.default') === 'smtp') {
+                    $daily = app(MailBudget::class)->reserve('business');
+                    if ($daily['status'] === 'limited') {
+                        throw new MailBudgetExceeded;
+                    }
+                    $row->mail_budget_receipt = $daily['receipt'] ?? null;
+                }
+
+                return null;
+            });
+        } catch (MailBudgetExceeded) {
+            $reason = 'global_budget';
+        }
         if ($reason !== null) {
             $this->defer($row, $reason);
 

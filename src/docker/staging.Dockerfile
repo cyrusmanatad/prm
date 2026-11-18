@@ -6,9 +6,10 @@ COPY resources ./resources
 RUN npm ci --ignore-scripts --no-audit --no-fund && npm run build
 FROM composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac AS composer
 FROM php:8.5-fpm-bookworm@sha256:eec275cd99580e0a6e103dd343a7c160c86917003f6b9bba2d4c75d82419c683 AS app
-RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev unzip \
+COPY docker/install-redis.sh /usr/local/bin/weavdash-install-redis
+RUN apt-get update && apt-get install -y --no-install-recommends curl libpq-dev unzip \
     && docker-php-ext-install -j2 pdo_pgsql pcntl \
-    && pecl install redis-6.3.0 && docker-php-ext-enable redis \
+    && sh /usr/local/bin/weavdash-install-redis \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 WORKDIR /var/www/html

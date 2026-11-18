@@ -86,3 +86,7 @@ The PDF requests consent records, AI consent, export/deletion, encrypted TINs/pa
 **Confirmed D23:** role-specific registration creates a creator or brand workspace. Existing users reuse their identity and switch authorized contexts. Login pages share email/password/recovery form structure and a link to the other login, with partner burgundy and brand white headers. Brand invitations require partner acceptance; removal preserves private records. See [M3A handoff](../m3a/implementation-handoff.md).
 
 **M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](../m3a/portal-contract.md). See [status and current evidence](../m3a/status.md). Prior proposal text above records the planning sequence.
+
+## Capped account email (2026-11-18)
+
+**Implemented locally:** active provider-budget exhaustion preserves account creation and login but reports verification paused. Verification resend reports temporary unavailability through the shared 503 page. Password reset retains identical generic known/unknown-account feedback and normal throttles, preventing budget-dependent account enumeration. SMTP attempts use the reserved account/security/operational allocation; pending account-outbox decisions defer before transport. See [budget contract](../m5/sending-budget-proposal.md) and [verification](../m6/readiness-evidence.md).

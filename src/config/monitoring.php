@@ -30,6 +30,7 @@ return [
         'outbox_uncertain' => ['limit' => 1, 'hold' => 0],
         'mail_transport' => ['limit' => 1, 'hold' => 300],
         'delivery_budget' => ['limit' => 1, 'hold' => 600],
+        'mail_budget_usage' => ['limit' => 80, 'hold' => 0],
         'schedule_lateness' => ['limit' => (int) env('MONITORING_SCHEDULE_LATE', 600), 'hold' => 0],
         'upload_scan_backlog' => ['limit' => 1, 'hold' => 900],
         'db_connections' => ['limit' => (int) env('MONITORING_DB_CONNECTIONS_PERCENT', 80), 'hold' => 180],

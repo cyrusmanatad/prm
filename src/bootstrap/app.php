@@ -1,5 +1,7 @@
 <?php
 
+use App\Exceptions\MailBudgetExceeded;
+use App\Exceptions\ReportSanitizedException;
 use App\Http\Middleware\EnforceAccountAccess;
 use App\Http\Middleware\EnforceOwnerMfa;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -26,11 +28,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()->hasVerifiedEmail() ? '/workspaces' : '/verify-email');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->dontReport([MailBudgetExceeded::class]);
         $exceptions->report(function (PDOException $exception) {
             if (($exception->errorInfo[0] ?? null) === 'P0004') {
                 return false;
             }
         });
+        $exceptions->report(fn (Throwable $exception) => app(ReportSanitizedException::class)($exception));
+        $exceptions->render(fn (MailBudgetExceeded $exception, Request $request) => $request->expectsJson() && ! $request->header('X-Inertia')
+            ? response()->json(['message' => $exception->getMessage()], 503)->header('Retry-After', '3600')
+            : response('', 503)->header('Retry-After', '3600'));
         $exceptions->render(function (PDOException $exception, Request $request) {
             if (($exception->errorInfo[0] ?? null) !== 'P0004') {
                 return null;

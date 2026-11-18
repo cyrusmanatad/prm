@@ -55,11 +55,17 @@ class PresentationRegistrations
             $batch = DB::table('fixture_batches')->where('id', $manifest['batch_id'])->first();
             $this->require($batch === null || ($batch->name === self::VERSION && $batch->reason === $proof), 'Registration batch ownership or manifest mismatch.');
             $this->require($batch !== null || ! DB::table('fixture_batches')->where('name', self::VERSION)->exists(), 'Conflicting fixture batch.');
+            // Match product lock order: all partnerships before any source lead. A revocation that
+            // commits first is rejected below; a later revocation waits and withdraws our new rows.
+            $partnerships = DB::table('partnerships')->whereIn('id', array_column($rows, 'partnership_id'))
+                ->orderBy('id')->sharedLock()->get()->keyBy('id');
             $plan = [];
             foreach ($rows as $row) {
                 // Sources and targets must be presentation records, still connected, and still the listed lead.
                 $this->require(DB::table('fixture_marks')->where(['batch_id' => $dataset->id, 'subject' => 'workspace', 'org_id' => $row['creator_org_id']])->exists(), 'Not a presentation Partner workspace: '.$row['partner']);
-                $this->require(DB::table('partnerships')->where(['id' => $row['partnership_id'], 'brand_org_id' => $brand, 'creator_org_id' => $row['creator_org_id'], 'status' => 'active'])->exists(), 'Partnership is not active for '.$row['partner']);
+                $partnership = $partnerships->get($row['partnership_id']);
+                $this->require($partnership !== null && $partnership->brand_org_id === $brand
+                    && $partnership->creator_org_id === $row['creator_org_id'] && $partnership->status === 'active', 'Partnership is not active for '.$row['partner']);
                 $entry = DB::table('pipeline_entries')->where(['id' => $row['pipeline_entry_id'], 'org_id' => $row['creator_org_id']])->lockForUpdate()->first();
                 $this->require($entry !== null && $entry->brand_name === $manifest['source_company'], 'Source lead is missing or no longer the listed lead for '.$row['partner']);
                 $owner = DB::table('memberships')->where(['org_id' => $row['creator_org_id'], 'role' => 'owner'])->whereNull('revoked_at')->orderBy('user_id')->value('user_id');

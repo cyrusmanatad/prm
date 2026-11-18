@@ -171,3 +171,11 @@ This authorizes no implementation; code still waits for the user's explicit go-a
 **Implementation (2026-11-18):** the defaults Claude settled (shared fields, roles, page sizes, lifecycle and sign-in attribution) are recorded in the [contract](brand-lead-visibility-contract.md) as implementation choices, with [evidence](brand-lead-visibility-evidence.md). They are not additional user-confirmed decisions.
 
 See the [Claude implementation handoff](brand-lead-visibility-handoff.md) for scope, observed code gaps, recommended explicit registration/profile/auth design, data preservation, staging considerations and acceptance. Exact optional profile fields, route/schema names, page size, role details and login attribution are marked **Proposal / implementation defaults**, not additional user-confirmed decisions. Preserve existing permissions, MFA, suspension, approvals, entitlements and release gates.
+
+## D39 — M5 completion and M6 readiness continuation
+
+**Confirmed (2026-11-18):** proceed with M5 email trials and sending-budget decisions, then M6 launch readiness, fixing the staging seeder race and CI failures along the way. Preserve earlier gates; this is not commercial launch acceptance or production deployment authorization.
+
+**Confirmed budget targets:** retain 1 business send/workspace/minute, 2 globally/minute and zero incremental spend. The user selected 250 total email attempts per UTC day, at most 200 business and 50 reserved for account/security/operational mail, as implementation targets after reviewing the [proposal](../m5/sending-budget-proposal.md). Implementation additionally applies the same bound over rolling 24 hours to avoid a reset-time assumption. Provider-wide shared consumption, activation/rollout and incident ownership remain separate gates.
+
+**Confirmed trial scope:** the user reported 290 remaining provider sends today, initially retained the prior controlled inbox, then explicitly authorized fresh synthetic Partner/Brand/Professional addresses on Mailinator and checking their inboxes. Use the selected synthetic account/recipient aliases in private records and the existing 20-attempt lifetime ceiling, including the 3 prior attempts. No existing user's password reset, permission change, paid upgrade or new production recipient is authorized. Public test inboxes receive synthetic content only.

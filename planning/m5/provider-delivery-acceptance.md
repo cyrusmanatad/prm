@@ -1,3 +1,5 @@
+**2026-11-18 update:** the authorized controlled receipt/link matrix is complete for P01–P11; see the [dated results and ceiling reconciliation](provider-delivery-evidence.md#november-18-completed-trials). The user subsequently authorized synthetic Mailinator recipients and approved [250/200/50 implementation targets](sending-budget-proposal.md). Those later decisions supersede the original recipient/budget preparation below. Enforcement is locally verified and inactive by default; production activation/provider-wide acceptance remain open.
+
 # M5-09 provider delivery and link acceptance
 
 Scope/date/base: 2026-11-14, `c13e960` (merged PR #16), branch `m5/provider-delivery-acceptance-2026-11-14`. **Confirmed:** recovery implementation and its CI repair are complete. This handoff covers delivery and link opening alongside actual budget approval. [Requirements](email-notifications.md#delivery-acceptance), [operations contract](delivery-operations-contract.md), [remaining tasks](../shared/remaining-tasks.md), [results](provider-delivery-evidence.md).

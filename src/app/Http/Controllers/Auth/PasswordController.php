@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\MailBudgetExceeded;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
@@ -19,7 +20,12 @@ class PasswordController extends Controller
     public function sendLink(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate(['email' => ['required', 'email']]);
-        Password::sendResetLink($request->only('email'));
+        try {
+            Password::sendResetLink($request->only('email'));
+        } catch (MailBudgetExceeded) {
+            // Keep the same recovery response for existing and unknown accounts, even at the cap.
+            // "Requested" does not claim transport acceptance or receipt; budget monitoring reports the pause.
+        }
 
         // Use the same response whether or not an account exists.
         return $this->completed($request, ['message' => 'If the account exists, a reset link has been requested.'], '/forgot-password');

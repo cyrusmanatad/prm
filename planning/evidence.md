@@ -1,3 +1,5 @@
+**M5/M6 continuation (2026-11-18):** [seeder/CI repairs, budget enforcement, framework log redaction and synthetic database/document/key restore](m6/readiness-evidence.md); [budget targets and rollout gates](m5/sending-budget-proposal.md); [provider receipt/link trial](m5/provider-delivery-evidence.md). Local fixes are not deployed; no production acceptance.
+
 **Brand lead visibility (2026-11-18):** [commands, results, rendering findings, unverified gates and staging runbook](shared/brand-lead-visibility-evidence.md) for the [contract](shared/brand-lead-visibility-contract.md). Local disposable stacks only; not deployed. The earlier [handoff](shared/brand-lead-visibility-handoff.md) was a documentation-only review.
 
 **Staging presentation dataset (2026-11-18):** [provisioning, PostgreSQL isolation, backups and desktop/mobile verification](shared/staging-presentation-evidence.md).
