@@ -28,6 +28,6 @@ class BrandRequestOutcome extends Mailable
 
     public function content(): Content
     {
-        return new Content(text: 'mail.brand-request-outcome');
+        return new Content(markdown: 'mail.html.brand-request-outcome', text: 'mail.brand-request-outcome');
     }
 }

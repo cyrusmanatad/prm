@@ -23,6 +23,6 @@ class PartnerInvitation extends Mailable
 
     public function content(): Content
     {
-        return new Content(text: 'mail.partner-invitation');
+        return new Content(markdown: 'mail.html.partner-invitation', text: 'mail.partner-invitation');
     }
 }

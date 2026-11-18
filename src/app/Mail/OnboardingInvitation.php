@@ -23,6 +23,6 @@ class OnboardingInvitation extends Mailable
 
     public function content(): Content
     {
-        return new Content(text: 'mail.onboarding-invitation');
+        return new Content(markdown: 'mail.html.onboarding-invitation', text: 'mail.onboarding-invitation');
     }
 }

@@ -23,6 +23,6 @@ class ScheduledNotice extends Mailable
 
     public function content(): Content
     {
-        return new Content(text: 'mail.scheduled-notice', with: ['origin' => rtrim(config('app.url'), '/')]);
+        return new Content(markdown: 'mail.html.scheduled-notice', text: 'mail.scheduled-notice', with: ['origin' => rtrim(config('app.url'), '/')]);
     }
 }
