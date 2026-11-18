@@ -1,0 +1,160 @@
+{
+    "version": "northline-registrations-v1",
+    "purpose": "Staging presentation only: registers each Partner's one Northline Living lead with the Northline Living Brand so the Brand hub shows 13 registrations. The other 260 leads stay private.",
+    "dataset": {
+        "version": "northline-living-v1",
+        "sha256": "8114860b2ee9df2da75c7e263846655d85d0b1c8cbefe7ebf31ea5069d166025",
+        "batch_id": "c3071de7-1dbc-53f7-94f7-5864ed5dcdc3"
+    },
+    "batch_id": "c7755b1a-cd96-58ac-93a8-a126bfa02013",
+    "brand": {
+        "name": "Northline Living",
+        "org_id": "28878e48-32b6-5569-8f49-2f618b32f0d5"
+    },
+    "source_company": "Northline Living",
+    "registrations": [
+        {
+            "partner": "maya-chen",
+            "partner_name": "Maya Chen Studio",
+            "partnership_id": "072201d3-c88d-5a7b-ad3c-26c607935bf9",
+            "creator_org_id": "77f1d88e-9e80-59bd-bb40-e3aea12ca083",
+            "pipeline_entry_id": "28471efe-ff13-580e-b0b2-f02d64bd47e4",
+            "registration_id": "dbf828ca-c28f-5f2f-a3e1-2ea52c0a06d7",
+            "display_name": "Singapore small-space living campaign",
+            "summary": "Invented presentation data. Singapore small-space living: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "oliver-reed",
+            "partner_name": "Reed & Room",
+            "partnership_id": "fb0bd579-fe7e-5282-8a8f-db7224c599c1",
+            "creator_org_id": "9184f6a8-000e-5407-809f-d923579d51e3",
+            "pipeline_entry_id": "4e87a18c-541f-52f1-a259-80d705fce05f",
+            "registration_id": "5e57cbc9-7f2c-5988-8b17-9cc4dbb078f4",
+            "display_name": "London modern interiors campaign",
+            "summary": "Invented presentation data. London modern interiors: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "amara-okafor",
+            "partner_name": "Amara Everyday",
+            "partnership_id": "47428fdd-59b8-56eb-a868-2e0946b38ba6",
+            "creator_org_id": "d01bca7d-d851-5961-b628-73721464d445",
+            "pipeline_entry_id": "a8dd97ac-02ee-5126-96d8-64e1244ed884",
+            "registration_id": "d6acfe1c-bb7b-56a6-a179-9142caa3b276",
+            "display_name": "Lagos family rituals campaign",
+            "summary": "Invented presentation data. Lagos family rituals: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "lucas-silva",
+            "partner_name": "Casa Silva Creative",
+            "partnership_id": "43dcbc74-3695-5d49-a5a6-c1ae6ea7a76f",
+            "creator_org_id": "339b6571-b89f-5a2f-abfb-28fc542eb84f",
+            "pipeline_entry_id": "c4eb65f1-8866-5257-a8cb-c150b07d691d",
+            "registration_id": "fb037368-93d5-5f8d-b93c-39f8b0cfc418",
+            "display_name": "São Paulo indoor-outdoor entertaining campaign",
+            "summary": "Invented presentation data. São Paulo indoor-outdoor entertaining: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "sofia-rossi",
+            "partner_name": "Studio Sofia Rossi",
+            "partnership_id": "9c2c029f-a1db-522b-8662-25cc4957e8fb",
+            "creator_org_id": "2a42c899-78fa-513a-a7ba-9df65362af90",
+            "pipeline_entry_id": "9e05e95f-976f-581d-baaa-a8f8a775c1e1",
+            "registration_id": "1fa65bb1-0f1c-580a-b04b-b3b77906cffb",
+            "display_name": "Milan table styling campaign",
+            "summary": "Invented presentation data. Milan table styling: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "noah-williams",
+            "partner_name": "North House Stories",
+            "partnership_id": "bbb28737-b1f8-5810-8744-93be50f2067f",
+            "creator_org_id": "35f30361-62fd-50c3-907c-f6e23e18a5dc",
+            "pipeline_entry_id": "632d2ca1-1e00-5217-9dce-b854fefc70d4",
+            "registration_id": "c92408df-0cc8-5c4e-adf0-d017f453ae25",
+            "display_name": "Toronto weekend hosting campaign",
+            "summary": "Invented presentation data. Toronto weekend hosting: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "aiko-tanaka",
+            "partner_name": "Aiko Slow Home",
+            "partnership_id": "0b94a37b-384b-5f60-a13f-a65ef56a73cd",
+            "creator_org_id": "1c0dafad-da34-5dac-a450-b0db1ed5592f",
+            "pipeline_entry_id": "528e5803-0678-527c-81df-a96a9b787431",
+            "registration_id": "1ada033b-4131-5b16-bc42-368f8f565800",
+            "display_name": "Tokyo mindful home routines campaign",
+            "summary": "Invented presentation data. Tokyo mindful home routines: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "ines-martin",
+            "partner_name": "Atelier Ines",
+            "partnership_id": "379eaa7b-15b8-5fe3-bb4b-07afb2287ab9",
+            "creator_org_id": "d6593de1-19c5-5a3d-a114-de9964485a79",
+            "pipeline_entry_id": "b28aeea3-c0be-5ab6-ae36-99439e69bcab",
+            "registration_id": "26217b98-43cf-53d1-b551-8108215d719b",
+            "display_name": "Paris textile and colour stories campaign",
+            "summary": "Invented presentation data. Paris textile and colour stories: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "daniel-kim",
+            "partner_name": "Seoul Space Agency",
+            "partnership_id": "8530ce93-c784-5bf7-b65a-d78496c51ca9",
+            "creator_org_id": "da889156-9e8d-54ba-b9ac-18bba3b24f65",
+            "pipeline_entry_id": "d0e10818-2aad-5004-9b66-1d106f50f903",
+            "registration_id": "ce74bb2a-bdb8-5ae1-bb89-73333f76df31",
+            "display_name": "Seoul compact apartment design campaign",
+            "summary": "Invented presentation data. Seoul compact apartment design: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "zara-hassan",
+            "partner_name": "Desert Light Collective",
+            "partnership_id": "8843ff2d-3c41-5901-b954-b5b1942b158f",
+            "creator_org_id": "4ee7e9be-7fbb-5a5d-b188-eb1e000dee13",
+            "pipeline_entry_id": "7ef6fbb9-16f5-5ec1-995e-1878e919d9a9",
+            "registration_id": "c9c3a859-c348-5d13-9d96-47bdf10e66e9",
+            "display_name": "Dubai warm-weather living campaign",
+            "summary": "Invented presentation data. Dubai warm-weather living: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "elena-garcia",
+            "partner_name": "Elena Casa",
+            "partnership_id": "88b2eabb-e2d6-5266-a81d-f3f844d886df",
+            "creator_org_id": "8dc9951c-ea96-568e-885a-2676e36abe3c",
+            "pipeline_entry_id": "9c83cd80-5a5c-55e9-84aa-5fe84747e730",
+            "registration_id": "a3030558-3d82-5f19-9bc4-852e9d3f9e5e",
+            "display_name": "Barcelona Mediterranean home styling campaign",
+            "summary": "Invented presentation data. Barcelona Mediterranean home styling: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "liam-murphy",
+            "partner_name": "Murphy Field Notes",
+            "partnership_id": "cd61529c-7b51-5624-9d27-afc593a899bf",
+            "creator_org_id": "4d2cca28-661a-5dc7-9e11-55136bb5d55c",
+            "pipeline_entry_id": "0a0a48e9-b31c-5370-988d-230c29800934",
+            "registration_id": "16667144-f3c5-56a5-a76b-1ea03fb0e836",
+            "display_name": "Dublin sustainable everyday essentials campaign",
+            "summary": "Invented presentation data. Dublin sustainable everyday essentials: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        },
+        {
+            "partner": "chloe-bennett",
+            "partner_name": "Bennett Living Studio",
+            "partnership_id": "556f1f74-2ed7-58b2-a3e7-9d00146fe153",
+            "creator_org_id": "434e5b57-688d-52b2-8ea6-ea16f45aa93a",
+            "pipeline_entry_id": "8fee9f14-7783-52f8-a544-b9279b5bb738",
+            "registration_id": "cbe738cc-950e-53d8-be9c-0b6afd9cfa8b",
+            "display_name": "Melbourne seasonal home refreshes campaign",
+            "summary": "Invented presentation data. Melbourne seasonal home refreshes: home essentials editorial and short-form video campaign. No actual commercial activity.",
+            "share_contact": false
+        }
+    ]
+}
