@@ -1,24 +1,43 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { router } from '@inertiajs/vue3';
-import AccountMenu from '../../components/AccountMenu.vue';
+import { computed, ref, watch } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
+import { UserRoundMinus } from '@lucide/vue';
+import BrandChrome from './BrandChrome.vue';
+import Pagination from '../../components/Pagination.vue';
 import StatusBadge from '../../components/StatusBadge.vue';
-import type { PortalData } from './types';
+import { dateTime, query } from '../admin/format';
+import { activityKinds, relativeTime } from './activity';
+import type { PartnerRow, PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
 // Synthetic reference content cannot be enabled in a production build.
 const fixture = import.meta.env.DEV && props.fixture === true;
-const initials = computed(() =>
-    props.data.account.name
-        .split(' ')
-        .map((p) => p[0])
-        .slice(0, 2)
-        .join(''),
-);
 defineEmits<{ invite: []; remove: [id: string, trigger: HTMLElement] }>();
+// Rows come from the server page. Older callers that pass only `relationships` get rows without figures.
+const partners = computed<PartnerRow[]>(
+    () =>
+        props.data.partners ??
+        props.data.relationships.map((row) => ({ ...row, leads_total: null, leads_30d: null, last_active: null })),
+);
+const pagination = computed(
+    () =>
+        props.data.partnerPagination ?? { page: 1, perPage: partners.value.length || 1, total: partners.value.length },
+);
+const applied = computed(() => props.data.partnerFilters?.q ?? '');
+const search = ref(applied.value);
+watch(applied, (value) => (search.value = value));
+const activePartners = computed(() => props.data.metrics?.activePartners ?? props.data.relationships.length);
+// Searching always returns to the first page; the address keeps the search for reload and Back/Forward.
+function searchPartners(): void {
+    router.get('/brand', search.value.trim() ? { q: search.value.trim() } : {}, { preserveScroll: true });
+}
+function clearSearch(): void {
+    router.get('/brand', {}, { preserveScroll: true });
+}
+const pageHref = (page: number) => `/brand${query({ q: applied.value, page })}`;
 const summary = computed(() => [
     {
         label: 'Active partners',
-        value: String(props.data.relationships.length),
+        value: String(activePartners.value),
         hint: 'Explicitly accepted partnerships',
     },
     {
@@ -26,7 +45,15 @@ const summary = computed(() => [
         value: props.data.canManage ? (props.data.joinLink ? 'Active' : 'Off') : 'Restricted',
         hint: props.data.canManage ? 'Manage in Invite partners' : 'Owner or admin access required',
     },
-    ...['Partner-sourced revenue', 'Leads registered', 'Days to first sale', 'Payouts due Friday'].map((label) => ({
+    { label: 'Partner-sourced revenue', value: 'Unavailable', hint: 'Not yet implemented' },
+    {
+        label: 'Leads registered',
+        value: props.data.metrics ? props.data.metrics.leadsRegistered.toLocaleString('en') : 'Unavailable',
+        hint: 'Leads partners currently share with you, all dates and stages',
+        href: props.data.metrics ? '/brand/lead-registrations' : undefined,
+        linkLabel: 'View lead registrations',
+    },
+    ...['Days to first sale', 'Payouts due Friday'].map((label) => ({
         label,
         value: 'Unavailable',
         hint: 'Not yet implemented',
@@ -34,88 +61,16 @@ const summary = computed(() => [
 ]);
 </script>
 <template>
-    <div
-        class="portal-ui min-h-screen bg-cream font-sans leading-[normal] text-ink"
-        @click="fixture && $event.preventDefault()"
+    <BrandChrome
+        current="hub"
+        :workspace-name="data.workspace.name"
+        :account-name="data.account.name"
+        :account-email="data.account.email"
+        :can-invite="data.canManage"
+        show-invite
+        :fixture="fixture"
+        @invite="$emit('invite')"
     >
-        <a class="wd-skip-link" href="#main-content">Skip to main content</a>
-        <header class="border-b border-line bg-white">
-            <div class="mx-auto flex max-w-[1408px] flex-wrap items-center gap-6 px-6 py-3.5">
-                <div class="flex items-center gap-2.5">
-                    <svg viewBox="0 0 128 120" width="36" height="34" role="img" aria-label="WeavDash logo">
-                        <circle cx="60" cy="60" r="52" fill="#E3C79A"></circle>
-                        <circle cx="60" cy="60" r="45" fill="#8E1650"></circle>
-                        <path
-                            d="M72.0 60.0 L106.0 60.0 M71.6 63.1 L104.4 71.9 M70.4 66.0 L99.8 83.0 M68.5 68.5 L92.5 92.5 M66.0 70.4 L83.0 99.8 M63.1 71.6 L71.9 104.4 M60.0 72.0 L60.0 106.0 M56.9 71.6 L48.1 104.4 M54.0 70.4 L37.0 99.8 M51.5 68.5 L27.5 92.5 M49.6 66.0 L20.2 83.0 M48.4 63.1 L15.6 71.9 M48.0 60.0 L14.0 60.0 M48.4 56.9 L15.6 48.1 M49.6 54.0 L20.2 37.0 M51.5 51.5 L27.5 27.5 M54.0 49.6 L37.0 20.2 M56.9 48.4 L48.1 15.6 M60.0 48.0 L60.0 14.0 M63.1 48.4 L71.9 15.6 M66.0 49.6 L83.0 20.2 M68.5 51.5 L92.5 27.5 M70.4 54.0 L99.8 37.0 M71.6 56.9 L104.4 48.1"
-                            stroke="#FBF7EF"
-                            stroke-width="2.4"
-                            stroke-linecap="round"
-                        ></path>
-                        <path
-                            d="M60.0 58.0 L60.3 57.9 L60.6 57.8 L60.9 57.8 L61.2 57.9 L61.5 57.9 L61.8 58.1 L62.1 58.2 L62.4 58.4 L62.7 58.7 L63.0 59.0 L63.2 59.4 L63.3 59.8 L63.5 60.2 L63.5 60.7 L63.5 61.1 L63.4 61.6 L63.3 62.1 L63.1 62.6 L62.8 63.0 L62.5 63.4 L62.1 63.8 L61.6 64.2 L61.1 64.4 L60.6 64.7 L60.0 64.8 L59.4 64.9 L58.7 64.9 L58.1 64.8 L57.5 64.6 L56.8 64.3 L56.2 64.0 L55.7 63.6 L55.2 63.1 L54.7 62.5 L54.4 61.8 L54.1 61.1 L53.8 60.4 L53.7 59.6 L53.7 58.8 L53.8 58.0 L54.0 57.2 L54.3 56.4 L54.7 55.6 L55.2 54.9 L55.8 54.3 L56.5 53.7 L57.3 53.2 L58.2 52.8 L59.1 52.5 L60.0 52.4 L61.0 52.3 L62.0 52.4 L62.9 52.6 L63.9 52.9 L64.8 53.4 L65.7 53.9 L66.5 54.6 L67.2 55.4 L67.8 56.3 L68.3 57.3 L68.7 58.3 L69.0 59.4 L69.1 60.6 L69.0 61.7 L68.9 62.9 L68.5 64.0 L68.1 65.1 L67.4 66.2 L66.7 67.1 L65.8 68.0 L64.8 68.8 L63.7 69.4 L62.5 69.9 L61.3 70.2 L60.0 70.4 L58.7 70.5 L57.3 70.3 L56.0 70.0 L54.8 69.5 L53.5 68.9 L52.4 68.1 L51.4 67.2 L50.4 66.1 L49.6 64.9 L49.0 63.6 L48.5 62.2 L48.2 60.7 L48.1 59.3 L48.2 57.7 L48.5 56.3 L48.9 54.8 L49.6 53.4 L50.4 52.1 L51.4 50.8 L52.5 49.7 L53.8 48.8 L55.2 48.0 L56.8 47.4 L58.4 47.0 L60.0 46.8 L61.7 46.7 L63.4 46.9 L65.0 47.4 L66.6 48.0 L68.1 48.8 L69.5 49.8 L70.8 51.1 L71.9 52.4 L72.9 53.9 L73.7 55.6 L74.2 57.3 L74.6 59.1 L74.7 60.9 L74.6 62.8 L74.2 64.6 L73.6 66.4 L72.8 68.1 L71.8 69.7 L70.5 71.2 L69.1 72.5 L67.5 73.7 L65.8 74.6 L63.9 75.3 L62.0 75.8 L60.0 76.1 L58.0 76.0 L55.9 75.8 L54.0 75.2 L52.0 74.5 L50.2 73.4 L48.5 72.2 L47.0 70.7 L45.7 69.1 L44.6 67.3 L43.7 65.3 L43.0 63.2 L42.6 61.1 L42.5 58.9 L42.7 56.7 L43.1 54.5 L43.8 52.4 L44.8 50.4 L46.1 48.5 L47.5 46.7 L49.2 45.2 L51.1 43.9 L53.2 42.8 L55.4 41.9 L57.6 41.4 L60.0 41.1 L62.4 41.2 L64.7 41.5 L67.1 42.1 L69.3 43.1 L71.4 44.3 L73.4 45.7 L75.2 47.5 L76.7 49.4 L78.0 51.5 L79.0 53.8"
-                            fill="none"
-                            stroke="#8FD0B8"
-                            stroke-width="5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        ></path>
-                        <path
-                            d="M79 53.8 C88 45 100 33 121 20"
-                            fill="none"
-                            stroke="#8FD0B8"
-                            stroke-width="7"
-                            stroke-linecap="round"
-                        ></path>
-                    </svg>
-                    <span class="font-display text-[20px] font-bold">WeavDash</span>
-                    <span class="rounded-full bg-blush px-2 py-[3px] text-[12px] font-bold text-brand"
-                        >Brand · {{ fixture ? 'Habi Home' : data.workspace.name }}</span
-                    >
-                </div>
-                <nav aria-label="Main" class="flex flex-auto flex-wrap gap-1">
-                    <a
-                        href="/brand"
-                        aria-current="page"
-                        class="rounded-lg bg-cream px-3 py-2 text-[14px] font-bold hover:text-brand"
-                        >Partner hub</a
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Lead registrations</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Campaigns</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Incentives</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Enablement</span
-                    >
-                    <span title="Unavailable in this milestone" class="px-3 py-2 text-[14px] text-ink-soft"
-                        >Payouts</span
-                    >
-                </nav>
-                <div class="flex items-center gap-3">
-                    <button
-                        type="button"
-                        :disabled="!fixture && !data.canManage"
-                        @click="$emit('invite')"
-                        class="rounded-[10px] bg-brand px-3.5 py-2.5 text-[14px] font-bold text-white"
-                    >
-                        + Invite partners
-                    </button>
-                    <AccountMenu
-                        :account-name="data.account.name"
-                        :account-email="fixture ? 'bea@example.test' : data.account.email"
-                        :initials="initials"
-                        :fixture="fixture"
-                        tone="light"
-                        @logout="router.post('/logout')"
-                    />
-                </div>
-            </div>
-        </header>
-
         <main id="main-content" class="mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
             <div>
                 <h1 class="font-display text-[32px] font-bold">Partner hub</h1>
@@ -160,6 +115,12 @@ const summary = computed(() => [
                         <div class="text-[13px] font-semibold text-muted">{{ card.label }}</div>
                         <div class="mt-1.5 font-display text-[26px] font-bold">{{ card.value }}</div>
                         <div class="mt-1 text-[13px] text-muted">{{ card.hint }}</div>
+                        <Link
+                            v-if="'href' in card && card.href"
+                            :href="card.href"
+                            class="mt-1 inline-flex min-h-11 items-center text-[13px] font-bold underline hover:text-brand"
+                            >{{ card.linkLabel }}</Link
+                        >
                     </div></template
                 >
             </section>
@@ -385,30 +346,71 @@ const summary = computed(() => [
                             </table>
                         </div> </template
                     ><template v-else
-                        ><h2 class="mb-3 font-display text-[18px] font-bold">Partners</h2>
-                        <div class="mb-3 flex flex-wrap gap-1.5">
-                            <span class="rounded-full bg-brand px-2.5 py-[5px] text-[12px] font-bold text-white"
-                                >All {{ data.relationships.length }}</span
-                            ><span class="rounded-full bg-cream px-2.5 py-[5px] text-[12px]">Segments unavailable</span>
+                        ><div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                            <h2 class="font-display text-[18px] font-bold">Partners</h2>
+                            <form
+                                class="flex min-w-0 flex-wrap items-center gap-2"
+                                role="search"
+                                @submit.prevent="searchPartners"
+                            >
+                                <label for="partner-search" class="sr-only">Search partners by name</label>
+                                <input
+                                    id="partner-search"
+                                    v-model="search"
+                                    type="search"
+                                    maxlength="120"
+                                    placeholder="Search partners…"
+                                    class="min-h-11 w-[220px] min-w-0 flex-[1_1_160px] rounded-lg border border-line-strong bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
+                                />
+                                <button
+                                    type="submit"
+                                    class="min-h-11 rounded-[9px] border border-line-strong bg-white px-3 py-2 text-[13px] font-bold text-ink"
+                                >
+                                    Search
+                                </button>
+                            </form>
                         </div>
-                        <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Partners table">
-                            <table class="w-full min-w-[760px] text-left text-[14px]">
+                        <div class="mb-3 flex flex-wrap items-center gap-1.5">
+                            <span class="rounded-full bg-brand px-2.5 py-[5px] text-[12px] font-bold text-white"
+                                >All {{ activePartners }}</span
+                            ><template v-if="applied"
+                                ><span class="rounded-full bg-cream px-2.5 py-[5px] text-[12px] font-semibold"
+                                    >Matching “{{ applied }}”: {{ pagination.total }}</span
+                                ><button type="button" class="wd-link text-[13px]" @click="clearSearch">
+                                    Clear search
+                                </button></template
+                            ><span v-else class="rounded-full bg-cream px-2.5 py-[5px] text-[12px]"
+                                >Segments unavailable</span
+                            >
+                        </div>
+                        <div
+                            v-if="partners.length"
+                            class="overflow-x-auto"
+                            tabindex="0"
+                            role="region"
+                            aria-label="Partners table"
+                        >
+                            <table class="w-full min-w-[820px] text-left text-[14px]">
                                 <thead>
                                     <tr>
-                                        <th class="p-3">Partner</th>
-                                        <th class="p-3">Tier</th>
-                                        <th class="p-3">Leads (30d)</th>
-                                        <th class="p-3">Sales</th>
-                                        <th class="p-3">Revenue</th>
-                                        <th class="p-3">Health</th>
-                                        <th class="p-3">Last active</th>
-                                        <th class="p-3">Action</th>
+                                        <th scope="col" class="p-3">Partner</th>
+                                        <th scope="col" class="p-3">Tier</th>
+                                        <th scope="col" class="p-3">Leads (30d)</th>
+                                        <th scope="col" class="p-3">Sales</th>
+                                        <th scope="col" class="p-3">Revenue</th>
+                                        <th scope="col" class="p-3">Health</th>
+                                        <th scope="col" class="p-3">Last active</th>
+                                        <th scope="col" class="p-3">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="row in data.relationships" :key="row.id" class="border-t border-line">
-                                        <td class="p-3">
-                                            {{ row.creator_name }}
+                                    <tr v-for="row in partners" :key="row.id" class="border-t border-line">
+                                        <th scope="row" class="p-3 font-normal">
+                                            <Link
+                                                :href="`/brand/partners/${row.id}`"
+                                                class="font-bold underline underline-offset-4 hover:text-brand"
+                                                >{{ row.creator_name }}</Link
+                                            >
                                             <p v-if="row.paused" class="mt-1">
                                                 <StatusBadge label="Paused" tone="warning" />
                                                 <span class="mt-1 block text-[12px] text-muted"
@@ -417,26 +419,72 @@ const summary = computed(() => [
                                                 >
                                             </p>
                                             <p v-else class="text-[12px] text-muted">Active partnership</p>
+                                        </th>
+                                        <td class="p-3 text-muted">Unavailable</td>
+                                        <td class="p-3">
+                                            <Link
+                                                v-if="row.leads_30d !== null"
+                                                :href="`/brand/lead-registrations${query({ partner: row.id, window: '30d' })}`"
+                                                class="inline-flex min-h-11 min-w-11 items-center font-bold underline underline-offset-4 hover:text-brand"
+                                                v-bind="{
+                                                    'aria-label': `${row.leads_30d} leads registered by ${row.creator_name} in the last 30 days`,
+                                                }"
+                                                >{{ row.leads_30d }}</Link
+                                            >
+                                            <span v-else class="text-muted">{{
+                                                row.paused ? 'Paused' : 'Unavailable'
+                                            }}</span>
                                         </td>
-                                        <td v-for="column in 6" :key="column" class="p-3 text-muted">Unavailable</td>
+                                        <td v-for="column in 3" :key="column" class="p-3 text-muted">Unavailable</td>
+                                        <td class="p-3">
+                                            <template v-if="row.last_active">
+                                                <time
+                                                    :datetime="row.last_active.at"
+                                                    :title="dateTime(row.last_active.at)"
+                                                    >{{ relativeTime(row.last_active.at) }}</time
+                                                >
+                                                <span class="block text-[12px] text-muted">{{
+                                                    activityKinds[row.last_active.kind]
+                                                }}</span>
+                                            </template>
+                                            <span v-else class="text-muted">{{
+                                                row.paused ? 'Paused' : 'Not yet recorded'
+                                            }}</span>
+                                        </td>
                                         <td class="p-3">
                                             <button
                                                 v-if="data.canManage"
                                                 type="button"
-                                                class="wd-action-danger"
+                                                class="inline-flex size-11 items-center justify-center rounded-[9px] border border-line-strong bg-white text-alert hover:bg-alert-soft"
+                                                :aria-label="`End partnership with ${row.creator_name}`"
+                                                :title="`End partnership with ${row.creator_name}`"
                                                 @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
                                             >
-                                                End partnership
+                                                <UserRoundMinus :size="18" aria-hidden="true" focusable="false" />
                                             </button>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <p v-if="!data.relationships.length" class="wd-empty mt-3">
-                            No active partners. Invite a partner to begin.
-                        </p></template
-                    >
+                        <p v-if="!partners.length" class="wd-empty mt-3">
+                            {{
+                                applied
+                                    ? 'No partners match this search. Clear the search to see all partners.'
+                                    : 'No active partners. Invite a partner to begin.'
+                            }}
+                        </p>
+                        <Pagination
+                            v-else
+                            class="mt-3"
+                            label="Partners pages"
+                            noun="partners"
+                            :page="pagination.page"
+                            :per-page="pagination.perPage"
+                            :count="partners.length"
+                            :total="pagination.total"
+                            :href-for="pageHref"
+                    /></template>
                 </section>
 
                 <aside class="min-w-0 flex-[1_1_380px] rounded-2xl bg-ink p-5 text-white">
@@ -579,8 +627,14 @@ const summary = computed(() => [
                     ><template v-else
                         ><h2 class="mb-3 font-display text-[18px] font-bold">Partner-registered leads</h2>
                         <p class="text-[13px] text-muted">
-                            Lead registration is unavailable. Creator-private prospects are never shared automatically.
-                        </p></template
+                            You see a lead only after a partner chooses to register it with you. Partners' other
+                            prospects and private notes stay private. Approval and conflict rules are unavailable.
+                        </p>
+                        <Link
+                            href="/brand/lead-registrations"
+                            class="mt-2 inline-flex min-h-11 items-center text-[14px] font-bold underline hover:text-brand"
+                            >View lead registrations →</Link
+                        ></template
                     >
                 </section>
 
@@ -630,7 +684,7 @@ const summary = computed(() => [
                             disabled
                             type="button"
                             title="Program rules are unavailable"
-                            class="mt-3 rounded-lg border border-line px-3 py-2 text-[13px]"
+                            class="mt-3 min-h-11 rounded-lg border border-line px-3 py-2 text-[13px]"
                         >
                             Edit rules
                         </button></template
@@ -685,5 +739,5 @@ const summary = computed(() => [
                 >
             </section>
         </main>
-    </div>
+    </BrandChrome>
 </template>

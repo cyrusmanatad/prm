@@ -168,4 +168,6 @@ This authorizes no implementation; code still waits for the user's explicit go-a
 
 **Confirmed handoff request:** prepare a comprehensive handoff for Claude to implement this narrow workstream independently of broader M8 payouts/advanced PRM. This documentation turn does not implement application changes or authorize staging deployment/backfill. The existing M3A private-CRM baseline remains until explicit registration/sharing is implemented. Source company names alone never authorize Brand access.
 
+**Implementation (2026-11-18):** the defaults Claude settled (shared fields, roles, page sizes, lifecycle and sign-in attribution) are recorded in the [contract](brand-lead-visibility-contract.md) as implementation choices, with [evidence](brand-lead-visibility-evidence.md). They are not additional user-confirmed decisions.
+
 See the [Claude implementation handoff](brand-lead-visibility-handoff.md) for scope, observed code gaps, recommended explicit registration/profile/auth design, data preservation, staging considerations and acceptance. Exact optional profile fields, route/schema names, page size, role details and login attribution are marked **Proposal / implementation defaults**, not additional user-confirmed decisions. Preserve existing permissions, MFA, suspension, approvals, entitlements and release gates.

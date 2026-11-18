@@ -7,10 +7,12 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\RevokeSessionsController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\AutomationController;
+use App\Http\Controllers\BrandLeadController;
 use App\Http\Controllers\BrandRequestController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\InvoiceDraftController;
+use App\Http\Controllers\LeadRegistrationController;
 use App\Http\Controllers\ManualPaymentController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OutreachTemplateController;
@@ -143,6 +145,7 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/professional/contacts', [CrmController::class, 'index']);
             Route::get('/professional/onboarding', [OnboardingController::class, 'index']);
             Route::get('/professional/profile', [PublicPresenceController::class, 'index']);
+            Route::get('/professional/brand-sharing', [LeadRegistrationController::class, 'index']);
             Route::get('/professional/outreach-templates', [OutreachTemplateController::class, 'index']);
             Route::get('/professional/automation', [AutomationController::class, 'index']);
             Route::get('/professional/finance/invoices', [InvoiceDraftController::class, 'index']);
@@ -175,6 +178,15 @@ Route::middleware('auth')->group(function (): void {
             Route::post('/partner-join-link', [PartnerJoinController::class, 'issue'])->middleware('throttle:10,1,join-manage:');
             Route::delete('/partner-join-link', [PartnerJoinController::class, 'disable'])->middleware('throttle:10,1,join-disable:');
             Route::get('/brand', [PortalController::class, 'index']);
+            // Brand lead visibility (D38). Brands read only explicitly registered leads; Partners publish and withdraw them.
+            Route::get('/brand/partners/{relationship}', [BrandLeadController::class, 'partner'])->whereUuid('relationship');
+            Route::get('/brand/lead-registrations', [BrandLeadController::class, 'index']);
+            Route::get('/brand/lead-registrations/{registration}', [BrandLeadController::class, 'show'])->whereUuid('registration');
+            Route::get('/partner/brand-sharing', [LeadRegistrationController::class, 'index']);
+            Route::post('/lead-registrations', [LeadRegistrationController::class, 'store'])->middleware('throttle:30,1,lead-registration:');
+            Route::patch('/lead-registrations/{registration}', [LeadRegistrationController::class, 'update'])->whereUuid('registration')->middleware('throttle:30,1,lead-registration:');
+            Route::delete('/lead-registrations/{registration}', [LeadRegistrationController::class, 'destroy'])->whereUuid('registration')->middleware('throttle:30,1,lead-registration:');
+            Route::put('/partner-shared-profile', [LeadRegistrationController::class, 'profile'])->middleware('throttle:30,1,shared-profile:');
             Route::post('/partner-invitations', [PortalController::class, 'invite'])->middleware('throttle:10,1,partner-invite:');
             Route::post('/partnerships/accept', [PortalController::class, 'accept'])->middleware('throttle:6,1,partner-accept:');
             Route::delete('/partner-invitations/{record}', [PortalController::class, 'revoke'])->whereUuid('record');

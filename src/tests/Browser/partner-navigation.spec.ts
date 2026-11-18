@@ -20,10 +20,11 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
         ['Contacts and reminders', '/partner/contacts'],
         ['Outreach templates', '/partner/outreach-templates'],
         ['Onboarding requests', '/partner/onboarding'],
+        ['Brand sharing', '/partner/brand-sharing'],
     ];
     for (const [name, path] of routes) {
         await page.getByRole('button', { name: 'Account menu' }).click();
-        await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(5);
+        await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(6);
         await page.getByRole('menuitem', { name, exact: true }).click();
         await expect(page).toHaveURL(new RegExp(path + '$'));
         await page.goto('/partner/leads');

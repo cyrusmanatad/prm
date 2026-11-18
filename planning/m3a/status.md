@@ -1,3 +1,5 @@
+**Brand lead visibility implemented (2026-11-18, D38):** locally verified on branch `feat/brand-lead-visibility`, not merged or deployed. See the [contract](../shared/brand-lead-visibility-contract.md) and [evidence](../shared/brand-lead-visibility-evidence.md). Broader M8 scope is unchanged.
+
 **Brand lead visibility follow-up (2026-11-18, D38):** a [Claude implementation handoff](../shared/brand-lead-visibility-handoff.md) now specifies Brand-associated registrations, Partner/lead detail, roster pagination/icon action and lead/activity metrics. Implementation not started; this does not revise historical baseline acceptance or complete broader M8.
 
 # M3A Connected Portals Status

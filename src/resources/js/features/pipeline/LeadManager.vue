@@ -793,6 +793,19 @@ function reloadSelected(): void {
                                 />
                             </fieldset>
                         </form>
+                        <section class="onboarding-card">
+                            <div class="onboarding-copy">
+                                <h3>Brand sharing</h3>
+                                <p>
+                                    This lead is private. A connected Brand sees it only if you register it with them.
+                                </p>
+                            </div>
+                            <Link
+                                :href="`${path('/partner/brand-sharing')}?lead=${selected.id}`"
+                                class="wd-button wd-button-secondary drawer-outline-brand"
+                                >Register with a Brand</Link
+                            >
+                        </section>
                         <details v-if="canWrite" class="drawer-delete">
                             <summary>
                                 <span>Delete lead</span>

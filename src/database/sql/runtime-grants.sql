@@ -15,3 +15,12 @@ DO $$ BEGIN
   REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.partner_join_links FROM weavdash_app;
  END IF;
 END $$;
+
+-- Brand lead visibility (D38): registrations, sign-in times and shared profiles change only through their
+-- guarded functions. Sign-in times are not readable directly at all.
+DO $$ BEGIN
+ IF to_regclass('public.lead_registrations') IS NOT NULL THEN
+  REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.lead_registrations, public.partner_shared_profiles FROM weavdash_app;
+  REVOKE ALL ON public.workspace_sign_ins FROM weavdash_app;
+ END IF;
+END $$;

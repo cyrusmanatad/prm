@@ -78,6 +78,8 @@ The PDF requests consent records, AI consent, export/deletion, encrypted TINs/pa
 
 ## Separate portal entry points
 
+**Partner sign-in time (D38, implemented 2026-11-18):** a completed password sign-in is credited once to the first creator workspace it enters, after suspension, verification and owner-MFA checks; only a per-workspace timestamp is stored and a connected Brand sees it as `Last active`. See the [attribution rule](brand-lead-visibility-contract.md#sign-in-attribution-implementation-choice).
+
 **Confirmed D21:** separate brand and partner login pages share Laravel password/session authentication. A person may have both contexts; authorize each destination through active memberships and relationship grants. Login-page selection grants no permissions. **Proposal:** `/brand/login` and `/partner/login`, with safe intended redirects, context switching and explicit legacy-login behavior. Preserve existing recovery, verification, revocation and MFA requirements. A partnership does not make either side a member of the other's private workspace. Scoped anonymous onboarding remains distinct from a brand account and partnership acceptance. See [portal UI alignment](../m3a/ui-alignment.md).
 
 

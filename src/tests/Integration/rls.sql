@@ -383,4 +383,29 @@ DO $$ DECLARE unsafe text; BEGIN
         RAISE EXCEPTION 'brand provenance trigger missing or disabled';
     END IF;
 END $$;
+-- Brand lead visibility (D38): forced RLS, read-only policies, guarded writes and no direct sign-in access.
+DO $$ DECLARE unsafe text; BEGIN
+    IF (SELECT count(*) FROM pg_class WHERE relname IN ('lead_registrations','workspace_sign_ins','partner_shared_profiles') AND relrowsecurity AND relforcerowsecurity) <> 3 THEN
+        RAISE EXCEPTION 'brand lead visibility tables are not behind forced RLS';
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_policy WHERE polrelid IN ('lead_registrations'::regclass,'workspace_sign_ins'::regclass,'partner_shared_profiles'::regclass) AND polcmd <> 'r')
+       OR (SELECT count(*) FROM pg_policy WHERE polrelid = 'lead_registrations'::regclass) <> 2
+       OR (SELECT count(*) FROM pg_policy WHERE polrelid = 'partner_shared_profiles'::regclass) <> 1
+       OR EXISTS (SELECT 1 FROM pg_policy WHERE polrelid = 'workspace_sign_ins'::regclass) THEN
+        RAISE EXCEPTION 'brand lead visibility policies changed: only SELECT policies are allowed';
+    END IF;
+    SELECT string_agg(t || ':' || p, ', ') INTO unsafe FROM unnest(ARRAY['lead_registrations','partner_shared_profiles','workspace_sign_ins']) t, unnest(ARRAY['INSERT','UPDATE','DELETE','TRUNCATE']) p
+        WHERE has_table_privilege('weavdash_app', t, p);
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'runtime can write shared tables directly: %', unsafe; END IF;
+    IF has_table_privilege('weavdash_app', 'workspace_sign_ins', 'SELECT') THEN RAISE EXCEPTION 'runtime can read sign-in times directly'; END IF;
+    SELECT string_agg(f, ', ') INTO unsafe FROM unnest(ARRAY['app_sync_lead_registrations()','app_end_partnership_registrations()']) f WHERE has_function_privilege('weavdash_app', f, 'EXECUTE');
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'internal lead visibility trigger executable by runtime: %', unsafe; END IF;
+    SELECT string_agg(p.proname, ', ') INTO unsafe FROM pg_proc p WHERE p.proname IN ('app_partnership_sharing','app_register_lead','app_update_lead_registration','app_withdraw_lead_registration',
+        'app_sync_lead_registrations','app_end_partnership_registrations','app_record_workspace_sign_in','app_partner_signed_in_at','app_save_shared_profile','app_partner_shared_profile')
+        AND (NOT p.prosecdef OR NOT coalesce(p.proconfig::text,'') LIKE '%search_path=pg_catalog, public%' OR has_function_privilege('public', p.oid, 'EXECUTE'));
+    IF unsafe IS NOT NULL THEN RAISE EXCEPTION 'lead visibility function without fixed search path, definer rights or with PUBLIC execute: %', unsafe; END IF;
+    IF (SELECT count(*) FROM pg_trigger WHERE tgname IN ('lead_registration_source_sync','lead_registration_source_delete','partnership_registrations_end') AND tgenabled = 'O') <> 3 THEN
+        RAISE EXCEPTION 'lead visibility triggers missing or disabled';
+    END IF;
+END $$;
 SELECT 'RLS_CHECKS_PASSED';

@@ -57,6 +57,8 @@ Subsequent M2 contracts cover [contacts/reminders](../m2/crm-contract.md) and [m
 
 ## D21 portal routes and relationship contracts
 
+**Brand lead visibility routes (D38, implemented 2026-11-18):** `GET /brand` (paged roster and metrics), `GET /brand/partners/{relationship}`, `GET /brand/lead-registrations`, `GET /brand/lead-registrations/{registration}`, `GET /partner/brand-sharing`, `POST|PATCH|DELETE /lead-registrations`, `PUT /partner-shared-profile`. Query keys, fields, versions and the `relationships` compatibility note are in the [contract](brand-lead-visibility-contract.md#6-routes).
+
 **Confirmed:** separate brand/partner login pages and dashboards; the chosen entry point never grants access. **Proposal for M3A:** `/brand/login`, `/partner/login`, authorized portal landing/context-switch routes, brand-to-partner invitation/acceptance/revocation commands and minimal shared roster projections. Specify exact routes and legacy `/login` redirects during contract review. Keep existing scoped onboarding endpoints distinct; never expose private pipeline endpoints through partnership access. See [portal UI alignment](../m3a/ui-alignment.md).
 
 
