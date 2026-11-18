@@ -27,6 +27,6 @@ class OnboardingLifecycle extends Mailable
 
     public function content(): Content
     {
-        return new Content(text: 'mail.onboarding-lifecycle');
+        return new Content(markdown: 'mail.html.onboarding-lifecycle', text: 'mail.onboarding-lifecycle');
     }
 }

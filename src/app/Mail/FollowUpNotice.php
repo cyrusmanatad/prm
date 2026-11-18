@@ -24,6 +24,7 @@ class FollowUpNotice extends Mailable
 
     public function content(): Content
     {
-        return new Content(text: 'mail.follow-up', with: ['origin' => rtrim(config('app.url'), '/')]);
+        // The approved message stays plain text: it is exactly the reviewed body, sent on the owner's behalf.
+        return new Content(markdown: $this->review ? 'mail.html.follow-up-review' : null, text: 'mail.follow-up', with: ['origin' => rtrim(config('app.url'), '/')]);
     }
 }
