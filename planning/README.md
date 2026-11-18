@@ -1,5 +1,7 @@
 **M5/M6 continuation (2026-11-18, D39):** seeder locking, CI fixture/download repairs, compatible frontend updates, framework exception-log redaction, approved daily-budget targets with local enforcement and an isolated encrypted restore rehearsal are in progress on `fix/m5-m6-readiness-2026-11-18`. See [readiness verification and open gates](m6/readiness-evidence.md), [sending budget](m5/sending-budget-proposal.md), [provider trial](m5/provider-delivery-evidence.md) and the [prepared release runbook](m6/release-runbook.md). No new application deployment; unpatched advisories and production/manual decisions remain open.
 
+**Staging at `54a48e6` (2026-11-18 UTC):** fixes the Brand hub regression introduced at `9b22758`, where the email logo directory `public/brand/` shadowed `/brand`. A signed-in check and real-client email rendering remain open. See the [staging record](shared/staging-deployment.md).
+
 **Staging at `9b22758` (2026-11-18 UTC):** the mail budget migration (policy not enabled) and the branded HTML email design are deployed. Real-client rendering of the emails and a signed-in check remain open. See the [staging record](shared/staging-deployment.md).
 
 **Staging at `39520b4` (2026-11-18 UTC):** the optional `This lead is for` field on the Partner Add lead form is deployed; no migration and no data change. A signed-in check remains open. See the [staging record](shared/staging-deployment.md).
