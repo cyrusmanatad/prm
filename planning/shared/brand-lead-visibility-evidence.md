@@ -80,4 +80,4 @@ Requires its own authorization; the earlier presentation-seeding authorization d
 - **New acceptance test:** the field is optional (absent, null and empty all keep the lead private); a chosen Brand creates the lead and registration together with only name and stage shared; a foreign, unknown or suspended Brand, and viewer/member/manager roles, are refused on the field and **no lead is saved**; those roles still capture private leads.
 - **Defect found and fixed while testing:** a refused Brand at first left the lead saved without a registration, because the application renders the error inside the request transaction. Capture and registration now run in a nested transaction.
 - **Rendering:** the Add lead dialog with the field open was scanned with axe (no violations) and did not overflow at 1440 and 390 px. The field uses the shared `SelectField` and defaults to `No Brand — keep this lead private`.
-- **Not verified:** WebKit/Safari; staging (not deployed).
+- **Not verified:** WebKit/Safari. Staging: deployed at `39520b4` on 2026-11-18 UTC ([record](staging-deployment.md)); no signed-in check of the field was made there.
