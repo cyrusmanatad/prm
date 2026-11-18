@@ -1,6 +1,6 @@
 # Email Design: Shared HTML Presentation
 
-Status: **implemented locally on `ui/email-notification-design` (based on `5257ce7`); not deployed; real-client rendering unverified**. Presentation only. Triggers, recipients, queueing, budgets, subjects, Message-IDs, link destinations and the wording of every plain-text part are unchanged.
+Status: **merged to `main` (PR #45) and deployed to staging at `9b22758` on 2026-11-18; real-client rendering unverified**. Presentation only. Triggers, recipients, queueing, budgets, subjects, Message-IDs, link destinations and the wording of every plain-text part are unchanged.
 
 **Confirmed (2026-11-18, user request):** transactional email gains a branded HTML part consistent with the application. This supersedes the "plain-text message" implementation default in the [M5 notification contract](../m5/notification-contract.md) and its later slices for presentation only; their delivery rules stand.
 

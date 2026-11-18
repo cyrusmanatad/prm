@@ -1,5 +1,7 @@
 **M5/M6 continuation (2026-11-18, D39):** seeder locking, CI fixture/download repairs, compatible frontend updates, framework exception-log redaction, approved daily-budget targets with local enforcement and an isolated encrypted restore rehearsal are in progress on `fix/m5-m6-readiness-2026-11-18`. See [readiness verification and open gates](m6/readiness-evidence.md), [sending budget](m5/sending-budget-proposal.md), [provider trial](m5/provider-delivery-evidence.md) and the [prepared release runbook](m6/release-runbook.md). No new application deployment; unpatched advisories and production/manual decisions remain open.
 
+**Staging at `9b22758` (2026-11-18 UTC):** the mail budget migration (policy not enabled) and the branded HTML email design are deployed. Real-client rendering of the emails and a signed-in check remain open. See the [staging record](shared/staging-deployment.md).
+
 **Staging at `39520b4` (2026-11-18 UTC):** the optional `This lead is for` field on the Partner Add lead form is deployed; no migration and no data change. A signed-in check remains open. See the [staging record](shared/staging-deployment.md).
 
 **Brand lead visibility demonstration data on staging (2026-11-18 UTC):** staging runs `22fffe0`; the 13 Northline Living demonstration registrations were written once on the user's go-ahead, leaving the other 260 leads private. A signed-in check of the screens remains open. See the [staging record](shared/staging-deployment.md) and the [manifest notes](shared/staging-presentation-dataset.md#demonstration-lead-registrations).
