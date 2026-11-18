@@ -39,7 +39,7 @@
 | `m3a/` | [Status](m3a/status.md), [portal contract](m3a/portal-contract.md), [handoff](m3a/implementation-handoff.md), [UI alignment](m3a/ui-alignment.md), [evidence](m3a/evidence.md) |
 | `m4/` | [Status](m4/status.md), [finance contract](m4/finance-contract.md), [evidence](m4/evidence.md) |
 | `m5/` | [Status](m5/status.md), [notification contract](m5/notification-contract.md), [evidence](m5/evidence.md), [recovery](m5/recovery-contract.md), [recovery evidence](m5/recovery-evidence.md) |
-| `m6/` | [Status](m6/status.md), [readiness contract](m6/readiness-contract.md) |
+| `m6/` | [Status](m6/status.md), [readiness contract](m6/readiness-contract.md), [monitoring contract](m6/monitoring-contract.md), [monitoring evidence](m6/monitoring-evidence.md) |
 | `shared/` | [Current handoff](shared/implementation-handoff.md), [remaining tasks](shared/remaining-tasks.md), [roadmap](shared/implementation-roadmap.md), [decisions](shared/decisions.md); project-wide architecture and requirements follow the reading order below |
 | `administration/` | [Contract](administration/contract.md), [design handoff](administration/design-handoff.md), [console evidence](administration/console-evidence.md), [follow-up evidence](administration/follow-up-evidence.md), [suspension rules](administration/suspension-proposal.md), [next-session handoff](administration/implementation-handoff.md), Brand approval [contract](administration/brand-approval-contract.md), [evidence](administration/brand-approval-evidence.md) and [handoff](administration/brand-approval-handoff.md) |
 | `professional/` | [Status](professional/hub-status.md), [contract](professional/hub-contract.md), [UI handoff](professional/ui-handoff.md) |

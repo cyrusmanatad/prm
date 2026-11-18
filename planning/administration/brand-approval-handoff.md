@@ -10,13 +10,15 @@ Written 2026-11-18. Implements the [contract](brand-approval-contract.md) (D37).
 
 ## Migration
 
-`2026_11_18_000001_add_brand_approval` runs `src/database/sql/brand-approval.sql`. Re-run `scripts/grant-runtime.php` afterwards, as for every migration.
+`2026_11_18_000002_add_brand_approval` runs `src/database/sql/brand-approval.sql`. Re-run `scripts/grant-runtime.php` afterwards, as for every migration.
 
 - Adds `brand_requests`, `brand_request_events`, `account_notification_outbox`, `account_notification_resolutions`.
 - Adds the provenance trigger on `organizations` and makes `app_create_typed_workspace` refuse new Brand workspaces.
 - Replaces `app_platform_grant_save`, `app_platform_notification_list`, `app_platform_notification`, `app_platform_resolve_notification`, `app_platform_operations` and `app_platform_overview`.
 - Widens the `platform_grants` capability check to include `brands.review`.
 - Changes no existing row. Existing Brand workspaces keep working before and after the rollout command.
+- It is numbered after `2026_11_18_000001_add_monitoring` (M6-03, merged to `main` while this work was in progress) and overlaps none of that migration's functions. The branch was merged with `main` at `7098437` to resolve one conflict in `routes/console.php`.
+- **Follow-up, not done:** the monitoring snapshot counts only workspace notifications. Account notices that are stuck or uncertain are visible in `/admin/notifications` and the Overview but raise no monitoring alert.
 - **Rollback** restores the replaced functions exactly (verified by checksum) but refuses once any `brand_requests` row exists. After the rollout command has run, use forward fixes only. Never reopen self-service Brand creation as a rollback.
 
 ## Permission changes
@@ -30,7 +32,7 @@ Written 2026-11-18. Implements the [contract](brand-approval-contract.md) (D37).
 
 | Area | Files |
 |---|---|
-| Schema and functions | `src/database/sql/brand-approval.sql`, migration `2026_11_18_000001_add_brand_approval.php` |
+| Schema and functions | `src/database/sql/brand-approval.sql`, migration `2026_11_18_000002_add_brand_approval.php` |
 | Applicant | `app/Services/BrandRequests.php`, `Http/Controllers/BrandRequestController.php`; `PortalController::enter`, `WorkspaceController::store` |
 | Review | `Http/Controllers/PlatformBrandController.php`; `PlatformConsoleController::workspace` |
 | Email | `app/Services/AccountNotifications.php`, `Jobs/DeliverAccountNotification.php`, `Mail/BrandRequestOutcome.php`, `resources/views/mail/brand-request-outcome.blade.php`, `routes/console.php` |

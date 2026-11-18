@@ -4,7 +4,7 @@ Scope: the [Brand approval contract](brand-approval-contract.md) (D37). Date: 20
 
 ## What was implemented
 
-- **Schema and enforcement.** Migration `2026_11_18_000001_add_brand_approval` (`brand-approval.sql`): requests, append-only events, an account-scoped notification outbox and its resolutions, all behind forced RLS. The ordinary creation function refuses new Brand workspaces, and a deferred constraint trigger refuses, for every role, a Brand workspace committed without an approved record.
+- **Schema and enforcement.** Migration `2026_11_18_000002_add_brand_approval` (`brand-approval.sql`): requests, append-only events, an account-scoped notification outbox and its resolutions, all behind forced RLS. The ordinary creation function refuses new Brand workspaces, and a deferred constraint trigger refuses, for every role, a Brand workspace committed without an approved record.
 - **Applicant journey.** `/brand/requests` (list, form, landing after Brand registration) and `/brand/requests/{request}` (status, feedback, revision, Open Brand workspace). Brand registration and sign-in resume into the request; `POST /workspaces` rejects `kind=brand`.
 - **Review.** `/admin/brand-requests` and its detail, the decision endpoint, the `brands.review` capability in grants, operator management, the offline grant tool and navigation, a pending count and an unrecorded-workspace count on the Overview, and approval metadata on Brand workspace details.
 - **Outcome email.** `AccountNotifications`, `DeliverAccountNotification` and `BrandRequestOutcome`, dispatched by the existing `notifications:dispatch` schedule. Notification diagnostics and resolution cover account notices.

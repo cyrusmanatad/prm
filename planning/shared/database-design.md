@@ -77,7 +77,7 @@ M3 adds explicit-consent `media_kits` with manual social-account links, hashed/r
 
 ## Brand approval implementation note
 
-Implemented by `brand-approval.sql` from migration `2026_11_18_000001_add_brand_approval` (D37). See the [Brand approval contract](../administration/brand-approval-contract.md). All four tables have RLS enabled and forced; the only runtime policy lets an applicant read their own `brand_requests` rows, and every write goes through a security-definer function owned by the migration role.
+Implemented by `brand-approval.sql` from migration `2026_11_18_000002_add_brand_approval` (D37). See the [Brand approval contract](../administration/brand-approval-contract.md). All four tables have RLS enabled and forced; the only runtime policy lets an applicant read their own `brand_requests` rows, and every write goes through a security-definer function owned by the migration role.
 
 | Table | Purpose | Key columns and states |
 |---|---|---|
