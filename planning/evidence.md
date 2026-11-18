@@ -1,4 +1,4 @@
-**Brand lead visibility handoff (2026-11-18):** [requirements, code audit, implementation sequence and acceptance matrix](shared/brand-lead-visibility-handoff.md). Documentation-only review; relative links and planning consistency checked. No feature test/rendering/deployment evidence is claimed.
+**Brand lead visibility (2026-11-18):** [commands, results, rendering findings, unverified gates and staging runbook](shared/brand-lead-visibility-evidence.md) for the [contract](shared/brand-lead-visibility-contract.md). Local disposable stacks only; not deployed. The earlier [handoff](shared/brand-lead-visibility-handoff.md) was a documentation-only review.
 
 **Staging presentation dataset (2026-11-18):** [provisioning, PostgreSQL isolation, backups and desktop/mobile verification](shared/staging-presentation-evidence.md).
 

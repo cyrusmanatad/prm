@@ -80,7 +80,9 @@ test('reusable brand codes support signup, verified consent, replacement and saf
             .click();
         await expect(bp.getByRole('button', { name: 'Create sign-up link', exact: true })).toBeVisible();
         await bp.getByRole('button', { name: 'Close invitation dialog' }).click();
-        await expect(bp.getByRole('cell', { name: 'Joining Partner Active partnership', exact: true })).toBeVisible();
+        await expect(
+            bp.getByRole('rowheader', { name: 'Joining Partner Active partnership', exact: true }),
+        ).toBeVisible();
         await pp.goto(currentUrl);
         await expect(pp.getByRole('alert').filter({ hasText: 'not active' }).first()).toBeVisible();
     } finally {

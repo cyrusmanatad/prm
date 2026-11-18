@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\WorkspaceContext;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,8 @@ class SessionController extends Controller
         }
         $request->authenticate();
         $request->session()->regenerate();
+        // Credited once, to the creator workspace this sign-in enters, after suspension, verification and MFA checks (D38).
+        $request->session()->put(WorkspaceContext::SIGN_IN, ['user' => (int) $request->user()->id, 'at' => time()]);
 
         return $this->completed($request, ['verified' => $request->user()->hasVerifiedEmail()],
             $request->user()->hasVerifiedEmail() ? (($portal || $request->user()->registration_workspace_id || ($request->session()->has('partnership_token') || $request->session()->has('partnership_join'))) ? '/portal/enter' : '/workspaces') : '/verify-email');

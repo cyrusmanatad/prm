@@ -130,7 +130,7 @@ class PresentationDatasetTest extends AcceptanceCase
                     $this->assertSame($expected, DB::table('reminders')->count());
                 });
                 if ($i === 0) {
-                    $this->getJson('/brand')->assertOk()->assertJsonCount(13, 'relationships')->assertJsonPath('pipeline', null);
+                    $this->getJson('/brand')->assertOk()->assertJsonPath('metrics.activePartners', 13)->assertJsonPath('partnerPagination.total', 13)->assertJsonCount(10, 'relationships')->assertJsonPath('pipeline', null);
                 } else {
                     $this->getJson('/pipeline')->assertOk();
                     // A foreign lead is inaccessible to every other Partner.

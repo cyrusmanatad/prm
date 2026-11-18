@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Queries\PipelinePage;
+use App\Services\LeadRegistrations;
 use App\Services\NotificationOutbox;
 use App\Services\Pipeline;
 use App\Services\Workspaces;
@@ -71,7 +72,7 @@ class PortalController extends Controller
         return redirect($request->user() ? ($request->user()->hasVerifiedEmail() ? (! empty($data['choose']) ? '/workspaces' : '/portal/enter') : '/verify-email') : '/partner/login');
     }
 
-    public function index(Request $request, Pipeline $pipeline)
+    public function index(Request $request, Pipeline $pipeline, LeadRegistrations $leads)
     {
         $org = $request->session()->get('active_org_id');
         $workspace = DB::table('organizations')->where('id', $org)->first(['id', 'name', 'kind', 'experience']);
@@ -86,7 +87,16 @@ class PortalController extends Controller
             return redirect('/partner/leads'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
         // `paused` tells a participant only that the other party's workspace is suspended; the relationship itself is unchanged.
-        $relationships = DB::table('partnerships')->orderBy('accepted_at')->get(['id', 'brand_name', 'creator_name', 'status', 'accepted_at', DB::raw('app_partnership_paused(id) AS paused')])->all();
+        if ($portal === 'brand') {
+            // The Brand roster is paged in PostgreSQL; `metrics` are full-result figures independent of the page and search.
+            $roster = $request->validate(['q' => ['nullable', 'string', 'max:120'], 'page' => ['nullable', 'integer', 'min:1', 'max:100000']]);
+            $page = $leads->roster($org, $roster['q'] ?? '', (int) ($roster['page'] ?? 1), $leads->clock());
+            // `relationships` keeps its earlier shape for existing consumers and now holds the current roster page only.
+            $relationships = array_map(fn ($row) => (object) ['id' => $row['id'], 'brand_name' => $row['brand_name'], 'creator_name' => $row['creator_name'],
+                'status' => $row['status'], 'accepted_at' => $row['accepted_at'], 'paused' => $row['paused']], $page['rows']);
+        } else {
+            $relationships = DB::table('partnerships')->orderBy('accepted_at')->orderBy('id')->get(['id', 'brand_name', 'creator_name', 'status', 'accepted_at', DB::raw('app_partnership_paused(id) AS paused')])->all();
+        }
         $data = ['portal' => $portal, 'workspace' => $workspace, 'relationships' => $relationships,
             'canManage' => (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$org])->allowed,
             'invitations' => DB::table('partner_invitations as i')->leftJoin('notification_outbox as n', 'n.subject_id', '=', 'i.id')
@@ -95,6 +105,10 @@ class PortalController extends Controller
         if ($portal === 'brand') {
             $link = DB::table('partner_join_links')->whereNull('revoked_at')->first();
             $data['joinLink'] = $link ? ['id' => $link->id, ...PartnerJoinController::share(decrypt($link->sealed_code))] : null;
+            $data['partners'] = $page['rows'];
+            $data['partnerPagination'] = ['page' => $page['page'], 'perPage' => $page['perPage'], 'total' => $page['total']];
+            $data['partnerFilters'] = ['q' => $roster['q'] ?? ''];
+            $data['metrics'] = $leads->metrics($org);
         }
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
             return response()->json($data);

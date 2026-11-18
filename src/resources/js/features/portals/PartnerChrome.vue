@@ -4,14 +4,14 @@ import WorkspaceNotice from '../../components/WorkspaceNotice.vue';
 import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
 const { professional, path } = useWorkspaceExperience();
 import { computed, ref, watch } from 'vue';
-import { ClipboardList, ContactRound, FileText } from '@lucide/vue';
+import { ClipboardList, ContactRound, FileText, Share2 } from '@lucide/vue';
 import { router } from '@inertiajs/vue3';
 import AccountMenu, { type AccountMenuLink } from '../../components/AccountMenu.vue';
 
 const props = defineProps<{
     accountName: string;
     accountEmail?: string;
-    current: 'leads' | 'media-kit';
+    current: 'leads' | 'media-kit' | 'brand-sharing';
     fixture?: boolean;
     searchValue?: string;
 }>();
@@ -36,6 +36,7 @@ const accountLinks = computed<AccountMenuLink[]>(() => [
     { href: path('/partner/contacts'), label: 'Contacts and reminders', icon: ContactRound },
     { href: path('/partner/outreach-templates'), label: 'Outreach templates', icon: FileText },
     { href: path('/partner/onboarding'), label: 'Onboarding requests', icon: ClipboardList },
+    { href: path('/partner/brand-sharing'), label: 'Brand sharing', icon: Share2 },
 ]);
 function searchLeads(): void {
     if (!fixture.value) router.get(path('/partner/leads'), { q: search.value });

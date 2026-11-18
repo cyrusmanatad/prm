@@ -113,7 +113,7 @@ test('same relationship appears in both portals, private leads survive removal, 
             await bp.screenshot({ path: info.outputPath(`portal-brand-${info.project.name}.png`), fullPage: true });
         await confirmMutation(
             bp,
-            bp.getByRole('button', { name: 'End partnership', exact: true }),
+            bp.getByRole('button', { name: 'End partnership with Role test workspace', exact: true }),
             'End partnership',
             info,
         );

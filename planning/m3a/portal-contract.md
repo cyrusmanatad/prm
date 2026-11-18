@@ -1,3 +1,5 @@
+**Brand lead visibility implemented (2026-11-18, D38):** locally verified on branch `feat/brand-lead-visibility`, not merged or deployed. See the [contract](../shared/brand-lead-visibility-contract.md) and [evidence](../shared/brand-lead-visibility-evidence.md). Broader M8 scope is unchanged.
+
 **Follow-up scope (2026-11-18, D38):** the user now requires explicit Brand-associated lead visibility, Partner records, working lead metrics/activity and paginated roster/icon actions. See the [Claude handoff](../shared/brand-lead-visibility-handoff.md). The contract below describes the delivered M3A baseline; broader sharing remains unimplemented until that follow-up ships. Private source CRM remains protected.
 
 # M3A portal and relationship contract

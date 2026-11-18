@@ -93,7 +93,7 @@ function endPartnership(id: string, trigger: HTMLElement): void {
     if (!relationship) return;
     confirmAction(
         'End partnership',
-        `End the partnership with ${props.portal === 'brand' ? relationship.creator_name : relationship.brand_name}? Shared relationship access ends on both sides. Private records are preserved.`,
+        `End the partnership with ${props.portal === 'brand' ? relationship.creator_name : relationship.brand_name}? Shared relationship access ends on both sides, including leads registered through this partnership. Private records are preserved.`,
         () => router.delete(`/partnerships/${id}`),
         trigger,
         { tone: 'danger' },

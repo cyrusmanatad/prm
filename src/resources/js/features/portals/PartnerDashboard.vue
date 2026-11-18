@@ -551,7 +551,13 @@ const summary = computed(() => [
                             </div>
                             <p v-if="!data.relationships.length" class="text-[13px] text-lilac">
                                 No active partnerships. Accept a brand invitation to connect.
-                            </p></template
+                            </p>
+                            <Link
+                                v-else
+                                :href="path('/partner/brand-sharing')"
+                                class="mt-3.5 inline-block text-[14px] font-bold text-mint underline"
+                                >Manage what you share with Brands →</Link
+                            ></template
                         >
                     </section>
                 </aside>

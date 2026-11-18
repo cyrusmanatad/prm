@@ -1,3 +1,5 @@
+**Brand lead visibility implemented (2026-11-18, D38):** locally verified on branch `feat/brand-lead-visibility`, not merged or deployed. See the [contract](brand-lead-visibility-contract.md) and [evidence](brand-lead-visibility-evidence.md). Broader M8 scope is unchanged.
+
 **Brand lead visibility workstream (2026-11-18, D38):** a narrow follow-up to M3A brings forward Brand-associated registrations, Partner/lead detail, roster pagination/icon action and lead/activity metrics, independently of broader M8 payouts/advanced PRM. See the [Claude handoff](brand-lead-visibility-handoff.md) and [BLV tasks](remaining-tasks.md#brand-lead-visibility-workstream). Planning ready; implementation and release/staging acceptance remain open.
 
 **M5-10 checkpoint (2026-11-12):** synthetic recovery acceptance is complete locally: PostgreSQL/Redis **144/3,403**, integration **35/635**, PHP **42/362**, Pint and target guards passed. See the [contract](../m5/recovery-contract.md) and [evidence](../m5/recovery-evidence.md). M5-09, production budgets, administration and inherited M5/M6 gates remain open. Older checkpoints below retain their historical scope.

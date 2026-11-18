@@ -92,7 +92,9 @@ it('labels a partner whose workspace is suspended as paused on the brand roster,
     expect(rows[1]!.text()).toContain("This partner's workspace is currently unavailable. The partnership is kept.");
     expect(rows[1]!.text()).not.toContain('Active partnership');
     expect(rows[1]!.text()).not.toMatch(/suspend/i);
-    expect(rows[1]!.text()).toContain('End partnership');
+    expect(rows[1]!.find('button[aria-label="End partnership with Harbor Creator"]').exists()).toBe(true);
+    // A paused partner shows no figures: a zero would read as "no registrations".
+    expect(rows[1]!.findAll('td')[1]!.text()).toBe('Paused');
 });
 
 it('labels a brand whose workspace is suspended as paused in the partner portal', () => {

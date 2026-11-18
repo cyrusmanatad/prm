@@ -47,3 +47,29 @@
 .portal-ui .overflow-x-auto {
     contain: inline-size layout paint;
 }
+
+/* Brand lead visibility screens (D38): on phones and touch devices, links and row actions that stand
+   alone in a cell or line meet the 44px touch target. Shared components keep their desktop density. */
+@media (max-width: 599px), (pointer: coarse) {
+    .blv-page .wd-data-table a,
+    .blv-page .wd-stat-card a,
+    .blv-page .wd-detail-list a,
+    .blv-page .wd-link,
+    .blv-page .wd-action-danger {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+@media (max-width: 599px) {
+    .blv-page .wd-card {
+        padding: 16px;
+    }
+}
+.blv-page .adm-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+}

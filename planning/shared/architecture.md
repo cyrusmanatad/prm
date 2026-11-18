@@ -83,6 +83,8 @@ M3 implements capability transactions alongside member transactions: one-use inv
 
 ## Connected brand and partner portals
 
+**Brand lead visibility (D38, implemented 2026-11-18):** a Brand reads only leads a Partner explicitly registered with it, through the shared `lead_registrations` projection and its single row-level visibility rule; private pipeline and CRM tables are never read for a Brand. Writes go through guarded database functions, and source edits, deletion and partnership ending update the projection in the same transaction. See the [contract](brand-lead-visibility-contract.md).
+
 **Confirmed D21:** one application and identity system serves separate brand and partner entry pages and authorized contexts. Explicit brand–creator relationships connect the brand roster to creators' partner portals without granting access to each other's private workspace. Basic relationship foundations move ahead of M4 in approved M3A; advanced campaign, incentive and payout modules remain later. Both dashboard shells must reproduce the supplied HTML references exactly, replacing the simplified foundation composition for these pages. See [portal UI alignment](../m3a/ui-alignment.md) for ownership, projections, assets and acceptance gates.
 
 

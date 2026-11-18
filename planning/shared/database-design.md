@@ -75,6 +75,10 @@ M3 adds explicit-consent `media_kits` with manual social-account links, hashed/r
 
 **M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](../m3a/portal-contract.md). See [status and current evidence](../m3a/status.md). Prior proposal text above records the planning sequence.
 
+## Brand lead visibility implementation note
+
+Implemented by `brand-lead-visibility.sql` from migration `2026_11_18_000003_add_brand_lead_visibility` (D38): `lead_registrations`, `workspace_sign_ins` and `partner_shared_profiles`, all with forced row security, read-only policies and function-only writes. Tables, functions, triggers, lock order and rollback limits are in the [contract](brand-lead-visibility-contract.md#5-data-and-access).
+
 ## Brand approval implementation note
 
 Implemented by `brand-approval.sql` from migration `2026_11_18_000002_add_brand_approval` (D37). See the [Brand approval contract](../administration/brand-approval-contract.md). All four tables have RLS enabled and forced; the only runtime policy lets an applicant read their own `brand_requests` rows, and every write goes through a security-definer function owned by the migration role.

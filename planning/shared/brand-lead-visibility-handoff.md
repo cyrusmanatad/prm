@@ -1,6 +1,6 @@
 # Brand lead visibility and Partner records — Claude implementation handoff
 
-**Date:** 2026-11-18. **Status:** requirements/handoff ready; application implementation has not started. **Confirmed:** the user wants Claude to implement this update. This Codex turn prepares documentation only. Read repository `AGENTS.md`, inspect the current working tree, then implement and verify the feature locally. Staging changes/deployment require their own execution authorization; the earlier presentation-seeding authorization is not a deployment authorization for this feature.
+**Date:** 2026-11-18. **Status (updated 2026-11-18):** implemented and locally verified by Claude on branch `feat/brand-lead-visibility`; see the [contract](brand-lead-visibility-contract.md) and [evidence](brand-lead-visibility-evidence.md). Not merged, not deployed. The text below is the original handoff and is kept as written. **Confirmed:** the user wants Claude to implement this update. This Codex turn prepares documentation only. Read repository `AGENTS.md`, inspect the current working tree, then implement and verify the feature locally. Staging changes/deployment require their own execution authorization; the earlier presentation-seeding authorization is not a deployment authorization for this feature.
 
 ## 1. Outcome and source of authority
 
