@@ -13,10 +13,12 @@ use Illuminate\Support\Str;
  */
 class BrandFixture
 {
-    /** With a migration-role connection, or through the `test_approved_brand` helper that rls-fixtures.sql installs. */
+    /** With a migration-role connection (given, or from the acceptance control credential), or else through the `test_approved_brand` helper that rls-fixtures.sql installs. */
     public static function create(int $ownerId, string $name, ?ConnectionInterface $privileged = null): string
     {
         $org = (string) Str::uuid();
+        // Suites run by the acceptance service have the control credential and need no installed helper.
+        $privileged ??= getenv('TEST_MIGRATION_DB_PASSWORD') ? self::control() : null;
         if (! $privileged) {
             DB::selectOne('SELECT test_approved_brand(?::bigint,?::uuid,?::text)', [$ownerId, $org, $name]);
 

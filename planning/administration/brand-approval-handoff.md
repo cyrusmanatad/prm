@@ -4,6 +4,8 @@ Written 2026-11-18. Implements the [contract](brand-approval-contract.md) (D37).
 
 ## State
 
+**Update (2026-11-18):** merged to `main` at `c7cbb57` (PR #36) and deployed to staging, where the rollout recorded approval for the 4 existing Brand workspaces; see the [staging record](../shared/staging-deployment.md). The steps below are kept as the procedure that was followed. Still open on staging: signed-in checks and a real outcome email. The gates under "Remaining gates" other than the two go-aheads still apply.
+
 - **Revision:** branch `feat/brand-approval`, one commit on top of `337906c` (the reviewed baseline, rechecked before editing; the tree was clean). The local gates ran on that tree before it was committed.
 - **Implemented and locally verified:** schema, database enforcement, `brands.review`, applicant and reviewer journeys, outcome email, the rollout command, tests and documentation.
 - **Not done:** no deployment, no staging migration, no rollout on any real environment, no real email sent or received. Nothing here claims them.
