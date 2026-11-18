@@ -3,6 +3,7 @@
 namespace App\Http\Queries;
 
 use App\Enums\PipelineStage;
+use App\Services\LeadRegistrations;
 use App\Services\Pipeline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,8 @@ class PipelinePage
             'stages' => PipelineStage::options(),
             'filters' => ['q' => $filters['q'] ?? '', 'stage' => $filters['stage'] ?? '', 'due' => (bool) ($filters['due'] ?? false)],
             'selected' => empty($filters['entry']) ? null : $pipeline->detail($orgId, $filters['entry']),
+            // Connected Brands a new lead can optionally be registered with (D38). Owners and admins only.
+            'registration' => ['canRegister' => ($leads = app(LeadRegistrations::class))->canManage($orgId), 'brands' => $leads->brands($orgId)],
         ];
 
         return $payload;

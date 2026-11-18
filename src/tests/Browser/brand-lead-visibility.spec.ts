@@ -272,3 +272,75 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await brand.close();
     }
 });
+
+test('a partner can name the brand while adding a lead, or leave it private', async ({ browser }, info) => {
+    test.setTimeout(120_000);
+    const suffix = `${info.project.name}-${Date.now()}`;
+    const partnerEmail = `m1-browser-blv-capture-partner-${suffix}@example.test`;
+    const brandEmail = `m1-browser-blv-capture-brand-${suffix}@example.test`;
+    const brandName = `Capture ${suffix}`.slice(0, 60);
+    fixture('seed', partnerEmail);
+    fixture('seed', brandEmail);
+    const seed: Seed = JSON.parse(migrationFixture('lead-visibility-fixture.php', brandEmail, partnerEmail, brandName));
+    const partner = await browser.newContext();
+    const brand = await browser.newContext();
+    const pp = await partner.newPage();
+    const bp = await brand.newPage();
+    try {
+        await pp.goto('/partner/login');
+        await pp.getByLabel('Email address').fill(partnerEmail);
+        await pp.getByLabel('Password', { exact: true }).fill('browser-password-123');
+        await pp.getByRole('button', { name: 'Sign in', exact: true }).click();
+        await expect(pp).toHaveURL(/\/partner\/leads$/);
+        const add = async (name: string, forBrand: boolean) => {
+            await pp.getByRole('button', { name: '+ Add lead', exact: true }).click();
+            const dialog = pp.getByRole('dialog', { name: 'Add lead', exact: true });
+            await expect(dialog).toBeVisible();
+            const choice = dialog.getByRole('combobox', { name: 'This lead is for (optional)', exact: true });
+            // Optional and private by default.
+            await expect(choice).toHaveText('No Brand — keep this lead private');
+            await expect(dialog).toContainText('Notes, value and contact stay private.');
+            await pp.getByLabel('Brand name', { exact: true }).fill(name);
+            if (forBrand) {
+                await choice.click();
+                await pp.getByRole('option', { name: brandName, exact: true }).click();
+                await expect(choice).toHaveText(brandName);
+                const scan = await new AxeBuilder({ page: pp }).analyze();
+                expect(scan.violations).toEqual([]);
+                expect(await pp.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+            }
+            await dialog.getByRole('button', { name: 'Capture lead', exact: true }).click();
+            await expect(dialog).not.toBeVisible();
+            await dismissNotifications(pp);
+            await pp.goto('/partner/leads');
+        };
+        await add('Private capture', false);
+        await add('Captured for the brand', true);
+        // The next lead starts private again.
+        await pp.getByRole('button', { name: '+ Add lead', exact: true }).click();
+        await expect(pp.getByRole('combobox', { name: 'This lead is for (optional)', exact: true })).toHaveText(
+            'No Brand — keep this lead private',
+        );
+        await pp.keyboard.press('Escape');
+        await pp.goto('/partner/brand-sharing');
+        const own = pp.getByRole('region', { name: 'Leads registered with Brands table' });
+        await expect(own.getByRole('row')).toHaveCount(2);
+        await expect(own.getByRole('row', { name: /Captured for the brand/ })).toContainText('Shared');
+
+        await login(bp, brandEmail);
+        await openBrandHub(bp, brandName);
+        await expect(bp.getByRole('region', { name: 'Program summary' })).toContainText('Leads registered4');
+        const row = bp
+            .getByRole('region', { name: 'Partners table' })
+            .getByRole('row', { name: new RegExp(seed.partners[0]!.name) });
+        await expect(row.getByRole('link', { name: /1 leads registered by/ })).toHaveText('1');
+        await row.getByRole('link', { name: /1 leads registered by/ }).click();
+        const list = bp.getByRole('region', { name: 'Lead registrations table' });
+        await expect(list.getByRole('row')).toHaveCount(2);
+        await expect(list).toContainText('Captured for the brand');
+        await expect(bp.locator('body')).not.toContainText('Private capture');
+    } finally {
+        await partner.close();
+        await brand.close();
+    }
+});

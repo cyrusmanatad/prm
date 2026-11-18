@@ -65,3 +65,19 @@ Requires its own authorization; the earlier presentation-seeding authorization d
 4. Sign in as the Northline Living owner: the hub should show 13 active partners over two roster pages, `Leads registered` 0, every `Leads (30d)` 0 and `Last active` `Not yet recorded` until a Partner signs in. The 273 private leads stay private.
 5. **Backfill:** none. No existing lead or profile field is published. Demonstration registrations (for example the 13 Northline entries proposed in the handoff) need a separately versioned, reviewed, staging-only manifest and command; do not edit `northline-living-v1.json`.
 6. **Rollback limits:** `migrate:rollback --step=1` works only while no registration or shared profile exists. After that it refuses; roll the application image back and fix forward. Rolling back the image alone is safe: the new tables and triggers do not affect older code.
+
+## Follow-up: optional Brand on the Add lead form (2026-11-18)
+
+**Scope:** `This lead is for (optional)` on the Partner Add lead form, on branch `feat/lead-brand-on-capture` from `main` at `22fffe0`. Same disposable local stack as above (rebuilt), Chromium only.
+
+| Command | Result |
+| --- | --- |
+| `phpunit -c phpunit.acceptance.xml --filter 'BrandLeadVisibilityTest\|PipelineRoleTest\|ProfessionalHubTest\|PilotEntitlementTest\|PartnershipSecurityTest\|OnboardingNotificationTest\|LoggedReplyTest'` | 44 tests, 1,130 assertions, passed. |
+| `phpunit -c phpunit.pgsql.xml`; `phpunit` | 35 tests, 640 assertions; 42 tests, 362 assertions; passed. |
+| Pint on the changed PHP files; `format:check:changed`, `typecheck`, `npm test`, `build` | Passed; 147 component tests. |
+| Browser: `brand-lead-visibility`, `pipeline`, `pipeline-filtering`, `partner-navigation`, `professional-ui`, desktop and mobile | 18 journeys passed. |
+
+- **New acceptance test:** the field is optional (absent, null and empty all keep the lead private); a chosen Brand creates the lead and registration together with only name and stage shared; a foreign, unknown or suspended Brand, and viewer/member/manager roles, are refused on the field and **no lead is saved**; those roles still capture private leads.
+- **Defect found and fixed while testing:** a refused Brand at first left the lead saved without a registration, because the application renders the error inside the request transaction. Capture and registration now run in a nested transaction.
+- **Rendering:** the Add lead dialog with the field open was scanned with axe (no violations) and did not overflow at 1440 and 390 px. The field uses the shared `SelectField` and defaults to `No Brand — keep this lead private`.
+- **Not verified:** WebKit/Safari; staging (not deployed).

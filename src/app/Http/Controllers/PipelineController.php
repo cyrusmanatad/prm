@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Enums\PipelineStage;
 use App\Http\Queries\PipelinePage;
+use App\Services\LeadRegistrations;
 use App\Services\Pipeline;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class PipelineController extends Controller
 {
@@ -22,13 +25,31 @@ class PipelineController extends Controller
         return response()->json(app(PipelinePage::class)->data($request, $pipeline));
     }
 
-    public function store(Request $request, Pipeline $pipeline): JsonResponse|RedirectResponse
+    public function store(Request $request, Pipeline $pipeline, LeadRegistrations $registrations): JsonResponse|RedirectResponse
     {
         $context = $this->listingContext($request);
         $data = $this->details($request);
-        $id = $pipeline->create((int) $request->user()->id, $request->session()->get('active_org_id'), $data);
+        $org = $request->session()->get('active_org_id');
+        // Optional (D38): naming a connected Brand registers the new lead with it. Left empty, the lead stays private.
+        $brand = $request->validate(['register_with' => ['nullable', 'uuid']])['register_with'] ?? null;
+        if ($brand !== null && ! $registrations->canManage($org)) {
+            throw ValidationException::withMessages(['register_with' => 'Only workspace owners and admins can register a lead with a Brand. Leave this empty to keep the lead private.']);
+        }
+        try {
+            // A nested transaction: if the Brand cannot be registered with, the lead is not saved either.
+            $id = DB::transaction(function () use ($request, $pipeline, $registrations, $org, $data, $brand): string {
+                $id = $pipeline->create((int) $request->user()->id, $org, $data);
+                if ($brand !== null) {
+                    $registrations->register($brand, $id, $data['brand_name'], '', false);
+                }
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Lead captured'], $this->destination($context, $id), 201);
+                return $id;
+            });
+        } catch (ValidationException) {
+            throw ValidationException::withMessages(['register_with' => 'This Brand is not available for registration. Choose a connected Brand that is not paused, or leave this empty.']);
+        }
+
+        return $this->completed($request, ['id' => $id, 'registered' => $brand !== null, 'message' => $brand !== null ? 'Lead captured and registered with the Brand' : 'Lead captured'], $this->destination($context, $id), 201);
     }
 
     public function update(Request $request, Pipeline $pipeline, string $entry): JsonResponse|RedirectResponse

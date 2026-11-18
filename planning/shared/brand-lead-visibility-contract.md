@@ -32,6 +32,7 @@ Labels: **Confirmed** is the user's stated requirement. **Implementation choice*
 
 | Event | Effect |
 | --- | --- |
+| Add a lead with `This lead is for` set (optional, added 2026-11-18) | The lead and its registration are saved together; the Brand sees the lead's name and stage, with no summary and no contact. Left empty, the lead is private as before. If the Brand cannot be registered with, neither is saved. Owners and admins only; other roles do not see the field. |
 | Register | Creates one registration. Repeating the request returns the existing one unchanged, including its registration time. |
 | Partner moves the private lead's stage, or changes its contact when the contact is shared | The registration is updated in the same transaction and its last-shared-change time moves. |
 | Any other private edit (notes, value, name, activity) | Nothing shared changes; the Brand's activity signal does not move. |
@@ -89,6 +90,7 @@ Writers always lock in the order partnership, workspace pilot lock, source lead,
 | `GET /brand/lead-registrations` | Consolidated list. Query: `partner` (partnership ID), `stage`, `q` (literal lead name search), `window=30d`, `page`. Sorted by registration time, newest first, then ID. |
 | `GET /brand/lead-registrations/{registration}` | Read-only lead detail. The list query, or `from=partner`, is carried only to build the back link. |
 | `GET /partner/brand-sharing` (and `/professional/brand-sharing`) | Partner screen. Query: `lead` (own lead to register), `page`. |
+| `POST /pipeline` | Existing lead capture. New optional `register_with` (partnership ID); errors are reported on that field. The page payload gains `pipeline.registration {canRegister, brands}`. |
 | `POST /lead-registrations` | `partnership`, `entry`, `display_name`, `summary`, `share_contact`. |
 | `PATCH /lead-registrations/{registration}` | `version`, `display_name`, `summary`, `share_contact`. |
 | `DELETE /lead-registrations/{registration}` | `version`. Withdraws. |

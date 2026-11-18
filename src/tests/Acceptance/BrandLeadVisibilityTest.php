@@ -630,4 +630,55 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         [$otherUser, $otherBrand] = $this->brand('Other');
         app(TenantContext::class)->run($otherUser->id, $otherBrand, fn () => $this->assertNull(DB::selectOne('SELECT app_partner_shared_profile(?::uuid) AS data', [$relationship])->data));
     }
+
+    public function test_a_new_lead_can_optionally_be_registered_with_a_brand_when_it_is_captured(): void
+    {
+        [$brandUser, $brand] = $this->brand();
+        [$otherUser, $otherBrand] = $this->brand('Other');
+        [$partner, $org] = $this->creator();
+        [$stranger, $strangerOrg] = $this->creator('Stranger');
+        $relationship = $this->connect($brand, $org);
+        $foreign = $this->connect($otherBrand, $strangerOrg);
+        $lead = ['brand_name' => 'Captured for the Brand', 'contact_name' => 'Private Contact', 'contact_email' => 'private@example.test', 'notes' => 'Private capture note', 'currency' => 'PHP', 'value_minor' => '777000'];
+        $leads = fn () => $this->control->table('pipeline_entries')->where('org_id', $org)->count();
+        $visible = fn () => $this->member($brandUser, $brand)->getJson('/brand')->json('metrics.leadsRegistered');
+
+        // The form is told which Brands can be chosen; the field is optional and a lead without it stays private.
+        $this->member($partner, $org)->getJson('/partner/leads')->assertOk()->assertJsonPath('pipeline.registration.canRegister', true)
+            ->assertJsonPath('pipeline.registration.brands.0.id', $relationship)->assertJsonCount(1, 'pipeline.registration.brands');
+        $this->postJson('/pipeline', $lead)->assertCreated()->assertJsonPath('registered', false);
+        $this->postJson('/pipeline', [...$lead, 'register_with' => null])->assertCreated()->assertJsonPath('registered', false);
+        $this->postJson('/pipeline', [...$lead, 'register_with' => ''])->assertCreated()->assertJsonPath('registered', false);
+        $this->assertSame(0, $visible());
+
+        // Chosen: the lead and its registration are created together, with only the name and stage shared.
+        $id = $this->member($partner, $org)->postJson('/pipeline', [...$lead, 'register_with' => $relationship])->assertCreated()->assertJsonPath('registered', true)->json('id');
+        $registration = $this->control->table('lead_registrations')->where('pipeline_entry_id', $id)->first();
+        $this->assertSame([$relationship, 'Captured for the Brand', '', false, 'lead', 'active'], [$registration->partnership_id, $registration->display_name, $registration->summary, $registration->share_contact, $registration->stage, $registration->state]);
+        $this->assertSame(1, $visible());
+        $this->getJson('/brand/lead-registrations/'.$registration->id)->assertOk()->assertJsonPath('registration.display_name', 'Captured for the Brand')
+            ->assertJsonPath('registration.contact_email', null)->assertDontSee('Private capture note')->assertDontSee('private@example.test')->assertDontSee('777000');
+        $this->getJson('/brand')->assertJsonPath('partners.0.leads_30d', 1)->assertJsonPath('partners.0.last_active.kind', 'lead_registered');
+        $this->member($otherUser, $otherBrand)->getJson('/brand')->assertJsonPath('metrics.leadsRegistered', 0);
+
+        // A refused choice saves nothing: no lead, no registration.
+        $count = $leads();
+        $this->member($partner, $org)->postJson('/pipeline', [...$lead, 'register_with' => $foreign])->assertUnprocessable()->assertJsonValidationErrors('register_with');
+        $this->postJson('/pipeline', [...$lead, 'register_with' => (string) Str::uuid()])->assertUnprocessable()->assertJsonValidationErrors('register_with');
+        $this->postJson('/pipeline', [...$lead, 'register_with' => 'northline'])->assertUnprocessable();
+        $this->suspend($brand, $brandUser);
+        $this->postJson('/pipeline', [...$lead, 'register_with' => $relationship])->assertUnprocessable()->assertJsonValidationErrors('register_with');
+        $this->control->table('platform_suspensions')->where('org_id', $brand)->update(['lifted_at' => now(), 'lifted_by' => $brandUser->id]);
+        foreach (['viewer', 'member', 'manager'] as $role) {
+            $this->control->table('memberships')->where('org_id', $org)->update(['role' => $role]);
+            $this->postJson('/pipeline', [...$lead, 'register_with' => $relationship])->assertUnprocessable()->assertJsonValidationErrors('register_with');
+            $this->getJson('/partner/leads')->assertJsonPath('pipeline.registration.canRegister', false);
+        }
+        $this->assertSame($count, $leads());
+        $this->assertSame(1, $this->control->table('lead_registrations')->where('creator_org_id', $org)->count());
+        // Those roles still capture private leads as before.
+        $this->control->table('memberships')->where('org_id', $org)->update(['role' => 'member']);
+        $this->postJson('/pipeline', $lead)->assertCreated()->assertJsonPath('registered', false);
+        $this->assertSame(1, $visible());
+    }
 }

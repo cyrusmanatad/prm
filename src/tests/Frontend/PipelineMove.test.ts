@@ -4,9 +4,9 @@ import { ref } from 'vue';
 import LeadManager from '../../resources/js/features/pipeline/LeadManager.vue';
 import PipelineBoard from '../../resources/js/features/pipeline/PipelineBoard.vue';
 
-const { post, get } = vi.hoisted(() => ({ post: vi.fn(), get: vi.fn() }));
+const { post, get, visit } = vi.hoisted(() => ({ post: vi.fn(), get: vi.fn(), visit: vi.fn() }));
 vi.mock('@inertiajs/vue3', () => ({
-    router: { post, get, on: () => () => {} },
+    router: { post, get, visit, on: () => () => {} },
     Link: { template: '<a><slot /></a>' },
 }));
 vi.mock('../../resources/js/composables/useNotify', () => ({
@@ -29,7 +29,11 @@ afterEach(() => {
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     vi.clearAllMocks();
 });
-function manager(canWrite = true, state?: string) {
+function manager(
+    canWrite = true,
+    state?: string,
+    registration?: { canRegister: boolean; brands: { id: string; brand_name: string; paused: boolean }[] },
+) {
     const wrapper = mount(LeadManager, {
         props: {
             entries: [lead],
@@ -41,6 +45,7 @@ function manager(canWrite = true, state?: string) {
             nextCursor: null,
             canWrite,
             workspace: { id: 'workspace', name: 'Workspace' },
+            registration,
         },
         global: {
             provide: {
@@ -105,4 +110,40 @@ it.each([
     expect(wrapper.get('.lead-card').attributes('draggable')).toBe('false');
     wrapper.getComponent(PipelineBoard).vm.$emit('move', lead, 'pitched');
     expect(post).not.toHaveBeenCalled();
+});
+
+it('offers the optional Brand only to roles that can register, and sends it only when chosen', async () => {
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    const brands = [
+        { id: 'p1', brand_name: 'Northline Living', paused: false },
+        { id: 'p2', brand_name: 'Paused Brand', paused: true },
+    ];
+    // Members who cannot register, and workspaces with no connected Brand, see the form as before.
+    for (const hidden of [undefined, { canRegister: false, brands }, { canRegister: true, brands: [] }]) {
+        const plain = manager(true, undefined, hidden);
+        (plain.vm as unknown as { openCreate: () => void }).openCreate();
+        await plain.vm.$nextTick();
+        expect(plain.find('#create-register-with').exists()).toBe(false);
+    }
+    const wrapper = manager(true, undefined, { canRegister: true, brands });
+    (wrapper.vm as unknown as { openCreate: () => void }).openCreate();
+    await wrapper.vm.$nextTick();
+    const field = wrapper.get('#create-register-with');
+    expect((field.element as HTMLSelectElement).value).toBe('');
+    expect(field.text()).toContain('No Brand — keep this lead private');
+    expect(field.text()).toContain('Northline Living');
+    expect(field.text()).not.toContain('Paused Brand');
+    expect(wrapper.text()).toContain('This lead is for (optional)');
+    expect(wrapper.text()).toContain('Notes, value and contact stay private.');
+    await wrapper.get('#create-brand').setValue('Kanto Cafe');
+    // Left empty: the request is exactly the earlier one, with no Brand.
+    await wrapper.get('#create-brand').element.closest('form')!.dispatchEvent(new Event('submit'));
+    expect(visit.mock.calls[0][0]).toBe('/pipeline');
+    expect(visit.mock.calls[0][1].method).toBe('post');
+    expect(visit.mock.calls[0][1].data).not.toHaveProperty('register_with');
+    visit.mock.calls[0][1].onFinish();
+    await wrapper.vm.$nextTick();
+    await field.setValue('p1');
+    await wrapper.get('#create-brand').element.closest('form')!.dispatchEvent(new Event('submit'));
+    expect(visit.mock.calls[1][1].data).toMatchObject({ brand_name: 'Kanto Cafe', register_with: 'p1' });
 });
