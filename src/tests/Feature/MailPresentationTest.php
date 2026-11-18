@@ -49,7 +49,7 @@ class MailPresentationTest extends TestCase
             // The call to action keeps the unchanged destination; the text part and the visible fallback repeat it.
             $this->assertMatchesRegularExpression('~<a href="'.preg_quote($url, '~').'" class="button button-primary"[^>]*>'.$label.'</a>~', $html);
             $this->assertStringContainsString($url, $email->getTextBody());
-            $this->assertStringContainsString($origin.'/brand/email-logo.png', $html);
+            $this->assertStringContainsString($origin.'/portal-assets/email-logo.png', $html);
             $this->assertStringContainsString('This is an automated message', $html);
             // Styles are inlined for clients that drop <style>, and nothing unrendered leaks through.
             $this->assertStringContainsString('background-color: #8e1650', $html);
@@ -83,7 +83,7 @@ class MailPresentationTest extends TestCase
         $user = (new User)->forceFill(['id' => 1, 'name' => 'Preview', 'email' => 'preview@example.test']);
         foreach ([(new ResetPassword('preview-token'))->toMail($user), (new VerifyEmail)->toMail($user)] as $message) {
             $html = (string) $message->render();
-            $this->assertStringContainsString('/brand/email-logo.png', $html);
+            $this->assertStringContainsString('/portal-assets/email-logo.png', $html);
             $this->assertStringContainsString('class="button button-primary"', $html);
             $this->assertStringContainsString('This is an automated message', $html);
         }
@@ -91,7 +91,7 @@ class MailPresentationTest extends TestCase
 
     public function test_logo_asset_is_a_png_email_clients_can_render(): void
     {
-        $this->assertSame(IMAGETYPE_PNG, getimagesize(public_path('brand/email-logo.png'))[2]);
+        $this->assertSame(IMAGETYPE_PNG, getimagesize(public_path('portal-assets/email-logo.png'))[2]);
     }
 
     public function test_preview_command_renders_without_delivering_outside_the_array_transport(): void

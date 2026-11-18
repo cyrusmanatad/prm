@@ -15,7 +15,7 @@ Status: **merged to `main` (PR #45) and deployed to staging at `9b22758` on 2026
 | Added components: `x-mail::details` (label/value rows) and `x-mail::link` (unparsed fallback link) | same directory, with text counterparts under `text/` |
 | HTML body per notice | `src/resources/views/mail/html/` |
 | Plain-text parts (unchanged files) | `src/resources/views/mail/*.blade.php` |
-| Logo PNG rasterized from `public/favicon.svg` (email clients do not render SVG) | `src/public/brand/email-logo.png` |
+| Logo PNG rasterized from `public/favicon.svg` (email clients do not render SVG) | `src/public/portal-assets/email-logo.png` |
 
 Mailables declare `markdown:` for HTML and keep `text:` for the existing plain-text view. Laravel's password-reset and verification notifications use the same components and take the theme without code changes. Operator monitoring alerts (`Monitoring`, raw text) are out of scope.
 
@@ -24,6 +24,7 @@ Mailables declare `markdown:` for HTML and keep `text:` for the existing plain-t
 - Build HTML from the shared components; do not add per-email styles or a second layout.
 - Keep an explicit plain-text view. Put capability links in `x-mail::button` and `x-mail::link` only: Markdown would read `_` and `*` in a token as emphasis.
 - Link and image URLs come from `config('app.url')`, never the request host. The logo is the only remote resource and carries no recipient identifier. Do not add tracking pixels or enable provider click tracking: rewriting would expose capability links.
+- Keep email assets under `public/portal-assets/`. A public directory named like an application route (`public/brand/` and `/brand`) makes the staging web server redirect that route instead of passing it to the application; `PublicAssetPathTest` guards this.
 - No web fonts, JavaScript, background images or dark-mode variant. The system font stack stands in for Manrope.
 
 ## Verification (2026-11-18)
