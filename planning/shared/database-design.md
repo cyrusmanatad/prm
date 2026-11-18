@@ -75,6 +75,19 @@ M3 adds explicit-consent `media_kits` with manual social-account links, hashed/r
 
 **M3A implementation:** the concrete routes, durable registration provisioning, creator backfill, owner/admin invitation/acceptance/revocation rules, forced RLS and shared-field allowlist are specified in the [implemented portal contract](../m3a/portal-contract.md). See [status and current evidence](../m3a/status.md). Prior proposal text above records the planning sequence.
 
+## Brand approval implementation note
+
+Implemented by `brand-approval.sql` from migration `2026_11_18_000002_add_brand_approval` (D37). See the [Brand approval contract](../administration/brand-approval-contract.md). All four tables have RLS enabled and forced; the only runtime policy lets an applicant read their own `brand_requests` rows, and every write goes through a security-definer function owned by the migration role.
+
+| Table | Purpose | Key columns and states |
+|---|---|---|
+| `brand_requests` | One request, or one rollout approval of a workspace that predates review | `source` (`request`, `rollout`), `applicant_id` (null for rollout), four business fields (null for rollout), `status` (`pending`, `needs_information`, `approved`, `declined`), `version`, `org_id` (set exactly when approved, unique) |
+| `brand_request_events` | Append-only submissions and decisions | `version`, `event`, `actor_id`, `operator` (rollout only), `reason`, `submission` snapshot. A decision event's `id` is its notification identity |
+| `account_notification_outbox` | Account-scoped outcome email intent | `user_id`, `kind`, `event_id` (unique), `request_version`, the same states and deferral fields as `notification_outbox`. No recipient, link or body |
+| `account_notification_resolutions` | Operator resolution of an uncertain account notice | Same shape as `notification_resolutions` |
+
+Integrity rules: one unresolved request per applicant (partial unique index); a decided request cannot change and no request can be deleted; events cannot be updated or deleted; a deferred constraint trigger on `organizations` refuses, at commit and for every role, a new Brand workspace without an approved `brand_requests` row; `app_create_typed_workspace` refuses new Brand workspaces. A notice is current only while the request's `version` equals its `request_version`. Account notices use the shared `global` delivery window and an `account:<id>` window. `platform_grants.permissions` now allows eleven capabilities, adding `brands.review`. The migration replaces seven existing functions and its rollback restores them from their original files; rollback refuses to run once any `brand_requests` row exists.
+
 ## Administration implementation note
 
 Implemented by `platform-activation.sql`, `delivery-controls.sql`, `platform-console.sql` and `platform-governance.sql` under `src/database/sql/`; the last two run from migration `2026_11_16_000001_add_platform_console`. See the [administration contract](../administration/contract.md) and [console evidence](../administration/console-evidence.md). Every table below has RLS enabled and forced with **no runtime policies**; the runtime role reaches them only through capability-gated SECURITY DEFINER functions. The single exception is `platform_grants`, where an actor may read their own row.

@@ -84,9 +84,7 @@ function logout(): void {
         :status="status"
         :errors="errors"
         :pending-action="pending"
-        @create="
-            (name, kind, experience) => submit('create', { name, kind, ...(kind === 'creator' ? { experience } : {}) })
-        "
+        @create="(name, kind, experience) => submit('create', { name, kind, experience })"
         @select="submit('select', { org_id: $event })"
         @rename="submit('rename', { name: $event })"
         @revoke-sessions="submit('revoke-sessions', { password: $event })"

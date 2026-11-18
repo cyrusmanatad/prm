@@ -9,6 +9,7 @@ use App\Tenancy\TenantContext;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Tests\Support\BrandFixture;
 use Tests\TestCase;
 
 class PortalTest extends TestCase
@@ -17,7 +18,10 @@ class PortalTest extends TestCase
     {
         $user ??= User::factory()->create();
 
-        return [$user, app(Workspaces::class)->create($user->id, $kind.' '.Str::random(10), $kind)];
+        $name = $kind.' '.Str::random(10);
+
+        // Brand workspaces need recorded approval (D37); the fixture helper comes from rls-fixtures.sql.
+        return [$user, $kind === 'brand' ? BrandFixture::create($user->id, $name) : app(Workspaces::class)->create($user->id, $name)];
     }
 
     private function select(User $user, string $org): static
@@ -141,8 +145,15 @@ class PortalTest extends TestCase
         $this->assertCount(0, app(Workspaces::class)->listing($user->id));
         $this->post('/logout')->assertRedirect('/login');
         $user->markEmailAsVerified();
-        $this->actingAs($user)->get('/portal/enter')->assertRedirect('/brand');
-        $this->get('/portal/enter')->assertRedirect('/brand');
+        // Brand registration leads to a request for review and creates no workspace (D37).
+        $this->actingAs($user)->get('/portal/enter')->assertRedirect('/brand/requests');
+        $this->get('/portal/enter')->assertRedirect('/brand/requests');
+        $this->assertCount(0, app(Workspaces::class)->listing($user->id));
+        // The registration intent stays until a request is submitted; an approved workspace then opens normally.
+        $this->workspace('brand', $user);
+        $this->get('/portal/enter')->assertRedirect('/brand/requests');
+        $user->forceFill(['registration_workspace_id' => null, 'registration_workspace_kind' => null, 'registration_workspace_experience' => null])->save();
+        $this->withSession(['portal' => 'brand'])->get('/portal/enter')->assertRedirect('/brand');
         $listing = app(Workspaces::class)->listing($user->id);
         $this->assertCount(1, $listing);
         $this->assertSame('brand', $listing[0]->kind);

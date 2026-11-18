@@ -112,6 +112,16 @@ export function migrationFixture(script: string, ...args: string[]): string {
     );
 }
 
+/** A synthetic approved Brand workspace owned by an existing browser identity. Brand creation itself needs review. */
+export function approvedBrand(email: string, name: string): string {
+    return JSON.parse(migrationFixture('brand-fixture.php', email, name)).org;
+}
+/** Select an approved Brand workspace on the workspace screen and open its hub. */
+export async function openBrandHub(page: Page, name: string): Promise<void> {
+    await page.getByRole('button', { name: new RegExp(name) }).click();
+    await page.getByRole('link', { name: 'Open brand hub' }).click();
+}
+
 type Project = { project: { name: string } };
 /** The mobile projects run each journey at phone widths; desktop projects keep the desktop widths. */
 export const isMobile = (info: Project): boolean => info.project.name.includes('mobile');

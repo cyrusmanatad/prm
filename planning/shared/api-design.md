@@ -105,6 +105,21 @@ Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/part
 | `POST /admin/cleanup/{batch}/marks` | `cleanup.review` | Mark or unmark one account or workspace by ID, with `evidence` |
 | `POST /admin/cleanup/{batch}/runs` | `cleanup.review` | Record a dry run; deletes nothing |
 
+| Brand review route (D37) | Capability | Notes |
+|---|---|---|
+| `GET /admin/brand-requests` | `brands.review` | Filters `q` (Brand, applicant name or email, request ID), `status`, `source` (`request`, `rollout`). Pending requests first, longest wait first |
+| `GET /admin/brand-requests/{request}` | `brands.review` | Applicant identity with current verification and suspension state, business information, history with feedback, resulting workspace |
+| `POST /admin/brand-requests/{request}/decision` | `brands.review` | `expected_version`, `decision` in `approve`, `request_information`, `decline`, and `feedback` (1–1,000 characters, shown to the applicant). Step-up only; no fresh proof. Approval creates the workspace with the applicant as owner. 409 unless the request is pending at that version; 422 for an unverified or suspended applicant or the reviewer's own request |
+
+| Applicant route (D37) | Requirement | Notes |
+|---|---|---|
+| `GET /brand/requests` | Signed-in, verified account | The account's own requests, `open` and `registering`; also the landing page after Brand registration |
+| `POST /brand/requests` | Signed-in, verified account | `brand_name`, `website` (HTTP or HTTPS, never fetched by the server), `applicant_role`, `intended_use`. 201 with `id`; 409 while another request is open |
+| `GET /brand/requests/{request}` | The applicant | Status, submitted information, feedback and history without reviewer identities. 404 for any other account |
+| `PATCH /brand/requests/{request}` | The applicant | The same four fields and `expected_version`. Only while the request needs information; otherwise 409 |
+
+`POST /workspaces` no longer accepts `kind=brand` (422). `GET /admin/workspaces/{workspace}` adds `approval` for Brand workspaces (status, source, reviewer, operator, time, reason, request) and `canReviewBrands`. Notification diagnostics also list account notices: those rows have `org_id` and `workspace` null and name the `account`. See the [Brand approval contract](../administration/brand-approval-contract.md).
+
 | Workspace-owner route | Requirement | Notes |
 |---|---|---|
 | `GET /workspace/support-access` | Active owner of the selected workspace | Support requests for that workspace |

@@ -1,7 +1,7 @@
 import { confirmMutation } from './confirmations';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { fixture, login, mutate } from './helpers';
+import { approvedBrand, fixture, login, mutate, openBrandHub } from './helpers';
 
 async function clean(page: Parameters<typeof login>[0]) {
     const result = await new AxeBuilder({ page }).analyze();
@@ -26,7 +26,8 @@ test('portal logins share identity and never grant a wrong workspace context', a
     await page.getByLabel('Email address').fill(email);
     await page.getByLabel('Password', { exact: true }).fill('browser-password-123');
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-    await expect(page).toHaveURL(/\/workspaces$/);
+    // The Brand entrance with no Brand workspace leads to the request page, never to another workspace's data.
+    await expect(page).toHaveURL(/\/brand\/requests$/);
     await page.goto('/brand');
     // No selected workspace means a safe selection error; no brand data is returned.
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -56,12 +57,9 @@ test('same relationship appears in both portals, private leads survive removal, 
                 value_minor: '900',
             }),
         ).toBe(201);
+        approvedBrand(brandEmail, 'Habi Home');
         await login(bp, brandEmail);
-        await bp.getByLabel('Workspace name', { exact: true }).fill('Habi Home');
-        await bp.locator('#workspace-kind').selectOption('brand');
-        await bp.getByRole('button', { name: 'Create workspace', exact: true }).click();
-        await expect(bp.getByRole('link', { name: 'Open brand hub' })).toBeVisible();
-        await bp.getByRole('link', { name: 'Open brand hub' }).click();
+        await openBrandHub(bp, 'Habi Home');
         await expect(bp.getByRole('heading', { name: 'Partner hub', exact: true })).toBeVisible();
         await bp.getByRole('button', { name: '+ Invite partners', exact: true }).click();
         const invitationDialog = bp.getByRole('dialog', { name: 'Invite a partner', exact: true });
@@ -133,7 +131,7 @@ test('same relationship appears in both portals, private leads survive removal, 
     }
 });
 
-test('portal registration survives logout and verification before first workspace provisioning', async ({
+test('brand registration survives logout and verification and leads to a request, not a workspace', async ({
     page,
 }, info) => {
     const email = `m1-browser-register-${info.project.name}-${Date.now()}@example.test`;
@@ -152,7 +150,9 @@ test('portal registration survives logout and verification before first workspac
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL(/\/verify-email$/);
     await page.goto(verify.url);
-    await expect(page).toHaveURL(/\/brand$/);
-    await expect(page.getByRole('heading', { name: 'Partner hub', exact: true })).toBeVisible();
+    // Brand workspaces are created only after review; the full journey is in brand-approval.spec.ts.
+    await expect(page).toHaveURL(/\/brand\/requests$/);
+    await expect(page.getByRole('heading', { name: 'Request a Brand workspace', level: 1 })).toBeVisible();
+    await expect(page.getByText('One step remains')).toBeVisible();
     await clean(page);
 });

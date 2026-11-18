@@ -4,6 +4,8 @@
 
 # Platform Administration Contract
 
+**Brand workspace approval (2026-11-18, D37):** implemented and locally verified on branch `feat/brand-approval`; not deployed. It adds the `brands.review` capability, the Brand requests module, approval metadata on Brand workspace details, account notices in notification diagnostics and the offline `brand:rollout-approvals` command. See its [contract](brand-approval-contract.md), [evidence](brand-approval-evidence.md) and [handoff](brand-approval-handoff.md). It closes no ADM package.
+
 ## Current status (2026-11-17)
 
 Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a`, [PR #18](https://github.com/cyrusmanatad/prm/pull/18)); see the [console evidence](console-evidence.md). **No ADM package is closed**: each still has open items and unrun gates.
@@ -18,7 +20,7 @@ Implemented, locally verified and merged to `main` at `f16fd09` (commit `1edc00a
 | ADM-06 | Audit review; workspace-owner-approved, read-only support access of at most 24 hours | Nothing for launch: no emergency access, tenant audit browsing or export (D33) |
 | ADM-07 | Fixture batches, explicit marking, immutable cleanup dry runs | Cleanup execution, deferred until M3-02 (D33); file/object-storage inventory; owner bootstrap rehearsal; final acceptance |
 
-**Capabilities in use:** `platform.owner` (implies all), `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`. Decisions: D27, D29, D30, D31, D32, D33 in [decisions](../shared/decisions.md).
+**Capabilities in use:** `platform.owner` (implies all), `directory.read`, `plans.assign`, `notifications.read`, `notifications.reconcile`, `operations.read`, `audit.read`, `access.manage`, `support.request`, `cleanup.review`, and `brands.review` (D37, not yet deployed). Decisions: D27, D29, D30, D31, D32, D33, D37 in [decisions](../shared/decisions.md).
 
 Remaining implementation items and the recorded decisions are listed in the [next-session handoff](implementation-handoff.md); its documentation updates (Part A) are done.
 

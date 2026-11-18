@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Process\Process;
+use Tests\Support\BrandFixture;
 
 class ProfessionalHubTest extends AcceptanceCase
 {
@@ -295,7 +296,7 @@ class ProfessionalHubTest extends AcceptanceCase
             }
         });
         $brand = User::factory()->create();
-        $brandOrg = app(Workspaces::class)->create($brand->id, 'Optional brand', 'brand');
+        $brandOrg = BrandFixture::create($brand->id, 'Optional brand', $this->control);
         $invite = $this->actingAs($brand)->withSession(['active_org_id' => $brandOrg])->postJson('/partner-invitations', ['email' => $user->email])->assertCreated()->json();
         $this->actingAs($user)->withSession(['active_org_id' => $org]);
         $this->post('/partnerships/prepare', ['token' => explode('#', $invite['url'])[1]])->assertRedirect('/portal/enter');

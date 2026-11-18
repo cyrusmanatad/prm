@@ -23,7 +23,7 @@ const props = withDefaults(
     { activeOrgId: null, pendingAction: null, errors: () => ({}), status: '', accessRevoked: false },
 );
 const emit = defineEmits<{
-    create: [name: string, kind: 'creator' | 'brand', experience: 'partner' | 'professional'];
+    create: [name: string, kind: 'creator', experience: 'partner' | 'professional'];
     select: [orgId: string];
     rename: [name: string];
     revokeSessions: [password: string];
@@ -55,13 +55,9 @@ useValidationFocus(
     () => !busy.value,
 );
 function create(): void {
-    if (!busy.value)
-        emit(
-            'create',
-            newName.value.trim(),
-            kind.value === 'brand' ? 'brand' : 'creator',
-            kind.value === 'professional' ? 'professional' : 'partner',
-        );
+    // Brand workspaces are requested for review; the form offers a link instead of a create action.
+    if (!busy.value && kind.value !== 'brand')
+        emit('create', newName.value.trim(), 'creator', kind.value === 'professional' ? 'professional' : 'partner');
 }
 function rename(): void {
     if (!busy.value && canEdit.value) emit('rename', currentName.value.trim());
@@ -131,7 +127,13 @@ defineExpose({
                 </section>
                 <section class="wd-card" aria-labelledby="workspace-create-title">
                     <h2 id="workspace-create-title">Start something new.</h2>
-                    <p class="wd-description">Give your workspace a name you’ll recognize.</p>
+                    <p class="wd-description">
+                        {{
+                            kind === 'brand'
+                                ? 'A Brand workspace starts with a short request.'
+                                : 'Give your workspace a name you’ll recognize.'
+                        }}
+                    </p>
                     <form :aria-busy="pendingAction === 'create'" @submit.prevent="create">
                         <fieldset class="wd-fields" :disabled="busy">
                             <legend class="wd-sr-only">Create a workspace</legend>
@@ -146,17 +148,29 @@ defineExpose({
                                 ]"
                                 @update:model-value="onKind"
                             />
-                            <FormField
-                                id="workspace_name"
-                                v-model="newName"
-                                label="Workspace name"
-                                autocomplete="organization"
-                                :maxlength="120"
-                                :error="errors.create_name"
-                            />
-                            <Button type="submit" class="wd-button wd-button-primary">{{
-                                pendingAction === 'create' ? 'Creating…' : 'Create workspace'
-                            }}</Button>
+                            <template v-if="kind === 'brand'">
+                                <p class="wd-hint">
+                                    Brand workspaces are reviewed before they are created. Tell us about the business
+                                    and we will email you when there is a decision. You can follow the status of your
+                                    request at any time.
+                                </p>
+                                <Link href="/brand/requests" class="wd-button wd-button-primary"
+                                    >Request Brand workspace</Link
+                                >
+                            </template>
+                            <template v-else>
+                                <FormField
+                                    id="workspace_name"
+                                    v-model="newName"
+                                    label="Workspace name"
+                                    autocomplete="organization"
+                                    :maxlength="120"
+                                    :error="errors.create_name"
+                                />
+                                <Button type="submit" class="wd-button wd-button-primary">{{
+                                    pendingAction === 'create' ? 'Creating…' : 'Create workspace'
+                                }}</Button>
+                            </template>
                         </fieldset>
                     </form>
                 </section>

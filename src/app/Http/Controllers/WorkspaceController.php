@@ -32,8 +32,10 @@ class WorkspaceController extends Controller
 
     public function store(Request $request, Workspaces $workspaces): JsonResponse|RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'kind' => ['sometimes', 'in:creator,brand'], 'experience' => ['sometimes', 'in:partner,professional', 'prohibited_if:kind,brand']]);
-        $orgId = $workspaces->create((int) $request->user()->id, $data['name'], $data['kind'] ?? 'creator', experience: $data['experience'] ?? 'partner');
+        // Brand workspaces are created only by an approved request (D37); this endpoint cannot bypass review.
+        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'kind' => ['sometimes', 'in:creator'], 'experience' => ['sometimes', 'in:partner,professional']],
+            ['kind.in' => 'Brand workspaces are created after review. Submit a Brand workspace request instead.']);
+        $orgId = $workspaces->create((int) $request->user()->id, $data['name'], 'creator', experience: $data['experience'] ?? 'partner');
         $request->session()->put('active_org_id', $orgId);
         $request->session()->regenerate();
 

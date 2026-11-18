@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Tests\Support\BrandFixture;
 
 class PlatformGovernanceTest extends AcceptanceCase
 {
@@ -50,7 +51,9 @@ class PlatformGovernanceTest extends AcceptanceCase
     {
         $owner = User::factory()->create(['password' => Hash::make(self::PASSWORD)]);
 
-        return [$owner, app(Workspaces::class)->create($owner->id, 'Governance '.Str::uuid(), $kind)];
+        $name = 'Governance '.Str::uuid();
+
+        return [$owner, $kind === 'brand' ? BrandFixture::create($owner->id, $name, $this->control) : app(Workspaces::class)->create($owner->id, $name)];
     }
 
     private function member(User $user, string $org): static

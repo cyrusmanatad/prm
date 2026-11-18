@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Symfony\Component\Process\Process;
+use Tests\Support\BrandFixture;
 
 class PartnershipSecurityTest extends AcceptanceCase
 {
@@ -17,7 +18,7 @@ class PartnershipSecurityTest extends AcceptanceCase
     {
         $brand = User::factory()->create();
         $creator = User::factory()->create();
-        $bo = app(Workspaces::class)->create($brand->id, 'Brand', 'brand');
+        $bo = BrandFixture::create($brand->id, 'Brand', $this->control);
         $co = app(Workspaces::class)->create($creator->id, 'Creator');
         $invite = $this->actingAs($brand)->withSession(['active_org_id' => $bo])->postJson('/partner-invitations', ['email' => $creator->email])->assertCreated()->json();
         $token = explode('#', $invite['url'])[1];

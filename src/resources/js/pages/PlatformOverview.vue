@@ -30,6 +30,8 @@ const props = defineProps<{
         support_awaiting: number | null;
         support_expiring: number | null;
         cleanup_blocked: number | null;
+        brand_requests_pending?: number | null;
+        brands_unrecorded?: number | null;
         activity: Activity[] | null;
     };
 }>();
@@ -104,6 +106,24 @@ const attention = computed(() => {
             next: 'Review whether each should continue. Suspension has no automatic end.',
             href: '/admin/accounts?access=suspended',
             link: 'View suspended accounts',
+        });
+    if (o.brand_requests_pending)
+        items.push({
+            key: 'brand-requests',
+            tone: 'warning',
+            title: `${o.brand_requests_pending} Brand ${o.brand_requests_pending === 1 ? 'request is' : 'requests are'} awaiting a decision`,
+            next: 'No Brand workspace is created until a request is approved. Approve, ask for more information or decline.',
+            href: '/admin/brand-requests?status=pending',
+            link: 'Review Brand requests',
+        });
+    if (o.brands_unrecorded)
+        items.push({
+            key: 'brands-unrecorded',
+            tone: 'warning',
+            title: `${o.brands_unrecorded} Brand ${o.brands_unrecorded === 1 ? 'workspace has' : 'workspaces have'} no recorded approval`,
+            next: 'These predate review and keep their access. The offline rollout command records their approval.',
+            href: '/admin/brand-requests?source=rollout',
+            link: 'View recorded rollout approvals',
         });
     if (o.support_awaiting)
         items.push({

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\RevokeSessionsController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\AutomationController;
+use App\Http\Controllers\BrandRequestController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\InvoiceDraftController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OutreachTemplateController;
 use App\Http\Controllers\PartnerJoinController;
 use App\Http\Controllers\PipelineController;
+use App\Http\Controllers\PlatformBrandController;
 use App\Http\Controllers\PlatformConsoleController;
 use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\PlatformGovernanceController;
@@ -121,6 +123,14 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/admin/cleanup/{batch}/marks', [PlatformGovernanceController::class, 'mark'])->whereUuid('batch')->middleware('throttle:60,1,admin-cleanup-mark:');
         Route::post('/admin/cleanup/{batch}/runs', [PlatformGovernanceController::class, 'dryRun'])->whereUuid('batch')->middleware('throttle:10,1,admin-cleanup:');
         Route::post('/admin/assignments', [PlatformController::class, 'assign'])->middleware('throttle:10,1,admin-assign:');
+        Route::get('/admin/brand-requests', [PlatformBrandController::class, 'index']);
+        Route::get('/admin/brand-requests/{brandRequest}', [PlatformBrandController::class, 'show'])->whereUuid('brandRequest');
+        Route::post('/admin/brand-requests/{brandRequest}/decision', [PlatformBrandController::class, 'decide'])->whereUuid('brandRequest')->middleware('throttle:30,1,admin-brand-decision:');
+        // Brand workspaces are created only by an approved request; applicants see only their own requests.
+        Route::get('/brand/requests', [BrandRequestController::class, 'index']);
+        Route::post('/brand/requests', [BrandRequestController::class, 'store'])->middleware('throttle:10,1,brand-request:');
+        Route::get('/brand/requests/{brandRequest}', [BrandRequestController::class, 'show'])->whereUuid('brandRequest');
+        Route::patch('/brand/requests/{brandRequest}', [BrandRequestController::class, 'update'])->whereUuid('brandRequest')->middleware('throttle:10,1,brand-request:');
         Route::get('/join/select', [PartnerJoinController::class, 'select']);
         Route::get('/portal/enter', [PortalController::class, 'enter']);
 

@@ -6,7 +6,6 @@ use App\Jobs\DeliverNotification;
 use App\Mail\PartnerInvitation;
 use App\Models\User;
 use App\Services\NotificationOutbox;
-use App\Services\Workspaces;
 use App\Tenancy\TenantContext;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;
@@ -16,13 +15,14 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Symfony\Component\Process\Process;
+use Tests\Support\BrandFixture;
 
 class NotificationOutboxTest extends AcceptanceCase
 {
     private function invitation(bool $send = true): array
     {
         $user = User::factory()->create();
-        $org = app(Workspaces::class)->create($user->id, 'Private brand', 'brand');
+        $org = BrandFixture::create($user->id, 'Private brand', $this->control);
         $recipient = 'notification-'.Str::uuid().'@example.test';
         $result = $this->actingAs($user)->withHeaders(['Host' => 'untrusted-host.example.test'])->withSession(['active_org_id' => $org])
             ->postJson('/partner-invitations', ['email' => $recipient, 'send_email' => $send])->assertCreated()->json();

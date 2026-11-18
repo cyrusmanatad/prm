@@ -15,7 +15,7 @@ use Inertia\Inertia;
 /** Read-only administration projections and operator grant management. Authorization is enforced in PostgreSQL. */
 class PlatformConsoleController extends Controller
 {
-    protected const CAPABILITIES = ['platform.owner', 'directory.read', 'plans.assign', 'notifications.read', 'notifications.reconcile', 'operations.read', 'audit.read', 'access.manage', 'support.request', 'cleanup.review'];
+    protected const CAPABILITIES = ['platform.owner', 'directory.read', 'plans.assign', 'notifications.read', 'notifications.reconcile', 'operations.read', 'audit.read', 'access.manage', 'support.request', 'cleanup.review', 'brands.review'];
 
     /** Joined/created date range shared by both directories; `to` is inclusive. */
     private const CREATED = ['from' => ['nullable', 'date_format:Y-m-d'], 'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from']];
@@ -55,7 +55,10 @@ class PlatformConsoleController extends Controller
         $tab = $request->validate(['tab' => ['nullable', Rule::in(['overview', 'members', 'entitlements', 'operations', 'activity'])]])['tab'] ?? 'overview';
 
         return $this->read($request, $admin, 'directory.read', 'PlatformWorkspace', fn () => [...$this->json('SELECT app_platform_workspace(?::uuid) AS data', [$workspace]), 'tab' => $tab,
-            'access' => $this->allowed('access.manage') ? $this->json("SELECT app_platform_access_impact('workspace',?) AS data", [$workspace]) : null]);
+            'access' => $this->allowed('access.manage') ? $this->json("SELECT app_platform_access_impact('workspace',?) AS data", [$workspace]) : null,
+            // Brand workspaces only: who approved it, when, why and whether through a request or the rollout.
+            'approval' => json_decode(DB::selectOne('SELECT app_platform_workspace_approval(?::uuid) AS data', [$workspace])->data ?? 'null', true, flags: JSON_THROW_ON_ERROR),
+            'canReviewBrands' => $this->allowed('brands.review')]);
     }
 
     public function plans(Request $request, PlatformAdministration $admin): mixed
