@@ -44,6 +44,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-19):** partners are shown with a decorative initials avatar (`PartnerAvatar`) in the Partner hub table (36px), the Partner record header (48px) and the Registered leads Partner column (28px). The tint is chosen from six palette tints by partnership ID; paused partners are neutral. All text/tint pairs meet WCAG AA (lowest 5.1:1). Avatars use only the consented partner display name; uploaded logos or photos are not in scope. Evidence: [table controls and avatars](table-controls-evidence.md).
 
+**Confirmed (2026-11-20):** the partner pipeline board (My leads) uses one stage filter: chips with counts for All and every stage, replacing the segment buttons and the stage dropdown. Chip counts ignore only the stage filter (`stageCounts`). Search, chips and Due next actions apply as used; there is no Apply button. The board keeps the reference layout beside the sidebar, fits five columns at 1280px (150px minimum), and shows six leads per column before "Show N more". D22's five main columns and the separate Repeat Client/Lost row are unchanged. Evidence: [compact pipeline](pipeline-compact-evidence.md).
+
 ## Identity and shared relationship
 
 **Confirmed:** provide separate brand and partner login pages leading to their respective authorized dashboards. One Laravel identity/session system supports both; separate user databases are unnecessary. A person may participate in both contexts. Login entry choice does not create a role, organization membership or sharing grant.

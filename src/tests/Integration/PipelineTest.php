@@ -157,6 +157,15 @@ class PipelineTest extends TestCase
         foreach (['1.5', '-1', '1000000000000000000', '1e3'] as $bad) {
             $this->postJson('/pipeline', $this->lead(['value_minor' => $bad]))->assertUnprocessable();
         }
+        // Stage chips count every stage under the other filters; the board's counts follow the stage filter.
+        $pitched = $this->postJson('/pipeline', $this->lead(['brand_name' => 'Paged pitched']))->assertCreated()->json('id');
+        $this->postJson('/pipeline/'.$pitched.'/stage', ['version' => 1, 'stage' => 'pitched'])->assertSuccessful();
+        $count = fn (array $rows, string $stage) => collect($rows)->firstWhere('stage', $stage)['count'] ?? 0;
+        $chosen = $this->getJson('/pipeline?q=Paged&stage=lead')->json();
+        $this->assertSame(0, $count($chosen['counts'], 'pitched'));
+        $this->assertSame(1, $count($chosen['stageCounts'], 'pitched'));
+        $this->assertSame(27, $count($chosen['stageCounts'], 'lead'));
+        $this->assertEqualsCanonicalizing($this->getJson('/pipeline?q=Paged')->json('counts'), $chosen['stageCounts']);
     }
 
     public function test_rls_denies_every_foreign_operation_and_activity_parent_and_actor_forgery(): void

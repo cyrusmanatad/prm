@@ -514,6 +514,7 @@ function reloadSelected(): void {
             :movable="canWrite && workspaceActive && !busy && !active"
             :moving="pendingMove?.id ?? null"
             :counts="counts"
+            :stage-counts="stageCounts"
             :totals="totals"
             :filters="filters"
             :next-cursor="nextCursor"

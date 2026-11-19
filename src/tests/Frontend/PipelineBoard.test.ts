@@ -79,7 +79,7 @@ it('queries the server with reset cursors and restores controls on browser histo
     expect(wrapper.emitted('load')?.at(-1)).toEqual([{ q: 'Older target', cursor: 'page-two' }]);
     await wrapper
         .findAll('button')
-        .find((button) => button.text() === 'Lost')!
+        .find((button) => button.text().startsWith('Lost'))!
         .trigger('click');
     expect(wrapper.emitted('load')?.at(-1)).toEqual([{ q: 'Older target', stage: 'lost' }]);
 });
@@ -162,3 +162,49 @@ it.each([{ movable: false }, { movable: true, loading: true }, { movable: true, 
         expect(wrapper.emitted('move')).toBeUndefined();
     },
 );
+
+it('offers one stage filter as chips counting every stage under the other filters', async () => {
+    const wrapper = board({
+        filters: { q: 'studio', stage: 'lead', due: false },
+        counts: [{ stage: 'lead', count: 26 }],
+        stageCounts: [
+            { stage: 'lead', count: 26 },
+            { stage: 'pitched', count: 1 },
+            { stage: 'lost', count: 2 },
+        ],
+    });
+    const chips = wrapper.get('[role="group"][aria-label="Filter by stage"]');
+    expect(chips.findAll('button').map((chip) => chip.text().replace(/\s+/g, ' '))).toEqual([
+        'All 29',
+        'Lead 26',
+        'Pitched 1',
+        'Negotiating 0',
+        'Onboarded 0',
+        'Active 0',
+        'Repeat Client 0',
+        'Lost 2',
+    ]);
+    expect(chips.get('[aria-pressed="true"]').text()).toContain('Lead');
+    // The old segment buttons, stage dropdown and Apply button are gone.
+    expect(wrapper.find('#pipeline-stage').exists()).toBe(false);
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Apply filters')).toBe(false);
+    await chips.findAll('button')[2]!.trigger('click');
+    expect(wrapper.emitted('load')?.at(-1)).toEqual([{ q: 'studio', stage: 'pitched' }]);
+    // Older callers without stage counts fall back to the board counts.
+    const older = board({ counts: [{ stage: 'lead', count: 3 }] });
+    expect(older.get('[aria-pressed="true"]').text().replace(/\s+/g, ' ')).toBe('All 3');
+});
+
+it('shows six leads per column until the rest are opened', async () => {
+    const many = Array.from({ length: 8 }, (_, index) => ({ ...lead('lead'), id: `lead-${index}` }));
+    const wrapper = board({ entries: many, counts: [{ stage: 'lead', count: 8 }], movable: true });
+    const column = wrapper.get('section[aria-label="Lead"]');
+    expect(column.findAll('.lead-card')).toHaveLength(6);
+    const more = column.get('.column-more');
+    expect(more.text()).toBe('Show 2 more');
+    expect(more.attributes('aria-label')).toBe('Show 2 more Lead leads');
+    expect(more.attributes('aria-expanded')).toBe('false');
+    await more.trigger('click');
+    expect(column.findAll('.lead-card')).toHaveLength(8);
+    expect(more.text()).toBe('Show fewer');
+});
