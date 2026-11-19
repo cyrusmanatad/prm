@@ -2,9 +2,8 @@
 import { useWorkspaceExperience } from '../../composables/useWorkspaceExperience';
 const { professional, path, clientLabel } = useWorkspaceExperience();
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import SelectField from '../../components/SelectField.vue';
-import ActionGroup from '../../components/ActionGroup.vue';
-import { Button } from '../../components/ui/button';
+import { Search } from '@lucide/vue';
+import FilterChips, { type FilterChip } from '../../components/FilterChips.vue';
 import PipelineColumn from './PipelineColumn.vue';
 import { pipelineStages } from './stages';
 import { money } from './money';
@@ -13,6 +12,8 @@ import type { Entry, PipelineWorkspace } from './types';
 const props = defineProps<{
     entries: Entry[];
     counts: PipelineWorkspace['counts'];
+    /** Per-stage counts ignoring only the stage filter; older callers fall back to `counts`. */
+    stageCounts?: PipelineWorkspace['counts'];
     totals: PipelineWorkspace['totals'];
     filters: PipelineWorkspace['filters'];
     nextCursor: string | null;
@@ -117,12 +118,16 @@ function nextPage(): void {
     }
     if (props.nextCursor) emit('load', { ...params(), cursor: props.nextCursor });
 }
-const stageOptions = [{ value: '', label: 'All stages' }, ...pipelineStages];
-const segments = [
-    { value: '', label: 'All leads' },
-    { value: 'repeat-client', label: 'Repeat clients' },
-    { value: 'lost', label: 'Lost' },
-];
+/** One stage filter: chips count each stage under the search and due filters. */
+const stageChips = computed<FilterChip[]>(() => {
+    const source = props.stageCounts ?? props.counts;
+    const count = (stage: string) => Number(source.find((item) => item.stage === stage)?.count ?? 0);
+    return [
+        { value: '', label: 'All', count: source.reduce((sum, item) => sum + Number(item.count), 0) },
+        ...pipelineStages.map((stage) => ({ value: stage.value, label: stage.label, count: count(stage.value) })),
+    ];
+});
+const busy = computed(() => !!props.loading || !!props.moving);
 const matchingCount = computed(() => props.counts.reduce((sum, item) => sum + Number(item.count), 0));
 const filtered = computed(() => !!(props.filters.q || props.filters.stage || props.filters.due));
 const columns = computed(() =>
@@ -167,64 +172,43 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     <span class="pipeline-kicker">Matching pipeline value</span>
                     <span v-for="amount in headerAmounts" :key="amount" class="pipeline-total">{{ amount }}</span>
                     <span v-if="!headerAmounts.length" class="pipeline-count">No non-lost value</span>
-                    <span class="pipeline-count">All matching pages · excludes Lost</span>
                     <span class="pipeline-count"
-                        >{{ matchingCount }} matching {{ matchingCount === 1 ? 'lead' : 'leads' }} · all pages</span
+                        >{{ matchingCount }} matching {{ matchingCount === 1 ? 'lead' : 'leads' }} · all pages ·
+                        excludes Lost</span
                     >
                 </div>
             </div>
-            <ActionGroup label="Lead segment">
-                <Button
-                    v-for="segment in segments"
-                    :key="segment.value"
-                    type="button"
-                    class="wd-button"
-                    :class="stageFilter === segment.value ? 'wd-button-primary' : 'wd-button-secondary'"
-                    :aria-pressed="stageFilter === segment.value"
-                    :disabled="loading || !!moving"
-                    @click="chooseSegment(segment.value)"
-                >
-                    {{ segment.label }}
-                </Button>
-            </ActionGroup>
+            <FilterChips
+                label="Filter by stage"
+                :chips="stageChips"
+                :current="stageFilter"
+                :class="{ 'is-busy': busy }"
+                @select="(stage) => !busy && chooseSegment(stage)"
+            />
             <form class="pipeline-toolbar" aria-label="Filter pipeline" @submit.prevent="apply">
-                <div class="wd-field pipeline-search">
-                    <label for="pipeline-search">{{ professional ? 'Search clients' : 'Search brands' }}</label>
+                <div class="pipeline-search">
+                    <label for="pipeline-search" class="wd-sr-only">{{
+                        professional ? 'Search clients' : 'Search brands'
+                    }}</label>
+                    <Search :size="15" aria-hidden="true" />
                     <input
                         id="pipeline-search"
                         v-model="query"
-                        :disabled="loading || !!moving"
+                        class="wd-table-input"
+                        :disabled="busy"
                         type="search"
                         maxlength="160"
                         :placeholder="professional ? 'Search clients' : 'Search brands'"
                         @input="search"
+                        @keydown.enter.prevent="apply"
                     />
                 </div>
-                <SelectField
-                    :disabled="loading || !!moving"
-                    id="pipeline-stage"
-                    v-model="stageFilter"
-                    class="pipeline-stage"
-                    label="Stage filter"
-                    :options="stageOptions"
-                    :show-mark="true"
-                    @change="apply"
-                />
                 <label class="pipeline-due"
-                    ><input v-model="dueOnly" :disabled="loading || !!moving" type="checkbox" @change="apply" />Due next
-                    actions</label
+                    ><input v-model="dueOnly" :disabled="busy" type="checkbox" @change="apply" />Due next actions</label
                 >
-                <Button :disabled="loading || !!moving" type="submit" class="wd-button wd-button-secondary"
-                    >Apply filters</Button
-                >
-                <Button
-                    :disabled="loading || !!moving"
-                    v-if="filtered"
-                    type="button"
-                    class="wd-button wd-button-secondary"
-                    @click="clearFilters"
-                    >Clear filters</Button
-                >
+                <button v-if="filtered" type="button" class="wd-link" :disabled="busy" @click="clearFilters">
+                    Clear filters
+                </button>
             </form>
             <p v-if="moving" role="status" class="wd-hint">Moving lead… Counts and totals update after saving.</p>
             <p v-if="loading" role="status" class="wd-hint">Loading leads…</p>
@@ -284,28 +268,24 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
                     }}
                 </p>
             </div>
-            <ActionGroup>
+            <div class="pipeline-foot">
                 <p class="wd-hint">
                     {{ entries.length }} leads on this page. Counts cover all matching pages; column values cover this
                     page.
                 </p>
-                <Button
-                    v-if="nextCursor"
-                    class="wd-button wd-button-secondary"
-                    type="button"
-                    :disabled="loading || !!moving"
-                    @click="nextPage"
-                    >Next 25 leads</Button
-                >
-                <Button
+                <button v-if="nextCursor" class="wd-table-button" type="button" :disabled="busy" @click="nextPage">
+                    Next 25 leads
+                </button>
+                <button
                     v-if="matchingCount > entries.length && !nextCursor"
-                    class="wd-button wd-button-secondary"
+                    class="wd-table-button"
                     type="button"
-                    :disabled="loading || !!moving"
+                    :disabled="busy"
                     @click="apply"
-                    >First page</Button
                 >
-            </ActionGroup>
+                    First page
+                </button>
+            </div>
         </section>
     </div>
 </template>
@@ -317,10 +297,10 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
 .pipeline-card {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 14px;
     width: 100%;
     min-width: 0;
-    padding: 24px;
+    padding: 20px;
     border: 1px solid var(--wd-line);
     border-radius: 16px;
     background: var(--wd-surface);
@@ -329,9 +309,9 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
 .pipeline-header {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 16px 32px;
+    gap: 12px 32px;
 }
 .pipeline-intro {
     display: flex;
@@ -348,7 +328,7 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
 }
 .pipeline-title-row h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1.2;
 }
 .automation-pill {
@@ -362,22 +342,25 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
 .pipeline-subtitle {
     margin: 0;
     color: var(--wd-muted);
-    font-size: 14px;
+    font-size: 13px;
 }
 .pipeline-value {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    align-items: flex-end;
+    gap: 1px;
+    text-align: right;
 }
 .pipeline-kicker {
     color: var(--wd-muted);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 .pipeline-total {
     font-family: var(--wd-font-display);
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 700;
     line-height: 1.15;
     overflow-wrap: anywhere;
@@ -385,37 +368,63 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
 }
 .pipeline-count {
     color: var(--wd-muted);
-    font-size: 13px;
+    font-size: 12px;
 }
 .pipeline-toolbar {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 12px 16px;
+    align-items: center;
+    gap: 10px 12px;
 }
 .pipeline-search {
-    flex: 1 1 220px;
+    position: relative;
+    flex: 0 1 300px;
     min-width: 0;
+}
+.pipeline-search svg {
+    position: absolute;
+    top: 50%;
+    left: 11px;
+    color: var(--wd-muted);
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 .pipeline-search input {
     width: 100%;
-}
-.pipeline-stage {
-    flex: 1 1 180px;
-    min-width: 0;
+    padding-left: 34px;
 }
 .pipeline-due {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 44px;
-    color: var(--wd-body);
-    font-size: 14px;
+    min-height: var(--wd-table-control);
+    padding: 0 12px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    color: var(--wd-ink);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
 }
 .pipeline-due input {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     accent-color: var(--wd-brand);
+}
+.pipeline-due:focus-within {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.wd-filter-chips.is-busy {
+    opacity: 0.6;
+    pointer-events: none;
+}
+.pipeline-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
 }
 .pipeline-scroll {
     min-width: 0;
@@ -426,14 +435,14 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
 }
 .pipeline-grid {
     display: grid;
-    grid-auto-columns: minmax(170px, 1fr);
+    grid-auto-columns: minmax(150px, 1fr);
     grid-auto-flow: column;
-    gap: 14px;
+    gap: 10px;
 }
 .pipeline-extra {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(212px, 100%), 1fr));
-    gap: 14px;
+    gap: 10px;
 }
 .pipeline-empty {
     padding: 32px 16px;
@@ -454,9 +463,16 @@ const headerAmounts = computed(() => props.totals.map((row) => money(row.amount_
 .pipeline-card :deep(.wd-hint) {
     margin: 0;
 }
+@media (max-width: 599px) {
+    /* Once the header wraps, the value block reads from the left like the rest of the card. */
+    .pipeline-value {
+        align-items: flex-start;
+        text-align: left;
+    }
+}
 @media (max-width: 480px) {
     .pipeline-card {
-        padding: 20px;
+        padding: 16px;
     }
 }
 </style>

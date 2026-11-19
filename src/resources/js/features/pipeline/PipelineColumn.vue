@@ -55,6 +55,11 @@ const amounts = computed(() => {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([currency, minor]) => money(minor.toString(), currency));
 });
+/** Leads shown before "Show N more", so one busy stage does not stretch the whole board. Drops still land while collapsed. */
+const PREVIEW = 6;
+const expanded = ref(false);
+const shown = computed(() => (expanded.value ? props.entries : props.entries.slice(0, PREVIEW)));
+const hidden = computed(() => props.entries.length - PREVIEW);
 const empty = computed(() =>
     props.count > 0 ? `${props.count} leads on other pages` : props.filtered ? 'No matching leads' : 'No leads yet',
 );
@@ -84,7 +89,7 @@ function due(row: Entry): boolean {
         </header>
         <div class="column-cards">
             <button
-                v-for="lead in entries"
+                v-for="lead in shown"
                 :key="lead.id"
                 type="button"
                 class="lead-card"
@@ -105,6 +110,20 @@ function due(row: Entry): boolean {
                     <span v-if="due(lead)" class="tag tag-due">Action due</span>
                 </span>
             </button>
+            <button
+                v-if="hidden > 0"
+                type="button"
+                class="wd-table-button column-more"
+                :aria-expanded="expanded ? 'true' : 'false'"
+                v-bind="{
+                    'aria-label': expanded
+                        ? `Show fewer ${stage.label} leads`
+                        : `Show ${hidden} more ${stage.label} leads`,
+                }"
+                @click="expanded = !expanded"
+            >
+                {{ expanded ? 'Show fewer' : `Show ${hidden} more` }}
+            </button>
             <p v-if="!entries.length" class="column-empty">{{ empty }}</p>
         </div>
     </section>
@@ -113,17 +132,17 @@ function due(row: Entry): boolean {
 .pipeline-column {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     min-width: 0;
-    padding: 14px;
+    padding: 10px;
     border: 1px solid var(--wd-line);
-    border-radius: 16px;
+    border-radius: 14px;
     background: var(--wd-paper);
 }
 .column-header {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 .column-title {
     display: flex;
@@ -140,7 +159,7 @@ function due(row: Entry): boolean {
     flex: 1;
     margin: 0;
     color: var(--wd-ink);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
 }
 .column-count {
@@ -158,22 +177,22 @@ function due(row: Entry): boolean {
     overflow-wrap: anywhere;
     margin: 0;
     color: var(--wd-muted);
-    font-size: 12px;
+    font-size: 11.5px;
     font-variant-numeric: tabular-nums;
 }
 .column-cards {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 7px;
 }
 .lead-card {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
     width: 100%;
-    padding: 14px;
+    padding: 8px 10px;
     border: 1px solid var(--wd-line);
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--wd-surface);
     color: var(--wd-ink);
     text-align: left;
@@ -203,14 +222,14 @@ function due(row: Entry): boolean {
     outline-offset: 3px;
 }
 .lead-brand {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.3;
     overflow-wrap: anywhere;
 }
 .lead-amount {
     color: var(--wd-muted);
-    font-size: 13px;
+    font-size: 12.5px;
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
 }
@@ -218,7 +237,7 @@ function due(row: Entry): boolean {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 4px;
+    margin-top: 3px;
 }
 .tag {
     padding: 2px 8px;
@@ -238,9 +257,15 @@ function due(row: Entry): boolean {
     background: var(--wd-warning-bg);
     color: var(--wd-warning);
 }
+.column-more {
+    width: 100%;
+    border-style: dashed;
+    color: var(--wd-brand);
+    font-size: 12.5px;
+}
 .column-empty {
     margin: 0;
-    padding: 20px 12px;
+    padding: 12px 10px;
     border: 1px dashed var(--wd-control-line);
     border-radius: 12px;
     color: var(--wd-muted);

@@ -35,13 +35,16 @@ class Pipeline
             // Literal substring search; user '%'/'_' are not SQL wildcards.
             $query->whereRaw('strpos(lower(brand_name), lower(?)) > 0', [$filters['q']]);
         }
-        if (! empty($filters['stage'])) {
-            $query->where('stage', $filters['stage']);
-        }
         if (! empty($filters['due'])) {
             $query->whereNotNull('next_action_due')->where('next_action_due', '<=', now());
         }
-        $counts = (clone $query)->selectRaw('stage, count(*)::int AS count')->groupBy('stage')->get()->all();
+        // Stage choices count every stage under the other filters, so a count matches the list choosing it shows.
+        $stageCounts = (clone $query)->selectRaw('stage, count(*)::int AS count')->groupBy('stage')->get()->all();
+        if (! empty($filters['stage'])) {
+            $query->where('stage', $filters['stage']);
+        }
+        $counts = empty($filters['stage']) ? $stageCounts
+            : (clone $query)->selectRaw('stage, count(*)::int AS count')->groupBy('stage')->get()->all();
         $totals = (clone $query)->selectRaw('currency, sum(value_minor)::text AS amount_minor, count(*)::int AS count')
             ->where('stage', '!=', PipelineStage::Lost->value)->groupBy('currency')->orderBy('currency')->get()->all();
         if (! empty($filters['cursor'])) {
@@ -55,7 +58,7 @@ class Pipeline
         $entries = $rows->take(25)->map(fn ($row) => $this->project($row))->values()->all();
 
         return ['entries' => $entries, 'nextCursor' => $more ? end($entries)['id'] : null,
-            'counts' => $counts, 'totals' => $totals];
+            'counts' => $counts, 'stageCounts' => $stageCounts, 'totals' => $totals];
     }
 
     public function detail(string $orgId, string $id): array

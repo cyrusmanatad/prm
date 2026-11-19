@@ -27,6 +27,8 @@ export interface PipelineWorkspace {
     entries: Entry[];
     stages: { value: string; label: string }[];
     counts: { stage: string; count: number }[];
+    /** Counts per stage under every filter except the stage filter, for the stage chips. Absent for older callers. */
+    stageCounts?: { stage: string; count: number }[];
     totals: { currency: string; amount_minor: string; count: number }[];
     nextCursor: string | null;
     selected: EntryDetail | null;

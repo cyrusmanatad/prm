@@ -45,7 +45,7 @@ test('pipeline filters query every page and preserve stages, money, URL and draw
     const pitched = board.getByRole('region', { name: 'Pitched', exact: true });
     await expect(pitched.getByText('1 leads on other pages', { exact: true })).toBeVisible();
     await expect(pitched.getByRole('heading', { name: 'Pitched', exact: true })).toHaveCount(1);
-    await expect(board.getByText('31 matching leads · all pages', { exact: true })).toBeVisible();
+    await expect(board.getByText(/^31 matching leads · all pages/)).toBeVisible();
     await expect(board.locator('.pipeline-total')).toHaveText(['PHP 231.00', 'USD 123.45']);
     await expect(card('Older target')).toHaveCount(0);
     expect(
@@ -77,8 +77,8 @@ test('pipeline filters query every page and preserve stages, money, URL and draw
     await expect(page.getByLabel('Search brands', { exact: true })).toHaveValue('Older target');
     await page.getByRole('checkbox', { name: 'Due next actions', exact: true }).check();
     await expect.poll(() => new URL(page.url()).searchParams.get('due')).toBe('1');
-    await page.getByRole('combobox', { name: 'Stage filter', exact: true }).click();
-    await page.getByRole('option', { name: 'Pitched', exact: true }).click();
+    const stages = board.getByRole('group', { name: 'Filter by stage', exact: true });
+    await stages.getByRole('button', { name: /^Pitched \d+$/ }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get('stage')).toBe('pitched');
     await expect(card('Older target')).toBeVisible();
     await card('Older target').click();
@@ -91,21 +91,32 @@ test('pipeline filters query every page and preserve stages, money, URL and draw
     await page.getByRole('button', { name: 'Close lead', exact: true }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
     await board.getByRole('button', { name: 'Clear filters', exact: true }).click();
-    await expect(board.getByText('31 matching leads · all pages', { exact: true })).toBeVisible();
-    await board.getByRole('button', { name: 'Lost', exact: true }).click();
+    await expect(board.getByText(/^31 matching leads · all pages/)).toBeVisible();
+    await stages.getByRole('button', { name: /^Lost \d+$/ }).click();
+    await expect(stages.getByRole('button', { name: /^Lost \d+$/ })).toHaveAttribute('aria-pressed', 'true');
     await expect(board.locator('.lead-card')).toHaveCount(1);
     await expect(card('Older lost')).toBeVisible();
     await expect(board.getByRole('region', { name: 'Active', exact: true })).toHaveCount(0);
     await expect(board.getByText('No non-lost value', { exact: true })).toBeVisible();
-    await board.getByRole('button', { name: 'Repeat clients', exact: true }).click();
+    await stages.getByRole('button', { name: /^Repeat Client \d+$/ }).click();
     await expect(card('Older repeat')).toBeVisible();
     await expect(board.locator('.lead-card')).toHaveCount(1);
     await expect(board.locator('.pipeline-total')).toHaveText(['PHP 200.00']);
-    await board.getByRole('button', { name: 'All leads', exact: true }).click();
-    await expect(board.getByText('31 matching leads · all pages', { exact: true })).toBeVisible();
+    await stages.getByRole('button', { name: /^All \d+$/ }).click();
+    await expect(board.getByText(/^31 matching leads · all pages/)).toBeVisible();
     await page.getByLabel('Search brands', { exact: true }).fill('No matching record');
     await expect(board.getByRole('heading', { name: 'No leads match these filters', exact: true })).toBeVisible();
     await board.getByRole('button', { name: 'Clear filters', exact: true }).click();
+    await expect(board.getByText(/^25 leads on this page/)).toBeVisible();
+    // A busy stage shows six leads, then the rest on request.
+    const leadColumn = board.getByRole('region', { name: 'Lead', exact: true });
+    await expect(leadColumn.locator('.lead-card')).toHaveCount(6);
+    const more = leadColumn.getByRole('button', { name: /^Show \d+ more Lead leads$/ });
+    await more.click();
+    await expect(leadColumn.getByRole('button', { name: 'Show fewer Lead leads', exact: true })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+    );
     await expect(board.locator('.lead-card')).toHaveCount(25);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(
