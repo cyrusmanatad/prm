@@ -121,7 +121,9 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(bp).toHaveURL(/\/brand\?page=2$/);
         await expect(roster.getByRole('row')).toHaveCount(4);
         await expect(summary).toContainText('Active partners13');
-        await expect(bp.getByText('All 13', { exact: true })).toBeVisible();
+        await expect(
+            bp.getByRole('region', { name: 'Partners', exact: true }).getByText('All 13', { exact: true }),
+        ).toBeVisible();
         await bp.reload();
         await expect(roster.getByRole('row')).toHaveCount(4);
         await bp.goBack();

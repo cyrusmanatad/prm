@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PartnerAvatar from '../../components/PartnerAvatar.vue';
 import { computed, ref, watch } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { UserRoundMinus } from '@lucide/vue';
@@ -126,10 +127,13 @@ const summary = computed(() => [
             </section>
 
             <div class="flex flex-wrap items-start gap-6">
-                <section class="min-w-0 flex-[999_1_682px] rounded-2xl border border-line bg-white p-5">
+                <section
+                    class="min-w-0 flex-[999_1_682px] rounded-2xl border border-line bg-white p-5"
+                    aria-labelledby="partners-title"
+                >
                     <template v-if="fixture">
                         <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
-                            <h2 class="font-display text-[18px] font-bold">Partners</h2>
+                            <h2 id="partners-title" class="font-display text-[18px] font-bold">Partners</h2>
                             <div class="flex flex-wrap gap-1.5">
                                 <span class="rounded-full bg-brand px-2.5 py-[5px] text-[12px] font-bold text-white"
                                     >All 48</span
@@ -347,7 +351,7 @@ const summary = computed(() => [
                         </div> </template
                     ><template v-else
                         ><div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-                            <h2 class="font-display text-[18px] font-bold">Partners</h2>
+                            <h2 id="partners-title" class="font-display text-[18px] font-bold">Partners</h2>
                             <form
                                 class="flex min-w-0 flex-wrap items-center gap-2"
                                 role="search"
@@ -360,14 +364,9 @@ const summary = computed(() => [
                                     type="search"
                                     maxlength="120"
                                     placeholder="Search partners…"
-                                    class="min-h-11 w-[220px] min-w-0 flex-[1_1_160px] rounded-lg border border-line-strong bg-white px-3 py-[9px] text-[14px] text-ink placeholder:text-muted"
+                                    class="wd-table-input w-[220px] min-w-0 flex-[1_1_160px]"
                                 />
-                                <button
-                                    type="submit"
-                                    class="min-h-11 rounded-[9px] border border-line-strong bg-white px-3 py-2 text-[13px] font-bold text-ink"
-                                >
-                                    Search
-                                </button>
+                                <button type="submit" class="wd-table-button">Search</button>
                             </form>
                         </div>
                         <div class="mb-3 flex flex-wrap items-center gap-1.5">
@@ -405,27 +404,36 @@ const summary = computed(() => [
                                 </thead>
                                 <tbody>
                                     <tr v-for="row in partners" :key="row.id" class="border-t border-line">
-                                        <th scope="row" class="p-3 font-normal">
-                                            <Link
-                                                :href="`/brand/partners/${row.id}`"
-                                                class="font-bold underline underline-offset-4 hover:text-brand"
-                                                >{{ row.creator_name }}</Link
-                                            >
-                                            <p v-if="row.paused" class="mt-1">
-                                                <StatusBadge label="Paused" tone="warning" />
-                                                <span class="mt-1 block text-[12px] text-muted"
-                                                    >This partner's workspace is currently unavailable. The partnership
-                                                    is kept.</span
-                                                >
-                                            </p>
-                                            <p v-else class="text-[12px] text-muted">Active partnership</p>
+                                        <th scope="row" class="px-3 py-2 align-middle font-normal">
+                                            <div class="wd-partner-identity">
+                                                <PartnerAvatar
+                                                    :name="row.creator_name"
+                                                    :seed="row.id"
+                                                    :paused="row.paused"
+                                                />
+                                                <div class="min-w-0">
+                                                    <Link
+                                                        :href="`/brand/partners/${row.id}`"
+                                                        class="font-bold underline underline-offset-4 hover:text-brand"
+                                                        >{{ row.creator_name }}</Link
+                                                    >
+                                                    <p v-if="row.paused" class="mt-1">
+                                                        <StatusBadge label="Paused" tone="warning" />
+                                                        <span class="mt-1 block text-[12px] text-muted"
+                                                            >This partner's workspace is currently unavailable. The
+                                                            partnership is kept.</span
+                                                        >
+                                                    </p>
+                                                    <p v-else class="text-[12px] text-muted">Active partnership</p>
+                                                </div>
+                                            </div>
                                         </th>
-                                        <td class="p-3 text-muted">Unavailable</td>
-                                        <td class="p-3">
+                                        <td class="px-3 py-2 align-middle text-muted">Unavailable</td>
+                                        <td class="px-3 py-2 align-middle">
                                             <Link
                                                 v-if="row.leads_30d !== null"
                                                 :href="`/brand/lead-registrations${query({ partner: row.id, window: '30d' })}`"
-                                                class="inline-flex min-h-11 min-w-11 items-center font-bold underline underline-offset-4 hover:text-brand"
+                                                class="wd-cell-link font-bold underline underline-offset-4 hover:text-brand"
                                                 v-bind="{
                                                     'aria-label': `${row.leads_30d} leads registered by ${row.creator_name} in the last 30 days`,
                                                 }"
@@ -435,8 +443,10 @@ const summary = computed(() => [
                                                 row.paused ? 'Paused' : 'Unavailable'
                                             }}</span>
                                         </td>
-                                        <td v-for="column in 3" :key="column" class="p-3 text-muted">Unavailable</td>
-                                        <td class="p-3">
+                                        <td v-for="column in 3" :key="column" class="px-3 py-2 align-middle text-muted">
+                                            Unavailable
+                                        </td>
+                                        <td class="px-3 py-2 align-middle">
                                             <template v-if="row.last_active">
                                                 <time
                                                     :datetime="row.last_active.at"
@@ -451,16 +461,16 @@ const summary = computed(() => [
                                                 row.paused ? 'Paused' : 'Not yet recorded'
                                             }}</span>
                                         </td>
-                                        <td class="p-3">
+                                        <td class="px-3 py-2 align-middle">
                                             <button
                                                 v-if="data.canManage"
                                                 type="button"
-                                                class="inline-flex size-11 items-center justify-center rounded-[9px] border border-line-strong bg-white text-alert hover:bg-alert-soft"
+                                                class="wd-table-icon-button is-danger"
                                                 :aria-label="`End partnership with ${row.creator_name}`"
                                                 :title="`End partnership with ${row.creator_name}`"
                                                 @click="$emit('remove', row.id, $event.currentTarget as HTMLElement)"
                                             >
-                                                <UserRoundMinus :size="18" aria-hidden="true" focusable="false" />
+                                                <UserRoundMinus :size="16" aria-hidden="true" focusable="false" />
                                             </button>
                                         </td>
                                     </tr>

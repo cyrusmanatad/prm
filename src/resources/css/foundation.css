@@ -25,6 +25,8 @@
     --wd-warning: #7a4b12;
     --wd-warning-bg: #f8eed9;
     --wd-font-body: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    /* Controls inside tables and list toolbars: compact with a fine pointer, 44px on phones and touch screens. */
+    --wd-table-control: 36px;
     --wd-font-display: 'Bricolage Grotesque', 'Manrope', ui-sans-serif, system-ui, sans-serif;
     font-family: var(--wd-font-body);
     color: var(--wd-ink);
@@ -1301,6 +1303,68 @@ summary:focus-visible {
     background: var(--wd-danger-bg);
     color: var(--wd-danger);
 }
+/* Partner initials avatar. Every text/tint pair meets WCAG AA (lowest 5.1:1). */
+.wd-partner-avatar {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+}
+.wd-partner-avatar.is-28 {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+}
+.wd-partner-avatar.is-48 {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+}
+.wd-partner-avatar.is-blush {
+    background: #f6e3ec;
+    color: #5e0e35;
+}
+.wd-partner-avatar.is-mint {
+    background: #e2f3ec;
+    color: #24614f;
+}
+.wd-partner-avatar.is-sand {
+    background: #f4e6cc;
+    color: #6a4a12;
+}
+.wd-partner-avatar.is-lilac {
+    background: #ece4f3;
+    color: #4f3577;
+}
+.wd-partner-avatar.is-sky {
+    background: #e1ecf6;
+    color: #1f4f7a;
+}
+.wd-partner-avatar.is-clay {
+    background: #f6e2da;
+    color: #7a3520;
+}
+.wd-partner-avatar.is-paused {
+    background: var(--wd-divider);
+    color: var(--wd-muted);
+}
+/* Avatar beside a name and its secondary line. */
+.wd-partner-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+.wd-partner-identity.is-small {
+    gap: 8px;
+}
 /* Pipeline stages in lists: each stage keeps its own icon and colour so a stage never relies on colour alone. */
 .wd-stage-badge[data-stage='pitched'] {
     background: #e3ecf8;
@@ -1430,13 +1494,13 @@ summary:focus-visible {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 44px;
-    padding: 0 18px;
+    min-height: var(--wd-table-control);
+    padding: 0 14px;
     border: 1px solid var(--wd-control-line);
     border-radius: 999px;
     background: var(--wd-surface);
     color: var(--wd-ink);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
@@ -1559,13 +1623,14 @@ summary:focus-visible {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 44px;
-    padding: 0 14px;
+    min-height: var(--wd-table-control);
+    padding: 0 12px;
     border: 1px solid var(--wd-control-line);
     border-radius: 10px;
     background: var(--wd-surface);
     color: var(--wd-ink);
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     text-decoration: none;
 }
 .wd-pagination-links a:hover {
@@ -1588,14 +1653,76 @@ summary:focus-visible {
 }
 .wd-pagination-links .wd-pagination-page {
     justify-content: center;
-    min-width: 44px;
-    padding: 0 10px;
+    min-width: var(--wd-table-control);
+    padding: 0 8px;
     font-variant-numeric: tabular-nums;
 }
 .wd-pagination-links .wd-pagination-page[aria-current='page'] {
     border-color: var(--wd-brand);
     background: var(--wd-brand);
     color: #fff;
+}
+/* Compact table/toolbar controls: a button, an icon-only button and a field that line up with each other. */
+.wd-table-button,
+.wd-table-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: var(--wd-table-control);
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+.wd-table-button {
+    padding: 0 12px;
+}
+.wd-table-icon-button {
+    min-width: var(--wd-table-control);
+    padding: 0;
+}
+.wd-table-button:hover:not(:disabled),
+.wd-table-icon-button:hover:not(:disabled) {
+    background: var(--wd-paper);
+    color: var(--wd-brand);
+}
+.wd-table-icon-button.is-danger {
+    color: var(--wd-danger);
+}
+.wd-table-icon-button.is-danger:hover:not(:disabled) {
+    background: var(--wd-danger-bg);
+    color: var(--wd-danger);
+}
+.wd-table-button:focus-visible,
+.wd-table-icon-button:focus-visible,
+.wd-table-input:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.wd-table-input {
+    min-height: var(--wd-table-control);
+    padding: 0 12px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font: inherit;
+    font-size: 13px;
+}
+.wd-table-input::placeholder {
+    color: var(--wd-muted);
+}
+/* A link standing alone in a cell, such as a count, keeps a full target on phones and touch screens. */
+.wd-cell-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--wd-table-control);
 }
 .wd-pagination-links .wd-pagination-gap {
     min-width: 20px;
@@ -1864,5 +1991,15 @@ summary:focus-visible {
         color: var(--wd-muted);
         font-size: 12px;
         font-weight: 700;
+    }
+}
+
+/* Phones and touch screens keep 44px targets for every compact table control. */
+@media (max-width: 599px), (pointer: coarse) {
+    :root {
+        --wd-table-control: 44px;
+    }
+    .wd-cell-link {
+        min-width: 44px;
     }
 }

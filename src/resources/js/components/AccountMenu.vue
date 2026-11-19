@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { initials as nameInitials } from '../lib/initials';
 import { computed, type Component } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { LogOut, Settings, ShieldCheck } from '@lucide/vue';
@@ -26,16 +27,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{ logout: [] }>();
 
-const letters = computed(
-    () =>
-        props.initials ??
-        props.accountName
-            .trim()
-            .split(/\s+/)
-            .slice(0, 2)
-            .map((part) => part.slice(0, 1).toUpperCase())
-            .join(''),
-);
+const letters = computed(() => props.initials ?? nameInitials(props.accountName, ''));
 
 // Shown to accounts holding a platform grant, outside administration itself. The server authorizes every admin request.
 const page = usePage<{ platformAccess?: boolean }>();
