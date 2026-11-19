@@ -241,14 +241,15 @@
     font-size: 13px;
 }
 .wd-page-size select {
-    min-height: 44px;
-    padding: 0 12px;
+    min-height: var(--wd-table-control);
+    padding: 0 10px;
     border: 1px solid var(--wd-control-line);
     border-radius: 10px;
     background: var(--wd-surface);
     color: var(--wd-ink);
     font: inherit;
-    font-size: 15px;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 /* Brand hub invitations: pending first, five rows before "Show all". */
@@ -276,24 +277,6 @@
 .wd-invitations-empty {
     color: var(--wd-muted);
     font-size: 13px;
-}
-.wd-invitations-refresh {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 36px;
-    padding: 0 12px;
-    border: 1px solid var(--wd-control-line);
-    border-radius: 10px;
-    background: var(--wd-surface);
-    color: var(--wd-ink);
-    font: inherit;
-    font-size: 13px;
-    font-weight: 700;
-}
-.wd-invitations-refresh:hover:not(:disabled) {
-    background: var(--wd-paper);
-    color: var(--wd-brand);
 }
 .wd-invitations-refresh:disabled svg {
     animation: wd-spin 1s linear infinite;
@@ -344,16 +327,10 @@
     font-weight: 700;
 }
 .wd-invitations-table .wd-invitations-revoke {
-    min-height: 36px;
+    min-height: var(--wd-table-control);
     padding: 0 4px;
     font-size: 13px;
     font-weight: 700;
-}
-@media (max-width: 599px), (pointer: coarse) {
-    .wd-invitations-refresh,
-    .wd-invitations-table .wd-invitations-revoke {
-        min-height: 44px;
-    }
 }
 @media (max-width: 599px) {
     /* Compact two-line records: recipient and Revoke on top, dates and delivery below. */

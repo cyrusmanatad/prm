@@ -116,6 +116,8 @@ it('shows real roster figures, links and totals that do not depend on the page',
     expect(leads.get('a').attributes('href')).toBe('/brand/lead-registrations');
     const body = wrapper.findAll('tbody tr');
     expect(body[0]!.get('th a').attributes('href')).toBe('/brand/partners/p1');
+    expect(body[0]!.get('th .wd-partner-avatar').text()).toBe('CC');
+    expect(body[0]!.get('th .wd-partner-avatar').attributes('aria-hidden')).toBe('true');
     // No registrations is a zero that still opens the matching filtered list.
     const zero = body[0]!.findAll('td')[1]!.get('a');
     expect(zero.text()).toBe('0');
@@ -194,6 +196,7 @@ it('lists registrations with links that carry the list state and states the shar
     const row = wrapper.get('tbody tr');
     expect(row.get('th a').attributes('href')).toBe('/brand/lead-registrations/r1?partner=p1&window=30d&page=2');
     expect(row.findAll('td')[0]!.get('a').attributes('href')).toBe('/brand/partners/p1');
+    expect(row.findAll('td')[0]!.get('.wd-partner-avatar').classes()).toContain('is-28');
     expect(row.get('[data-stage="repeat-client"]').text()).toBe('Repeat Client');
     expect(row.findAll('td')[2]!.get('time').attributes('datetime')).toBe(registration.registered_at);
     expect(row.findAll('td')[3]!.get('time').attributes('datetime')).toBe(registration.shared_updated_at);
@@ -316,6 +319,8 @@ it('shows a partner record with an empty optional profile and never links an uns
         '/brand/lead-registrations?partner=p1&window=30d',
     ]);
     expect(wrapper.get('tbody th a').attributes('href')).toBe('/brand/lead-registrations/r1?from=partner');
+    expect(wrapper.get('.wd-partner-identity .wd-partner-avatar').classes()).toContain('is-48');
+    expect(wrapper.find('tbody .wd-partner-avatar').exists()).toBe(false); // The record already names its partner.
     const safe = show(
         mount(BrandPartner, {
             props: {

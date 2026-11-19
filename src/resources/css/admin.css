@@ -1,5 +1,7 @@
 /* Platform administration shell only. Shared tokens and controls remain authoritative. */
 .wd-admin {
+    /* The administration console keeps 44px targets at every width (administration design handoff). */
+    --wd-table-control: 44px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;

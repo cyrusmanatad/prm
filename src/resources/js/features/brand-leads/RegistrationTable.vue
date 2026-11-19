@@ -7,6 +7,7 @@ import { dateTime } from '../admin/format';
 import { relativeTime, stageLabel } from '../portals/activity';
 import type { RegistrationRow, StageOption } from '../portals/types';
 import StageBadge from './StageBadge.vue';
+import PartnerAvatar from '../../components/PartnerAvatar.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -110,9 +111,12 @@ const updated = (row: RegistrationRow) =>
             }}</Link>
         </template>
         <template #cell-partner_name="{ row }">
-            <Link class="wd-registration-partner" :href="`/brand/partners/${row.partnership_id}`">{{
-                row.partner_name
-            }}</Link>
+            <span class="wd-partner-identity is-small">
+                <PartnerAvatar :name="row.partner_name" :seed="row.partnership_id" :size="28" />
+                <Link class="wd-registration-partner" :href="`/brand/partners/${row.partnership_id}`">{{
+                    row.partner_name
+                }}</Link>
+            </span>
         </template>
         <template #cell-stage="{ row }">
             <StageBadge :stage="row.stage" :label="stageLabel(stages, row.stage)" />

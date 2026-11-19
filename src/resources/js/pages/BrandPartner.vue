@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PartnerAvatar from '../components/PartnerAvatar.vue';
 import { computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import ContentSection from '../components/ContentSection.vue';
@@ -54,9 +55,17 @@ const profile = computed<DetailItem[]>(() => [
         <main id="main-content" class="blv-page mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
             <div>
                 <BackLink href="/brand" label="Back to Partner hub" />
-                <h1 class="mt-2 font-display text-[32px] font-bold [overflow-wrap:anywhere]">
-                    {{ partner.creator_name }}
-                </h1>
+                <div class="wd-partner-identity mt-2">
+                    <PartnerAvatar
+                        :name="partner.creator_name"
+                        :seed="partner.id"
+                        :size="48"
+                        :paused="partner.paused"
+                    />
+                    <h1 class="min-w-0 font-display text-[32px] font-bold [overflow-wrap:anywhere]">
+                        {{ partner.creator_name }}
+                    </h1>
+                </div>
                 <p class="mt-1.5 text-[15px] text-ink-soft">
                     Partner record: what {{ partner.creator_name }} shares with {{ workspace.name }}.
                 </p>

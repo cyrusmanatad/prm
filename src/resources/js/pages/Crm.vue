@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { initials } from '../lib/initials';
 import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
 const { professional, path } = useWorkspaceExperience();
 import { confirmAction } from '../composables/useConfirmation';
@@ -197,16 +198,6 @@ function saveReminder(): void {
             due_at: iso(reminder.value.due_at),
             pipeline_entry_id: reminder.value.pipeline_entry_id || null,
         });
-}
-function initials(name: string): string {
-    const letters = name
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part.charAt(0).toUpperCase())
-        .join('');
-    return letters || '?';
 }
 function contactRecord(id: string): Contact | undefined {
     return props.contacts.items.find((item) => item.id === id);

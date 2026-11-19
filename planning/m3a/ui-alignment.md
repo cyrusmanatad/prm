@@ -38,6 +38,12 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed D22:** show only the reference's five board columns: Lead, Pitched, Negotiating, Onboarded and Active. Repeat Client and Lost are optional future UI additions, not required for this milestone. This is a presentation-only change: retain existing database tables, columns, constraints, relationships, stage values and records, with no migration, deletion or reclassification for this decision. Preserve existing backend stage support and aggregate semantics; omitting columns must not delete or move records in those stages. Verify that existing Repeat Client/Lost records remain intact and their existing detail access continues to work. D20's explicit Start onboarding and excluded sensitive collection remain in force despite contrary mockup copy.
 
+## Table controls and partner avatars (2026-11-19)
+
+**Confirmed (2026-11-19):** controls inside tables and list toolbars use one compact size, `--wd-table-control`: **36px with a fine pointer, 44px below 600px wide or with a coarse pointer**. This covers pagination (Previous, Next, page numbers), table search fields and buttons, row action buttons, rows-per-page selects, standard filter chips and links standing alone in a cell. Use the shared `wd-table-button`, `wd-table-icon-button`, `wd-table-input` and `wd-cell-link` classes rather than per-screen sizes. Form and dialog buttons, primary page actions (such as Invite partners) and the Registered leads filter fields keep their existing sizes.
+
+**Confirmed (2026-11-19):** partners are shown with a decorative initials avatar (`PartnerAvatar`) in the Partner hub table (36px), the Partner record header (48px) and the Registered leads Partner column (28px). The tint is chosen from six palette tints by partnership ID; paused partners are neutral. All text/tint pairs meet WCAG AA (lowest 5.1:1). Avatars use only the consented partner display name; uploaded logos or photos are not in scope. Evidence: [table controls and avatars](table-controls-evidence.md).
+
 ## Identity and shared relationship
 
 **Confirmed:** provide separate brand and partner login pages leading to their respective authorized dashboards. One Laravel identity/session system supports both; separate user databases are unnecessary. A person may participate in both contexts. Login entry choice does not create a role, organization membership or sharing grant.

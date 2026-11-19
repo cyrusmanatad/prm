@@ -118,7 +118,7 @@ function refresh(): void {
             </div>
             <button
                 type="button"
-                class="wd-invitations-refresh"
+                class="wd-table-button wd-invitations-refresh"
                 :disabled="refreshing"
                 aria-describedby="invitations-refresh-hint"
                 @click="refresh"

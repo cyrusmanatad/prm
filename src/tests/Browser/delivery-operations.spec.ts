@@ -82,7 +82,9 @@ test('explicit approved sending and MFA-protected resolution never replay uncert
     await page.getByRole('button', { name: 'Verify and continue', exact: true }).click();
     await expect(page).toHaveURL(/\/admin$/);
     await page.goto('/admin/notifications');
-    await page.getByLabel('Workspace name, workspace ID or notification ID', { exact: true }).fill(workspace);
+    await page
+        .getByLabel('Workspace or account name, workspace ID or notification ID', { exact: true })
+        .fill(workspace);
     await page.getByRole('button', { name: 'Filter deliveries', exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`q=${workspace}`));
     await page
