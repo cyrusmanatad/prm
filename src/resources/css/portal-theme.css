@@ -73,3 +73,180 @@
     gap: 6px;
     min-height: 44px;
 }
+
+/* Registered leads list (Brand lead registrations). */
+.blv-page .wd-registrations {
+    gap: 24px;
+}
+@media (min-width: 768px) {
+    .blv-page .wd-registrations {
+        padding: 32px;
+    }
+}
+.wd-registrations-header {
+    display: grid;
+    gap: 8px;
+}
+.wd-registrations-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+}
+.wd-registrations-title h2 {
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 26px;
+    font-weight: 700;
+}
+.wd-registrations-total {
+    color: var(--wd-muted);
+    font-size: 15px;
+}
+.wd-registrations-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--wd-muted);
+    font-size: 14px;
+}
+.wd-registrations-note svg {
+    flex: none;
+}
+.wd-registrations-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr);
+    gap: 16px 24px;
+}
+@media (max-width: 899px) {
+    .wd-registrations-filters {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .wd-registrations-filters > :first-child {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 599px) {
+    .wd-registrations-filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+/* Column headers sort the table; phones show cards without headers and use this control instead. */
+@media (min-width: 600px) {
+    .wd-registrations-filters .wd-registrations-sort {
+        display: none;
+    }
+}
+.wd-registrations-filters .wd-field > label {
+    color: var(--wd-ink);
+    font-size: 14px;
+    font-weight: 600;
+}
+.wd-registrations-filters .wd-field input,
+.wd-registrations-filters .wd-select-trigger {
+    min-height: 48px;
+}
+.wd-registrations-filters .wd-select-panel {
+    max-height: min(400px, 60vh);
+}
+.wd-registrations-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    margin-top: -8px;
+    color: var(--wd-body);
+    font-size: 13px;
+}
+.wd-registrations-status p {
+    margin: 0;
+}
+.wd-registration-table {
+    transition: opacity 0.15s;
+}
+.wd-registration-table.is-pending {
+    opacity: 0.6;
+}
+.wd-registration-table .wd-data-table {
+    font-size: 15px;
+}
+.wd-registration-table .wd-data-table thead th {
+    padding-block: 14px;
+    background: #f8eedf;
+    color: var(--wd-body);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+.wd-registration-table .wd-data-table thead th {
+    vertical-align: middle;
+}
+.wd-registration-table .wd-data-table .wd-stage-badge {
+    padding: 4px 12px;
+    font-size: 13px;
+}
+@media (min-width: 600px) {
+    .wd-registration-table .wd-data-table tbody th,
+    .wd-registration-table .wd-data-table tbody td {
+        padding-block: 16px;
+        vertical-align: middle;
+    }
+}
+.wd-registration-table .wd-data-table tbody tr + tr > * {
+    border-top-color: var(--wd-line);
+}
+.wd-registration-table .wd-data-table a.wd-registration-lead,
+.wd-registration-table .wd-data-table a.wd-registration-partner {
+    color: var(--wd-ink);
+    text-decoration: none;
+}
+.wd-registration-table .wd-data-table a.wd-registration-lead {
+    font-weight: 600;
+}
+.wd-registration-table .wd-data-table a.wd-registration-partner {
+    font-weight: 500;
+}
+.wd-registration-table .wd-data-table a.wd-registration-lead:hover,
+.wd-registration-table .wd-data-table a.wd-registration-partner:hover {
+    color: var(--wd-brand);
+    text-decoration: underline;
+}
+.wd-registration-when {
+    display: block;
+    color: var(--wd-ink);
+}
+.wd-registration-none {
+    color: var(--wd-muted);
+}
+@media (min-width: 600px) {
+    /* Long lead names stay on one line; the full name is in the link title and on the record. */
+    .wd-registration-table .wd-data-table a.wd-registration-lead {
+        display: block;
+        max-width: 320px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .wd-registration-table .wd-data-table td {
+        white-space: nowrap;
+    }
+}
+.wd-page-size {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--wd-body);
+    font-size: 13px;
+}
+.wd-page-size select {
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font: inherit;
+    font-size: 15px;
+}

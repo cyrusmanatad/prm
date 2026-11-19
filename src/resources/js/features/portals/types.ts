@@ -63,7 +63,23 @@ export interface RegistrationDetail extends RegistrationRow {
     contact_name: string | null;
     contact_email: string | null;
 }
-export type RegistrationFilters = { partner: string; stage: string; q: string; window: string };
+export type RegistrationFilters = {
+    partner: string;
+    stage: string;
+    q: string;
+    window: string;
+    /** '', 'registered_asc', 'lead_asc' or 'lead_desc'; empty is newest registration first. */
+    sort: string;
+    /** Rows per page; empty is the server default. */
+    per_page: string;
+};
+/** Registration counts behind the stage and partner choices; each ignores only its own filter. */
+export interface RegistrationFacets {
+    stages: Record<string, number>;
+    stageTotal: number;
+    partners: Record<string, number>;
+    partnerTotal: number;
+}
 export interface BrandWorkspace {
     id: string;
     name: string;

@@ -81,3 +81,20 @@ Requires its own authorization; the earlier presentation-seeding authorization d
 - **Defect found and fixed while testing:** a refused Brand at first left the lead saved without a registration, because the application renders the error inside the request transaction. Capture and registration now run in a nested transaction.
 - **Rendering:** the Add lead dialog with the field open was scanned with axe (no violations) and did not overflow at 1440 and 390 px. The field uses the shared `SelectField` and defaults to `No Brand — keep this lead private`.
 - **Not verified:** WebKit/Safari. Staging: deployed at `39520b4` on 2026-11-18 UTC ([record](staging-deployment.md)); no signed-in check of the field was made there.
+
+## Follow-up: Registered leads list redesign (2026-11-19)
+
+**Scope:** the Brand `Registered leads` list (`/brand/lead-registrations`) aligned with the supplied design, uncommitted on `main` at `24c020c`. Local Compose stack (migrated forward, `app` and `acceptance` images rebuilt), Chromium only.
+
+| Command | Result |
+| --- | --- |
+| `phpunit -c phpunit.acceptance.xml --filter BrandLeadVisibilityTest` | 9 tests passed, including new page-size, sort and facet assertions. |
+| `PresentationDatasetTest` | Passed on the first run; a rerun refuses a non-fresh database (expected). |
+| Pint on changed PHP; `format:check:changed`, `typecheck`, `npm test`, `build` | Passed; 148 component tests. |
+| Browser: `brand-lead-visibility`, desktop and mobile | 4 journeys passed (axe, overflow and touch targets at review widths). |
+
+- **Behaviour:** stage chips with counts; lead-name search filters as typed (350 ms debounce); partner choice (searchable, per-partner counts) and Registered window apply at once; Lead and Registered headers sort (`sort`: `lead_asc`, `lead_desc`, `registered_asc`, default newest); rows per page 10/25/50 (`per_page`, default 25); numbered pages. Each count applies every other filter but its own (`LeadRegistrations::facets`).
+- **Components:** new shared `FilterChips` and `StageBadge`; `DataTable` gained `aria-sort` and `head-<key>` slots; `Pagination` gained optional numbered pages and a controls slot; `SelectField` options gained a right-aligned `count`; `useListFilters` gained `apply()` and `href()` overrides.
+- **Rendering:** inspected at 1440 and 390 px. Phones show cards without column headers, so a `Sort by` control appears below 600 px.
+- **Defect found while testing:** a wrong closure type in `facets()` returned 500; fixed before the passing runs.
+- **Deviations from the design:** the paging summary keeps the shared wording (`… matching registrations, all pages`); the stage label stays `Repeat Client` from the server enum. **Not verified:** WebKit/Safari; staging.

@@ -74,8 +74,44 @@ class LeadRegistrations
             ->orderByRaw('lower(creator_name)')->orderBy('id')->get(['id', 'creator_name'])->all();
     }
 
-    /** @param array{partner?: ?string, stage?: ?string, q?: ?string, window?: ?string} $filters */
+    /** Rows-per-page choices offered on the Brand registration list. */
+    public const PAGE_SIZES = [10, 25, 50];
+
+    /** Sort keys for the Brand registration list; the empty key is newest registration first. */
+    public const SORTS = ['' => ['r.registered_at', 'desc'], 'registered_asc' => ['r.registered_at', 'asc'],
+        'lead_asc' => ['lower(r.display_name)', 'asc'], 'lead_desc' => ['lower(r.display_name)', 'desc']];
+
+    /** @param array{partner?: ?string, stage?: ?string, q?: ?string, window?: ?string, sort?: ?string} $filters */
     public function listing(string $org, array $filters, int $page, string $now, int $perPage = self::PER_PAGE): array
+    {
+        $query = $this->filtered($org, $filters, $now);
+        $total = (clone $query)->count();
+        $page = $this->clamp($page, $total, $perPage);
+        [$column, $direction] = self::SORTS[$filters['sort'] ?? ''] ?? self::SORTS[''];
+        $rows = $query->orderByRaw("$column $direction")->orderBy('r.id', $direction)->limit($perPage)->offset(($page - 1) * $perPage)
+            ->get(['r.id', 'r.display_name', 'r.stage', 'r.registered_at', 'r.shared_updated_at', 'r.partnership_id', 'p.creator_name'])
+            ->map(fn ($row) => $this->summaryRow($row))->all();
+
+        return ['rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage];
+    }
+
+    /**
+     * Registration counts for the stage and partner filter choices. Each facet applies every other
+     * filter but its own, so a count always matches the list that choosing it would show.
+     *
+     * @return array{stages: array<string, int>, stageTotal: int, partners: array<string, int>, partnerTotal: int}
+     */
+    public function facets(string $org, array $filters, string $now): array
+    {
+        $count = fn (string $without, string $column) => $this->filtered($org, [...$filters, $without => ''], $now)
+            ->selectRaw("$column AS facet, count(*)::int AS total")->groupBy($column)->pluck('total', 'facet')->map(fn ($n) => (int) $n)->all();
+        $stages = $count('stage', 'r.stage');
+        $partners = $count('partner', 'r.partnership_id');
+
+        return ['stages' => $stages, 'stageTotal' => array_sum($stages), 'partners' => $partners, 'partnerTotal' => array_sum($partners)];
+    }
+
+    private function filtered(string $org, array $filters, string $now)
     {
         $query = $this->visible($org)->join('partnerships as p', 'p.id', '=', 'r.partnership_id');
         if (! empty($filters['partner'])) {
@@ -91,13 +127,8 @@ class LeadRegistrations
         if (($filters['window'] ?? '') === '30d') {
             $query->whereRaw('r.registered_at >= ?::timestamptz - '.self::WINDOW.' AND r.registered_at <= ?::timestamptz', [$now, $now]);
         }
-        $total = (clone $query)->count();
-        $page = $this->clamp($page, $total, $perPage);
-        $rows = $query->orderByDesc('r.registered_at')->orderByDesc('r.id')->limit($perPage)->offset(($page - 1) * $perPage)
-            ->get(['r.id', 'r.display_name', 'r.stage', 'r.registered_at', 'r.shared_updated_at', 'r.partnership_id', 'p.creator_name'])
-            ->map(fn ($row) => $this->summaryRow($row))->all();
 
-        return ['rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage];
+        return $query;
     }
 
     /** The shared allowlist of one visible registration, or null. */

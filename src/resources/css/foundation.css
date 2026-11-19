@@ -1301,6 +1301,34 @@ summary:focus-visible {
     background: var(--wd-danger-bg);
     color: var(--wd-danger);
 }
+/* Pipeline stages in lists: each stage keeps its own icon and colour so a stage never relies on colour alone. */
+.wd-stage-badge[data-stage='pitched'] {
+    background: #e3ecf8;
+    color: #1f4f8a;
+}
+.wd-stage-badge[data-stage='negotiating'] {
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+}
+.wd-stage-badge[data-stage='negotiating'] svg {
+    fill: currentColor;
+}
+.wd-stage-badge[data-stage='onboarded'] {
+    background: #dff0f0;
+    color: #1d5d63;
+}
+.wd-stage-badge[data-stage='active'] {
+    background: var(--wd-success-bg);
+    color: var(--wd-success);
+}
+.wd-stage-badge[data-stage='repeat-client'] {
+    background: #efe5f6;
+    color: #5b3685;
+}
+.wd-stage-badge[data-stage='lost'] {
+    background: var(--wd-danger-bg);
+    color: var(--wd-danger);
+}
 .wd-data-region {
     max-width: 100%;
     overflow-x: auto;
@@ -1388,6 +1416,84 @@ summary:focus-visible {
     outline-offset: 2px;
     border-radius: 6px;
 }
+/* Single-choice filter chips with result counts; the current chip carries aria-current. */
+.wd-filter-chips ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.wd-filter-chips a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 999px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.wd-filter-chips a:hover {
+    border-color: var(--wd-brand);
+    color: var(--wd-brand);
+}
+.wd-filter-chips a[aria-current='true'] {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand);
+    color: #fff;
+}
+.wd-filter-chip-count {
+    color: var(--wd-muted);
+    font-variant-numeric: tabular-nums;
+}
+.wd-filter-chips a:hover .wd-filter-chip-count {
+    color: inherit;
+}
+.wd-filter-chips a[aria-current='true'] .wd-filter-chip-count {
+    color: #fff;
+}
+.wd-filter-chips a:focus-visible,
+.wd-sort-link:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+/* A text input with a leading search icon. */
+.wd-search-input {
+    position: relative;
+}
+.wd-search-input svg {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    color: var(--wd-muted);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+.wd-field .wd-search-input input {
+    padding-left: 42px;
+}
+/* Sortable column header: the whole label is the control; aria-sort on the header states the order. */
+.wd-data-table thead .wd-sort-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    color: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+    border-radius: 6px;
+}
+.wd-data-table thead .wd-sort-link:hover,
+.wd-data-table thead .wd-sort-link.is-sorted {
+    color: var(--wd-brand);
+}
 .wd-filter-bar {
     display: grid;
     gap: 12px;
@@ -1444,6 +1550,33 @@ summary:focus-visible {
     color: var(--wd-muted);
     background: var(--wd-divider);
     border-color: var(--wd-divider);
+}
+.wd-pagination-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+}
+.wd-pagination-links {
+    flex-wrap: wrap;
+}
+.wd-pagination-links .wd-pagination-page {
+    justify-content: center;
+    min-width: 44px;
+    padding: 0 10px;
+    font-variant-numeric: tabular-nums;
+}
+.wd-pagination-links .wd-pagination-page[aria-current='page'] {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand);
+    color: #fff;
+}
+.wd-pagination-links .wd-pagination-gap {
+    min-width: 20px;
+    padding: 0;
+    border: 0;
+    background: none;
+    justify-content: center;
 }
 .wd-tabs {
     max-width: 100%;

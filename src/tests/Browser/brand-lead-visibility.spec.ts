@@ -153,7 +153,8 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(bp.getByRole('navigation', { name: 'Lead registrations pages' })).toContainText(
             'of 2 matching registrations',
         );
-        await expect(bp.getByRole('list', { name: 'Applied filters' })).toContainText(`Partner: ${second!.name}`);
+        await expect(bp.getByRole('combobox', { name: 'Partner' })).toContainText(second!.name);
+        await expect(bp.getByRole('combobox', { name: 'Registered' })).toContainText('Last 30 days');
         await review(bp, info, 'Lead registrations');
         await bp.getByRole('button', { name: 'Clear filters', exact: true }).click();
         await expect(bp).toHaveURL(/\/brand\/lead-registrations$/);
@@ -167,11 +168,26 @@ test('a partner registers a lead and the brand follows it through the hub, list,
             'of 4 matching registrations',
         );
 
-        // Filter, open a lead, and return to the same filtered list.
+        // Stage chips count registrations and filter as they are chosen.
+        const chips = bp.getByRole('navigation', { name: 'Filter by stage' });
+        await expect(chips.getByRole('link', { name: 'All 4' })).toHaveAttribute('aria-current', 'true');
+        // Sorting by lead name keeps working with the list state.
+        if (isMobile(info)) {
+            // Phones show cards without column headers; the sort order has its own control.
+            await bp.getByRole('combobox', { name: 'Sort by' }).click();
+            await bp.getByRole('option', { name: 'Lead name A–Z' }).click();
+        } else {
+            await list.getByRole('link', { name: 'Lead, sort ascending' }).click();
+        }
+        await expect(bp).toHaveURL(/\/brand\/lead-registrations\?sort=lead_asc$/);
+        await expect(list.getByRole('columnheader', { name: /^Lead/ })).toHaveAttribute('aria-sort', 'ascending');
+        await bp.goto('/brand/lead-registrations');
+
+        // Filter as the name is typed, open a lead, and return to the same filtered list.
         await bp.getByLabel('Lead name', { exact: true }).fill('kanto');
-        await bp.getByRole('button', { name: 'Apply filters', exact: true }).click();
         await expect(bp).toHaveURL(/\/brand\/lead-registrations\?q=kanto$/);
         await expect(list.getByRole('row')).toHaveCount(2);
+        await expect(bp.getByLabel('Lead name', { exact: true })).toHaveValue('kanto');
         await list.getByRole('link', { name: 'Kanto Cafe chain', exact: true }).click();
         await expect(bp.getByRole('heading', { name: 'Kanto Cafe chain', level: 1 })).toBeVisible();
         const shared = bp.getByRole('region', { name: 'Shared lead information' });

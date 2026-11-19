@@ -402,6 +402,24 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         $this->getJson('/brand/lead-registrations?stage=won')->assertUnprocessable();
         $this->getJson('/brand/lead-registrations?window=7d')->assertUnprocessable();
         $this->getJson('/brand/lead-registrations?partner=not-a-uuid')->assertUnprocessable();
+        // Page size, sort order and the counts behind the stage and partner choices.
+        $this->getJson('/brand/lead-registrations?per_page=10')->assertJsonPath('pagination.perPage', 10)->assertJsonCount(10, 'registrations')->assertJsonPath('filters.per_page', '10');
+        $this->getJson('/brand/lead-registrations?per_page=7')->assertUnprocessable();
+        $this->getJson('/brand/lead-registrations?sort=newest')->assertUnprocessable();
+        $byName = array_column($this->getJson('/brand/lead-registrations?sort=lead_asc&per_page=50')->assertJsonCount(31, 'registrations')->json('registrations'), 'display_name');
+        $sorted = $byName;
+        usort($sorted, fn ($a, $b) => strcmp(mb_strtolower($a), mb_strtolower($b)));
+        $this->assertSame($sorted, $byName);
+        $this->assertSame(array_reverse($byName), array_column($this->getJson('/brand/lead-registrations?sort=lead_desc&per_page=50')->json('registrations'), 'display_name'));
+        $oldest = array_column($this->getJson('/brand/lead-registrations?sort=registered_asc&per_page=50')->json('registrations'), 'id');
+        $this->assertSame(array_reverse(array_column([...$first, ...$last], 'id')), $oldest);
+        $facets = $this->getJson('/brand/lead-registrations?stage=lead&partner='.$two)->json('facets');
+        // Each facet ignores only its own filter, so its counts match the list choosing it would show.
+        $this->assertSame($this->getJson('/brand/lead-registrations?partner='.$two)->json('pagination.total'), $facets['stageTotal']);
+        $this->assertSame($this->getJson('/brand/lead-registrations?stage=lead')->json('pagination.total'), $facets['partnerTotal']);
+        $this->assertSame($this->getJson('/brand/lead-registrations?stage=lead&partner='.$two)->json('pagination.total'), $facets['stages']['lead']);
+        $this->assertSame($facets['stages']['lead'], $facets['partners'][$two]);
+        $this->assertSame($facets['stageTotal'], array_sum($facets['stages']));
         $this->getJson('/brand/partners/'.$two.'?page=2')->assertJsonPath('pagination.total', 27)->assertJsonPath('pagination.perPage', 10)->assertJsonCount(10, 'registrations');
     }
 
