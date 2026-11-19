@@ -1,5 +1,11 @@
 <script setup lang="ts" generic="Row extends object">
-export type DataColumn = { key: string; label: string; numeric?: boolean };
+export type DataColumn = {
+    key: string;
+    label: string;
+    numeric?: boolean;
+    /** Sort state of a sortable column; fill the `head-<key>` slot with its sort control. */
+    sort?: 'ascending' | 'descending' | 'none';
+};
 
 defineProps<{
     caption: string;
@@ -36,8 +42,9 @@ function cell(row: Row, key: string): unknown {
                         scope="col"
                         role="columnheader"
                         :class="{ 'wd-data-numeric': column.numeric }"
+                        :aria-sort="column.sort"
                     >
-                        {{ column.label }}
+                        <slot :name="`head-${column.key}`" :column="column">{{ column.label }}</slot>
                     </th>
                 </tr>
             </thead>

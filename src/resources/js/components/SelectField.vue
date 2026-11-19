@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-export type SelectOption = { value: string; label: string; hint?: string };
+export type SelectOption = {
+    value: string;
+    label: string;
+    hint?: string;
+    /** Records this choice would show, right-aligned in the open list. */
+    count?: number;
+};
 
 const props = withDefaults(
     defineProps<{
@@ -233,7 +239,10 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
                         :id="optionId(option.value)"
                         type="button"
                         class="wd-select-option"
-                        :class="{ 'is-active': index === active, 'is-rich': showMark || option.hint }"
+                        :class="{
+                            'is-active': index === active,
+                            'is-rich': showMark || option.hint || option.count != null,
+                        }"
                         role="option"
                         :aria-selected="option.value === value ? 'true' : 'false'"
                         @mouseenter="active = index"
@@ -244,9 +253,11 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
                             <span>{{ option.label }}</span>
                             <span v-if="option.hint" class="wd-select-option-hint">{{ option.hint }}</span>
                         </span>
+                        <span v-if="option.count != null" class="wd-select-option-count">{{ option.count }}</span>
                         <svg
-                            v-if="showMark && option.value === value"
+                            v-if="showMark"
                             class="wd-select-mark"
+                            :class="{ 'is-hidden': option.value !== value }"
                             width="16"
                             height="16"
                             viewBox="0 0 24 24"
@@ -285,9 +296,19 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
     font-size: 13px;
     font-weight: 400;
 }
+.wd-select-option-count {
+    margin-left: auto;
+    color: var(--wd-muted);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
 .wd-select-mark {
     flex: none;
     color: var(--wd-brand);
+}
+/* Unselected rows keep the mark's space so counts stay aligned. */
+.wd-select-mark.is-hidden {
+    visibility: hidden;
 }
 .wd-select-search-wrap {
     position: relative;

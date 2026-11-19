@@ -23,12 +23,15 @@ class BrandLeadController extends Controller
             return redirect('/workspaces');
         }
         $filters = $this->filters($request);
-        $listing = $this->leads->listing($workspace->id, $filters, (int) ($request->validate(['page' => ['nullable', 'integer', 'min:1', 'max:100000']])['page'] ?? 1), $this->leads->clock());
+        $page = (int) ($request->validate(['page' => ['nullable', 'integer', 'min:1', 'max:100000']])['page'] ?? 1);
+        $now = $this->leads->clock();
+        $listing = $this->leads->listing($workspace->id, $filters, $page, $now, (int) ($filters['per_page'] ?: LeadRegistrations::PER_PAGE));
 
         return $this->respond($request, 'BrandLeadRegistrations', [
             'workspace' => $workspace, 'registrations' => $listing['rows'],
             'pagination' => ['page' => $listing['page'], 'perPage' => $listing['perPage'], 'total' => $listing['total']],
             'filters' => $filters, 'partners' => $this->leads->partnerOptions($workspace->id), 'stages' => PipelineStage::options(),
+            'facets' => $this->leads->facets($workspace->id, $filters, $now),
         ]);
     }
 
@@ -78,9 +81,12 @@ class BrandLeadController extends Controller
         $data = $request->validate([
             'partner' => ['nullable', 'uuid'], 'stage' => ['nullable', Rule::enum(PipelineStage::class)],
             'q' => ['nullable', 'string', 'max:160'], 'window' => ['nullable', Rule::in(['30d'])],
+            'sort' => ['nullable', Rule::in(array_filter(array_keys(LeadRegistrations::SORTS)))],
+            'per_page' => ['nullable', Rule::in(LeadRegistrations::PAGE_SIZES)],
         ]);
 
-        return ['partner' => $data['partner'] ?? '', 'stage' => $data['stage'] ?? '', 'q' => $data['q'] ?? '', 'window' => $data['window'] ?? ''];
+        return ['partner' => $data['partner'] ?? '', 'stage' => $data['stage'] ?? '', 'q' => $data['q'] ?? '', 'window' => $data['window'] ?? '',
+            'sort' => $data['sort'] ?? '', 'per_page' => (string) ($data['per_page'] ?? '')];
     }
 
     private function respond(Request $request, string $component, array $data): JsonResponse|Response

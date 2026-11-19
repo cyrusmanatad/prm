@@ -169,30 +169,95 @@ it('keeps the roster search in the address, resets the page and explains an empt
     expect(router.get).toHaveBeenCalledWith('/brand', { q: 'harbor' }, { preserveScroll: true });
 });
 
+const registrationList = (extra: Record<string, unknown> = {}) => ({
+    account,
+    workspace,
+    registrations: [registration],
+    pagination: { page: 2, perPage: 25, total: 26 },
+    filters: { partner: 'p1', stage: '', q: '', window: '30d', sort: '', per_page: '' },
+    partners: [
+        { id: 'p1', creator_name: 'Cedar Creator' },
+        { id: 'p2', creator_name: 'Harbor Creator' },
+    ],
+    stages,
+    facets: { stages: { lead: 20, 'repeat-client': 6 }, stageTotal: 26, partners: { p1: 26, p2: 3 }, partnerTotal: 29 },
+    ...extra,
+});
+
 it('lists registrations with links that carry the list state and states the sharing scope', () => {
-    const wrapper = show(
-        mount(BrandLeadRegistrations, {
-            props: {
-                account,
-                workspace,
-                registrations: [registration],
-                pagination: { page: 2, perPage: 25, total: 26 },
-                filters: { partner: 'p1', stage: '', q: '', window: '30d' },
-                partners: [{ id: 'p1', creator_name: 'Cedar Creator' }],
-                stages,
-            },
-            global: { stubs },
-        }),
-    );
+    const wrapper = show(mount(BrandLeadRegistrations, { props: registrationList(), global: { stubs } }));
     expect(wrapper.get('nav[aria-label="Main"] a[aria-current="page"]').text()).toBe('Lead registrations');
     expect(wrapper.text()).toContain("Partners' other prospects, private notes and estimates are never shown here.");
+    expect(wrapper.get('#registered-leads-heading').text()).toBe('Registered leads');
+    expect(wrapper.text()).toContain('26 registrations');
+    expect(wrapper.text()).toContain('Counts are registrations, not sales, revenue or estimates.');
     const row = wrapper.get('tbody tr');
     expect(row.get('th a').attributes('href')).toBe('/brand/lead-registrations/r1?partner=p1&window=30d&page=2');
     expect(row.findAll('td')[0]!.get('a').attributes('href')).toBe('/brand/partners/p1');
-    expect(row.text()).toContain('Repeat Client');
-    expect(wrapper.get('[aria-label="Applied filters"]').text()).toContain('Partner: Cedar Creator');
-    expect(wrapper.get('[aria-label="Applied filters"]').text()).toContain('Registered: Last 30 days');
-    expect(wrapper.text()).toContain('Showing 26–26 of 26 matching registrations');
+    expect(row.get('[data-stage="repeat-client"]').text()).toBe('Repeat Client');
+    expect(row.findAll('td')[2]!.get('time').attributes('datetime')).toBe(registration.registered_at);
+    expect(row.findAll('td')[3]!.get('time').attributes('datetime')).toBe(registration.shared_updated_at);
+    // Stage chips count registrations under the other filters and keep them when chosen.
+    const chips = wrapper.get('nav[aria-label="Filter by stage"]');
+    expect(chips.get('a[aria-current="true"]').text()).toBe('All 26');
+    const lost = chips.findAll('a').find((chip) => chip.text().startsWith('Lost'))!;
+    expect(lost.text()).toBe('Lost 0');
+    expect(lost.attributes('href')).toBe('/brand/lead-registrations?partner=p1&stage=lost&window=30d');
+    // Sortable headers state their order and keep the filters.
+    const headers = wrapper.findAll('thead th');
+    expect(headers[3]!.attributes('aria-sort')).toBe('descending');
+    expect(headers[0]!.attributes('aria-sort')).toBe('none');
+    expect(headers[0]!.get('a').attributes('href')).toBe(
+        '/brand/lead-registrations?partner=p1&window=30d&sort=lead_asc',
+    );
+    expect(headers[3]!.get('a').attributes('href')).toBe(
+        '/brand/lead-registrations?partner=p1&window=30d&sort=registered_asc',
+    );
+    const pages = wrapper.get('nav[aria-label="Lead registrations pages"]');
+    expect(pages.text()).toContain('Showing 26–26 of 26 matching registrations');
+    expect(pages.get('a[aria-current="page"]').text()).toBe('2');
+    expect(pages.get('a[aria-label="Page 1"]').attributes('href')).toBe(
+        '/brand/lead-registrations?partner=p1&window=30d',
+    );
+    expect(wrapper.text()).toContain('Clear filters');
+});
+
+it('applies registration filters as they are chosen and keeps the sort order', async () => {
+    const wrapper = show(
+        mount(BrandLeadRegistrations, {
+            props: registrationList({
+                filters: { partner: '', stage: '', q: '', window: '', sort: 'lead_asc', per_page: '' },
+            }),
+            global: { stubs },
+        }),
+    );
+    expect(wrapper.text()).not.toContain('Clear filters');
+    const options = {
+        preserveScroll: true,
+        preserveState: true,
+        onStart: expect.any(Function),
+        onFinish: expect.any(Function),
+    };
+    await wrapper.get('#registration-per-page').setValue('10');
+    expect(router.get).toHaveBeenLastCalledWith(
+        '/brand/lead-registrations',
+        { sort: 'lead_asc', per_page: '10' },
+        options,
+    );
+    await wrapper.get('#registration-search').setValue('kanto');
+    await wrapper.get('form[role="search"]').trigger('submit');
+    expect(router.get).toHaveBeenLastCalledWith('/brand/lead-registrations', { q: 'kanto', sort: 'lead_asc' }, options);
+    // The partner list shows each partner's count and filters at once.
+    await wrapper.get('#registration-partner-trigger').trigger('click');
+    const harbor = wrapper.findAll('[role="option"]').find((option) => option.text().includes('Harbor Creator'))!;
+    expect(harbor.text()).toContain('3');
+    await harbor.trigger('click');
+    expect(router.get).toHaveBeenLastCalledWith(
+        '/brand/lead-registrations',
+        { partner: 'p2', sort: 'lead_asc' },
+        options,
+    );
+    expect(wrapper.findAll('thead th')[0]!.attributes('aria-sort')).toBe('ascending');
 });
 
 it('shows only shared lead fields and returns to where the lead was opened from', () => {
@@ -208,7 +273,11 @@ it('shows only shared lead fields and returns to where the lead was opened from'
             contact_name: null,
             contact_email: null,
         },
-        back: { from: 'list' as const, page: 3, filters: { partner: '', stage: 'lost', q: 'gift', window: '' } },
+        back: {
+            from: 'list' as const,
+            page: 3,
+            filters: { partner: '', stage: 'lost', q: 'gift', window: '', sort: '', per_page: '' },
+        },
     };
     const wrapper = show(mount(BrandLeadRegistration, { props, global: { stubs } }));
     expect(wrapper.get('h1').text()).toBe('Liwanag Realty gifting');
