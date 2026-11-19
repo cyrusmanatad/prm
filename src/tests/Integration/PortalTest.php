@@ -68,7 +68,11 @@ class PortalTest extends TestCase
         [$other, $oo] = $this->workspace('brand');
         $lead = $this->select($creator, $co)->postJson('/pipeline', ['brand_name' => 'Secret prospect', 'notes' => 'Private rates', 'currency' => 'PHP', 'value_minor' => '456'])->assertCreated()->json('id');
         $invite = $this->invite($brand, $bo, $creator->email);
-        $this->getJson('/brand')->assertJsonCount(0, 'relationships')->assertDontSee($creator->email)->assertDontSee('token_hash');
+        // The inviting brand's owners see whom they invited (Confirmed 2026-11-19), never the token; nothing else shows the address.
+        $own = $this->getJson('/brand')->assertJsonCount(0, 'relationships')->assertDontSee('token_hash')
+            ->assertJsonPath('invitations.0.recipient_email', strtolower($creator->email));
+        $this->assertStringNotContainsString(strtolower($creator->email), json_encode([$own->json('relationships'), $own->json('partners')]));
+        $this->select($other, $oo)->getJson('/brand')->assertJsonCount(0, 'invitations')->assertDontSee($creator->email);
         $this->select($brand, $bo)->postJson('/partner-invitations', ['email' => $creator->email])->assertConflict();
         $this->accept($other, $oo, $invite)->assertNotFound();
         $this->select($creator, $co)->postJson('/partnerships/accept', ['token' => explode('#', $invite['url'])[1], 'consent' => false])->assertUnprocessable();
