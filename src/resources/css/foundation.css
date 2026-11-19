@@ -1425,7 +1425,8 @@ summary:focus-visible {
     padding: 0;
     list-style: none;
 }
-.wd-filter-chips a {
+.wd-filter-chips a,
+.wd-filter-chips button {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -1440,26 +1441,51 @@ summary:focus-visible {
     text-decoration: none;
     white-space: nowrap;
 }
-.wd-filter-chips a:hover {
+.wd-filter-chips a:hover,
+.wd-filter-chips button:hover {
     border-color: var(--wd-brand);
     color: var(--wd-brand);
 }
-.wd-filter-chips a[aria-current='true'] {
+.wd-filter-chips a[aria-current='true'],
+.wd-filter-chips button[aria-pressed='true'] {
     border-color: var(--wd-brand);
     background: var(--wd-brand);
     color: #fff;
+}
+.wd-filter-chips button {
+    font-family: inherit;
+    cursor: pointer;
+}
+.wd-filter-chips.is-compact ul {
+    gap: 6px;
+}
+.wd-filter-chips.is-compact a,
+.wd-filter-chips.is-compact button {
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+}
+@media (max-width: 599px), (pointer: coarse) {
+    .wd-filter-chips.is-compact a,
+    .wd-filter-chips.is-compact button {
+        min-height: 44px;
+    }
 }
 .wd-filter-chip-count {
     color: var(--wd-muted);
     font-variant-numeric: tabular-nums;
 }
-.wd-filter-chips a:hover .wd-filter-chip-count {
+.wd-filter-chips a:hover .wd-filter-chip-count,
+.wd-filter-chips button:hover .wd-filter-chip-count {
     color: inherit;
 }
-.wd-filter-chips a[aria-current='true'] .wd-filter-chip-count {
+.wd-filter-chips a[aria-current='true'] .wd-filter-chip-count,
+.wd-filter-chips button[aria-pressed='true'] .wd-filter-chip-count {
     color: #fff;
 }
 .wd-filter-chips a:focus-visible,
+.wd-filter-chips button:focus-visible,
 .wd-sort-link:focus-visible {
     outline: 3px solid var(--wd-focus);
     outline-offset: 2px;

@@ -69,10 +69,14 @@ test('explicit invitation email shows queue capture and cancellation without ext
         });
     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
-    const history = page.getByRole('region', { name: 'Invitation history' });
-    await expect(history).toContainText('Email pending');
+    const history = page.getByRole('region', { name: 'Invitations', exact: true });
+    await expect(
+        history.getByRole('rowheader', { name: email.replace('@', '-recipient@'), exact: true }),
+    ).toBeVisible();
+    await expect(history).toContainText('Email queued');
     deliver(email);
-    await page.reload();
+    // Refresh status reloads only this section.
+    await history.getByRole('button', { name: 'Refresh status' }).click();
     await expect(history).toContainText('Email captured locally; no external delivery');
     await page.getByRole('button', { name: '+ Invite partners', exact: true }).click();
     await expect(page.getByLabel('Email this invitation to the recipient')).not.toBeChecked();
@@ -82,19 +86,20 @@ test('explicit invitation email shows queue capture and cancellation without ext
     await expect(page.getByRole('dialog', { name: 'Copy invitation link', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Close invitation dialog' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
+    const cancelled = email.replace('@', '-cancelled@');
     await confirmMutation(
         page,
-        history
-            .getByRole('listitem')
-            .filter({ hasText: 'Email pending' })
-            .getByRole('button', { name: 'Revoke invitation' }),
+        history.getByRole('button', { name: `Revoke invitation to ${cancelled}`, exact: true }),
         'Revoke invitation',
         info,
     );
-    await expect(history).toContainText('revoked');
+    const filters = history.getByRole('group', { name: 'Filter invitations by status' });
+    await expect(filters.getByRole('button', { name: 'Revoked 1' })).toBeVisible();
     deliver(email);
     await page.reload();
-    await expect(history).toContainText('Email cancelled');
+    await filters.getByRole('button', { name: 'Revoked 1' }).click();
+    await expect(filters.getByRole('button', { name: 'Revoked 1' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(history.getByRole('row', { name: new RegExp(cancelled) })).toContainText('Email cancelled');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')

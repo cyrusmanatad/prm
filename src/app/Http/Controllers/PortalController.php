@@ -100,7 +100,9 @@ class PortalController extends Controller
         $data = ['portal' => $portal, 'workspace' => $workspace, 'relationships' => $relationships,
             'canManage' => (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner','admin']) AS allowed", [$org])->allowed,
             'invitations' => DB::table('partner_invitations as i')->leftJoin('notification_outbox as n', 'n.subject_id', '=', 'i.id')
-                ->orderByDesc('i.created_at')->limit(100)->get(['i.id', 'i.status', 'i.expires_at', 'n.state as email_state'])->all(),
+                ->orderByDesc('i.created_at')->limit(100)->get(['i.id', 'i.recipient_email', 'i.created_at', 'i.expires_at', 'n.state as email_state',
+                    // A pending invitation past its expiry can no longer be accepted; it is stored as expired only on the next invitation.
+                    DB::raw("CASE WHEN i.status = 'pending' AND i.expires_at <= now() THEN 'expired' ELSE i.status END AS status")])->all(),
             'pipeline' => $portal === 'partner' ? app(PipelinePage::class)->data($request, $pipeline) : null];
         if ($portal === 'brand') {
             $link = DB::table('partner_join_links')->whereNull('revoked_at')->first();

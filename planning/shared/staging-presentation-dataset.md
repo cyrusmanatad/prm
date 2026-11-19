@@ -50,7 +50,7 @@ The roster is flushed and synced before database commit. If a write fails, the t
 
 ## Presentation walkthrough
 
-1. Sign in to Northline Living at `/brand/login`. Show the 13 active Partners and accepted invitation history. Explain that Partner CRM is private and unavailable metrics are not fabricated.
+1. Sign in to Northline Living at `/brand/login`. Show the 13 active Partners and, under Invitations, the **Accepted** chip (the section opens on Pending). Explain that Partner CRM is private and unavailable metrics are not fabricated.
 2. Sign in separately as Maya Chen at `/partner/login`. Show 15 leads, USD pipeline estimates, all seven stages and the active Northline Living relationship.
 3. Search for `Northline`, open its lead and show the fictional brief, estimate, next action and dated activity. Change its stage and save to demonstrate persistence; restore the stage afterward if desired.
 4. Open Contacts & reminders for the lead. Show its linked contact and the Pending, Due and Completed segments. Complete/reopen a reminder or edit a due date as a live demonstration.

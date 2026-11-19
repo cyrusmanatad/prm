@@ -78,7 +78,9 @@ class NotificationOutboxTest extends AcceptanceCase
         Mail::assertSentCount(1);
         $this->assertSame('captured', $this->state($row->id)->state);
         $this->assertNull($this->state($row->id)->encrypted_payload);
-        $this->getJson('/brand')->assertJsonPath('invitations.0.email_state', 'captured')->assertDontSee($recipient)->assertDontSee('encrypted_payload');
+        // Owners and admins see whom they invited; the encrypted intent and the invitation link never leave the outbox.
+        $this->getJson('/brand')->assertJsonPath('invitations.0.email_state', 'captured')->assertJsonPath('invitations.0.recipient_email', $recipient)
+            ->assertDontSee('encrypted_payload')->assertDontSee(Str::after($result['url'], '#'));
     }
 
     public function test_business_and_notification_intent_roll_back_together(): void

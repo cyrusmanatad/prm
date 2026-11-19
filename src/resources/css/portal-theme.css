@@ -250,3 +250,157 @@
     font: inherit;
     font-size: 15px;
 }
+
+/* Brand hub invitations: pending first, five rows before "Show all". */
+.wd-invitations {
+    display: grid;
+    gap: 14px;
+}
+.wd-invitations-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+}
+.wd-invitations-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+.wd-invitations-title h2 {
+    margin: 0;
+}
+.wd-invitations-title span,
+.wd-invitations-foot,
+.wd-invitations-empty {
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.wd-invitations-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+.wd-invitations-refresh:hover:not(:disabled) {
+    background: var(--wd-paper);
+    color: var(--wd-brand);
+}
+.wd-invitations-refresh:disabled svg {
+    animation: wd-spin 1s linear infinite;
+}
+@keyframes wd-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .wd-invitations-refresh:disabled svg {
+        animation: none;
+    }
+}
+.wd-invitations-empty {
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px dashed var(--wd-control-line);
+    border-radius: 12px;
+    background: var(--wd-paper);
+}
+.wd-invitations-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 16px;
+}
+.wd-invitations-table .wd-data-table thead th {
+    padding-block: 9px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+.wd-invitations-table .wd-data-table tbody th,
+.wd-invitations-table .wd-data-table tbody td {
+    padding-block: 6px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.wd-invitations-table .wd-data-table tbody th {
+    min-width: 0;
+}
+.wd-invitations-table td:last-child {
+    text-align: right;
+}
+.wd-invitations-table .is-soon {
+    color: var(--wd-warning);
+    font-weight: 700;
+}
+.wd-invitations-table .wd-invitations-revoke {
+    min-height: 36px;
+    padding: 0 4px;
+    font-size: 13px;
+    font-weight: 700;
+}
+@media (max-width: 599px), (pointer: coarse) {
+    .wd-invitations-refresh,
+    .wd-invitations-table .wd-invitations-revoke {
+        min-height: 44px;
+    }
+}
+@media (max-width: 599px) {
+    /* Compact two-line records: recipient and Revoke on top, dates and delivery below. */
+    .wd-invitations-table.wd-data-stacked .wd-data-table tbody tr {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px 12px;
+        padding: 10px 14px;
+    }
+    .wd-invitations-table.wd-data-stacked .wd-data-table tbody tr + tr {
+        margin-top: 8px;
+    }
+    .wd-invitations-table.wd-data-stacked .wd-data-table tbody th {
+        flex: 1 0 100%;
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 0 72px 0 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    .wd-invitations-table.wd-data-stacked .wd-data-table tbody td {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 0;
+        color: var(--wd-body);
+        font-size: 13px;
+    }
+    .wd-invitations-table.wd-data-stacked .wd-data-table td[data-label]::before {
+        display: inline;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .wd-invitations-table.wd-data-stacked .wd-data-table td[data-label='Delivery'] {
+        flex-basis: 100%;
+        padding-top: 4px;
+    }
+    .wd-invitations-table.wd-data-stacked .wd-data-table td[data-label='Delivery']::before,
+    .wd-invitations-table.wd-data-stacked .wd-data-table td[data-label='Action']::before {
+        content: none;
+    }
+    .wd-invitations-table.wd-data-stacked .wd-data-table td[data-label='Action'] {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+}

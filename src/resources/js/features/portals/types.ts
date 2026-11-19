@@ -115,3 +115,12 @@ export interface PortalData {
     errors?: Record<string, string>;
     status?: string;
 }
+/** A Brand's own partner invitation, shown only to its owners and admins. */
+export interface PartnerInvitation {
+    id: string;
+    recipient_email: string;
+    status: 'pending' | 'accepted' | 'revoked' | 'expired';
+    created_at: string;
+    expires_at: string;
+    email_state: string | null;
+}
