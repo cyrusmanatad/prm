@@ -76,7 +76,13 @@ class PartnershipSecurityTest extends AcceptanceCase
         $accept = ['token' => $token, 'consent' => true];
         $this->control->table('partner_invitations')->where('id', $id)->update(['expires_at' => now()->subSecond()]);
         $this->actingAs($creator)->withSession(['active_org_id' => $co])->postJson('/partnerships/accept', $accept)->assertNotFound();
+        // The brand sees a pending invitation past its expiry as expired, with the recipient it invited.
+        $this->actingAs($brand)->withSession(['active_org_id' => $bo])->getJson('/brand')->assertJsonPath('invitations.0.status', 'expired')
+            ->assertJsonPath('invitations.0.recipient_email', strtolower($creator->email))->assertJsonMissingPath('invitations.0.token_hash');
+        $this->actingAs($creator)->withSession(['active_org_id' => $co]);
         $this->control->table('partner_invitations')->where('id', $id)->update(['expires_at' => now()->addDay()]);
+        $this->actingAs($brand)->withSession(['active_org_id' => $bo])->getJson('/brand')->assertJsonPath('invitations.0.status', 'pending');
+        $this->actingAs($creator)->withSession(['active_org_id' => $co]);
         foreach (['viewer', 'member', 'manager'] as $role) {
             $this->control->table('memberships')->where('org_id', $co)->update(['role' => $role]);
             $this->postJson('/partnerships/accept', $accept)->assertNotFound();

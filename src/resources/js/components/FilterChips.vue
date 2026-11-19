@@ -8,12 +8,16 @@ defineProps<{
     label: string;
     chips: FilterChip[];
     current: string;
-    hrefFor: (value: string) => string;
+    /** Address of each choice, for server-filtered lists. Without it the chips are toggle buttons that emit `select`. */
+    hrefFor?: (value: string) => string;
+    /** Smaller chips for secondary sections; phones keep 44px targets. */
+    compact?: boolean;
 }>();
+defineEmits<{ select: [value: string] }>();
 </script>
 
 <template>
-    <nav class="wd-filter-chips" :aria-label="label">
+    <nav v-if="hrefFor" class="wd-filter-chips" :class="{ 'is-compact': compact }" :aria-label="label">
         <ul>
             <li v-for="chip in chips" :key="chip.value || 'all'">
                 <Link
@@ -27,4 +31,14 @@ defineProps<{
             </li>
         </ul>
     </nav>
+    <div v-else class="wd-filter-chips" :class="{ 'is-compact': compact }" role="group" :aria-label="label">
+        <ul>
+            <li v-for="chip in chips" :key="chip.value || 'all'">
+                <button type="button" :aria-pressed="chip.value === current" @click="$emit('select', chip.value)">
+                    {{ chip.label }}
+                    <span class="wd-filter-chip-count">{{ chip.count }}</span>
+                </button>
+            </li>
+        </ul>
+    </div>
 </template>

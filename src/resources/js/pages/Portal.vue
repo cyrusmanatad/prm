@@ -6,15 +6,15 @@ import { Head, router, useForm } from '@inertiajs/vue3';
 import { nextTick, ref, watch } from 'vue';
 import PartnerDashboard from '../features/portals/PartnerDashboard.vue';
 import BrandDashboard from '../features/portals/BrandDashboard.vue';
-import type { PortalData } from '../features/portals/types';
+import type { PartnerInvitation, PortalData } from '../features/portals/types';
+import InvitationList from '../features/portals/InvitationList.vue';
 import FormField from '../components/FormField.vue';
 import DialogClose from '../components/DialogClose.vue';
-import { emailStates } from '../features/notifications/emailStates';
 import { Button } from '../components/ui/button';
 const props = defineProps<
     PortalData & {
         portal: 'partner' | 'brand';
-        invitations: { id: string; status: string; expires_at: string; email_state: string | null }[];
+        invitations: PartnerInvitation[];
         inviteUrl?: string | null;
     }
 >();
@@ -104,40 +104,7 @@ function endPartnership(id: string, trigger: HTMLElement): void {
     <Head :title="portal === 'brand' ? 'Partner hub' : 'My leads'" />
     <BrandDashboard v-if="portal === 'brand'" :data="props" @invite="openInvitation" @remove="endPartnership">
         <template v-if="canManage && invitations.length" #after-partners>
-            <section class="rounded-2xl border border-line bg-white p-5" aria-labelledby="invitation-history-title">
-                <h2 id="invitation-history-title" class="mb-2 font-display text-[18px] font-bold">
-                    Invitation history
-                </h2>
-                <p class="wd-hint mb-3">Refresh this page to check email delivery progress.</p>
-                <ul class="invitation-history">
-                    <li
-                        v-for="row in invitations"
-                        :key="row.id"
-                        class="grid gap-2 border-b border-[var(--wd-line)] py-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4"
-                    >
-                        <span>{{ row.status }} · expires {{ new Date(row.expires_at).toLocaleDateString() }}</span
-                        ><span role="status">{{
-                            row.email_state ? emailStates[row.email_state] : 'Link only; email not requested'
-                        }}</span
-                        ><button
-                            v-if="row.status === 'pending'"
-                            type="button"
-                            class="wd-action-danger"
-                            @click="
-                                confirmAction(
-                                    'Revoke invitation',
-                                    `Revoke invitation ${row.id}? The recipient will no longer be able to accept it. Pending email delivery will be cancelled.`,
-                                    () => router.delete(`/partner-invitations/${row.id}`),
-                                    $event,
-                                    { tone: 'danger' },
-                                )
-                            "
-                        >
-                            Revoke invitation
-                        </button>
-                    </li>
-                </ul>
-            </section>
+            <InvitationList :invitations="invitations" />
         </template>
     </BrandDashboard>
     <PartnerDashboard v-else :data="props" @remove="endPartnership" />
@@ -203,10 +170,3 @@ function endPartnership(id: string, trigger: HTMLElement): void {
         />
     </dialog>
 </template>
-
-<style scoped>
-.invitation-history {
-    padding-left: 0;
-    list-style: none;
-}
-</style>

@@ -62,6 +62,7 @@ These now sit with their owning milestone/workstream topics. Their inclusion her
 | --- | --- |
 | Professional | [Hub and subscriptions](professional/hub-evidence.md), [UI and pipeline panels](professional/ui-evidence.md) |
 | Partnerships | [Brand join links](m3a/brand-join-links-evidence.md) |
+| Partnerships | [Brand hub invitations](m3a/invitations-evidence.md) |
 | Pipeline | [Filtering and responsive repair](m2/pipeline-repair-2026-10-25-evidence.md), [drag interactions](m2/pipeline-drag-evidence.md) |
 | CRM | [Contacts and reminders repair](m2/crm-repair-2026-10-25-evidence.md) |
 | Shared interactions | [Confirmation dialogs](shared/confirmation-modals-evidence.md), [notification feedback](shared/notification-feedback-2026-10-25-evidence.md) |
