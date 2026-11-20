@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\InvoiceDrafts;
 use App\Services\PilotEntitlements;
+use App\Support\CsvDownload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -35,8 +36,7 @@ class ProfessionalController extends Controller
             $finance->authorize((int) $request->user()->id, $org);
         }
         // Materialize within the tenant transaction, never stream deferred RLS queries.
-        $file = fopen('php://temp', 'w+');
-        fputcsv($file, array_map(fn ($column) => $column === 'brand_name' ? 'client_name' : $column, $columns[1]), escape: '');
+        $rows = [];
         foreach (DB::table($columns[0])->where('org_id', $org)->orderBy('id')->cursor() as $row) {
             if ($resource === 'invoices') {
                 $row->lines = json_encode(DB::table('invoice_draft_lines')->where('org_id', $org)->where('invoice_id', $row->id)->orderBy('position')
@@ -49,17 +49,9 @@ class ProfessionalController extends Controller
                 $row->reversals = json_encode(DB::table('payment_allocation_reversals')->where('org_id', $org)->whereIn('allocation_id', $allocations->pluck('id'))->orderBy('id')
                     ->get(['id', 'allocation_id', 'reason', 'created_at'])->all(), JSON_THROW_ON_ERROR);
             }
-            $values = array_map(function ($column) use ($row) {
-                $value = (string) ($row->{$column} ?? '');
-
-                return preg_match('/^[\s\x00-\x1f]*[=+@-]/u', $value) ? "'".$value : $value;
-            }, $columns[1]);
-            fputcsv($file, $values, escape: '');
+            $rows[] = array_map(fn ($column) => $row->{$column} ?? '', $columns[1]);
         }
-        rewind($file);
-        $csv = stream_get_contents($file);
-        fclose($file);
 
-        return response($csv)->header('Content-Type', 'text/csv; charset=UTF-8')->header('Content-Disposition', 'attachment; filename="professional-'.$resource.'.csv"')->header('Cache-Control', 'private, no-store')->header('X-Content-Type-Options', 'nosniff');
+        return CsvDownload::make('professional-'.$resource.'.csv', array_map(fn ($column) => $column === 'brand_name' ? 'client_name' : $column, $columns[1]), $rows);
     }
 }

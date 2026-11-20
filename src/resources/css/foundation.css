@@ -218,6 +218,59 @@ summary:focus-visible {
     background: #f6edf1;
     color: #8e1650;
 }
+/* Row and toolbar action menus share the account menu surface at table density. */
+.wd-row-menu {
+    min-width: 200px;
+    padding: 4px;
+    font-size: 13px;
+}
+.wd-row-menu [role='menuitem'] {
+    gap: 8px;
+    min-height: 32px;
+    padding: 6px 10px;
+}
+.wd-row-menu [role='menuitem'][data-disabled] {
+    color: var(--wd-muted);
+    cursor: not-allowed;
+}
+.wd-row-menu [role='menuitem'].is-danger {
+    color: var(--wd-danger);
+}
+.wd-row-menu [role='menuitem'].is-danger[data-highlighted] {
+    background: var(--wd-danger-bg);
+}
+.wd-row-menu-detail {
+    margin-left: auto;
+    padding-left: 12px;
+    color: var(--wd-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+.wd-row-menu-heading {
+    padding: 6px 10px 4px;
+    color: var(--wd-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.wd-row-menu-separator {
+    height: 1px;
+    margin: 4px 0;
+    background: var(--wd-divider);
+}
+.wd-row-menu-trigger {
+    gap: 6px;
+}
+.wd-row-menu-trigger[data-state='open'] {
+    background: var(--wd-divider);
+    color: var(--wd-ink);
+}
+@media (max-width: 599px), (pointer: coarse) {
+    .wd-row-menu [role='menuitem'] {
+        min-height: 44px;
+    }
+}
 .wd-header .wd-header-link {
     color: #fff;
 }

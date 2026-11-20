@@ -69,6 +69,7 @@ These now sit with their owning milestone/workstream topics. Their inclusion her
 | Partnerships | [Brand hub invitations](m3a/invitations-evidence.md) |
 | Partnerships | [Table controls and partner avatars](m3a/table-controls-evidence.md) |
 | Partnerships | [Compact partner pipeline](m3a/pipeline-compact-evidence.md) |
+| Partner tools | [Compact contacts and reminders](m3a/crm-compact-evidence.md) |
 | Pipeline | [Filtering and responsive repair](m2/pipeline-repair-2026-10-25-evidence.md), [drag interactions](m2/pipeline-drag-evidence.md) |
 | CRM | [Contacts and reminders repair](m2/crm-repair-2026-10-25-evidence.md) |
 | Shared interactions | [Confirmation dialogs](shared/confirmation-modals-evidence.md), [notification feedback](shared/notification-feedback-2026-10-25-evidence.md) |
