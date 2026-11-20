@@ -264,6 +264,65 @@ class OnboardingTest extends TestCase
         $this->postJson('/lead', $payload)->assertNotFound();
     }
 
+    public function test_media_kit_introduction_is_sanitized_formatted_text_and_legacy_text_becomes_paragraphs(): void
+    {
+        [$u,$o] = $this->workspace();
+        $kit = ['title' => 'Formatted kit', 'website' => '', 'published' => true, 'consent' => true, 'version' => 0];
+        $dirty = '<h3 onclick="x()">About</h3><p style="color:red">I <strong>review</strong> <em>gear</em> <script>alert(1)</script>'
+            .'<a href="javascript:alert(1)">bad</a> <a href="https://example.test/work" target="_blank">work</a></p>'
+            .'<ul><li>Video</li></ul><img src="https://example.test/x.png"><iframe src="https://example.test"></iframe>';
+        $this->putJson('/media-kit', [...$kit, 'bio' => $dirty])->assertOk();
+        $html = $this->getJson('/public-presence')->json('kit.bio');
+        $this->assertStringContainsString('<h3>About</h3>', $html);
+        $this->assertStringContainsString('<strong>review</strong>', $html);
+        $this->assertStringContainsString('<a href="https://example.test/work" rel="noopener noreferrer nofollow">work</a>', $html);
+        $this->assertStringContainsString('<ul><li>Video</li></ul>', $html);
+        foreach (['script', 'onclick', 'style=', 'javascript:', '<img', '<iframe', 'target='] as $removed) {
+            $this->assertStringNotContainsString($removed, $html);
+        }
+        $kitId = $this->getJson('/public-presence')->json('kit.id');
+        $page = $this->get('/kits/'.$kitId)->assertOk()->assertSee('<strong>review</strong>', false)->assertDontSee('<script>alert', false)
+            ->assertSee('<meta name="description" content="About I review gear bad work Video">', false);
+
+        // Stored values written before formatting, and anything that bypassed the save path, are cleaned again on display.
+        app(TenantContext::class)->run($u->id, $o, fn () => DB::table('media_kits')->where('id', $kitId)->update(['bio' => "First line\nsecond <b>line</b>\n\nNext paragraph"]));
+        $this->getJson('/public-presence')->assertJsonPath('kit.bio', '<p>First line<br />second &lt;b&gt;line&lt;/b&gt;</p><p>Next paragraph</p>');
+        app(TenantContext::class)->run($u->id, $o, fn () => DB::table('media_kits')->where('id', $kitId)->update(['bio' => '<p>Hi<img src=x onerror=alert(1)></p>']));
+        $this->get('/kits/'.$kitId)->assertOk()->assertDontSee('onerror', false)->assertSee('<p>Hi</p>', false);
+
+        $this->putJson('/media-kit', [...$kit, 'bio' => '<p></p><p> </p>', 'version' => 1])->assertOk();
+        $this->getJson('/public-presence')->assertJsonPath('kit.bio', '');
+        $this->putJson('/media-kit', [...$kit, 'bio' => '<p><strong>'.str_repeat('a', 5000).'</strong></p>', 'version' => 2])->assertOk();
+        $this->putJson('/media-kit', [...$kit, 'bio' => '<p>'.str_repeat('a', 5001).'</p>', 'version' => 3])->assertUnprocessable()->assertJsonValidationErrors('bio');
+    }
+
+    public function test_lead_links_have_labels_statuses_lead_counts_and_pages(): void
+    {
+        [$u,$o] = $this->workspace();
+        $first = $this->postJson('/lead-links', ['label' => '  Instagram bio  '])->assertCreated()->json();
+        $this->postJson('/lead-links', ['label' => str_repeat('x', 81)])->assertUnprocessable();
+        $token = substr($first['url'], strpos($first['url'], '#token=') + 7);
+        foreach (['One', 'Two'] as $brand) {
+            $this->postJson('/lead', ['token' => $token, 'brand_name' => $brand, 'contact_name' => 'C', 'email' => 'c@example.test', 'consent' => true, 'idempotency_key' => (string) Str::uuid()])->assertOk();
+        }
+        $expired = $this->postJson('/lead-links')->json('id');
+        $revoked = $this->postJson('/lead-links')->json('id');
+        app(TenantContext::class)->run($u->id, $o, fn () => DB::table('lead_links')->where('id', $expired)->update(['expires_at' => now()->subDay()]));
+        $this->delete('/lead-links/'.$revoked, ['status' => 'all', 'page' => 1])->assertRedirect('/partner/media-kit?status=all');
+        for ($i = 0; $i < 10; $i++) {
+            $this->postJson('/lead-links', ['label' => 'Batch '.$i]);
+        }
+        $this->getJson('/public-presence')
+            ->assertJsonPath('links.counts', ['active' => 11, 'expired' => 1, 'revoked' => 1, 'all' => 13])
+            ->assertJsonPath('links.total', 11)->assertJsonCount(10, 'links.items')->assertJsonPath('links.items.0.label', 'Batch 9')
+            ->assertJsonPath('summary', ['views' => 0, 'activeLinks' => 11, 'leads' => 2])->assertJsonMissingPath('links.items.0.token_hash');
+        $this->getJson('/public-presence?page=2')->assertJsonCount(1, 'links.items')->assertJsonPath('links.items.0.label', 'Instagram bio')
+            ->assertJsonPath('links.items.0.leads', 2)->assertJsonPath('links.items.0.status', 'active');
+        $this->getJson('/public-presence?status=expired')->assertJsonPath('links.items.0.id', $expired)->assertJsonPath('links.items.0.status', 'expired');
+        $this->getJson('/public-presence?status=revoked&page=9')->assertJsonPath('links.page', 1)->assertJsonPath('links.items.0.status', 'revoked');
+        $this->getJson('/public-presence?status=forged')->assertUnprocessable();
+    }
+
     public function test_replacement_invitation_ends_old_sessions_and_requires_a_new_one_use_exchange(): void
     {
         [$u,$org,$lead,$id,$token] = $this->workspace();

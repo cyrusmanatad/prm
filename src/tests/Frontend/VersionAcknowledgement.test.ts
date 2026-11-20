@@ -64,7 +64,7 @@ it('does not acknowledge another media-kit edit that arrived after the submitted
             workspace: { id: 'org', name: 'Workspace' },
             canWrite: true,
             kit,
-            links: [],
+            links: { items: [], page: 1, perPage: 10, total: 0, counts: { active: 0, expired: 0, revoked: 0, all: 0 } },
             issuedLink: null,
         },
     });
