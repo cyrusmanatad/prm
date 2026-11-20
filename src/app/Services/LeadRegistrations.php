@@ -212,9 +212,24 @@ class LeadRegistrations
     /** Connected Brands this workspace can register a lead with. */
     public function brands(string $org): array
     {
-        return array_map(fn ($row) => ['id' => $row->id, 'brand_name' => $row->brand_name, 'paused' => (bool) $row->paused],
-            DB::table('partnerships')->where('creator_org_id', $org)->where('status', 'active')->orderByRaw('lower(brand_name)')->orderBy('id')
-                ->get(['id', 'brand_name', DB::raw('app_partnership_paused(id) AS paused')])->all());
+        return array_map(fn ($row) => ['id' => $row->id, 'brand_name' => $row->brand_name, 'paused' => (bool) $row->paused, 'shared' => (int) $row->shared],
+            DB::table('partnerships AS p')->where('p.creator_org_id', $org)->where('p.status', 'active')->orderByRaw('lower(p.brand_name)')->orderBy('p.id')
+                ->get(['p.id', 'p.brand_name', DB::raw('app_partnership_paused(p.id) AS paused'),
+                    DB::raw("(SELECT count(*) FROM lead_registrations r WHERE r.creator_org_id = p.creator_org_id AND r.partnership_id = p.id AND r.state = 'active') AS shared")])->all());
+    }
+
+    /**
+     * The workspace's open leads a manager can share, each with the partnerships it is already shared with.
+     * Lost leads are left out; only workspace owners and admins receive this list.
+     */
+    public function shareable(string $org, int $limit = 200): array
+    {
+        $rows = DB::table('pipeline_entries')->where('org_id', $org)->where('stage', '<>', 'lost')
+            ->orderByDesc('updated_at')->orderBy('id')->limit($limit)->get(['id', 'brand_name', 'contact_name', 'contact_email', 'stage']);
+        $shared = DB::table('lead_registrations')->where('creator_org_id', $org)->where('state', 'active')
+            ->whereIn('pipeline_entry_id', $rows->pluck('id'))->get(['pipeline_entry_id', 'partnership_id'])->groupBy('pipeline_entry_id');
+
+        return $rows->map(fn ($row) => [...(array) $row, 'registered_with' => ($shared[$row->id] ?? collect())->pluck('partnership_id')->all()])->all();
     }
 
     /** The workspace's own lead offered for registration, with the Brands it is already shared with. */
@@ -226,10 +241,30 @@ class LeadRegistrations
             ->where('pipeline_entry_id', $entry)->where('state', 'active')->pluck('partnership_id')->all()] : null;
     }
 
-    public function own(string $org, int $page): array
+    public const OWN_STATES = ['shared', 'not_shared', 'all'];
+
+    /**
+     * A page of the workspace's own registrations. `state` is `shared` (active, including paused Brands),
+     * `not_shared` (withdrawn for any reason) or `all`; `brand` is a partnership ID and `q` searches lead and Brand names.
+     * Counts follow the Brand and search filters.
+     */
+    public function own(string $org, int $page, array $filters = []): array
     {
         $query = DB::table('lead_registrations as r')->leftJoin('partnerships as p', 'p.id', '=', 'r.partnership_id')->where('r.creator_org_id', $org);
-        $total = (clone $query)->count();
+        if (! empty($filters['brand'])) {
+            $query->where('r.partnership_id', $filters['brand']);
+        }
+        if (($filters['q'] ?? '') !== '') {
+            $query->whereRaw("strpos(lower(r.display_name || ' ' || coalesce(p.brand_name, '')), lower(?)) > 0", [$filters['q']]);
+        }
+        $counts = (clone $query)->selectRaw("count(*) FILTER (WHERE r.state = 'active') AS shared, count(*) FILTER (WHERE r.state <> 'active') AS not_shared, count(*) AS total")->first();
+        $counts = ['shared' => (int) $counts->shared, 'not_shared' => (int) $counts->not_shared, 'all' => (int) $counts->total];
+        match ($filters['state'] ?? 'all') {
+            'shared' => $query->where('r.state', 'active'),
+            'not_shared' => $query->where('r.state', '<>', 'active'),
+            default => null,
+        };
+        $total = $counts[$filters['state'] ?? 'all'];
         $page = $this->clamp($page, $total, self::PER_PAGE);
         $rows = $query->orderByDesc('r.registered_at')->orderByDesc('r.id')->limit(self::PER_PAGE)->offset(($page - 1) * self::PER_PAGE)
             ->get(['r.id', 'r.display_name', 'r.summary', 'r.share_contact', 'r.stage', 'r.state', 'r.withdrawn_reason', 'r.registered_at', 'r.version',
@@ -240,7 +275,7 @@ class LeadRegistrations
                 // The name of an ended partnership's Brand is no longer shared with this workspace.
                 'brand_name' => $row->brand_name, 'paused' => (bool) $row->paused])->all();
 
-        return ['rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => self::PER_PAGE];
+        return ['rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => self::PER_PAGE, 'counts' => $counts];
     }
 
     public function profile(string $org): array

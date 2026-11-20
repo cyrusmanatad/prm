@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { mount, type VueWrapper } from '@vue/test-utils';
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { reactive } from 'vue';
 import BrandDashboard from '../../resources/js/features/portals/BrandDashboard.vue';
 import BrandLeadRegistration from '../../resources/js/pages/BrandLeadRegistration.vue';
@@ -31,6 +31,13 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 const wrappers: VueWrapper[] = [];
 const stubs = { AccountMenu: true, WorkspaceNotice: true };
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+    this.open = true;
+};
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+    this.open = false;
+    this.dispatchEvent(new Event('close'));
+};
 beforeEach(() => vi.clearAllMocks());
 afterEach(() => {
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
@@ -398,8 +405,12 @@ it('explains what a Brand will see before a partner registers a lead, and confir
         mount(BrandSharing, {
             props,
             global: { stubs: { ...stubs, PartnerChrome: { template: '<div><slot /></div>' } } },
+            attachTo: document.body,
         }),
     );
+    // Arriving with a lead opens the share dialog with that lead chosen.
+    await flushPromises();
+    expect((wrapper.get('#share-title').element.closest('dialog') as HTMLDialogElement).open).toBe(true);
     expect(wrapper.text()).toContain('What the Brand will see');
     expect(wrapper.text()).toContain('Never shared');
     expect(wrapper.text()).toContain('Private notes, estimated value, reminders');
@@ -407,9 +418,9 @@ it('explains what a Brand will see before a partner registers a lead, and confir
     expect(wrapper.get('#registration-brand').text()).toContain('Northline Living');
     expect(wrapper.get('#registration-brand').text()).not.toContain('Paused Brand');
     expect((wrapper.get('#registration-name').element as HTMLInputElement).value).toBe('Kanto Café');
-    expect(wrapper.text()).not.toContain("The lead's contact name and email");
+    expect(wrapper.text()).not.toContain('plus the contact name and email');
     await wrapper.get('#registration-contact').setValue(true);
-    expect(wrapper.text()).toContain("The lead's contact name and email");
+    expect(wrapper.text()).toContain('plus the contact name and email');
     const rows = wrapper.findAll('tbody tr');
     expect(rows[1]!.text()).toContain('Ended partnership');
     expect(rows[1]!.text()).toContain('The partnership ended.');
@@ -433,4 +444,65 @@ it('explains what a Brand will see before a partner registers a lead, and confir
     expect(viewer.text()).toContain('Only workspace owners and admins');
     expect(viewer.find('button[aria-label^="Withdraw"]').exists()).toBe(false);
     expect(viewer.find('#registration-brand').exists()).toBe(false);
+});
+
+it('filters shared leads by state and Brand and summarises Brands and the shared profile', async () => {
+    const props = {
+        account,
+        workspace: { id: 'c', name: 'Cedar Creator' },
+        canManage: true,
+        brands: [
+            { id: 'p1', brand_name: 'Northline Living', paused: false, shared: 3 },
+            { id: 'p2', brand_name: 'Lumen Home', paused: true, shared: 1 },
+        ],
+        lead: null,
+        leads: [
+            {
+                id: 'e1',
+                brand_name: 'Glow Labs',
+                contact_name: null,
+                contact_email: null,
+                stage: 'lead',
+                registered_with: ['p1'],
+            },
+        ],
+        registrations: [],
+        pagination: { page: 2, perPage: 25, total: 30 },
+        counts: { shared: 4, not_shared: 26, all: 30 },
+        filters: { state: 'not_shared' as const, brand: 'p1', q: '' },
+        summary: { brands: 2, shared: 4, notShared: 26 },
+        profile: {
+            contact_name: 'Bea',
+            contact_email: null,
+            website_url: 'https://bea.example.test',
+            description: '',
+            version: 2,
+        },
+        stages,
+    };
+    const wrapper = show(
+        mount(BrandSharing, {
+            props,
+            global: { stubs: { ...stubs, PartnerChrome: { template: '<div><slot /></div>' } } },
+            attachTo: document.body,
+        }),
+    );
+    await flushPromises();
+    expect(wrapper.get('[aria-label="Sharing summary"]').text()).toContain('Withdrawn or ended26');
+    const chips = wrapper.get('nav[aria-label="Filter by sharing"]');
+    expect(chips.get('a[aria-current="true"]').text()).toContain('Not shared');
+    expect(chips.findAll('a')[0]!.attributes('href')).toBe('/partner/brand-sharing?state=shared&brand=p1');
+    expect(wrapper.text()).toContain('No shared leads match');
+    expect(wrapper.get('[aria-labelledby="brands-title"]').text()).toContain(
+        '1 lead shared · not visible while paused',
+    );
+    expect(wrapper.get('.bs-profile').text()).toContain('https://bea.example.test');
+    // Without a lead context the dialog stays closed until Share a lead is used; a lead shared everywhere offers no Brand.
+    expect(wrapper.find('#registration-lead').exists()).toBe(false);
+    await wrapper
+        .findAll('button')
+        .find((node) => node.text() === 'Share a lead')!
+        .trigger('click');
+    await flushPromises();
+    expect(wrapper.find('#registration-lead').exists()).toBe(true);
 });
