@@ -1,3 +1,5 @@
+**M3-02 export checkpoint (2026-11-20):** PRIV-01 source audit and PRIV-02 personal/workspace exports are implemented and locally verified on the working tree based on `3ec3847`, under D40. See the [privacy contract](privacy-contract.md#delivered-priv-02-export-interface) and [verification/handoff](privacy-evidence.md). Private ZIP downloads enforce current scope, fresh identity verification and 24-hour expiry. Next: PRIV-03 closure review/restrictions. Retention-class decisions, PRIV-03–PRIV-06, deployment and inherited manual/live-data gates remain open. Historical baseline development status below does not close M3-02.
+
 # M3 Onboarding and Public Presence Status
 
 Current storage/privacy operations, notification gaps and inherited reviews remain indexed in [remaining tasks](../shared/remaining-tasks.md). See the [current handoff](../shared/implementation-handoff.md) for the latest checkpoint and next implementation sequence.

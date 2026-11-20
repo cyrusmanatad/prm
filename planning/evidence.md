@@ -1,3 +1,5 @@
+**M3-02 export verification (2026-11-20):** [implementation, PostgreSQL/role/concurrency checks, archive/cleanup tests and desktop/mobile findings](m3/privacy-evidence.md), supporting the approved [privacy contract](m3/privacy-contract.md). Local disposable environments only; PRIV-03–PRIV-06 and release/deployment gates remain open.
+
 **Email design (2026-11-18):** [shared HTML presentation, rules, commands, rendering findings and unverified client gates](shared/email-design.md). Local disposable stack only; not deployed.
 
 **M5/M6 continuation (2026-11-18):** [seeder/CI repairs, budget enforcement, framework log redaction and synthetic database/document/key restore](m6/readiness-evidence.md); [budget targets and rollout gates](m5/sending-budget-proposal.md); [provider receipt/link trial](m5/provider-delivery-evidence.md). Local fixes are not deployed; no production acceptance.

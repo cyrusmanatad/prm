@@ -25,11 +25,16 @@ async function open(props: Record<string, unknown> = {}): Promise<string[]> {
 }
 
 it('offers administration only to accounts with platform access', async () => {
-    expect(await open()).toEqual(['Switch workspace / account security', 'Sign out']);
+    expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
 
     page.props = { platformAccess: true };
-    expect(await open()).toEqual(['Switch workspace / account security', 'Platform administration', 'Sign out']);
+    expect(await open()).toEqual([
+        'Switch workspace / account security',
+        'Privacy exports',
+        'Platform administration',
+        'Sign out',
+    ]);
     const link = document.body.querySelector<HTMLAnchorElement>('a[href="/admin"]');
     expect(link?.getAttribute('role')).toBe('menuitem');
 });

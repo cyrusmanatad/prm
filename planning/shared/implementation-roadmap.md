@@ -56,6 +56,8 @@ M5's first implementation slice covers durable notification intent and explicitl
 
 ## M6 preparation and carry-forward work
 
+**Current M3-02 planning slice (2026-11-20):** PRIV-01 audit and PRIV-02 personal/workspace exports are implemented and locally verified ([evidence](../m3/privacy-evidence.md), [contract](../m3/privacy-contract.md)). Next: PRIV-03 closure restrictions, then retention/erasure, storage reconciliation and restore/provider acceptance. D40 approves product rules and handler roles; class-specific retention and provider/recovery details remain open. This remains required live-data work; M6 preparation and deferred M7–M9 do not waive it.
+
 **Confirmed D26:** commit the verified M5 slice, progress toward M6 where possible, and preserve unfinished/in-progress/deferred work for later implementation. [M6 preparation](../m6/status.md) now has a [readiness contract](../m6/readiness-contract.md) and [current handoff](implementation-handoff.md). Required M5 workflows remain open; M6 final acceptance still depends on M1–M5 and applicable release gates. Independent planning and synthetic readiness rehearsals can proceed alongside that work.
 
 The [remaining-task register](remaining-tasks.md) assigns stable IDs, statuses, dependencies, completion criteria and source links across all milestones. Starting a later milestone never silently completes, removes or waives an earlier task. Explicitly deferred/optional features remain available for later work without becoming current launch requirements.

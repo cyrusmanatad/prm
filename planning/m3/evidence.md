@@ -1,5 +1,7 @@
 # M3 verification evidence
 
+**PRIV-02 follow-up (2026-11-20):** personal/workspace private exports are implemented and locally verified; [commands, results, desktop/mobile findings and remaining gates](privacy-evidence.md). Historical onboarding results below retain their recorded scope.
+
 [Structured verification](../evidence/m3/verification.json) records the exact scope and source fingerprints. The full clean setup passed in **703 seconds**, using a new synthetic project, fresh credentials/database/storage and the pinned official Playwright container. It removed its own stack and volumes. Host application dependencies/configuration were excluded; build/tool caches could be reused. This was local execution, not remote CI. See [clean-setup summary](../evidence/m3/clean-setup.json) and [tested source](../evidence/m3/fresh-setup-source-revision.json).
 
 - 24 identity tests / 208 assertions.

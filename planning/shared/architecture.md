@@ -95,3 +95,10 @@ M3 implements capability transactions alongside member transactions: one-use inv
 ## Mail-budget boundary (2026-11-18)
 
 **Confirmed targets, local implementation:** Laravel MessageSending accounts for direct verification/reset/monitoring SMTP and both outboxes using function-only PostgreSQL receipts on an independent committed connection. Array/log capture is exempt; active enforcement refuses unreviewed envelope expansion/composite transports. Existing minute admission and current approval/access checks remain; daily denial defers unsent outbox work without consuming minute slots. Policy is inactive until explicit migration-role activation after matching-runtime/provider checks. See [budget contract](../m5/sending-budget-proposal.md) and [release runbook](../m6/release-runbook.md).
+
+
+## Privacy export slice (PRIV-02, locally implemented 2026-11-20)
+
+The verified-account export controller uses explicit data projections and a bounded local ZIP builder inside restricted-role repeatable-read transactions. A committed requester-owned receipt precedes file creation; current identity, membership and sharing are revalidated before build/download. Forced-RLS receipts/events and narrow maintenance functions keep cleanup durable across interrupted builds without granting platform/support access to private tenant exports. Archives expire after 24 hours; the scheduler retries exact-file cleanup every five minutes. App and scheduler require shared private archive storage on the chosen topology.
+
+See the [implemented contract](../m3/privacy-contract.md#delivered-priv-02-export-interface), [database note](database-design.md#audit-retention-and-migration), [routes](api-design.md#privacy-exports-priv-02-locally-implemented-2026-11-20) and [verification](../m3/privacy-evidence.md). General closure, retained-class erasure, provider handling and restore replay remain subsequent M3-02 slices.

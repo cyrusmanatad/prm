@@ -90,3 +90,10 @@ The PDF requests consent records, AI consent, export/deletion, encrypted TINs/pa
 ## Capped account email (2026-11-18)
 
 **Implemented locally:** active provider-budget exhaustion preserves account creation and login but reports verification paused. Verification resend reports temporary unavailability through the shared 503 page. Password reset retains identical generic known/unknown-account feedback and normal throttles, preventing budget-dependent account enumeration. SMTP attempts use the reserved account/security/operational allocation; pending account-outbox decisions defer before transport. See [budget contract](../m5/sending-budget-proposal.md) and [verification](../m6/readiness-evidence.md).
+
+
+## Privacy export authorization (D40 / PRIV-02)
+
+Locally implemented: verified users can request their own account export at `/account/exports`; only current workspace owners can request a workspace export, with enrolled MFA even when general staging MFA enforcement is off. Current password and a fresh enrolled authenticator code establish an export-specific session proof for 15 minutes. Changes to password, email/verification or authenticator invalidate that proof. Build and download recheck current authorization in restricted-role snapshots. A changed included-data fingerprint requires a fresh archive.
+
+Founder/co-founder/authorized-super-admin privacy handling does not grant blanket tenant-private export or impersonation. Other members' private drafts/account secrets stay outside workspace exports; the account export includes only its requester's currently authorized personal automation. See the [implemented privacy contract](../m3/privacy-contract.md#delivered-priv-02-export-interface).

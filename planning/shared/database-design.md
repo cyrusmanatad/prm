@@ -54,6 +54,8 @@ Proposed relationships: organization → many memberships/pipeline entries; pipe
 
 ## Audit, retention, and migration
 
+**M3-02 follow-up (2026-11-20):** the [source inventory](../m3/privacy-evidence.md) and proposed [privacy contract](../m3/privacy-contract.md) describe existing copies, immutable/FK constraints, scoped export, closure barriers, durable file deletion and restore replay. PRIV-02 now adds forced-RLS `privacy_exports` and append-only runtime `privacy_export_events`, immutable request scope/lifetime, sanitized own-account security projection and narrowly scoped sharing-lock/expiry-cleanup functions. Runtime cannot remove receipts/events or finish cleanup directly. General retention/deletion request ledgers remain proposed. D40 approves the product timings and handler roles; jurisdiction-specific retained-class periods and processor/recovery verification remain open. D32 audit/finance protections remain in force.
+
 Record actor, organization, event, subject, time, correlation ID, and redacted changes. Plan monthly audit partitions, including a default/future partition creation strategy. Define retention before collecting IPs, kit views, tax documents, or AI inputs. Export/deletion must traverse storage, jobs, integrations, and consent records; preserve only justified financial/audit retention and record exceptions.
 
 Migration tests must prove RLS is enabled, policy coverage is complete, wrong-tenant writes fail, shared grants are narrow, and revoked memberships lose access. Include connection-pool reuse and background jobs. Schema-per-tenant or dedicated databases remain future options for contractual isolation/residency; avoid premature migration complexity.

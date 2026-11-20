@@ -14,6 +14,7 @@ const emit = defineEmits<{ revoke: [] }>();
             Set up or replace your authenticator and manage recovery codes.
             <Link href="/account/authenticator" class="wd-link">Authenticator and recovery codes</Link>
         </p>
+        <p class="wd-description"><Link href="/account/exports" class="wd-link">Download your data</Link></p>
         <p class="wd-description">
             Sign out every session, including this one. Enter your current password to continue.
         </p>

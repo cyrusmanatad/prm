@@ -47,3 +47,12 @@ Before live data: restore database plus documents, test tenant isolation on depl
 **Locally verified:** source-offline encrypted database/document/key/active-mail-ledger restore, safe framework/new-failed-job exception metadata and active mail-allocation warnings. These checks add no production recovery or alert acceptance. Historical failed-job payloads and custom logs remain review work. [Readiness evidence](../m6/readiness-evidence.md) records limits.
 
 The [prepared release runbook](../m6/release-runbook.md) covers worker drain, protected backups, matching app/web images, migration-role schema/grants, inactive-by-default budget installation and explicit audited activation. Preserve the consumption ledger after activation; older sending images bypass accounting, so pause sending before any such rollback and use a compatible forward fix. Provider-wide/billing/operator inputs, actual chosen-topology drills and rollout approval remain required.
+
+
+## Private export operations (PRIV-02, locally implemented 2026-11-20)
+
+Apply `2026_11_20_000001_create_privacy_exports` and refresh runtime grants through the migration job before running the matching app/scheduler candidate. App and scheduler need the same private local export storage at `storage/app/private/privacy-exports`; existing Compose uses its shared private-storage volume. Verify this explicitly on a multi-host topology. Archives are not public files or onboarding R2 objects. The directory/file modes are 0700/0600.
+
+`php artisan privacy:purge-exports` is scheduled every five minutes. It removes eligible final and interrupted ZIPs, up to 500 receipts per pass, with advisory-lock exclusion and absence checks; only successful file cleanup marks a receipt expired. Failures retain the receipt for retry, return command failure and emit aggregate warning `privacy.exports.cleanup_failed`. A running scheduler/accessible shared storage is required for physical cleanup; download checks independently deny expired archives. Review disk usage/backlog and warnings operationally.
+
+After the first request, rollback refuses to discard receipts/audit/cleanup authority; preserve tables and fix forward. Backup copies of private archives remain under the approved recovery/retention work and are not erased by the export purge. This local slice does not validate a chosen production topology, production backup lifecycle or external processors. See [contract/limits](../m3/privacy-contract.md#delivered-priv-02-export-interface) and [evidence](../m3/privacy-evidence.md).

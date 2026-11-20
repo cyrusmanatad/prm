@@ -61,6 +61,11 @@ function signOut(): void {
                             security</Link
                         >
                     </DropdownMenuItem>
+                    <DropdownMenuItem as-child>
+                        <Link href="/account/exports"
+                            ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Privacy exports</Link
+                        >
+                    </DropdownMenuItem>
                     <DropdownMenuItem v-for="link in links" :key="link.href" as-child>
                         <Link :href="link.href"
                             ><component :is="link.icon" :size="18" aria-hidden="true" class="shrink-0" />{{
