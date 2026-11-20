@@ -30,7 +30,8 @@ const emit = defineEmits<{ logout: [] }>();
 const letters = computed(() => props.initials ?? nameInitials(props.accountName, ''));
 
 // Shown to accounts holding a platform grant, outside administration itself. The server authorizes every admin request.
-const page = usePage<{ platformAccess?: boolean }>();
+const page = usePage<{ platformAccess?: boolean; accountClosing?: boolean }>();
+const closing = computed(() => page.props?.accountClosing === true);
 const showAdministration = computed(
     () => !props.fixture && page.props?.platformAccess === true && !/^\/admin(?:[/?]|$)/.test(page.url ?? ''),
 );
@@ -55,20 +56,35 @@ function signOut(): void {
                         <span class="wd-account-name">{{ accountName }}</span>
                         <span v-if="accountEmail" class="wd-account-email">{{ accountEmail }}</span>
                     </div>
-                    <DropdownMenuItem as-child>
+                    <DropdownMenuItem v-if="!closing" as-child>
                         <Link href="/workspaces"
                             ><Settings :size="18" aria-hidden="true" class="shrink-0" />Switch workspace / account
                             security</Link
                         >
                     </DropdownMenuItem>
-                    <DropdownMenuItem v-for="link in links" :key="link.href" as-child>
+                    <DropdownMenuItem v-else as-child>
+                        <Link href="/account/closure"
+                            ><Settings :size="18" aria-hidden="true" class="shrink-0" />Account closure</Link
+                        >
+                    </DropdownMenuItem>
+                    <DropdownMenuItem v-if="closing" as-child>
+                        <Link href="/account/authenticator"
+                            ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Authenticator security</Link
+                        >
+                    </DropdownMenuItem>
+                    <DropdownMenuItem v-if="!closing" as-child>
+                        <Link href="/account/exports"
+                            ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Privacy exports</Link
+                        >
+                    </DropdownMenuItem>
+                    <DropdownMenuItem v-for="link in closing ? [] : links" :key="link.href" as-child>
                         <Link :href="link.href"
                             ><component :is="link.icon" :size="18" aria-hidden="true" class="shrink-0" />{{
                                 link.label
                             }}</Link
                         >
                     </DropdownMenuItem>
-                    <DropdownMenuItem v-if="showAdministration" as-child>
+                    <DropdownMenuItem v-if="showAdministration && !closing" as-child>
                         <Link href="/admin"
                             ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Platform administration</Link
                         >

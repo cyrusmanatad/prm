@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SessionController extends Controller
@@ -26,6 +27,10 @@ class SessionController extends Controller
         $request->session()->regenerate();
         // Credited once, to the creator workspace this sign-in enters, after suspension, verification and MFA checks (D38).
         $request->session()->put(WorkspaceContext::SIGN_IN, ['user' => (int) $request->user()->id, 'at' => time()]);
+
+        if (DB::getDriverName() === 'pgsql' && DB::selectOne('SELECT app_account_closing(?) AS closing', [$request->user()->id])->closing) {
+            return $this->completed($request, ['verified' => true], '/account/closure');
+        }
 
         return $this->completed($request, ['verified' => $request->user()->hasVerifiedEmail()],
             $request->user()->hasVerifiedEmail() ? (($portal || $request->user()->registration_workspace_id || ($request->session()->has('partnership_token') || $request->session()->has('partnership_join'))) ? '/portal/enter' : '/workspaces') : '/verify-email');

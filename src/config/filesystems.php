@@ -42,6 +42,13 @@ return [
     */
 
     'disks' => [
+        'privacy-exports' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/privacy-exports'),
+            'serve' => false,
+            'throw' => true,
+            'permissions' => ['file' => ['public' => 0600, 'private' => 0600], 'dir' => ['public' => 0700, 'private' => 0700]],
+        ],
         'onboarding' => env('ONBOARDING_STORAGE_DRIVER', 'local') === 'local'
             ? $onboardingLocal
             : array_replace($onboardingR2, ['driver' => env('ONBOARDING_STORAGE_DRIVER')]),

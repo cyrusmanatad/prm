@@ -1,3 +1,5 @@
+**M3-02 closure checkpoint (2026-11-20, D40):** exports are committed as `64b1a6f`; PRIV-03 closure review, scoped access restriction, cancellation and metadata-only `platform.owner` handling are implemented locally on `feat/privacy-closure`. See the [delivered contract](privacy-contract.md#delivered-priv-03-closure-interface) and [closure verification/handoff](closure-evidence.md). Next: PRIV-04 retention/hold policy and erasure design; class-specific periods and processor/recovery verification still gate irreversible erasure. PRIV-05 orphan reporting can proceed independently under its approved safeguards. No staging deployment or live cleanup; preserve the deferred staging rotation plan. Older checkpoints retain their historical scope.
+
 # M3 Onboarding and Public Presence Status
 
 Current storage/privacy operations, notification gaps and inherited reviews remain indexed in [remaining tasks](../shared/remaining-tasks.md). See the [current handoff](../shared/implementation-handoff.md) for the latest checkpoint and next implementation sequence.

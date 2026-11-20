@@ -6,10 +6,26 @@ use App\Services\BusinessSchedules;
 use App\Services\FollowUpDrafts;
 use App\Services\Monitoring;
 use App\Services\NotificationOutbox;
+use App\Services\PrivacyExports;
 use App\Services\ScheduledNotifications;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
+
+Artisan::command('privacy:purge-exports', function (PrivacyExports $exports) {
+    $result = $exports->purge();
+    $this->info('Expired archives removed: '.$result['removed'].'; cleanup failures: '.$result['failed'].'.');
+    if ($result['failed'] > 0) {
+        Log::warning('privacy.exports.cleanup_failed', ['count' => $result['failed']]);
+        $this->error('Archive cleanup needs attention. The next run will retry.');
+
+        return 1;
+    }
+
+    return 0;
+})->purpose('Remove expired and interrupted private export archives with durable retries');
+Schedule::command('privacy:purge-exports')->everyFiveMinutes()->withoutOverlapping(10);
 
 Artisan::command('notifications:dispatch', function (NotificationOutbox $outbox, AccountNotifications $account) {
     $this->info('Queued '.$outbox->dispatch().' pending notifications.');

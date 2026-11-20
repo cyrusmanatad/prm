@@ -140,3 +140,15 @@ Common behaviour:
 ## M5-03 implemented automation settings
 
 Authenticated verified members use selected-workspace `GET /automation`, `PUT /automation/preferences`, `POST /automation/schedules`, and versioned `PATCH`/`DELETE /automation/schedules/{id}`. Editing roles may manage only their own settings and schedules. DELETE withdraws consent and retains history. The [implemented contract](../m5/schedules-contract.md#api-and-database) specifies named rules, explicit opt-in, timezone and date formats, server-owned versions and stale-write behavior. These are session/CSRF-protected web/JSON routes; `GET /automation` now also projects the first 100 open reminder choices and the actor’s latest 50 scheduled-email history items (ID/kind/state/created time only). M5-04 consumes reminder/weekly review runs server-side; existing schedule endpoints now queue email when due. See the [delivery contract](../m5/scheduled-delivery-contract.md).
+
+
+## Privacy exports (PRIV-02, locally implemented 2026-11-20)
+
+`GET /account/exports`, `POST /account/exports`, `POST /account/exports/verify` and `GET /account/exports/{export}/download` are verified-account session/web routes. Account scope belongs to the requester; workspace scope additionally requires current ownership and an enrolled authenticator. Create/reverify uses the current password plus a fresh single-use code when enrolled, and download requires a current 15-minute proof with unchanged identity/security basis. Platform grants/support access grant no export override.
+
+The [privacy contract](../m3/privacy-contract.md#delivered-priv-02-export-interface) defines exact scope, throttles, payloads, private ZIP projections, bounded synchronous generation and download revalidation. Expiry stops downloads at 24 hours; cleanup is durable and retryable. These routes implement exports only; closure is now implemented separately under PRIV-03; erasure and assisted external-person requests remain pending. See [verification](../m3/privacy-evidence.md).
+
+
+## Closure requests (PRIV-03, locally implemented 2026-11-20)
+
+Verified session routes `GET/POST /account/closure` and versioned `POST /account/closure/{closure}/cancel` provide account/owner-workspace impact review, restriction and cancellation with fresh password/MFA. `GET /admin/privacy-requests` and `POST /admin/privacy-requests/{closure}` require `platform.owner`, administrator MFA and fresh mutation credentials; handlers receive metadata/counts only. See the [closure contract](../m3/privacy-contract.md#delivered-priv-03-closure-interface) for payloads, barriers and ownership safeguards, and [verification](../m3/closure-evidence.md). There is no erasure endpoint or automatic erasure timer.

@@ -4,6 +4,8 @@ Creator pipeline and brand onboarding, built as a Laravel modular monolith. This
 
 Partner lead management now lives at `/partner/leads`, with Add lead in a modal and editing/actions in a drawer. Supporting pages use `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. Old page bookmarks redirect; existing JSON and mutation endpoints remain available. See the [partner navigation contract](planning/m3a/portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
 
+Privacy exports are locally implemented at `/account/exports`, linked from the account menu and workspace account security. Personal and owner-authorized workspace ZIPs use current password/MFA checks, private downloads and 24-hour expiry. The scheduler runs `privacy:purge-exports` every five minutes; app and scheduler must share private export storage. See the [contract and operating limits](planning/m3/privacy-contract.md#delivered-priv-02-export-interface) and [verification/handoff](planning/m3/privacy-evidence.md). Account/workspace closure review, restriction and cancellation are now implemented locally under PRIV-03; see the [closure contract](planning/m3/privacy-contract.md#delivered-priv-03-closure-interface) and [verification](planning/m3/closure-evidence.md). Irreversible erasure remains unfinished and gated by retention/recovery policy.
+
 ## Layout
 
 ```text

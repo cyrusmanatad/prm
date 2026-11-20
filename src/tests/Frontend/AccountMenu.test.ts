@@ -25,11 +25,16 @@ async function open(props: Record<string, unknown> = {}): Promise<string[]> {
 }
 
 it('offers administration only to accounts with platform access', async () => {
-    expect(await open()).toEqual(['Switch workspace / account security', 'Sign out']);
+    expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
 
     page.props = { platformAccess: true };
-    expect(await open()).toEqual(['Switch workspace / account security', 'Platform administration', 'Sign out']);
+    expect(await open()).toEqual([
+        'Switch workspace / account security',
+        'Privacy exports',
+        'Platform administration',
+        'Sign out',
+    ]);
     const link = document.body.querySelector<HTMLAnchorElement>('a[href="/admin"]');
     expect(link?.getAttribute('role')).toBe('menuitem');
 });
@@ -45,4 +50,9 @@ it('omits the administration link inside administration and in fixtures', async 
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
 
     expect(await open({ fixture: true })).not.toContain('Platform administration');
+});
+
+it('offers only closure and security navigation while the account is closing', async () => {
+    page.props = { accountClosing: true };
+    expect(await open()).toEqual(['Account closure', 'Authenticator security', 'Sign out']);
 });

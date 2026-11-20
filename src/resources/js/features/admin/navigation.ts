@@ -58,6 +58,12 @@ export const adminGroups: AdminGroup[] = [
             { href: '/admin/operators', label: 'Platform access', icon: KeyRound, capability: 'platform.owner' },
             { href: '/admin/support-access', label: 'Support access', icon: LifeBuoy, capability: 'support.request' },
             { href: '/admin/cleanup', label: 'Data cleanup', icon: Eraser, capability: 'cleanup.review' },
+            {
+                href: '/admin/privacy-requests',
+                label: 'Privacy requests',
+                icon: ShieldCheck,
+                capability: 'platform.owner',
+            },
         ],
     },
     {

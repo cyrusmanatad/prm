@@ -23,7 +23,10 @@ use App\Http\Controllers\PlatformConsoleController;
 use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\PlatformGovernanceController;
 use App\Http\Controllers\PlatformNotificationController;
+use App\Http\Controllers\PlatformPrivacyController;
 use App\Http\Controllers\PortalController;
+use App\Http\Controllers\PrivacyClosureController;
+use App\Http\Controllers\PrivacyExportController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\PublicPresenceController;
 use App\Http\Controllers\WorkspaceController;
@@ -85,6 +88,15 @@ Route::middleware('auth')->group(function (): void {
         'user' => $request->user()->only(['id', 'name', 'email', 'email_verified_at']),
     ]));
     Route::middleware('verified')->group(function (): void {
+        Route::get('/account/closure', [PrivacyClosureController::class, 'index']);
+        Route::post('/account/closure', [PrivacyClosureController::class, 'store'])->middleware('throttle:5,1,privacy-close:');
+        Route::post('/account/closure/{closure}/cancel', [PrivacyClosureController::class, 'cancel'])->whereUuid('closure')->middleware('throttle:5,1,privacy-cancel:');
+        Route::get('/admin/privacy-requests', [PlatformPrivacyController::class, 'index']);
+        Route::post('/admin/privacy-requests/{closure}', [PlatformPrivacyController::class, 'update'])->whereUuid('closure')->middleware('throttle:10,1,privacy-review:');
+        Route::get('/account/exports', [PrivacyExportController::class, 'index']);
+        Route::post('/account/exports/verify', [PrivacyExportController::class, 'verify'])->middleware('throttle:10,1,privacy-verify:');
+        Route::post('/account/exports', [PrivacyExportController::class, 'store'])->middleware('throttle:3,60,privacy-export:');
+        Route::get('/account/exports/{export}/download', [PrivacyExportController::class, 'download'])->whereUuid('export')->middleware('throttle:10,1,privacy-download:');
         Route::get('/account/authenticator', [AuthenticatorController::class, 'show']);
         Route::post('/account/authenticator/enroll', [AuthenticatorController::class, 'enroll'])->middleware('throttle:5,1,account-enroll:');
         Route::delete('/account/authenticator/enroll', [AuthenticatorController::class, 'cancel']);
