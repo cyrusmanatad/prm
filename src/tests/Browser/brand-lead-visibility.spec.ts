@@ -86,6 +86,8 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(pp).toHaveURL(new RegExp(`/partner/brand-sharing\\?lead=${seed.lead}$`));
         await expect(pp.getByRole('heading', { name: 'Brand sharing', level: 1 })).toBeVisible();
         await expect(pp.getByText('Nothing from your pipeline is visible to any Brand.')).toBeVisible();
+        // Arriving from the lead opens the share dialog with that lead chosen.
+        await expect(pp.getByRole('dialog', { name: 'Share a lead with a Brand' })).toBeVisible();
         await expect(pp.getByRole('note')).toContainText('Never shared');
         await review(pp, info, 'Brand sharing form');
         await pp.getByRole('combobox', { name: 'Brand', exact: true }).click();
@@ -93,21 +95,27 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(pp.getByLabel('Lead name shown to the Brand')).toHaveValue('Kanto Cafe linens');
         await pp.getByLabel('Lead name shown to the Brand').fill('Kanto Cafe chain');
         await pp.getByLabel('Summary for the Brand (optional)').fill('Table linens for six branches');
-        await pp.getByRole('button', { name: 'Register lead with Brand', exact: true }).click();
+        await pp.getByRole('button', { name: 'Share lead', exact: true }).click();
         await expect(pp).toHaveURL(/\/partner\/brand-sharing$/);
         const own = pp.getByRole('region', { name: 'Leads registered with Brands table' });
         await expect(own.getByRole('row', { name: /Kanto Cafe chain/ })).toContainText('Shared');
-        await expect(pp.getByText('Choose a lead first')).toBeVisible();
+        await expect(pp.getByRole('dialog', { name: 'Share a lead with a Brand' })).toHaveCount(0);
+        await expect(pp.getByRole('region', { name: 'Connected Brands' })).toContainText('1 lead shared');
         await dismissNotifications(pp);
         await review(pp, info, 'Brand sharing list');
         // The shared profile is optional; an unsafe address is refused with a field error.
+        await pp.getByRole('button', { name: 'Edit shared profile', exact: true }).click();
         await pp.getByLabel('Website or public profile').fill('javascript:alert(1)');
         await pp.getByRole('button', { name: 'Save shared profile', exact: true }).click();
         await expect(pp.getByLabel('Website or public profile')).toHaveAttribute('aria-invalid', 'true');
         await pp.getByLabel('Website or public profile').fill('https://example.test/roster-partner');
         await pp.getByLabel('Business contact name').fill('Bea Santos');
         await pp.getByRole('button', { name: 'Save shared profile', exact: true }).click();
-        await expect(pp.getByLabel('Website or public profile')).not.toHaveAttribute('aria-invalid', 'true');
+        await expect(pp.getByRole('dialog', { name: 'Edit shared profile' })).toHaveCount(0);
+        await expect(pp.getByRole('region', { name: 'Your shared profile' })).toContainText(
+            'https://example.test/roster-partner',
+        );
+        await expect(pp.getByRole('button', { name: 'Edit shared profile', exact: true })).toBeFocused();
         await dismissNotifications(pp);
 
         // Brand: totals, roster figures and activity now include the registration and the sign-in.

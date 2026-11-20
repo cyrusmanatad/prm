@@ -619,6 +619,48 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         }
     }
 
+    public function test_partner_sharing_page_filters_counts_brands_and_offers_shareable_leads_to_managers(): void
+    {
+        [, $brandA] = $this->brand('Alpha');
+        [, $brandB] = $this->brand('Beta');
+        [$partner, $org] = $this->creator();
+        $alpha = $this->connect($brandA, $org, 'Alpha Apparel');
+        $beta = $this->connect($brandB, $org, 'Beta Home');
+        $first = $this->lead($partner, $org, ['brand_name' => 'Glow Labs'])['id'];
+        $second = $this->lead($partner, $org, ['brand_name' => 'Paperfold'])['id'];
+        $lost = $this->lead($partner, $org, ['brand_name' => 'Gone lead'])['id'];
+        $this->control->table('pipeline_entries')->where('id', $lost)->update(['stage' => 'lost']);
+        $share = fn (string $entry, string $partnership, string $name) => $this->member($partner, $org)->postJson('/lead-registrations',
+            ['partnership' => $partnership, 'entry' => $entry, 'display_name' => $name])->assertCreated()->json('id');
+        $share($first, $alpha, 'Glow Labs');
+        $share($first, $beta, 'Glow Labs for Beta');
+        $withdrawn = $share($second, $alpha, 'Paperfold');
+        $this->deleteJson('/lead-registrations/'.$withdrawn, ['version' => 1])->assertOk();
+
+        $page = $this->member($partner, $org)->getJson('/partner/brand-sharing')->assertOk()
+            ->assertJsonPath('filters', ['state' => 'all', 'brand' => '', 'q' => ''])
+            ->assertJsonPath('counts', ['shared' => 2, 'not_shared' => 1, 'all' => 3])
+            ->assertJsonPath('summary', ['brands' => 2, 'shared' => 2, 'notShared' => 1])
+            ->assertJsonPath('pagination.total', 3);
+        $brands = collect($page->json('brands'))->keyBy('id');
+        $this->assertSame([1, 1], [$brands[$alpha]['shared'], $brands[$beta]['shared']]);
+        $leads = collect($page->json('leads'))->keyBy('id');
+        $this->assertFalse($leads->has($lost));
+        $this->assertEqualsCanonicalizing([$alpha, $beta], $leads[$first]['registered_with']);
+        $this->assertSame([], $leads[$second]['registered_with']);
+
+        $this->getJson('/partner/brand-sharing?state=shared')->assertJsonPath('pagination.total', 2)->assertJsonCount(2, 'registrations');
+        $this->getJson('/partner/brand-sharing?state=not_shared')->assertJsonPath('registrations.0.display_name', 'Paperfold');
+        $this->getJson('/partner/brand-sharing?brand='.$beta)->assertJsonPath('counts', ['shared' => 1, 'not_shared' => 0, 'all' => 1])
+            ->assertJsonPath('summary.shared', 2);
+        $this->getJson('/partner/brand-sharing?q=paper')->assertJsonPath('pagination.total', 1)->assertJsonPath('registrations.0.state', 'withdrawn');
+        $this->getJson('/partner/brand-sharing?state=forged')->assertUnprocessable();
+
+        // Members who cannot manage sharing see what is shared but receive no lead list.
+        $this->control->table('memberships')->where('org_id', $org)->where('user_id', $partner->id)->update(['role' => 'member']);
+        $this->getJson('/partner/brand-sharing')->assertJsonPath('canManage', false)->assertJsonCount(0, 'leads')->assertJsonPath('counts.all', 3);
+    }
+
     public function test_the_shared_profile_is_optional_versioned_and_refuses_unsafe_links(): void
     {
         [$brandUser, $brand] = $this->brand();

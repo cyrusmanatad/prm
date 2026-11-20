@@ -27,13 +27,21 @@ class LeadRegistrationController extends Controller
         if ($workspace->experience === 'professional' && ! $request->is('professional/*') && $browser) {
             return redirect('/professional/brand-sharing'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
-        $query = $request->validate(['lead' => ['nullable', 'uuid'], 'page' => ['nullable', 'integer', 'min:1', 'max:100000']]);
+        $query = $request->validate(['lead' => ['nullable', 'uuid'], 'page' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'state' => ['nullable', 'in:'.implode(',', LeadRegistrations::OWN_STATES)], 'brand' => ['nullable', 'uuid'], 'q' => ['nullable', 'string', 'max:160']]);
         $lead = empty($query['lead']) ? null : $this->leads->source($org, $query['lead']);
         abort_if(! empty($query['lead']) && ! $lead, 404);
-        $own = $this->leads->own($org, (int) ($query['page'] ?? 1));
+        $filters = ['state' => $query['state'] ?? 'all', 'brand' => $query['brand'] ?? '', 'q' => trim($query['q'] ?? '')];
+        $own = $this->leads->own($org, (int) ($query['page'] ?? 1), $filters);
+        $brands = $this->leads->brands($org);
+        $canManage = $this->leads->canManage($org);
+        $everything = $filters['brand'] === '' && $filters['q'] === '' ? $own['counts'] : $this->leads->own($org, 1)['counts'];
         $data = [
-            'workspace' => $workspace, 'canManage' => $this->leads->canManage($org), 'brands' => $this->leads->brands($org), 'lead' => $lead,
+            'workspace' => $workspace, 'canManage' => $canManage, 'brands' => $brands, 'lead' => $lead,
             'registrations' => $own['rows'], 'pagination' => ['page' => $own['page'], 'perPage' => $own['perPage'], 'total' => $own['total']],
+            'counts' => $own['counts'], 'filters' => $filters,
+            'summary' => ['brands' => count($brands), 'shared' => $everything['shared'], 'notShared' => $everything['not_shared']],
+            'leads' => $canManage ? $this->leads->shareable($org) : [],
             'profile' => $this->leads->profile($org), 'stages' => PipelineStage::options(),
         ];
 
