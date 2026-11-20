@@ -215,6 +215,8 @@ Route::middleware('auth')->group(function (): void {
             Route::match(['get', 'post'], '/onboarding-requests/{record}/documents/{document}', [OnboardingController::class, 'ownerDocument'])->whereUuid('record')->whereUuid('document');
             Route::get('/partner/contacts', [CrmController::class, 'index']);
             Route::get('/crm', [CrmController::class, 'index']);
+            Route::get('/crm/exports/{resource}', [CrmController::class, 'export'])->whereIn('resource', ['contacts', 'reminders'])->middleware('throttle:10,1,crm-export:');
+            Route::post('/contacts/bulk', [CrmController::class, 'bulk'])->middleware('throttle:30,1,crm-bulk:');
             Route::post('/{kind}', [CrmController::class, 'store'])->whereIn('kind', ['contacts', 'reminders']);
             Route::patch('/{kind}/{record}', [CrmController::class, 'update'])->whereIn('kind', ['contacts', 'reminders'])->whereUuid('record');
             Route::delete('/{kind}/{record}', [CrmController::class, 'destroy'])->whereIn('kind', ['contacts', 'reminders'])->whereUuid('record');

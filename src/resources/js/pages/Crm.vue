@@ -1,19 +1,40 @@
 <script setup lang="ts">
 import { initials } from '../lib/initials';
 import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
-const { professional, path } = useWorkspaceExperience();
 import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Calendar, Check, Link as LinkIcon, Lock } from '@lucide/vue';
-import { computed, nextTick, ref, watch } from 'vue';
+import type { RequestPayload } from '@inertiajs/core';
+import {
+    AlarmClock,
+    BellPlus,
+    Check,
+    ChevronRight,
+    Copy,
+    Download,
+    Link as LinkIcon,
+    Lock,
+    Mail,
+    Pencil,
+    Plus,
+    Search,
+    Trash2,
+    X,
+} from '@lucide/vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
-import ActionGroup from '../components/ActionGroup.vue';
-import ContentSection from '../components/ContentSection.vue';
+import DataTable, { type DataColumn } from '../components/DataTable.vue';
+import EmptyState from '../components/EmptyState.vue';
+import Pagination from '../components/Pagination.vue';
+import RowActionMenu, { type RowAction } from '../components/RowActionMenu.vue';
+import StatusBadge from '../components/StatusBadge.vue';
 import { Button } from '../components/ui/button';
 import DialogClose from '../components/DialogClose.vue';
 import { containDialogFocus } from '../composables/useDialogFocus';
 import { useValidationFocus } from '../composables/useValidationFocus';
+import { crmPanel } from '../features/crm/panel';
+import { dueLabel, reminderTone, snoozePresets, type ReminderTone } from '../features/crm/snooze';
+
 type Contact = {
     id: string;
     name: string;
@@ -21,6 +42,7 @@ type Contact = {
     company: string;
     notes: string;
     version: number;
+    lead_count: number;
 };
 type Reminder = {
     id: string;
@@ -28,20 +50,25 @@ type Reminder = {
     due_at: string;
     completed_at: string | null;
     pipeline_entry_id: string | null;
+    lead_name: string | null;
     version: number;
 };
+type Page<Row> = { items: Row[]; page: number; perPage: number; total: number };
+type Filters = { q: string; state: string; sort: string; linked: string; per_page: string };
 const props = defineProps<{
     account: { name: string; email: string };
     workspace: { id: string; name: string };
-    contacts: { items: Contact[]; nextCursor: string | null };
-    reminders: { items: Reminder[]; nextCursor: string | null };
+    contacts: Page<Contact>;
+    reminders: Page<Reminder>;
+    summary: { contacts: number; overdue: number; dueDay: number; dueWeek: number };
     entry: { id: string; brand_name: string; version: number } | null;
     linked: { id: string; name: string }[];
     canWrite: boolean;
-    filters: { q: string; state: string };
+    filters: Filters;
     errors?: Record<string, string>;
     status?: string;
 }>();
+const { professional, path } = useWorkspaceExperience();
 const root = ref<HTMLElement>();
 const busy = ref(false);
 const errors = computed(() => props.errors ?? {});
@@ -50,26 +77,293 @@ useValidationFocus(
     () => errors.value,
     () => !busy.value,
 );
-const contact = ref({ id: '', name: '', email: '', company: '', notes: '', version: 0 });
-const reminder = ref({
-    id: '',
-    title: '',
-    due_at: '',
-    pipeline_entry_id: props.entry?.id ?? '',
-    version: 0,
-});
+const blocked = computed(() => busy.value || !!errors.value.version);
+
+// List addresses. Each list keeps its own page; changing a list's filters returns it to page 1.
+const base = computed(() => path('/partner/contacts'));
+type Change = Partial<Record<keyof Filters | 'contacts_page' | 'reminders_page', string | number>>;
+function query(change: Change = {}, withEntry = true): Record<string, string> {
+    const all: Record<string, string | number> = {
+        ...props.filters,
+        contacts_page: props.contacts.page,
+        reminders_page: props.reminders.page,
+        ...change,
+    };
+    if (withEntry && props.entry) all.entry = props.entry.id;
+    return Object.fromEntries(
+        Object.entries(all)
+            .filter(([key, value]) => value !== '' && !(key.endsWith('_page') && Number(value) <= 1))
+            .map(([key, value]) => [key, String(value)]),
+    );
+}
+function listHref(change: Change = {}, withEntry = true): string {
+    const text = new URLSearchParams(query(change, withEntry)).toString();
+    return text ? `${base.value}?${text}` : base.value;
+}
+const pageHref = (kind: 'contacts' | 'reminders') => (page: number) => listHref({ [`${kind}_page`]: page });
+function visit(change: Change): void {
+    if (busy.value) return;
+    router.get(base.value, query(change), {
+        preserveState: true,
+        preserveScroll: true,
+        onStart: () => (busy.value = true),
+        onFinish: () => (busy.value = false),
+    });
+}
+const filterContacts = (change: Change) => visit({ ...change, contacts_page: 1 });
+function filterReminders(state: string): void {
+    crmPanel.value = 'reminders';
+    visit({ state, reminders_page: 1 });
+}
+
+// The search box filters as the user types and keeps its own text while a response is pending.
 const q = ref(props.filters.q);
-const state = computed(() => props.filters.state);
+let typing: ReturnType<typeof setTimeout> | undefined;
 watch(
-    () => props.filters,
-    (filters) => {
-        q.value = filters.q;
+    () => props.filters.q,
+    (value) => {
+        if (document.activeElement?.id !== 'crm-search') q.value = value;
     },
 );
-const snooze = ref('');
-const addTab = ref<'reminder' | 'contact'>('reminder');
-const editorOpen = ref(false);
-const editorDialog = ref<HTMLDialogElement>();
+watch(q, (value) => {
+    clearTimeout(typing);
+    if (value.trim() !== props.filters.q) typing = setTimeout(() => filterContacts({ q: value.trim() }), 350);
+});
+onBeforeUnmount(() => clearTimeout(typing));
+function submitSearch(): void {
+    clearTimeout(typing);
+    if (q.value.trim() !== props.filters.q) filterContacts({ q: q.value.trim() });
+}
+function clearSearch(): void {
+    clearTimeout(typing);
+    q.value = '';
+    filterContacts({ q: '' });
+    document.getElementById('crm-search')?.focus();
+}
+const sortOptions = [
+    { value: '', label: 'Recently added' },
+    { value: 'name_asc', label: 'Name A–Z' },
+    { value: 'name_desc', label: 'Name Z–A' },
+    { value: 'company_asc', label: 'Company A–Z' },
+];
+const linkedOptions = [
+    { value: '', label: 'Any' },
+    { value: 'linked', label: 'Linked to a lead' },
+    { value: 'unlinked', label: 'Not linked' },
+];
+const pageSizes = ['10', '25', '50'];
+const contactsFiltered = computed(() => !!(props.filters.q || props.filters.linked));
+const reminderFilters = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'due', label: 'Due' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'all', label: 'All' },
+] as const;
+
+// Phones show one list at a time.
+const panel = computed({
+    get: () =>
+        crmPanel.value ?? (props.filters.state !== 'pending' || props.reminders.page > 1 ? 'reminders' : 'contacts'),
+    set: (value: 'contacts' | 'reminders') => (crmPanel.value = value),
+});
+
+// Mutations return to the same lists, pages and lead context.
+type Payload = Record<string, unknown>;
+function act(method: 'post' | 'patch' | 'delete', target: string, data: Payload, done?: () => void): void {
+    if (busy.value || errors.value.version) return;
+    router.visit(target, {
+        method,
+        data: { ...data, entry: props.entry?.id ?? null, crm_filters: query({}, false) } as RequestPayload,
+        preserveState: true,
+        preserveScroll: true,
+        onStart: () => (busy.value = true),
+        onFinish: () => (busy.value = false),
+        onSuccess: () => {
+            done?.();
+            const draft = reminder.value;
+            if (draft.id && target.startsWith(`/reminders/${draft.id}/`) && draft.version === data.version) {
+                draft.version += 1;
+                if (target.endsWith('/snooze') && typeof data.due_at === 'string')
+                    draft.due_at = localDate(data.due_at);
+            }
+        },
+    });
+}
+
+// Contacts: selection and actions.
+const selected = ref<string[]>([]);
+watch(
+    () => props.contacts.items,
+    (items) => (selected.value = selected.value.filter((id) => items.some((row) => row.id === id))),
+);
+const allSelected = computed(
+    () => !!props.contacts.items.length && props.contacts.items.every((row) => selected.value.includes(row.id)),
+);
+const someSelected = computed(() => !!selected.value.length && !allSelected.value);
+function toggleAll(): void {
+    selected.value = allSelected.value ? [] : props.contacts.items.map((row) => row.id);
+}
+const linkedIds = computed(() => new Set(props.linked.map((row) => row.id)));
+const selectedRows = computed(() => props.contacts.items.filter((row) => selected.value.includes(row.id)));
+const unlinkedSelection = computed(() => selectedRows.value.filter((row) => !linkedIds.value.has(row.id)));
+const plural = (count: number, noun: string) => `${count} ${noun}${count === 1 ? '' : 's'}`;
+function bulkLink(): void {
+    if (!props.entry || !unlinkedSelection.value.length) return;
+    act(
+        'post',
+        '/contacts/bulk',
+        {
+            action: 'link',
+            items: unlinkedSelection.value.map(({ id, version }) => ({ id, version })),
+            link_entry: props.entry.id,
+            entry_version: props.entry.version,
+        },
+        () => (selected.value = []),
+    );
+}
+function bulkDelete(event: Event): void {
+    const rows = selectedRows.value;
+    confirmAction(
+        'Delete contacts',
+        `Permanently delete ${plural(rows.length, 'selected contact')} and their private contact details? Contacts linked to a lead must be unlinked first.`,
+        () =>
+            act(
+                'post',
+                '/contacts/bulk',
+                { action: 'delete', items: rows.map(({ id, version }) => ({ id, version })) },
+                () => (selected.value = []),
+            ),
+        event,
+        { tone: 'danger' },
+    );
+}
+function exportHref(resource: 'contacts' | 'reminders', ids: string[] = []): string {
+    const search = new URLSearchParams();
+    const keys = resource === 'contacts' ? (['q', 'sort', 'linked'] as const) : (['state'] as const);
+    if (!ids.length) for (const key of keys) if (props.filters[key]) search.set(key, props.filters[key]);
+    for (const id of ids) search.append('ids[]', id);
+    const text = search.toString();
+    return `/crm/exports/${resource}${text ? `?${text}` : ''}`;
+}
+const exportActions = computed<RowAction[]>(() => [
+    {
+        label: 'Contacts',
+        detail: contactsFiltered.value ? 'Filtered' : 'All',
+        href: exportHref('contacts'),
+        download: true,
+    },
+    {
+        label: 'Reminders',
+        detail: reminderFilters.find((option) => option.value === props.filters.state)?.label,
+        href: exportHref('reminders'),
+        download: true,
+    },
+]);
+const notice = ref('');
+let noticeTimer: ReturnType<typeof setTimeout> | undefined;
+async function copyEmail(email: string): Promise<void> {
+    try {
+        await navigator.clipboard.writeText(email);
+        notice.value = `Copied ${email}`;
+    } catch {
+        notice.value = 'Could not copy. Select the email address instead.';
+    }
+    clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(() => (notice.value = ''), 4000);
+}
+onBeforeUnmount(() => clearTimeout(noticeTimer));
+function deleteContact(row: Contact, trigger: HTMLElement): void {
+    confirmAction(
+        'Delete contact',
+        `Permanently delete ${row.name} and its private contact details?`,
+        () => act('delete', `/contacts/${row.id}`, { version: row.version }, closeContact(row.id)),
+        trigger,
+        { tone: 'danger' },
+    );
+}
+function contactActions(row: Contact): RowAction[] {
+    const actions: RowAction[] = [];
+    if (row.email) {
+        const email = row.email;
+        actions.push({ label: 'Copy email', icon: Copy, select: () => void copyEmail(email) });
+        actions.push({ label: 'Send email', icon: Mail, href: `mailto:${email}` });
+    }
+    if (props.canWrite) {
+        actions.push({
+            label: 'Add reminder',
+            icon: BellPlus,
+            disabled: blocked.value,
+            select: () => newReminder(`Follow up with ${row.name}`),
+        });
+        actions.push({
+            label: row.lead_count ? 'Unlink from leads to delete' : 'Delete contact…',
+            icon: Trash2,
+            danger: true,
+            separated: actions.length > 0,
+            disabled: blocked.value || row.lead_count > 0,
+            select: (trigger) => deleteContact(row, trigger),
+        });
+    }
+    return actions;
+}
+const columns: DataColumn[] = [
+    { key: 'name', label: 'Name' },
+    { key: 'company', label: 'Company' },
+    { key: 'notes', label: 'Notes' },
+    { key: 'leads', label: 'Leads' },
+    { key: 'actions', label: 'Actions' },
+];
+
+// Reminders, grouped by urgency on the current page.
+const groupLabels: Record<ReminderTone, string> = {
+    overdue: 'Overdue',
+    today: 'Today',
+    upcoming: 'Upcoming',
+    completed: 'Completed',
+};
+const groups = computed(() => {
+    const list: { tone: ReminderTone; items: Reminder[] }[] = [];
+    for (const row of props.reminders.items) {
+        const tone = reminderTone(row);
+        const last = list.at(-1);
+        if (last?.tone === tone) last.items.push(row);
+        else list.push({ tone, items: [row] });
+    }
+    return list;
+});
+const badges: Partial<Record<ReminderTone, { label: string; tone: 'danger' | 'warning' | 'success' }>> = {
+    overdue: { label: 'Overdue', tone: 'danger' },
+    today: { label: 'Due today', tone: 'warning' },
+    completed: { label: 'Completed', tone: 'success' },
+};
+function snoozeActions(row: Reminder): RowAction[] {
+    return [
+        ...snoozePresets().map((preset) => ({
+            label: preset.label,
+            detail: preset.detail,
+            disabled: blocked.value,
+            select: () =>
+                act('post', `/reminders/${row.id}/snooze`, { version: row.version, due_at: preset.at.toISOString() }),
+        })),
+        {
+            label: 'Pick date and time…',
+            separated: true,
+            disabled: blocked.value,
+            select: () => editReminder(row, '#reminder-snooze'),
+        },
+    ];
+}
+const emptyReminders = computed(
+    () =>
+        ({
+            pending: 'No pending reminders.',
+            due: 'Nothing is due. You are all caught up.',
+            completed: 'No completed reminders yet.',
+            all: 'No reminders yet.',
+        })[props.filters.state] ?? 'No reminders match.',
+);
+
+// The editor dialog.
 const emptyContact = () => ({ id: '', name: '', email: '', company: '', notes: '', version: 0 });
 const emptyReminder = () => ({
     id: '',
@@ -78,16 +372,18 @@ const emptyReminder = () => ({
     pipeline_entry_id: props.entry?.id ?? '',
     version: 0,
 });
+const contact = ref(emptyContact());
+const reminder = ref(emptyReminder());
+const snooze = ref('');
+const addTab = ref<'reminder' | 'contact'>('reminder');
+const editorOpen = ref(false);
+const editorDialog = ref<HTMLDialogElement>();
+const editorFocus = ref('');
+const editing = computed(() => !!(addTab.value === 'contact' ? contact.value.id : reminder.value.id));
 const editorTitle = computed(() => {
     if (addTab.value === 'contact') return contact.value.id ? 'Edit contact' : 'New contact';
     return reminder.value.id ? 'Edit reminder' : 'New reminder';
 });
-const reminderFilters = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'due', label: 'Due' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'all', label: 'All' },
-] as const;
 watch(
     errors,
     (value) => {
@@ -117,139 +413,68 @@ watch(editorOpen, async (open) => {
             (node) => node.offsetParent !== null,
         );
         const fallback = dialog.querySelector<HTMLElement>(
-            addTab.value === 'contact' ? '#contact-name' : '#reminder-title',
+            editorFocus.value || (addTab.value === 'contact' ? '#contact-name' : '#reminder-title'),
         );
+        editorFocus.value = '';
         (invalid ?? fallback)?.focus();
         return;
     }
     if (dialog.open) dialog.close();
 });
-function act(method: 'post' | 'patch' | 'delete', path: string, data: Record<string, string | number | null>): void {
-    if (busy.value || errors.value.version) return;
-    router.visit(path, {
-        method,
-        data: { ...data, entry: props.entry?.id ?? null, crm_filters: props.filters },
-        preserveState: true,
-        preserveScroll: true,
-        onStart: () => {
-            busy.value = true;
-        },
-        onFinish: () => {
-            busy.value = false;
-        },
-        onSuccess: () => {
-            if (path === '/contacts' || path.startsWith('/contacts/')) {
-                contact.value = emptyContact();
-                editorOpen.value = false;
-            }
-            if (/^\/reminders(?:\/[^/]+)?$/.test(path)) {
-                reminder.value = emptyReminder();
-                snooze.value = '';
-                editorOpen.value = false;
-            } else if (
-                reminder.value.id &&
-                path.startsWith(`/reminders/${reminder.value.id}/`) &&
-                reminder.value.version === data.version
-            ) {
-                reminder.value.version += 1;
-                if (path.endsWith('/snooze') && typeof data.due_at === 'string')
-                    reminder.value.due_at = localDate(data.due_at);
-            }
-        },
-    });
-}
-function list(cursor?: string, kind?: string, selectedState = state.value): void {
-    if (busy.value) return;
-    const filtersChanged = q.value !== props.filters.q || selectedState !== state.value;
-    router.get(
-        '/partner/contacts',
-        {
-            q: q.value,
-            state: selectedState,
-            ...(props.entry ? { entry: props.entry.id } : {}),
-            ...(!filtersChanged && cursor && kind ? { [`${kind}_cursor`]: cursor } : {}),
-        },
-        {
-            preserveState: true,
-            preserveScroll: true,
-            onStart: () => {
-                busy.value = true;
-            },
-            onFinish: () => {
-                busy.value = false;
-            },
-        },
-    );
-}
 const localDate = (value: string): string => {
     const date = new Date(value);
     return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 };
 const iso = (value: string): string => new Date(value).toISOString();
+/** Clears the contact draft and closes the editor when it held the contact just saved or deleted. */
+const closeContact = (id: string) => () => {
+    if (contact.value.id !== id) return;
+    contact.value = emptyContact();
+    editorOpen.value = false;
+};
 function saveContact(): void {
-    act(contact.value.id ? 'patch' : 'post', '/contacts' + (contact.value.id ? `/${contact.value.id}` : ''), {
-        ...contact.value,
+    const id = contact.value.id;
+    act(id ? 'patch' : 'post', '/contacts' + (id ? `/${id}` : ''), { ...contact.value }, () => {
+        contact.value = emptyContact();
+        editorOpen.value = false;
+        panel.value = 'contacts';
     });
 }
+function closeReminder(): void {
+    reminder.value = emptyReminder();
+    snooze.value = '';
+    editorOpen.value = false;
+    panel.value = 'reminders';
+}
 function saveReminder(): void {
-    if (reminder.value.due_at)
-        act(reminder.value.id ? 'patch' : 'post', '/reminders' + (reminder.value.id ? `/${reminder.value.id}` : ''), {
+    if (!reminder.value.due_at) return;
+    const id = reminder.value.id;
+    act(
+        id ? 'patch' : 'post',
+        '/reminders' + (id ? `/${id}` : ''),
+        {
             ...reminder.value,
             due_at: iso(reminder.value.due_at),
             pipeline_entry_id: reminder.value.pipeline_entry_id || null,
-        });
-}
-function contactRecord(id: string): Contact | undefined {
-    return props.contacts.items.find((item) => item.id === id);
-}
-function dueLabel(value: string): string {
-    const date = new Date(value);
-    const day = date.toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        ...(date.getFullYear() === new Date().getFullYear() ? {} : { year: 'numeric' }),
-    });
-    const time = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-    return `${day} · ${time}`;
-}
-function reminderTone(row: Reminder): 'overdue' | 'today' | 'completed' | null {
-    if (row.completed_at) return 'completed';
-    const due = new Date(row.due_at);
-    const now = new Date();
-    if (due.getTime() < now.getTime()) return 'overdue';
-    if (due.getFullYear() === now.getFullYear() && due.getMonth() === now.getMonth() && due.getDate() === now.getDate())
-        return 'today';
-    return null;
-}
-const reminderCounts = computed(() =>
-    props.reminders.items.reduce(
-        (counts, row) => {
-            const tone = reminderTone(row);
-            if (tone === 'overdue') counts.overdue += 1;
-            if (tone === 'today') counts.today += 1;
-            return counts;
         },
-        { overdue: 0, today: 0 },
-    ),
-);
-function contactCount(count: number): string {
-    return `${count} ${count === 1 ? 'contact' : 'contacts'}`;
+        closeReminder,
+    );
 }
 function editContact(row: Contact): void {
     contact.value = { ...row, email: row.email ?? '' };
     addTab.value = 'contact';
     editorOpen.value = true;
 }
-function editLinked(id: string): void {
-    const row = contactRecord(id);
-    if (row) editContact(row);
-}
-function editReminder(row: Reminder): void {
+function editReminder(row: Reminder, focus = ''): void {
     reminder.value = {
-        ...row,
+        id: row.id,
+        title: row.title,
         due_at: localDate(row.due_at),
         pipeline_entry_id: row.pipeline_entry_id ?? '',
+        version: row.version,
     };
+    snooze.value = '';
+    editorFocus.value = focus;
     addTab.value = 'reminder';
     editorOpen.value = true;
 }
@@ -258,277 +483,392 @@ function newContact(): void {
     addTab.value = 'contact';
     editorOpen.value = true;
 }
-function newReminder(): void {
-    if (reminder.value.id) {
-        reminder.value = emptyReminder();
+function newReminder(title = ''): void {
+    if (reminder.value.id || title) {
+        reminder.value = { ...emptyReminder(), title };
         snooze.value = '';
     }
     addTab.value = 'reminder';
     editorOpen.value = true;
 }
-const blocked = computed(() => busy.value || !!errors.value.version);
 </script>
 <template>
     <Head title="Contacts and reminders" />
     <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
         <div ref="root" class="wd-crm">
-            <div class="crm-intro">
-                <nav aria-label="Workspace">
-                    <Link class="crm-back" :href="path(entry ? `/partner/leads?entry=${entry.id}` : '/partner/leads')">
-                        <ArrowLeft :size="16" aria-hidden="true" />
-                        Back to leads
-                    </Link>
-                </nav>
+            <header class="crm-header">
                 <div class="crm-heading">
-                    <div class="crm-heading-copy">
-                        <p class="crm-eyebrow">{{ workspace.name }}</p>
+                    <nav aria-label="Breadcrumb">
+                        <ol class="crm-crumbs">
+                            <li>
+                                <Link :href="path(entry ? `/partner/leads?entry=${entry.id}` : '/partner/leads')"
+                                    >Leads</Link
+                                ><ChevronRight :size="14" aria-hidden="true" />
+                            </li>
+                            <li aria-current="page">Contacts and reminders</li>
+                        </ol>
+                    </nav>
+                    <div class="crm-title-row">
                         <h1>Contacts and reminders</h1>
-                    </div>
-                    <div v-if="entry" class="crm-context">
-                        <span class="crm-avatar crm-avatar-context" aria-hidden="true">{{
-                            initials(entry.brand_name)
-                        }}</span>
-                        <span class="crm-context-copy">
-                            <span class="crm-context-label">Working with</span>
-                            <span class="crm-context-name">{{ entry.brand_name }}</span>
+                        <span v-if="entry" class="crm-context">
+                            <span class="crm-avatar crm-avatar-context" aria-hidden="true">{{
+                                initials(entry.brand_name)
+                            }}</span>
+                            <span
+                                >Working with <strong>{{ entry.brand_name }}</strong></span
+                            >
+                            <Link
+                                class="crm-context-clear"
+                                :href="listHref({ contacts_page: 1, reminders_page: 1 }, false)"
+                                v-bind="{ 'aria-label': `Stop working with ${entry.brand_name}` }"
+                                ><X :size="14" aria-hidden="true"
+                            /></Link>
                         </span>
                     </div>
                 </div>
-            </div>
+                <div class="crm-header-actions">
+                    <RowActionMenu
+                        label="Export CSV"
+                        text="Export"
+                        heading="Download CSV"
+                        :icon="Download"
+                        :actions="exportActions"
+                    />
+                    <template v-if="canWrite">
+                        <button type="button" class="wd-table-button" :disabled="blocked" @click="newReminder()">
+                            <Plus :size="16" aria-hidden="true" />New reminder
+                        </button>
+                        <button
+                            type="button"
+                            class="wd-table-button crm-primary"
+                            :disabled="blocked"
+                            @click="newContact"
+                        >
+                            <Plus :size="16" aria-hidden="true" />New contact
+                        </button>
+                    </template>
+                </div>
+            </header>
             <div v-if="errors.version" role="alert" class="wd-banner">
                 <p>{{ errors.version }}</p>
                 <button
                     type="button"
                     class="crm-text-button"
-                    @click="
-                        router.get(
-                            '/partner/contacts',
-                            { ...filters, ...(entry ? { entry: entry.id } : {}) },
-                            { preserveState: false },
-                        )
-                    "
+                    @click="router.get(base, query(), { preserveState: false })"
                 >
                     Reload latest records
                 </button>
                 <p>Copy unsaved changes before reloading.</p>
             </div>
+            <p v-if="errors.contact" role="alert" class="wd-banner">{{ errors.contact }}</p>
             <p v-if="!canWrite" class="crm-hint">Viewer access is read only.</p>
-            <div class="crm-columns" :aria-busy="busy">
-                <div class="crm-col-main">
-                    <ContentSection
-                        v-if="entry"
-                        class="crm-linked-section"
-                        :title="`Linked to ${entry.brand_name}`"
-                        heading-id="linked-title"
+            <ul class="crm-stats" aria-label="Workspace summary">
+                <li>
+                    <span>Contacts</span><strong>{{ summary.contacts.toLocaleString() }}</strong>
+                </li>
+                <li :class="{ 'is-danger': summary.overdue }">
+                    <Link
+                        v-if="summary.overdue"
+                        :href="listHref({ state: 'due', reminders_page: 1 })"
+                        preserve-scroll
+                        @click="panel = 'reminders'"
+                        ><span>Overdue reminders</span><strong>{{ summary.overdue }}</strong></Link
                     >
-                        <template #header>
-                            <header class="crm-card-head">
-                                <h2 id="linked-title">Linked to {{ entry.brand_name }}</h2>
-                                <span class="crm-pill crm-pill-success">{{ contactCount(linked.length) }}</span>
-                            </header>
-                        </template>
-                        <p v-if="!linked.length" class="crm-empty">No linked contacts.</p>
-                        <ul v-else class="crm-linked">
-                            <li v-for="row in linked" :key="row.id" class="crm-person">
-                                <div class="crm-person-main">
-                                    <span class="crm-avatar crm-avatar-linked" aria-hidden="true">{{
-                                        initials(row.name)
-                                    }}</span>
-                                    <div class="crm-person-copy">
-                                        <p class="crm-person-name">
-                                            {{ row.name
-                                            }}<span
-                                                v-if="contactRecord(row.id)?.company"
-                                                class="crm-person-company"
-                                                v-text="contactRecord(row.id)?.company"
-                                            ></span>
-                                        </p>
-                                        <p v-if="contactRecord(row.id)?.email" class="crm-email">
-                                            {{ contactRecord(row.id)?.email }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <ActionGroup v-if="canWrite">
-                                    <Button
-                                        v-if="contactRecord(row.id)"
-                                        type="button"
-                                        class="wd-button wd-button-secondary"
-                                        :ariaLabel="`Edit ${row.name}`"
-                                        :disabled="blocked"
-                                        @click="editLinked(row.id)"
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        class="wd-button wd-button-danger-outline"
-                                        :ariaLabel="`Unlink ${row.name}`"
-                                        :disabled="blocked"
-                                        @click="
-                                            confirmAction(
-                                                'Unlink contact',
-                                                `Unlink ${row.name} from ${entry.brand_name}? The contact record is preserved.`,
-                                                () =>
-                                                    act('delete', `/pipeline/${entry!.id}/contacts`, {
-                                                        contact_id: row.id,
-                                                        version: entry!.version,
-                                                    }),
-                                                $event,
-                                                { tone: 'danger' },
-                                            )
-                                        "
-                                    >
-                                        Unlink
-                                    </Button>
-                                </ActionGroup>
-                            </li>
-                        </ul>
-                    </ContentSection>
-                    <ContentSection class="crm-section" title="Reusable contacts" heading-id="contacts-title">
-                        <template #header>
-                            <div class="crm-card-block">
-                                <header class="crm-card-head">
-                                    <div class="crm-card-title">
-                                        <h2 id="contacts-title">Reusable contacts</h2>
-                                        <p class="crm-count">{{ contacts.items.length }} on this page</p>
-                                    </div>
-                                    <Button
-                                        v-if="canWrite"
-                                        type="button"
-                                        class="wd-button wd-button-primary"
-                                        :disabled="blocked"
-                                        @click="newContact"
-                                    >
-                                        New contact
-                                    </Button>
-                                </header>
-                                <form class="crm-search-row" aria-label="Filter contacts" @submit.prevent="list()">
-                                    <div class="crm-search">
-                                        <FormField
-                                            id="crm-search"
-                                            v-model="q"
-                                            label="Search contacts"
-                                            :required="false"
-                                            :maxlength="160"
-                                        />
-                                    </div>
-                                    <Button type="submit" class="wd-button wd-button-secondary" :disabled="busy"
-                                        >Apply filters</Button
-                                    >
-                                </form>
-                            </div>
-                        </template>
-                        <p v-if="!contacts.items.length" class="crm-empty">
-                            No contacts match. Create a contact in the editor.
-                        </p>
-                        <ul v-else class="crm-list">
-                            <li v-for="row in contacts.items" :key="row.id">
-                                <div class="crm-person">
-                                    <div class="crm-person-main">
-                                        <span class="crm-avatar crm-avatar-saved" aria-hidden="true">{{
-                                            initials(row.name)
-                                        }}</span>
-                                        <div class="crm-person-copy">
-                                            <p class="crm-person-name">
-                                                {{ row.name
-                                                }}<span
-                                                    v-if="row.company"
-                                                    class="crm-person-company"
-                                                    v-text="row.company"
-                                                ></span>
-                                            </p>
-                                            <p v-if="row.email" class="crm-email">{{ row.email }}</p>
-                                            <p v-if="row.notes" class="crm-note">
-                                                <Lock :size="13" aria-hidden="true" />
-                                                <span>{{ row.notes }}</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <ActionGroup v-if="canWrite">
-                                        <Button
-                                            type="button"
-                                            class="wd-button wd-button-secondary"
-                                            :ariaLabel="`Edit ${row.name}`"
-                                            :disabled="blocked"
-                                            @click="editContact(row)"
-                                        >
-                                            Edit
-                                        </Button>
-                                        <button
-                                            v-if="entry && !linked.some((item) => item.id === row.id)"
-                                            type="button"
-                                            class="crm-btn crm-btn-primary"
-                                            :aria-label="`Link ${row.name} to ${entry.brand_name}`"
-                                            :disabled="blocked"
-                                            @click="
-                                                act('post', `/pipeline/${entry.id}/contacts`, {
+                    <template v-else
+                        ><span>Overdue reminders</span><strong>{{ summary.overdue }}</strong></template
+                    >
+                </li>
+                <li :class="{ 'is-warning': summary.dueDay }">
+                    <span>Due in 24 hours</span><strong>{{ summary.dueDay }}</strong>
+                </li>
+                <li>
+                    <span>Due in 7 days</span><strong>{{ summary.dueWeek }}</strong>
+                </li>
+            </ul>
+            <div class="crm-switch" role="group" aria-label="Show list">
+                <button type="button" :aria-pressed="panel === 'contacts'" @click="panel = 'contacts'">
+                    Contacts <span class="crm-count">{{ contacts.total }}</span>
+                </button>
+                <button type="button" :aria-pressed="panel === 'reminders'" @click="panel = 'reminders'">
+                    Reminders <span class="crm-count">{{ reminders.total }}</span>
+                </button>
+            </div>
+            <div class="crm-columns" :aria-busy="busy">
+                <section
+                    class="crm-card"
+                    :class="{ 'is-hidden-small': panel !== 'contacts' }"
+                    aria-labelledby="contacts-title"
+                >
+                    <header class="crm-card-head">
+                        <h2 id="contacts-title">Contacts</h2>
+                        <span class="crm-count">{{ contacts.total }}</span>
+                        <p v-if="notice" class="crm-notice" role="status">{{ notice }}</p>
+                    </header>
+                    <form class="crm-toolbar" role="search" aria-label="Filter contacts" @submit.prevent="submitSearch">
+                        <div class="crm-search">
+                            <label for="crm-search" class="wd-sr-only">Search contacts</label>
+                            <Search :size="16" aria-hidden="true" />
+                            <input
+                                id="crm-search"
+                                v-model="q"
+                                class="wd-table-input"
+                                type="search"
+                                maxlength="160"
+                                placeholder="Search name, company or email"
+                                autocomplete="off"
+                            />
+                            <button
+                                v-if="q"
+                                type="button"
+                                class="crm-search-clear"
+                                aria-label="Clear search"
+                                @click="clearSearch"
+                            >
+                                <X :size="14" aria-hidden="true" />
+                            </button>
+                        </div>
+                        <label class="crm-inline-field">
+                            <span>Sort</span>
+                            <select
+                                class="wd-table-input"
+                                :value="filters.sort"
+                                :disabled="busy"
+                                @change="filterContacts({ sort: ($event.target as HTMLSelectElement).value })"
+                            >
+                                <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                        </label>
+                        <label class="crm-inline-field">
+                            <span>Lead links</span>
+                            <select
+                                class="wd-table-input"
+                                :value="filters.linked"
+                                :disabled="busy"
+                                @change="filterContacts({ linked: ($event.target as HTMLSelectElement).value })"
+                            >
+                                <option v-for="option in linkedOptions" :key="option.value" :value="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                        </label>
+                    </form>
+                    <section v-if="entry" class="crm-linked" aria-labelledby="linked-title">
+                        <h3 id="linked-title">Linked to {{ entry.brand_name }}</h3>
+                        <p v-if="!linked.length" class="crm-hint">No linked contacts yet.</p>
+                        <ul v-else>
+                            <li v-for="row in linked" :key="row.id" class="crm-chip">
+                                <span class="crm-avatar crm-avatar-chip" aria-hidden="true">{{
+                                    initials(row.name)
+                                }}</span>
+                                {{ row.name }}
+                                <button
+                                    v-if="canWrite"
+                                    type="button"
+                                    :aria-label="`Unlink ${row.name}`"
+                                    :disabled="blocked"
+                                    @click="
+                                        confirmAction(
+                                            'Unlink contact',
+                                            `Unlink ${row.name} from ${entry.brand_name}? The contact record is preserved.`,
+                                            () =>
+                                                act('delete', `/pipeline/${entry!.id}/contacts`, {
                                                     contact_id: row.id,
-                                                    version: entry.version,
-                                                })
-                                            "
-                                        >
-                                            <LinkIcon :size="16" aria-hidden="true" />
-                                            Link
-                                        </button>
-                                    </ActionGroup>
-                                </div>
+                                                    version: entry!.version,
+                                                }),
+                                            $event,
+                                            { tone: 'danger' },
+                                        )
+                                    "
+                                >
+                                    <X :size="12" aria-hidden="true" />
+                                </button>
                             </li>
                         </ul>
-                        <button
-                            v-if="contacts.nextCursor"
-                            type="button"
-                            class="crm-more"
-                            :disabled="busy"
-                            @click="list(contacts.nextCursor, 'contacts')"
-                        >
-                            More contacts
-                        </button>
-                    </ContentSection>
-                </div>
-                <div class="crm-col-side">
-                    <ContentSection class="crm-section" title="Reminders" heading-id="reminders-title">
-                        <template #header>
-                            <div class="crm-card-block">
-                                <header class="crm-card-head">
-                                    <div class="crm-card-title">
-                                        <h2 id="reminders-title">Reminders</h2>
-                                        <p class="crm-count">Workspace private · your local time</p>
-                                    </div>
-                                    <Button
-                                        v-if="canWrite"
-                                        type="button"
-                                        class="wd-button wd-button-primary"
-                                        :disabled="blocked"
-                                        @click="newReminder"
-                                    >
-                                        New reminder
-                                    </Button>
-                                </header>
-                                <div v-if="reminderCounts.overdue || reminderCounts.today" class="crm-summary">
-                                    <span v-if="reminderCounts.overdue" class="crm-pill crm-pill-danger"
-                                        >{{ reminderCounts.overdue }} overdue on this page</span
-                                    >
-                                    <span v-if="reminderCounts.today" class="crm-pill crm-pill-warning"
-                                        >{{ reminderCounts.today }} due today on this page</span
-                                    >
-                                </div>
-                                <div class="crm-segment crm-segment-filter" role="group" aria-label="Reminder filter">
-                                    <button
-                                        v-for="option in reminderFilters"
-                                        :key="option.value"
-                                        type="button"
-                                        :aria-pressed="state === option.value"
-                                        :disabled="busy"
-                                        @click="list(undefined, undefined, option.value)"
-                                    >
-                                        {{ option.label }}
-                                    </button>
-                                </div>
-                            </div>
+                    </section>
+                    <div v-if="selected.length" class="crm-bulk" role="region" aria-label="Selected contacts">
+                        <p>{{ plural(selected.length, 'contact') }} selected</p>
+                        <button type="button" class="crm-text-button" @click="selected = []">Clear</button>
+                        <span class="crm-bulk-actions">
+                            <button
+                                v-if="canWrite && entry"
+                                type="button"
+                                class="wd-table-button"
+                                :disabled="blocked || !unlinkedSelection.length"
+                                @click="bulkLink"
+                            >
+                                <LinkIcon :size="14" aria-hidden="true" />Link to {{ entry.brand_name }}
+                            </button>
+                            <a class="wd-table-button" :href="exportHref('contacts', selected)" download
+                                ><Download :size="14" aria-hidden="true" />Export</a
+                            >
+                            <button
+                                v-if="canWrite"
+                                type="button"
+                                class="wd-table-button crm-danger"
+                                :disabled="blocked"
+                                @click="bulkDelete"
+                            >
+                                <Trash2 :size="14" aria-hidden="true" />Delete…
+                            </button>
+                        </span>
+                    </div>
+                    <DataTable
+                        v-if="contacts.items.length"
+                        class="crm-table"
+                        caption="Contacts"
+                        :columns="columns"
+                        :rows="contacts.items"
+                        :row-key="(row) => row.id"
+                    >
+                        <template #head-name>
+                            <span class="crm-name-cell">
+                                <input
+                                    type="checkbox"
+                                    class="crm-checkbox"
+                                    aria-label="Select all contacts on this page"
+                                    :checked="allSelected"
+                                    :indeterminate="someSelected"
+                                    @change="toggleAll"
+                                />Name
+                            </span>
                         </template>
-                        <p v-if="!reminders.items.length" class="crm-empty">No reminders match.</p>
-                        <ul v-else class="crm-list crm-reminders">
-                            <li v-for="row in reminders.items" :key="row.id">
+                        <template #head-actions><span class="wd-sr-only">Actions</span></template>
+                        <template #cell-name="{ row }">
+                            <span class="crm-name-cell">
+                                <input
+                                    v-model="selected"
+                                    type="checkbox"
+                                    class="crm-checkbox"
+                                    :value="row.id"
+                                    :aria-label="`Select ${row.name}`"
+                                />
+                                <span class="crm-avatar" aria-hidden="true">{{ initials(row.name) }}</span>
+                                <span class="crm-person">
+                                    <span class="crm-person-name">{{ row.name }}</span>
+                                    <span v-if="row.email" class="wd-data-secondary">{{ row.email }}</span>
+                                </span>
+                            </span>
+                        </template>
+                        <template #cell-company="{ row }">
+                            <span v-if="row.company">{{ row.company }}</span>
+                            <span v-else class="crm-none" aria-label="None">—</span>
+                        </template>
+                        <template #cell-notes="{ row }">
+                            <span v-if="row.notes" class="crm-note" :title="row.notes"
+                                ><Lock :size="12" aria-hidden="true" /><span>{{ row.notes }}</span></span
+                            >
+                            <span v-else class="crm-none" aria-label="None">—</span>
+                        </template>
+                        <template #cell-leads="{ row }">
+                            <template v-if="entry">
+                                <StatusBadge v-if="linkedIds.has(row.id)" label="Linked" tone="success" />
+                                <button
+                                    v-else-if="canWrite"
+                                    type="button"
+                                    class="wd-table-button"
+                                    :aria-label="`Link ${row.name} to ${entry.brand_name}`"
+                                    :disabled="blocked"
+                                    @click="
+                                        act('post', `/pipeline/${entry.id}/contacts`, {
+                                            contact_id: row.id,
+                                            version: entry.version,
+                                        })
+                                    "
+                                >
+                                    <LinkIcon :size="14" aria-hidden="true" /><span class="crm-link-text">Link</span>
+                                </button>
+                                <span v-else class="crm-none">Not linked</span>
+                            </template>
+                            <span v-else-if="row.lead_count">{{ plural(row.lead_count, 'lead') }}</span>
+                            <span v-else class="crm-none" aria-label="None">—</span>
+                        </template>
+                        <template #cell-actions="{ row }">
+                            <span class="crm-row-actions">
+                                <button
+                                    v-if="canWrite"
+                                    type="button"
+                                    class="wd-table-icon-button crm-ghost"
+                                    :aria-label="`Edit ${row.name}`"
+                                    :disabled="blocked"
+                                    @click="editContact(row)"
+                                >
+                                    <Pencil :size="15" aria-hidden="true" />
+                                </button>
+                                <RowActionMenu
+                                    v-if="contactActions(row).length"
+                                    trigger-class="crm-ghost"
+                                    :label="`More actions for ${row.name}`"
+                                    :actions="contactActions(row)"
+                                />
+                            </span>
+                        </template>
+                    </DataTable>
+                    <EmptyState
+                        v-else
+                        class="crm-empty"
+                        :title="contactsFiltered ? 'No contacts match' : 'No contacts yet'"
+                        :description="
+                            contactsFiltered
+                                ? 'Try another search or clear the filters.'
+                                : 'Contacts you add here can be linked to any of your leads.'
+                        "
+                    />
+                    <Pagination
+                        v-if="contacts.total"
+                        class="crm-pagination"
+                        label="Contacts pages"
+                        noun="contacts"
+                        numbered
+                        :page="contacts.page"
+                        :per-page="contacts.perPage"
+                        :count="contacts.items.length"
+                        :total="contacts.total"
+                        :href-for="pageHref('contacts')"
+                    >
+                        <div class="wd-page-size">
+                            <label for="crm-per-page">Rows per page</label>
+                            <select
+                                id="crm-per-page"
+                                :value="String(contacts.perPage)"
+                                :disabled="busy"
+                                @change="filterContacts({ per_page: ($event.target as HTMLSelectElement).value })"
+                            >
+                                <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
+                            </select>
+                        </div>
+                    </Pagination>
+                </section>
+                <section
+                    class="crm-card"
+                    :class="{ 'is-hidden-small': panel !== 'reminders' }"
+                    aria-labelledby="reminders-title"
+                >
+                    <header class="crm-card-head">
+                        <h2 id="reminders-title">Reminders</h2>
+                        <span class="crm-count">{{ reminders.total }}</span>
+                        <span class="crm-hint crm-card-note">Your local time</span>
+                    </header>
+                    <div class="crm-segment" role="group" aria-label="Reminder filter">
+                        <button
+                            v-for="option in reminderFilters"
+                            :key="option.value"
+                            type="button"
+                            :aria-pressed="filters.state === option.value"
+                            :disabled="busy"
+                            @click="filterReminders(option.value)"
+                        >
+                            {{ option.label }}
+                        </button>
+                    </div>
+                    <p v-if="!reminders.items.length" class="crm-empty-line">{{ emptyReminders }}</p>
+                    <template v-for="group in groups" :key="group.tone">
+                        <h3 class="crm-group" :class="`is-${group.tone}`">
+                            {{ groupLabels[group.tone] }}
+                        </h3>
+                        <ul class="crm-reminders">
+                            <li v-for="row in group.items" :key="row.id">
                                 <button
                                     v-if="canWrite"
                                     type="button"
@@ -548,67 +888,70 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                     "
                                 >
                                     <span class="crm-check" :class="{ 'is-done': row.completed_at }" aria-hidden="true">
-                                        <Check v-if="row.completed_at" :size="14" />
+                                        <Check v-if="row.completed_at" :size="12" />
                                     </span>
                                 </button>
                                 <span v-else class="crm-complete" aria-hidden="true">
                                     <span class="crm-check" :class="{ 'is-done': row.completed_at }">
-                                        <Check v-if="row.completed_at" :size="14" />
+                                        <Check v-if="row.completed_at" :size="12" />
                                     </span>
                                 </span>
                                 <div class="crm-reminder-copy">
                                     <p class="crm-reminder-title">{{ row.title }}</p>
                                     <p class="crm-reminder-meta">
-                                        <span class="crm-when">
-                                            <Calendar :size="14" aria-hidden="true" />
-                                            <time :datetime="row.due_at">{{ dueLabel(row.due_at) }}</time>
-                                        </span>
-                                        <span v-if="reminderTone(row) === 'overdue'" class="crm-badge crm-badge-danger"
-                                            >Overdue</span
-                                        >
-                                        <span
-                                            v-else-if="reminderTone(row) === 'today'"
-                                            class="crm-badge crm-badge-warning"
-                                            >Due today</span
-                                        >
-                                        <span
-                                            v-else-if="reminderTone(row) === 'completed'"
-                                            class="crm-badge crm-badge-success"
-                                            >Completed</span
-                                        >
-                                    </p>
-                                    <div v-if="row.pipeline_entry_id || canWrite" class="crm-reminder-actions">
+                                        <time :datetime="row.due_at">{{ dueLabel(row.due_at) }}</time>
+                                        <StatusBadge
+                                            v-if="badges[group.tone]"
+                                            :label="badges[group.tone]!.label"
+                                            :tone="badges[group.tone]!.tone"
+                                        />
                                         <Link
                                             v-if="row.pipeline_entry_id"
                                             class="crm-inline-link"
                                             :href="path(`/partner/leads?entry=${row.pipeline_entry_id}`)"
-                                            >Open related lead</Link
+                                            v-bind="{
+                                                'aria-label': `Open related lead${row.lead_name ? ` ${row.lead_name}` : ''}`,
+                                            }"
+                                            >{{ row.lead_name || 'Related lead' }}</Link
                                         >
-                                        <button
-                                            v-if="canWrite"
-                                            type="button"
-                                            class="crm-text-button"
-                                            :aria-label="`Edit ${row.title}`"
-                                            :disabled="blocked"
-                                            @click="editReminder(row)"
-                                        >
-                                            Edit
-                                        </button>
-                                    </div>
+                                    </p>
                                 </div>
+                                <span v-if="canWrite" class="crm-row-actions">
+                                    <RowActionMenu
+                                        v-if="!row.completed_at"
+                                        trigger-class="crm-ghost"
+                                        :label="`Snooze ${row.title}`"
+                                        heading="Snooze until"
+                                        :icon="AlarmClock"
+                                        :disabled="blocked"
+                                        :actions="snoozeActions(row)"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="wd-table-icon-button crm-ghost"
+                                        :aria-label="`Edit ${row.title}`"
+                                        :disabled="blocked"
+                                        @click="editReminder(row)"
+                                    >
+                                        <Pencil :size="15" aria-hidden="true" />
+                                    </button>
+                                </span>
                             </li>
                         </ul>
-                        <button
-                            v-if="reminders.nextCursor"
-                            type="button"
-                            class="crm-more"
-                            :disabled="busy"
-                            @click="list(reminders.nextCursor, 'reminders')"
-                        >
-                            More reminders
-                        </button>
-                    </ContentSection>
-                </div>
+                    </template>
+                    <Pagination
+                        v-if="reminders.total > reminders.perPage"
+                        class="crm-pagination"
+                        label="Reminders pages"
+                        noun="reminders"
+                        numbered
+                        :page="reminders.page"
+                        :per-page="reminders.perPage"
+                        :count="reminders.items.length"
+                        :total="reminders.total"
+                        :href-for="pageHref('reminders')"
+                    />
+                </section>
             </div>
             <dialog
                 v-if="canWrite"
@@ -622,7 +965,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                     <h2 id="editor-title">{{ editorTitle }}</h2>
                     <DialogClose label="Close editor" :disabled="busy" @click="editorOpen = false" />
                 </div>
-                <div class="crm-segment" role="group" aria-label="What to add">
+                <div v-if="!editing" class="crm-segment" role="group" aria-label="What to add">
                     <button type="button" :aria-pressed="addTab === 'reminder'" @click="addTab = 'reminder'">
                         Reminder
                     </button>
@@ -651,16 +994,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             :hint="entry ? `New reminders here relate to ${entry.brand_name}.` : undefined"
                             :error="errors.due_at"
                         />
-                        <div :class="professional ? 'wd-dialog-footer' : 'contents'">
-                            <Button
-                                v-if="professional"
-                                type="button"
-                                class="wd-button wd-button-secondary"
-                                @click="editorOpen = false"
-                                >Cancel</Button
-                            ><Button type="submit" class="wd-button wd-button-primary crm-save">Save reminder</Button>
-                        </div>
-                        <template v-if="reminder.id">
+                        <div v-if="reminder.id" class="crm-snooze">
                             <FormField
                                 id="reminder-snooze"
                                 v-model="snooze"
@@ -670,7 +1004,7 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             />
                             <Button
                                 type="button"
-                                class="wd-button wd-button-secondary crm-save"
+                                class="wd-button wd-button-secondary"
                                 :disabled="!snooze"
                                 @click="
                                     act('post', `/reminders/${reminder.id}/snooze`, {
@@ -681,17 +1015,23 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             >
                                 Snooze reminder
                             </Button>
+                        </div>
+                        <div class="wd-dialog-footer crm-editor-footer">
                             <Button
+                                v-if="reminder.id"
                                 type="button"
-                                class="wd-button wd-button-danger-outline crm-save"
+                                class="wd-button wd-button-danger-outline crm-editor-delete"
                                 @click="
                                     confirmAction(
                                         'Delete reminder',
                                         `Permanently delete reminder ${reminder.title}?`,
                                         () =>
-                                            act('delete', `/reminders/${reminder.id}`, {
-                                                version: reminder.version,
-                                            }),
+                                            act(
+                                                'delete',
+                                                `/reminders/${reminder.id}`,
+                                                { version: reminder.version },
+                                                closeReminder,
+                                            ),
                                         $event,
                                         { tone: 'danger' },
                                     )
@@ -699,28 +1039,33 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                             >
                                 Delete reminder
                             </Button>
-                        </template>
+                            <Button type="button" class="wd-button wd-button-secondary" @click="editorOpen = false"
+                                >Cancel</Button
+                            ><Button type="submit" class="wd-button wd-button-primary">Save reminder</Button>
+                        </div>
                     </fieldset>
                 </form>
                 <form v-show="addTab === 'contact'" :aria-busy="busy" @submit.prevent="saveContact">
                     <fieldset class="crm-fields" :disabled="blocked">
                         <legend class="wd-sr-only">{{ contact.id ? 'Edit contact' : 'New contact' }}</legend>
-                        <FormField
-                            id="contact-name"
-                            v-model="contact.name"
-                            label="Contact name"
-                            :maxlength="120"
-                            :error="errors.name"
-                        />
-                        <FormField
-                            id="contact-email"
-                            v-model="contact.email"
-                            label="Contact email"
-                            type="email"
-                            :required="false"
-                            :maxlength="255"
-                            :error="errors.email"
-                        />
+                        <div class="crm-field-pair">
+                            <FormField
+                                id="contact-name"
+                                v-model="contact.name"
+                                label="Contact name"
+                                :maxlength="120"
+                                :error="errors.name"
+                            />
+                            <FormField
+                                id="contact-email"
+                                v-model="contact.email"
+                                label="Contact email"
+                                type="email"
+                                :required="false"
+                                :maxlength="255"
+                                :error="errors.email"
+                            />
+                        </div>
                         <FormField
                             id="contact-company"
                             v-model="contact.company"
@@ -748,31 +1093,33 @@ const blocked = computed(() => busy.value || !!errors.value.version);
                                 {{ errors.notes }}
                             </p>
                         </div>
-                        <div :class="professional ? 'wd-dialog-footer' : 'contents'">
+                        <div class="wd-dialog-footer crm-editor-footer">
                             <Button
-                                v-if="professional"
+                                v-if="contact.id"
                                 type="button"
-                                class="wd-button wd-button-secondary"
-                                @click="editorOpen = false"
+                                class="wd-button wd-button-danger-outline crm-editor-delete"
+                                @click="
+                                    confirmAction(
+                                        'Delete contact',
+                                        `Permanently delete ${contact.name} and its private contact details?`,
+                                        () =>
+                                            act(
+                                                'delete',
+                                                `/contacts/${contact.id}`,
+                                                { version: contact.version },
+                                                closeContact(contact.id),
+                                            ),
+                                        $event,
+                                        { tone: 'danger' },
+                                    )
+                                "
+                            >
+                                Delete contact
+                            </Button>
+                            <Button type="button" class="wd-button wd-button-secondary" @click="editorOpen = false"
                                 >Cancel</Button
-                            ><Button type="submit" class="wd-button wd-button-primary crm-save">Save contact</Button>
+                            ><Button type="submit" class="wd-button wd-button-primary">Save contact</Button>
                         </div>
-                        <Button
-                            v-if="contact.id"
-                            type="button"
-                            class="wd-button wd-button-danger-outline crm-save"
-                            @click="
-                                confirmAction(
-                                    'Delete contact',
-                                    `Permanently delete ${contact.name} and its private contact details?`,
-                                    () => act('delete', `/contacts/${contact.id}`, { version: contact.version }),
-                                    $event,
-                                    { tone: 'danger' },
-                                )
-                            "
-                        >
-                            Delete contact
-                        </Button>
                     </fieldset>
                 </form>
             </dialog>
@@ -782,16 +1129,16 @@ const blocked = computed(() => busy.value || !!errors.value.version);
 <style scoped>
 .wd-crm {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1280px;
     margin-inline: auto;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 16px;
     padding-bottom: 16px;
     min-width: 0;
     color: var(--wd-ink);
-    font-size: 15px;
-    line-height: 1.45;
+    font-size: 14px;
+    line-height: 1.4;
 }
 .wd-crm :focus-visible {
     outline: 2px solid var(--wd-brand);
@@ -800,451 +1147,589 @@ const blocked = computed(() => busy.value || !!errors.value.version);
 .wd-crm > .wd-banner {
     margin-bottom: 0;
 }
-.crm-intro {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    min-width: 0;
-}
-.crm-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    width: fit-content;
-    min-height: 44px;
-    color: var(--wd-brand);
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.3;
-    text-decoration: none;
-}
-.crm-back:hover {
-    color: var(--wd-brand-hover);
-}
-.crm-heading {
+.crm-header {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 16px 32px;
-    min-width: 0;
+    gap: 12px 24px;
 }
-.crm-heading-copy {
+.crm-heading {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
 }
-.crm-eyebrow {
+.crm-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
     margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.crm-crumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.crm-crumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
     color: var(--wd-brand);
-    font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.08em;
-    line-height: 1.3;
-    text-transform: uppercase;
-    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+.crm-crumbs a:hover {
+    color: var(--wd-brand-hover);
+    text-decoration: underline;
+}
+.crm-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    min-width: 0;
 }
 .wd-crm h1 {
     margin: 0;
-    color: var(--wd-ink);
     font-family: var(--wd-font-display);
-    font-size: 44px;
+    font-size: 28px;
     font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
     overflow-wrap: anywhere;
 }
 .crm-context {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     max-width: 100%;
-    min-width: 0;
-    padding: 8px 16px 8px 8px;
+    padding: 3px 4px 3px 3px;
     border: 1px solid var(--wd-line);
     border-radius: 999px;
     background: var(--wd-surface);
+    color: var(--wd-body);
+    font-size: 13px;
 }
-.crm-context-copy {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    line-height: 1.2;
-}
-.crm-context-label {
-    color: var(--wd-muted);
-    font-size: 12px;
-}
-.crm-context-name {
-    font-weight: 600;
+.crm-context strong {
+    color: var(--wd-ink);
     overflow-wrap: anywhere;
+}
+.crm-context-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: var(--wd-muted);
+}
+.crm-context-clear:hover {
+    background: var(--wd-divider);
+    color: var(--wd-ink);
+}
+.crm-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.crm-primary {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand);
+    color: #fff;
+}
+.wd-crm .crm-primary:hover:not(:disabled) {
+    border-color: var(--wd-brand-hover);
+    background: var(--wd-brand-hover);
+    color: #fff;
+}
+.crm-danger {
+    color: var(--wd-danger);
+}
+.wd-crm .crm-danger:hover:not(:disabled) {
+    background: var(--wd-danger-bg);
+    color: var(--wd-danger);
+}
+.wd-table-button:disabled,
+.wd-table-icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 .crm-hint {
     margin: 0;
     color: var(--wd-muted);
     font-size: 13px;
-    line-height: 1.45;
 }
-.crm-columns {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 28px;
-    min-width: 0;
-}
-.crm-col-main,
-.crm-col-side {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    min-width: 0;
-}
-.crm-col-main {
-    flex: 1.45 1 560px;
-}
-.crm-col-side {
-    flex: 1 1 400px;
-}
-.crm-section {
-    padding: 0;
-    gap: 0;
-}
-.crm-linked-section {
-    gap: 14px;
-}
-.crm-card-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 12px;
-    min-width: 0;
-}
-.crm-card-title {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-.crm-editor[open] {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-.crm-editor .wd-dialog-header {
-    margin-bottom: 0;
-}
-.crm-card-block {
-    container-type: inline-size;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 20px 24px 16px;
-}
-.crm-card-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 12px;
-    min-width: 0;
-}
-.wd-crm h2 {
-    margin: 0;
-    color: var(--wd-ink);
-    font-family: var(--wd-font-display);
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.25;
-    overflow-wrap: anywhere;
-}
-.crm-count {
-    margin: 0;
-    color: var(--wd-muted);
-    font-size: 14px;
-}
-.crm-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.crm-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.3;
-    white-space: nowrap;
-}
-.crm-pill-success {
-    background: var(--wd-success-bg);
-    color: var(--wd-success);
-}
-.crm-pill-danger,
-.crm-badge-danger {
-    background: var(--wd-danger-bg);
-    color: var(--wd-danger);
-}
-.crm-pill-warning,
-.crm-badge-warning {
-    background: var(--wd-warning-bg);
-    color: var(--wd-warning);
-}
-.crm-badge-success {
-    background: var(--wd-success-bg);
-    color: var(--wd-success);
-}
-.crm-badge {
-    border-radius: 6px;
-    padding: 1px 8px;
-    font-weight: 600;
-}
-.crm-segment {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 4px;
-    border-radius: 12px;
-    background: var(--wd-divider);
-}
-.crm-segment button {
-    flex: 1 1 72px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 8px 10px;
-    border: 0;
-    border-radius: 9px;
-    background: transparent;
-    color: var(--wd-muted);
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.2;
-}
-.crm-segment-filter {
+.crm-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.crm-segment-filter button {
-    flex: none;
-    width: 100%;
-    min-width: 0;
-    padding-inline: 6px;
-}
-@container (max-width: 360px) {
-    .crm-segment-filter {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-.crm-segment button[aria-pressed='true'] {
-    background: var(--wd-surface);
-    box-shadow: 0 1px 2px rgb(34 26 38 / 12%);
-    color: var(--wd-brand-hover);
-    font-weight: 600;
-}
-.crm-search-row {
-    display: flex;
-    align-items: flex-end;
-    flex-wrap: wrap;
     gap: 10px;
-    min-width: 0;
-}
-.crm-search {
-    position: relative;
-    flex: 1 1 220px;
-    min-width: 0;
-}
-.crm-list,
-.crm-linked {
     margin: 0;
     padding: 0;
     list-style: none;
 }
-.crm-list {
-    border-top: 1px solid var(--wd-divider);
+.crm-stats li,
+.crm-stats a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
 }
-.crm-list > li {
-    border-bottom: 1px solid var(--wd-divider);
+.crm-stats li {
+    padding: 10px 14px;
+    border: 1px solid var(--wd-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
 }
-.crm-list > li:last-child {
-    border-bottom: 0;
+.crm-stats a {
+    flex: 1;
+    margin: -10px -14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: inherit;
+    text-decoration: none;
 }
-.crm-list .crm-person {
-    padding: 18px 24px;
+.crm-stats a:hover {
+    background: var(--wd-danger-bg);
 }
-.crm-person {
+.crm-stats span {
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+.crm-stats strong {
+    font-family: var(--wd-font-display);
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+.crm-stats .is-danger strong {
+    color: var(--wd-danger);
+}
+.crm-stats .is-warning strong {
+    color: var(--wd-warning);
+}
+.crm-switch {
+    display: none;
+}
+.crm-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(320px, 1fr);
+    align-items: start;
+    gap: 16px;
+    min-width: 0;
+}
+.crm-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+    overflow: clip;
+}
+.crm-card-head {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 14px 20px;
-    min-width: 0;
+    gap: 6px 8px;
+    padding: 12px 14px 10px;
 }
-.crm-person-main {
-    display: flex;
-    flex: 1 1 240px;
-    gap: 14px;
-    align-items: flex-start;
-    min-width: 0;
-}
-.crm-person-copy,
-.crm-reminder-copy {
-    min-width: 0;
-}
-.crm-person-name,
-.crm-reminder-title,
-.crm-email,
-.crm-note {
+.wd-crm h2 {
     margin: 0;
-    overflow-wrap: anywhere;
-}
-.crm-person-name {
+    font-family: var(--wd-font-display);
     font-size: 16px;
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.25;
 }
-.crm-person-company::before {
-    content: ' · ';
-}
-.crm-person-company,
-.crm-email,
-.crm-when {
-    color: var(--wd-muted);
-    font-weight: 400;
-}
-.crm-person-company,
-.crm-email {
-    font-size: 14px;
-}
-.crm-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    max-width: 100%;
-    margin-top: 6px;
-    padding: 4px 10px;
-    border-radius: 8px;
+.crm-count {
+    padding: 1px 7px;
+    border-radius: 999px;
     background: var(--wd-divider);
-    color: var(--wd-body);
-    font-size: 13px;
-    line-height: 1.4;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
-.crm-note svg {
-    flex: none;
-    margin-top: 2px;
+.crm-card-note,
+.crm-notice {
+    margin: 0 0 0 auto;
+}
+.crm-notice {
+    color: var(--wd-success);
+    font-size: 13px;
+    font-weight: 600;
+}
+.crm-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px 10px;
+}
+.crm-search {
+    position: relative;
+    display: flex;
+    flex: 1 1 220px;
+    align-items: center;
+    min-width: 0;
+}
+.crm-search > svg {
+    position: absolute;
+    left: 10px;
+    color: var(--wd-muted);
+    pointer-events: none;
+}
+.crm-search input {
+    width: 100%;
+    padding-inline: 32px;
+    font-size: 13px;
+}
+.crm-search input::-webkit-search-cancel-button {
+    display: none;
+}
+.crm-search-clear {
+    position: absolute;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--wd-muted);
+}
+.crm-search-clear:hover {
+    background: var(--wd-divider);
+    color: var(--wd-ink);
+}
+.crm-inline-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+.crm-inline-field select {
+    padding-inline: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--wd-ink);
+}
+.crm-linked {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--wd-divider);
+    background: var(--wd-paper);
+}
+.crm-linked h3 {
+    margin: 0;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+.crm-linked h3::after {
+    content: ':';
+}
+.crm-linked ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.crm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 2px 4px 2px 3px;
+    border-radius: 999px;
+    background: var(--wd-success-bg);
+    color: var(--wd-success);
+    font-size: 12px;
+    font-weight: 700;
+}
+.crm-chip button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+}
+.crm-chip button:hover:not(:disabled) {
+    background: rgb(36 97 79 / 14%);
+}
+.crm-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    padding: 6px 14px;
+    border-top: 1px solid var(--wd-divider);
+    background: var(--color-blush);
+    color: var(--wd-brand-hover);
+    font-size: 13px;
+    font-weight: 700;
+}
+.crm-bulk p {
+    margin: 0;
+}
+.crm-bulk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-left: auto;
 }
 .crm-avatar {
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    font-weight: 600;
-    line-height: 1;
-}
-.crm-avatar-linked {
-    width: 48px;
-    height: 48px;
-    background: var(--wd-brand);
-    color: white;
-    font-size: 16px;
-}
-.crm-avatar-saved {
-    width: 44px;
-    height: 44px;
     background: var(--color-blush);
     color: var(--wd-brand-hover);
-    font-size: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
 }
 .crm-avatar-context {
-    width: 32px;
-    height: 32px;
+    width: 22px;
+    height: 22px;
     background: var(--wd-brand-hover);
-    color: white;
+    color: #fff;
+    font-size: 10px;
+}
+.crm-avatar-chip {
+    width: 20px;
+    height: 20px;
+    background: var(--wd-success);
+    color: #fff;
+    font-size: 9px;
+}
+/* Lists use 30px row controls with a fine pointer; phones and touch screens keep 44px targets. */
+@media (min-width: 600px) and (pointer: fine) {
+    .crm-header-actions {
+        --wd-table-control: 34px;
+    }
+    .crm-table,
+    .crm-reminders {
+        --wd-table-control: 30px;
+    }
+}
+/* Contacts table at list density. */
+.crm-table {
+    border-top: 1px solid var(--wd-divider);
+}
+.crm-table :deep(.wd-data-table) {
+    min-width: 640px;
     font-size: 13px;
 }
-.crm-save {
-    width: 100%;
-    min-height: 48px;
-    font-size: 15px;
+.crm-table :deep(.wd-data-table th),
+.crm-table :deep(.wd-data-table td) {
+    padding: 6px 10px;
+    vertical-align: middle;
+}
+.crm-table :deep(.wd-data-table thead th) {
+    padding-block: 7px;
+    border-bottom: 1px solid var(--wd-divider);
+    font-size: 11px;
+}
+.crm-table :deep(.wd-data-table tr > :first-child) {
+    padding-left: 14px;
+}
+.crm-table :deep(.wd-data-table tr > :last-child) {
+    width: 1%;
+    padding-right: 10px;
+    text-align: right;
+    white-space: nowrap;
+}
+.crm-table :deep(.wd-data-table tbody th) {
+    min-width: 200px;
     font-weight: 600;
 }
-.crm-empty {
+.crm-table :deep(.wd-data-table tbody tr:hover > *) {
+    background: #fcfaf6;
+}
+.crm-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.crm-checkbox {
+    flex: none;
+    width: 16px;
+    height: 16px;
     margin: 0;
-    padding: 32px 24px;
+    accent-color: var(--wd-brand);
+}
+.crm-person {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.crm-person-name {
+    color: var(--wd-ink);
+    overflow-wrap: anywhere;
+}
+.crm-person :deep(.wd-data-secondary),
+.crm-person .wd-data-secondary {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+.crm-none {
     color: var(--wd-muted);
-    font-size: 15px;
-    text-align: center;
 }
-.crm-linked-section .crm-empty {
-    padding: 8px 0 0;
-}
-.crm-more,
-.crm-inline-link,
-.crm-text-button {
+.crm-note {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    gap: 5px;
+    max-width: 200px;
+    color: var(--wd-body);
+}
+.crm-note svg {
+    flex: none;
+    color: var(--wd-muted);
+}
+.crm-note span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.crm-row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+.crm-ghost,
+.crm-row-actions :deep(.crm-ghost) {
+    border-color: transparent;
+    background: transparent;
+    color: var(--wd-muted);
+}
+.crm-empty {
+    margin: 0 14px 14px;
+}
+.crm-pagination {
+    padding: 8px 14px;
+    border-top: 1px solid var(--wd-divider);
+}
+/* Reminders. */
+.crm-segment {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2px;
+    padding: 3px;
+    border-radius: 9px;
+    background: var(--wd-divider);
+}
+.crm-card > .crm-segment {
+    margin: 0 14px 10px;
+}
+.crm-editor .crm-segment {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.crm-segment button {
+    min-width: 0;
+    min-height: 30px;
+    padding: 4px 6px;
     border: 0;
-    background: none;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.3;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--wd-muted);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
 }
-.crm-more,
-.crm-inline-link {
-    color: var(--wd-brand);
-    text-decoration: none;
-}
-.crm-more {
-    margin: 0 24px 8px;
-    padding: 0;
-}
-.crm-more:hover,
-.crm-inline-link:hover,
-.crm-back:hover {
+.crm-segment button[aria-pressed='true'] {
+    background: var(--wd-surface);
+    box-shadow: 0 1px 2px rgb(34 26 38 / 12%);
     color: var(--wd-brand-hover);
 }
-.crm-text-button {
-    padding: 0 2px;
-    color: var(--wd-body);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+.crm-empty-line {
+    margin: 0;
+    padding: 24px 14px;
+    border-top: 1px solid var(--wd-divider);
+    color: var(--wd-muted);
+    text-align: center;
 }
-.crm-text-button:hover:not(:disabled) {
-    color: var(--wd-ink);
+.wd-crm h3.crm-group {
+    margin: 0;
+    padding: 5px 14px;
+    border-top: 1px solid var(--wd-divider);
+    background: var(--wd-paper);
+    color: var(--wd-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.wd-crm h3.crm-group.is-overdue {
+    color: var(--wd-danger);
+}
+.crm-reminders {
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 .crm-reminders > li {
     display: flex;
-    gap: 4px;
-    align-items: flex-start;
-    padding: 14px 24px 14px 12px;
+    align-items: center;
+    gap: 8px;
+    min-height: 52px;
+    padding: 6px 8px 6px 6px;
+    border-top: 1px solid var(--wd-divider);
+}
+.crm-reminders > li:hover {
+    background: #fcfaf6;
 }
 .crm-complete {
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 32px;
+    height: 32px;
     padding: 0;
     border: 0;
-    border-radius: 10px;
+    border-radius: 8px;
     background: transparent;
 }
 .crm-check {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     box-sizing: border-box;
     border: 2px solid var(--wd-control-line);
     border-radius: 50%;
     background: var(--wd-surface);
-    color: white;
+    color: #fff;
+}
+button.crm-complete:hover:not(:disabled) .crm-check {
+    border-color: var(--wd-success);
 }
 .crm-check.is-done {
     border-color: var(--wd-success);
@@ -1252,69 +1737,239 @@ const blocked = computed(() => busy.value || !!errors.value.version);
 }
 .crm-reminder-copy {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-top: 2px;
+    min-width: 0;
 }
 .crm-reminder-title {
-    font-size: 15px;
+    margin: 0;
     font-weight: 600;
-    line-height: 1.35;
+    overflow-wrap: anywhere;
 }
-.crm-reminder-meta,
-.crm-when,
-.crm-reminder-actions {
+.crm-reminder-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-}
-.crm-reminder-meta {
-    gap: 6px 10px;
+    gap: 2px 8px;
+    margin: 2px 0 0;
     color: var(--wd-muted);
+    font-size: 12px;
+}
+.crm-reminder-meta :deep(.wd-badge) {
+    padding-block: 0;
+    font-size: 11px;
+}
+.crm-inline-link {
+    color: var(--wd-brand);
+    font-weight: 600;
+    text-decoration: none;
+}
+.crm-inline-link:hover {
+    text-decoration: underline;
+}
+.crm-text-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: inherit;
     font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
-.crm-when {
-    gap: 5px;
+/* Editor dialog. */
+.crm-editor[open] {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
-.crm-reminder-actions {
-    gap: 8px 16px;
+.crm-editor .wd-dialog-header {
+    margin-bottom: 0;
 }
 .crm-fields {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     min-width: 0;
     margin: 0;
     padding: 0;
     border: 0;
 }
-.crm-fields legend {
-    padding: 0;
-    color: var(--wd-ink);
-    font-size: 13px;
-    font-weight: 600;
+.crm-field-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.crm-snooze {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--wd-paper);
+}
+.crm-snooze > :first-child {
+    flex: 1 1 200px;
+}
+.crm-editor-footer {
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.crm-editor-delete {
+    margin-right: auto;
 }
 .wd-crm :deep(.wd-hint) {
     color: var(--wd-muted);
     font-size: 13px;
-    line-height: 1.45;
 }
 .wd-crm :deep(.wd-field-error) {
     color: var(--wd-danger);
 }
-@media (max-width: 959px) {
-    .crm-col-main,
-    .crm-col-side {
-        flex-basis: 100%;
+@media (max-width: 1099px) {
+    .crm-columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .crm-switch {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2px;
+        padding: 3px;
+        border-radius: 9px;
+        background: var(--wd-divider);
+    }
+    .crm-switch button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 36px;
+        border: 0;
+        border-radius: 7px;
+        background: transparent;
+        color: var(--wd-muted);
+        font-weight: 700;
+    }
+    .crm-switch button[aria-pressed='true'] {
+        background: var(--wd-surface);
+        box-shadow: 0 1px 2px rgb(34 26 38 / 12%);
+        color: var(--wd-brand-hover);
+    }
+    .crm-card.is-hidden-small {
+        display: none;
     }
 }
-@media (max-width: 480px) {
+@media (max-width: 767px) {
+    .crm-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 599px) {
     .wd-crm {
-        padding: 8px 8px 24px;
+        gap: 12px;
     }
     .wd-crm h1 {
-        font-size: 44px;
+        font-size: 24px;
+    }
+    .crm-header-actions {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+        width: 100%;
+    }
+    .crm-header-actions :deep(.wd-row-menu-trigger span) {
+        display: none;
+    }
+    .crm-header-actions :deep(.wd-row-menu-trigger) {
+        min-width: 44px;
+    }
+    .crm-stats li {
+        padding: 8px 12px;
+    }
+    .crm-stats strong {
+        font-size: 18px;
+    }
+    .crm-inline-field {
+        flex: 1 1 140px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+    }
+    .crm-inline-field select {
+        width: 100%;
+        min-width: 0;
+    }
+    .crm-person-name,
+    .crm-person .wd-data-secondary {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow-wrap: normal;
+    }
+    .crm-link-text {
+        display: none;
+    }
+    .crm-table :deep(.wd-data-table tbody td[data-label='Leads'] .wd-table-button) {
+        min-width: 44px;
+        padding: 0;
+    }
+    .crm-field-pair {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    /* Phones show each contact as a compact row: name, lead link and actions, then the company. */
+    .crm-table :deep(.wd-data-table) {
+        min-width: 0;
+    }
+    .crm-table :deep(.wd-data-table tbody tr) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 0 6px;
+        margin: 0;
+        padding: 6px 6px 6px 12px;
+        border: 0;
+        border-top: 1px solid var(--wd-divider);
+        border-radius: 0;
+    }
+    .crm-table :deep(.wd-data-table tbody tr + tr) {
+        margin-top: 0;
+    }
+    .crm-table :deep(.wd-data-table tbody tr > *) {
+        padding: 0;
+        background: none;
+    }
+    .crm-table :deep(.wd-data-table tbody th) {
+        grid-row: 1;
+        grid-column: 1;
+        min-width: 0;
+    }
+    .crm-table :deep(.wd-data-table tbody td[data-label]::before) {
+        display: none;
+    }
+    .crm-table :deep(.wd-data-table tbody td[data-label='Company']) {
+        grid-row: 2;
+        grid-column: 1;
+        margin-top: -4px;
+        padding-left: 64px;
+        color: var(--wd-muted);
+        font-size: 12px;
+    }
+    .crm-table :deep(.wd-data-table tbody td[data-label='Leads']) {
+        grid-row: 1;
+        grid-column: 2;
+        font-size: 12px;
+    }
+    .crm-table :deep(.wd-data-table tbody td:last-child) {
+        grid-row: 1;
+        grid-column: 3;
+        width: auto;
+    }
+    .crm-table :deep(.wd-data-table tbody td[data-label='Notes']),
+    .crm-table :deep(.wd-data-table tbody td:has(> .crm-none)) {
+        display: none;
+    }
+    .crm-pagination {
+        padding-inline: 12px;
     }
 }
 </style>

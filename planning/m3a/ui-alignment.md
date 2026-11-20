@@ -46,6 +46,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-20):** the partner pipeline board (My leads) uses one stage filter: chips with counts for All and every stage, replacing the segment buttons and the stage dropdown. Chip counts ignore only the stage filter (`stageCounts`). Search, chips and Due next actions apply as used; there is no Apply button. The board keeps the reference layout beside the sidebar, fits five columns at 1280px (150px minimum), and shows six leads per column before "Show N more". D22's five main columns and the separate Repeat Client/Lost row are unchanged. Evidence: [compact pipeline](pipeline-compact-evidence.md).
 
+**Confirmed (2026-11-20):** the user approved a compact mockup for Contacts and reminders: a contacts table with numbered pagination, sorting, lead-link filtering, row menus and bulk link/export/delete; reminders grouped by urgency with quick snooze; a whole-workspace summary; and CSV export. Phones show one list at a time. Evidence: [compact contacts and reminders](crm-compact-evidence.md).
+
 ## Identity and shared relationship
 
 **Confirmed:** provide separate brand and partner login pages leading to their respective authorized dashboards. One Laravel identity/session system supports both; separate user databases are unnecessary. A person may participate in both contexts. Login entry choice does not create a role, organization membership or sharing grant.

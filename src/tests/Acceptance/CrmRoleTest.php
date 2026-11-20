@@ -37,6 +37,9 @@ class CrmRoleTest extends AcceptanceCase
         $this->postJson('/reminders/'.$reminder.'/reopen', ['version' => $version])->assertForbidden();
         $this->deleteJson('/reminders/'.$reminder, ['version' => $version])->assertForbidden();
         $this->postJson('/pipeline/'.$lead.'/contacts', ['contact_id' => $id, 'version' => $version])->assertForbidden();
+        $this->postJson('/contacts/bulk', ['action' => 'delete', 'items' => [['id' => $id, 'version' => $version]]])->assertForbidden();
+        $this->postJson('/contacts/bulk', ['action' => 'link', 'items' => [['id' => $id, 'version' => $version]], 'link_entry' => $lead, 'entry_version' => $version])->assertForbidden();
+        $this->get('/crm/exports/contacts')->assertOk()->assertSee('Role contact');
         app(TenantContext::class)->run($user->id, $org, function () use ($org, $id): void {
             $this->assertSame(0, DB::table('brand_contacts')->where('id', $id)->update(['name' => 'viewer hacked']));
             $this->assertSame(0, DB::table('brand_contacts')->where('id', $id)->delete());
@@ -52,6 +55,7 @@ class CrmRoleTest extends AcceptanceCase
         });
         $this->control->table('memberships')->where('org_id', $org)->where('user_id', $user->id)->update(['revoked_at' => now()]);
         $this->getJson('/crm')->assertForbidden();
+        $this->get('/crm/exports/contacts')->assertForbidden();
         $this->patchJson('/contacts/'.$id, [...$data, 'version' => $version])->assertForbidden();
     }
 }
