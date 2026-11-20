@@ -1,3 +1,5 @@
+**PRIV-03 (2026-11-20):** [Closure verification and handoff](closure-evidence.md); [delivered interface](privacy-contract.md#delivered-priv-03-closure-interface).
+
 # M3 verification evidence
 
 **PRIV-02 follow-up (2026-11-20):** personal/workspace private exports are implemented and locally verified; [commands, results, desktop/mobile findings and remaining gates](privacy-evidence.md). Historical onboarding results below retain their recorded scope.

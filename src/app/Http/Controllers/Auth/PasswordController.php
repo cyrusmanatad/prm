@@ -21,7 +21,16 @@ class PasswordController extends Controller
     {
         $request->validate(['email' => ['required', 'email']]);
         try {
-            Password::sendResetLink($request->only('email'));
+            $account = User::where('email', $request->input('email'))->first();
+            if ($account && DB::getDriverName() === 'pgsql') {
+                DB::transaction(function () use ($account, $request): void {
+                    if (DB::selectOne('SELECT app_privacy_mail_allowed(?) AS allowed', [$account->id])->allowed) {
+                        Password::sendResetLink($request->only('email'));
+                    }
+                });
+            } else {
+                Password::sendResetLink($request->only('email'));
+            }
         } catch (MailBudgetExceeded) {
             // Keep the same recovery response for existing and unknown accounts, even at the cap.
             // "Requested" does not claim transport acceptance or receipt; budget monitoring reports the pause.
@@ -40,6 +49,9 @@ class PasswordController extends Controller
         $status = Password::reset($request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password): void {
                 DB::transaction(function () use ($user, $password): void {
+                    if (DB::getDriverName() === 'pgsql' && ! DB::selectOne('SELECT app_privacy_mail_allowed(?) AS allowed', [$user->id])->allowed) {
+                        throw ValidationException::withMessages(['email' => 'This reset link is unavailable. Contact support.']);
+                    }
                     $user->forceFill(['password' => $password, 'remember_token' => Str::random(60)])->save();
                     DB::table('sessions')->where('user_id', $user->id)->delete();
                 });

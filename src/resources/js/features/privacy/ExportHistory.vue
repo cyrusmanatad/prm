@@ -44,9 +44,11 @@ function date(value: string): string {
                                 ? 'Preparing'
                                 : receipt.state === 'ready'
                                   ? 'Ready'
-                                  : receipt.state === 'failed'
-                                    ? 'Could not prepare — create a new export'
-                                    : 'Expired'
+                                  : receipt.state === 'revoked'
+                                    ? 'Access revoked'
+                                    : receipt.state === 'failed'
+                                      ? 'Could not prepare — create a new export'
+                                      : 'Expired'
                         "
                     />
                 </div>

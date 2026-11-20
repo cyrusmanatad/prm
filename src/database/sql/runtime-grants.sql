@@ -8,6 +8,12 @@ GRANT EXECUTE ON FUNCTION app_create_workspace(uuid, text) TO weavdash_app;
 REVOKE ALL ON TABLE migrations FROM weavdash_app;
 
 DO $$ BEGIN
+ IF to_regclass('public.privacy_closure_requests') IS NOT NULL THEN
+  REVOKE ALL ON public.privacy_closure_requests,public.privacy_closure_events FROM weavdash_app;
+ END IF;
+END $$;
+
+DO $$ BEGIN
  IF to_regclass('public.privacy_export_events') IS NOT NULL THEN
   REVOKE UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER ON public.privacy_export_events FROM weavdash_app;
   REVOKE DELETE,TRUNCATE,REFERENCES,TRIGGER ON public.privacy_exports FROM weavdash_app;

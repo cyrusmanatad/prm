@@ -58,7 +58,7 @@ async function download(receipt: ExportReceipt): Promise<void> {
                 response.status === 409
                     ? 'Included data or access changed, or the archive is unavailable. Create a fresh export.'
                     : response.status === 410
-                      ? 'This export has expired. Create a new export.'
+                      ? 'This export is no longer available. Create a new export.'
                       : response.status === 422
                         ? 'Verify your identity again before downloading. If the export is too large, contact the privacy team.'
                         : 'This download is unavailable. Check your access and verify your identity again.';

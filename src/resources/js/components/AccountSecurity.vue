@@ -15,6 +15,7 @@ const emit = defineEmits<{ revoke: [] }>();
             <Link href="/account/authenticator" class="wd-link">Authenticator and recovery codes</Link>
         </p>
         <p class="wd-description"><Link href="/account/exports" class="wd-link">Download your data</Link></p>
+        <p class="wd-description"><Link href="/account/closure" class="wd-link">Account and workspace closure</Link></p>
         <p class="wd-description">
             Sign out every session, including this one. Enter your current password to continue.
         </p>

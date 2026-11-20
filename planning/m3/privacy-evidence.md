@@ -1,6 +1,6 @@
 # Privacy export implementation and verification
 
-Date: 2026-11-20. Task: M3-02 / PRIV-02. Revision: uncommitted working tree based on `main` at `3ec3847`, including the earlier PRIV-01 audit and D40 policy approval. Local disposable PostgreSQL/Redis/app environments only. **No staging/production deployment, external message or deletion of existing business data.** The untracked staging rotation plan remains separate and untouched.
+Date: 2026-11-20. Task: M3-02 / PRIV-02. Revision: committed as `64b1a6f`, based on `main` at `3ec3847`, including the earlier PRIV-01 audit and D40 policy approval. Local disposable PostgreSQL/Redis/app environments only. **No staging/production deployment, external message or deletion of existing business data.** The untracked staging rotation plan remains separate and untouched.
 
 ## Delivered behavior
 

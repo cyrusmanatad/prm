@@ -51,3 +51,8 @@ it('omits the administration link inside administration and in fixtures', async 
 
     expect(await open({ fixture: true })).not.toContain('Platform administration');
 });
+
+it('offers only closure and security navigation while the account is closing', async () => {
+    page.props = { accountClosing: true };
+    expect(await open()).toEqual(['Account closure', 'Authenticator security', 'Sign out']);
+});

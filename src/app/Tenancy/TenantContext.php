@@ -10,7 +10,7 @@ use LogicException;
 /** Transaction-local settings never survive a request/job commit or rollback. */
 class TenantContext
 {
-    public function run(int $actorId, ?string $orgId, Closure $callback, bool $requireMembership = true, bool $snapshot = false): mixed
+    public function run(int $actorId, ?string $orgId, Closure $callback, bool $requireMembership = true, bool $snapshot = false, bool $accessBarrier = true): mixed
     {
         $connection = DB::connection();
         if ($connection->getDriverName() !== 'pgsql') {
@@ -29,11 +29,14 @@ class TenantContext
             throw new LogicException('Tenant operations require a restricted non-owner runtime role.');
         }
 
-        return $connection->transaction(function () use ($connection, $actorId, $orgId, $callback, $requireMembership, $snapshot) {
+        return $connection->transaction(function () use ($connection, $actorId, $orgId, $callback, $requireMembership, $snapshot, $accessBarrier) {
             if ($snapshot) {
                 $connection->statement('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
             }
             $this->set($connection, $actorId, $orgId);
+            if ($accessBarrier) {
+                $connection->selectOne('SELECT app_privacy_lock_access(?,?::uuid)', [$actorId, $orgId]);
+            }
             if ($requireMembership && $orgId !== null) {
                 $member = $connection->selectOne('SELECT app_lock_membership(?::uuid) AS allowed', [$orgId]);
                 abort_unless($member?->allowed, 403, 'Workspace access is no longer available.');

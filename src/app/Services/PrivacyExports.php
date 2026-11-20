@@ -25,7 +25,10 @@ class PrivacyExports
                 ->where('memberships.user_id', $actor)->where('memberships.role', 'owner')->whereNull('memberships.revoked_at')
                 ->orderBy('organizations.id')->get(['organizations.id', 'organizations.name'])->all();
             $exports = DB::table('privacy_exports')->where('actor_id', $actor)->orderByDesc('created_at')->orderByDesc('id')->limit(20)
-                ->get(['id', 'scope', 'org_id', 'state', 'size', 'created_at', 'expires_at'])->map(function ($row) {
+                ->get(['id', 'scope', 'org_id', 'state', 'size', 'created_at', 'expires_at', 'revoked_at'])->map(function ($row) {
+                    if ($row->revoked_at !== null) {
+                        $row->state = 'revoked';
+                    }
                     if (now()->gte($row->expires_at)) {
                         $row->state = 'expired';
                     }
@@ -114,7 +117,7 @@ class PrivacyExports
             DB::selectOne('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ['privacy-export:'.$id]);
             $this->authorize($request, $actor, $org);
             $receipt = DB::table('privacy_exports')->where('id', $id)->where('actor_id', $actor)->lockForUpdate()->first();
-            abort_unless($receipt && $receipt->state === 'ready' && now()->lt($receipt->expires_at), 410, 'This export is unavailable or expired. Create a new export.');
+            abort_unless($receipt && $receipt->revoked_at === null && $receipt->state === 'ready' && now()->lt($receipt->expires_at), 410, 'This export is unavailable or expired. Create a new export.');
             $current = $this->data->collect($actor, $org);
             abort_unless(hash_equals($receipt->fingerprint, $this->fingerprint($current)), 409, 'Included data or access changed. Create a fresh export.');
             $disk = Storage::disk('privacy-exports');
@@ -161,12 +164,23 @@ class PrivacyExports
     private function authorize(Request $request, int $actor, ?string $org): void
     {
         $user = $this->account($actor);
+        abort_if(DB::selectOne('SELECT app_account_closing(?) AS closing', [$actor])->closing, 403);
         if (! $this->proven($request, $user)) {
             throw ValidationException::withMessages(['verification' => 'Verify your password and authenticator again to continue.']);
         }
         if ($org !== null) {
             abort_unless($user->admin_totp_confirmed_at !== null && DB::selectOne("SELECT app_has_membership(?::uuid,ARRAY['owner']) AS allowed", [$org])->allowed, 403);
         }
+    }
+
+    /** Closure/cancellation uses fresh verification, including a closing account's restricted landing page. */
+    public function assertIdentity(Request $request, bool $requireMfa = false): void
+    {
+        $user = $this->account((int) $request->user()->id);
+        if (! $this->proven($request, $user)) {
+            throw ValidationException::withMessages(['verification' => 'Verify your identity again.']);
+        }
+        abort_if($requireMfa && $user->admin_totp_confirmed_at === null, 403, 'Set up your authenticator before closing a workspace.');
     }
 
     private function account(int $actor, bool $lock = false): object
