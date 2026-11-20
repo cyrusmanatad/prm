@@ -29,7 +29,7 @@ class OnboardingSecurityTest extends AcceptanceCase
             $request = $this->postJson('/onboarding-requests', ['pipeline_entry_id' => $lead, 'label' => 'Role invitation'])->assertCreated()->json('id');
         }
         $this->control->table('memberships')->where('org_id', $org)->where('user_id', $u->id)->update(['role' => 'viewer']);
-        $this->getJson('/onboarding-requests')->assertOk()->assertJsonPath('canWrite', false);
+        $this->getJson('/onboarding-requests')->assertOk()->assertJsonPath('canWrite', false)->assertJsonCount(0, 'leads');
         $this->postJson('/onboarding-requests', ['pipeline_entry_id' => $lead, 'label' => 'forged'])->assertForbidden();
         $this->postJson('/onboarding-requests/'.$request.'/revoke', ['version' => 1])->assertForbidden();
         $this->postJson('/lead-links')->assertForbidden();

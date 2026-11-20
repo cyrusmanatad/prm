@@ -104,7 +104,7 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
     await brand.getByRole('button', { name: 'Submit for review', exact: true }).click();
     await expect(brand.getByRole('status').filter({ hasText: 'Form submitted for review' })).toBeVisible();
     await page.goto(ownerUrl);
-    await expect(page.getByText('Awaiting review', { exact: true })).toBeVisible();
+    await expect(page.locator('.onb-detail-title')).toContainText('Awaiting review');
     await page.getByLabel('Correction request', { exact: true }).fill('Please add timing.');
     await page.getByRole('button', { name: 'Request correction', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Correction requested' })).toBeVisible();
@@ -115,6 +115,7 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
     await brand.getByRole('button', { name: 'Submit for review', exact: true }).click();
     await expect(brand.getByRole('status').filter({ hasText: 'Form submitted for review' })).toBeVisible();
     await page.reload();
+    await page.getByRole('tab', { name: /^History/ }).click();
     await expect(page.locator('summary').filter({ hasText: 'Submission version' })).toHaveCount(2);
     await page.locator('summary').filter({ hasText: 'Submission version' }).last().click();
     await expect(page.getByText('A first brief.', { exact: true })).toBeVisible();
@@ -129,6 +130,7 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
         page.getByRole('button', { name: 'Accept submission', exact: true }).click(),
     ]);
     await expect(page.getByRole('status').filter({ hasText: 'Onboarding accepted' })).toBeVisible();
+    await page.getByRole('button', { name: 'Replace invitation…', exact: true }).click();
     await confirmMutation(
         page,
         page.getByRole('button', { name: 'Create replacement invitation', exact: true }),

@@ -60,6 +60,9 @@ test('onboarding lifecycle controls queue explicit outcomes and open fresh scope
         await recipient.getByRole('button', { name: 'Submit for review', exact: true }).click();
         await page.goto(reviewUrl);
         const history = page.getByRole('region', { name: 'Onboarding email history' });
+        // The email history is the request's Emails tab; each load returns to the Submission tab.
+        const showEmails = () => page.getByRole('tab', { name: /^Emails/ }).click();
+        await showEmails();
         await expect(history).toContainText('Submission alert');
         await expect(page.getByLabel('Email this review outcome')).not.toBeChecked();
         await expect(page.getByLabel('Outcome recipient email')).toHaveCount(0);
@@ -83,6 +86,7 @@ test('onboarding lifecycle controls queue explicit outcomes and open fresh scope
         const correctedLink = deliver(email)['onboarding.corrected'];
         expect(correctedLink).toContain('/onboarding#token=');
         await page.reload();
+        await showEmails();
         await expect(history).toContainText('Email captured locally; no external delivery');
         // A completely fresh browser receives access without the original session.
         await context.clearCookies();
@@ -93,6 +97,7 @@ test('onboarding lifecycle controls queue explicit outcomes and open fresh scope
         await recipient.getByLabel(/I agree to share/).check();
         await recipient.getByRole('button', { name: 'Submit for review', exact: true }).click();
         await page.goto(reviewUrl);
+        await showEmails();
         await page.getByLabel('Email this review outcome').check();
         await page.getByLabel('Outcome recipient email').fill('explicit@example.test');
         await page.getByRole('button', { name: 'Accept submission', exact: true }).click();
