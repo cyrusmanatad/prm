@@ -98,4 +98,28 @@ class OutreachTemplateTest extends TestCase
             });
         }
     }
+
+    public function test_draft_leads_list_own_recent_open_leads_and_templates_carry_update_times(): void
+    {
+        [$user, $org] = $this->setupWorkspace();
+        $other = User::factory()->create();
+        $foreignOrg = app(Workspaces::class)->create($other->id, 'Other leads');
+        app(TenantContext::class)->run($other->id, $foreignOrg, fn () => DB::table('pipeline_entries')->insert(
+            ['id' => (string) Str::uuid(), 'org_id' => $foreignOrg, 'brand_name' => 'Foreign brand', 'currency' => 'PHP']));
+        $older = $this->postJson('/pipeline', ['brand_name' => 'Older brand', 'contact_name' => 'Ola', 'contact_email' => 'ola@example.test', 'value_minor' => '0', 'currency' => 'PHP'])->json('id');
+        $lost = $this->postJson('/pipeline', ['brand_name' => 'Lost brand', 'value_minor' => '0', 'currency' => 'PHP'])->json('id');
+        $newer = $this->postJson('/pipeline', ['brand_name' => 'Newer brand', 'value_minor' => '0', 'currency' => 'PHP'])->json('id');
+        app(TenantContext::class)->run($user->id, $org, function () use ($older, $lost, $newer): void {
+            DB::table('pipeline_entries')->where('id', $older)->update(['updated_at' => now()->subDay()]);
+            DB::table('pipeline_entries')->where('id', $lost)->update(['stage' => 'lost']);
+            DB::table('pipeline_entries')->where('id', $newer)->update(['updated_at' => now()]);
+        });
+        $this->postJson('/outreach-templates', $this->details());
+        $response = $this->getJson('/outreach-templates')
+            ->assertJsonCount(2, 'leads')
+            ->assertJsonPath('leads.0.brand_name', 'Newer brand')
+            ->assertJsonPath('leads.1', ['id' => $older, 'brand_name' => 'Older brand', 'contact_name' => 'Ola', 'contact_email' => 'ola@example.test'])
+            ->assertDontSee('Foreign brand')->assertDontSee('Lost brand');
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T/', $response->json('templates.0.updated_at'));
+    }
 }

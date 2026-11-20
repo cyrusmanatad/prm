@@ -1,8 +1,16 @@
 import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { changeRole, fixture, login } from './helpers';
+
+/** Narrow screens show one Outreach panel at a time; wide screens show all three. */
+async function showOutreachPanel(page: Page, name: 'Templates' | 'Edit' | 'Draft') {
+    const toggle = page
+        .getByRole('group', { name: 'Show panel' })
+        .getByRole('button', { name: new RegExp(`^${name}`) });
+    if (await toggle.isVisible()) await toggle.click();
+}
 
 test('private templates persist, reject stale edits, merge drafts, copy and delete', async ({ page }, info) => {
     test.setTimeout(120_000);
@@ -21,9 +29,11 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await page.getByLabel('Template body', { exact: true }).fill('Hi {{contact_name}}, from {{creator_name}}.');
     await page.getByRole('button', { name: 'Create template', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Template created' })).toBeVisible();
+    await showOutreachPanel(page, 'Templates');
     await page.getByRole('button', { name: 'Personal pitch', exact: true }).click();
     const stale = await page.context().newPage();
     await stale.goto('/outreach-templates');
+    await showOutreachPanel(stale, 'Templates');
     await stale.getByRole('button', { name: 'Personal pitch', exact: true }).click();
     await stale.getByLabel('Template body', { exact: true }).fill('Unsaved stale pitch');
     await page.getByLabel('Template name', { exact: true }).fill('Latest pitch');
@@ -34,15 +44,35 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await expect(stale.getByLabel('Template body', { exact: true })).toHaveValue('Unsaved stale pitch');
     await expect(stale.getByRole('button', { name: 'Save template', exact: true })).toBeDisabled();
     await stale.getByRole('button', { name: 'Reload latest templates', exact: true }).click();
+    await showOutreachPanel(stale, 'Templates');
     await expect(stale.getByRole('button', { name: 'Latest pitch', exact: true })).toBeVisible();
     await stale.close();
     await page.reload();
+    await showOutreachPanel(page, 'Templates');
     await page.getByRole('button', { name: 'Latest pitch', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Generate draft', exact: true })).toBeDisabled();
+    await expect(page.getByLabel('Template name', { exact: true })).toHaveValue('Latest pitch');
+    // Placeholders insert at the caret of the field used last and are marked in the body.
+    await showOutreachPanel(page, 'Edit');
+    const body = page.getByLabel('Template body', { exact: true });
+    await body.focus();
+    await body.press('End');
+    await page.getByRole('button', { name: 'Insert Brand name placeholder', exact: true }).click();
+    await expect(body).toHaveValue('Hi {{contact_name}}, from {{creator_name}}.{{brand_name}}');
+    await expect(page.locator('.wd-placeholder-mirror mark.is-known')).toHaveCount(3);
+    await expect(page.getByRole('status').filter({ hasText: 'Unsaved changes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Discard', exact: true }).click();
+    await expect(body).toHaveValue('Hi {{contact_name}}, from {{creator_name}}.');
+    await showOutreachPanel(page, 'Draft');
+    await expect(page.getByRole('button', { name: 'Copy draft', exact: true })).toBeDisabled();
+    await expect(page.getByRole('region', { name: 'Draft preview' }).locator('.is-missing')).toHaveText([
+        'brand name',
+        'contact name',
+    ]);
     await page.getByLabel('Brand name', { exact: true }).fill('<b>Studio</b>');
     await page.getByLabel('Contact name', { exact: true }).fill('Sam');
     await page.getByLabel('Creator name', { exact: true }).fill('Creator');
-    await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'Draft preview' })).toContainText('Hello <b>Studio</b>');
+    await page.getByRole('button', { name: 'Edit before copying', exact: true }).click();
     await expect(page.getByLabel('Draft subject', { exact: true })).toHaveValue('Hello <b>Studio</b>');
     await expect(page.getByLabel('Draft body', { exact: true })).toHaveValue('Hi Sam, from Creator.');
     await page.getByLabel('Draft body', { exact: true }).fill('Edited manual draft.');
@@ -95,6 +125,7 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     expect(await page.evaluate(() => document.body.scrollWidth <= innerWidth)).toBe(true);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
         await page.screenshot({ path: info.outputPath('templates.png'), fullPage: true });
+    await showOutreachPanel(page, 'Edit');
     await confirmMutation(
         page,
         page.getByRole('button', { name: 'Delete template', exact: true }),

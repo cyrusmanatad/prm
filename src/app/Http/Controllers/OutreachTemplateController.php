@@ -20,7 +20,7 @@ class OutreachTemplateController extends Controller
         }
 
         $org = $request->session()->get('active_org_id');
-        $payload = ['templates' => $templates->listing($org), 'canWrite' => $pipeline->canWrite((int) $request->user()->id, $org),
+        $payload = ['templates' => $templates->listing($org), 'leads' => $templates->draftLeads($org), 'canWrite' => $pipeline->canWrite((int) $request->user()->id, $org),
             'workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')]];
 
         return $request->expectsJson() && ! $request->header('X-Inertia')
