@@ -39,6 +39,9 @@ function code(secret: string): string {
     const hash = createHmac('sha1', key).update(counter).digest();
     return ((hash.readUInt32BE(hash[19]! & 15) & 0x7fffffff) % 1000000).toString().padStart(6, '0');
 }
+// Export fixtures and archives belong on a dedicated disposable stack, never a shared database.
+test.skip(!process.env.PRIVACY_TEST_COMPOSE, 'Requires the disposable privacy stack via PRIVACY_TEST_COMPOSE.');
+
 async function clean(page: Page): Promise<void> {
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

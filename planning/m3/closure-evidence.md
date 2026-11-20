@@ -37,6 +37,15 @@ Chromium desktop **1280×720** and mobile **390×664** use the approved magenta/
 
 Inspection found repeated subject names created duplicate region labels; request references now distinguish receipts. Scope selection now follows the server's selected scope after a mutation redirects to the account preview. The final scope change is checked again in both desktop/mobile workspace journeys. Temporary screenshots were inspected outside the repository and removed; no new image evidence is retained. Final scope/subject reset rechecks passed both workspace journeys. The disposable stack/volumes and private temporary configuration/storage were removed after verification.
 
+## Clean-setup CI follow-up
+
+Date: 2026-11-21. Remote "Backend foundation" run 44783326262 on `main` (`52d08c0`) failed its clean-setup browser jobs in all four projects. Neither failure was a product regression:
+
+- `privacy-closure.spec.ts` and `privacy-exports.spec.ts` threw because `CLOSURE_TEST_COMPOSE` / `PRIVACY_TEST_COMPOSE` are unset there. **Decision:** both files now `test.skip` without their variable. The guards that throw before any fixture runs remain. These journeys were verified only on dedicated stacks (`weavdash-closure`, `weavdash-privacy`). Closure history blocks migration rollback, and clean setup reuses one database for every spec. Clean setup therefore does not provide the stack, so these journeys need a dedicated run. Remote CI coverage for them remains open.
+- `administration.spec.ts` expected 13 mobile drawer links. The 14th, **Privacy requests** (`/admin/privacy-requests`, `platform.owner`), was added intentionally in `1381540` per the [operator route](privacy-contract.md#delivered-priv-03-closure-interface). The assertion now expects 14 links and names that link.
+
+`COMPOSE_PROJECT_NAME=weavdash npm run test:browser -- administration.spec.ts privacy-closure.spec.ts privacy-exports.spec.ts --project=desktop --project=mobile` against the local stack: **2 passed, 10 skipped** (privacy specs, with their reasons). `npm run format:check` passed for the three specs. WebKit projects and the remote rerun were not checked locally. Test-only change; no UI or screenshot evidence.
+
 ## Remaining gates and next step
 
 PRIV-03 is locally verified, not deployed. Stop/drain old processes before a separately authorized rollout, apply the closure migration and runtime grants, and restart all app/worker/scheduler processes on matching code. Once history exists, fix forward. Remote CI, native Safari, broader manual/assistive review, production topology and live operator/recovery procedures remain open.

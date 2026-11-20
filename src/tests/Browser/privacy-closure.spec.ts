@@ -55,6 +55,9 @@ async function login(page: Page, email: string, destination = /\/workspaces$/): 
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL(destination);
 }
+// Closure history blocks migration rollback, so these journeys run only on a dedicated disposable stack.
+test.skip(!process.env.CLOSURE_TEST_COMPOSE, 'Requires the disposable closure stack via CLOSURE_TEST_COMPOSE.');
+
 async function clean(page: Page): Promise<void> {
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
