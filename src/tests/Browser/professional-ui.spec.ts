@@ -26,6 +26,15 @@ async function startProfessional(page: Page, project: string) {
     await expect(page).toHaveURL(/\/professional$/);
     return email;
 }
+
+/** Narrow screens show one Media kit section at a time; wide screens show all of them. */
+async function showKitSection(page: Page, name: 'Edit' | 'Preview' | 'Lead links') {
+    const toggle = page
+        .getByRole('group', { name: 'Show section' })
+        .getByRole('button', { name: new RegExp(`^${name}`) });
+    if (await toggle.isVisible()) await toggle.click();
+}
+
 test('Professional presentation, destinations and editor cancellation', async ({ page }, info) => {
     test.setTimeout(240_000);
     const before = process.env.PROFESSIONAL_UI_BEFORE === '1';
@@ -340,14 +349,11 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
     await expect(unpublish.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('button', { name: 'Save profile', exact: true })).toBeFocused();
+    await showKitSection(page, 'Lead links');
     await page.getByRole('button', { name: 'Create lead link', exact: true }).click();
     await expect(page.getByLabel('Lead link (copy now)', { exact: true })).toBeVisible();
-    await confirmMutation(
-        page,
-        page.getByRole('button', { name: 'Revoke lead link', exact: true }),
-        'Revoke lead link',
-    );
-    await expect(page.getByText('Revoked', { exact: true })).toBeVisible();
+    await confirmMutation(page, page.getByRole('button', { name: /^Revoke lead link/ }), 'Revoke lead link');
+    await expect(page.getByRole('status').filter({ hasText: 'Lead link revoked' })).toBeVisible();
 
     await page.goto('/professional/finance/invoices');
     await page.getByLabel('Recipient business name').fill('Independent client');

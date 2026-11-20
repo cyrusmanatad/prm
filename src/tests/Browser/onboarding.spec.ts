@@ -2,6 +2,14 @@ import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { fixture, login } from './helpers';
+
+/** Narrow screens show one Media kit section at a time; wide screens show all of them. */
+async function showKitSection(page: Page, name: 'Edit' | 'Preview' | 'Lead links') {
+    const toggle = page
+        .getByRole('group', { name: 'Show section' })
+        .getByRole('button', { name: new RegExp(`^${name}`) });
+    if (await toggle.isVisible()) await toggle.click();
+}
 async function scan(page: Page, info: TestInfo, name: string): Promise<void> {
     const result = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'])
@@ -149,7 +157,11 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     await page.getByRole('link', { name: 'Open partner portal' }).click();
     await page.getByRole('link', { name: 'Media kit', exact: true }).click();
     await page.getByLabel('Public title', { exact: true }).fill('A public creator kit');
-    await page.getByLabel('Public introduction', { exact: true }).fill('A public introduction.');
+    const intro = page.getByLabel('Public introduction', { exact: true });
+    await intro.fill('A public introduction.');
+    await intro.selectText();
+    await page.getByRole('button', { name: 'Bold', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Bold', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('button', { name: 'Add social account', exact: true }).click();
     await page.getByLabel('Account 1 name', { exact: true }).fill('Creator channel');
     await page.getByLabel('Account 1 URL', { exact: true }).fill('https://example.test/channel');
@@ -164,11 +176,14 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     const publicPage = await context.newPage();
     await publicPage.goto(new URL(href!, page.url()).href);
     await expect(publicPage.getByRole('heading', { name: 'A public creator kit', exact: true })).toBeVisible();
+    await expect(publicPage.locator('.intro strong')).toHaveText('A public introduction.');
     await expect(publicPage.getByRole('link', { name: 'Creator channel', exact: true })).toHaveAttribute(
         'href',
         'https://example.test/channel',
     );
     await scan(publicPage, info, 'media-kit');
+    await showKitSection(page, 'Lead links');
+    await page.getByLabel('Label (optional)', { exact: true }).fill('Browser journey');
     await page.getByRole('button', { name: 'Create lead link', exact: true }).click();
     const leadLink = await page.getByLabel('Lead link (copy now)').inputValue();
     await scan(page, info, 'public-presence');
@@ -190,11 +205,17 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     await expect(publicPage.getByRole('status').filter({ hasText: 'Contact details shared' })).toBeVisible();
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Revoke lead link', exact: true }),
+        page.getByRole('button', { name: 'Revoke lead link Browser journey', exact: true }),
         'Revoke lead link',
         info,
     );
     await expect(page.getByRole('status').filter({ hasText: 'Lead link revoked' })).toBeVisible();
+    await page
+        .getByRole('navigation', { name: 'Filter lead links by status' })
+        .getByRole('link', { name: /^Revoked/ })
+        .click();
+    await expect(page.getByRole('table', { name: 'Lead links' })).toContainText('Browser journey');
+    await showKitSection(page, 'Edit');
     await page.getByLabel('Publish this media kit', { exact: true }).uncheck();
     await confirmMutation(
         page,

@@ -319,9 +319,7 @@
     overflow-wrap: anywhere;
     margin-bottom: 12px;
 }
-.wd-professional .pro-access-controls,
-.wd-professional .pro-publishing,
-.wd-professional .pro-profile-identity + section {
+.wd-professional .pro-access-controls {
     border-top: 1px solid var(--wd-line);
     padding-top: 24px;
     margin-top: 8px;

@@ -683,12 +683,6 @@ summary:focus-visible {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
 }
-.wd-social-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
-    gap: 12px;
-    align-items: start;
-}
 
 .wd-workspace-content {
     max-width: 1040px;
@@ -825,8 +819,7 @@ summary:focus-visible {
     }
     .wd-settings-row,
     .wd-split,
-    .wd-form-row,
-    .wd-social-row {
+    .wd-form-row {
         grid-template-columns: minmax(0, 1fr);
     }
 }
@@ -2001,5 +1994,151 @@ summary:focus-visible {
     }
     .wd-cell-link {
         min-width: 44px;
+    }
+}
+
+/* Formatted text field (RichTextEditor): a field box holding a compact toolbar and the editable area. */
+.wd-rich-text-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+.wd-rich-text-count {
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+.wd-rich-text-count.is-over {
+    color: var(--wd-danger);
+    font-weight: 700;
+}
+.wd-rich-text-box {
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+}
+.wd-rich-text-box:focus-within {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.wd-rich-text.is-invalid .wd-rich-text-box {
+    border-color: var(--wd-danger-border);
+}
+.wd-rich-text.is-disabled .wd-rich-text-box {
+    background: var(--wd-paper);
+}
+.wd-rich-text-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border-bottom: 1px solid var(--wd-divider);
+}
+.wd-rich-text-toolbar button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--wd-body);
+    cursor: pointer;
+}
+.wd-rich-text-toolbar button:hover:not(:disabled) {
+    background: var(--wd-divider);
+    color: var(--wd-ink);
+}
+.wd-rich-text-toolbar button[aria-pressed='true'] {
+    background: var(--color-blush);
+    color: var(--wd-brand-hover);
+}
+.wd-rich-text-toolbar button:disabled {
+    color: var(--wd-control-line);
+    cursor: not-allowed;
+}
+.wd-rich-text-toolbar button:focus-visible {
+    outline: 2px solid var(--wd-focus);
+    outline-offset: 1px;
+}
+.wd-rich-text-divider {
+    width: 1px;
+    height: 18px;
+    margin: 0 4px;
+    background: var(--wd-line);
+}
+.wd-rich-text-spacer {
+    flex: 1;
+}
+.wd-rich-text-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    border-bottom: 1px solid var(--wd-divider);
+    background: var(--wd-paper);
+}
+.wd-rich-text-link input {
+    flex: 1 1 220px;
+    min-width: 0;
+    font-size: 13px;
+}
+.wd-rich-text-link .wd-field-error {
+    flex-basis: 100%;
+    margin: 0;
+}
+.wd-rich-text-content {
+    min-height: 120px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    color: var(--wd-ink);
+    font-size: 14px;
+    line-height: 1.55;
+    outline: none;
+    overflow-wrap: anywhere;
+}
+.wd-rich-text-content > :first-child {
+    margin-top: 0;
+}
+.wd-rich-text-content p,
+.wd-rich-text-content ul,
+.wd-rich-text-content ol {
+    margin: 0 0 8px;
+}
+.wd-rich-text-content ul,
+.wd-rich-text-content ol {
+    padding-left: 22px;
+}
+.wd-rich-text-content ul {
+    list-style: disc;
+}
+.wd-rich-text-content ol {
+    list-style: decimal;
+}
+.wd-rich-text-content li > p {
+    margin: 0;
+}
+.wd-rich-text-content h3 {
+    margin: 12px 0 6px;
+    font-family: var(--wd-font-display);
+    font-size: 16px;
+}
+.wd-rich-text-content a {
+    color: var(--wd-brand);
+    text-decoration: underline;
+}
+@media (max-width: 599px), (pointer: coarse) {
+    .wd-rich-text-toolbar button {
+        width: 36px;
+        height: 36px;
+    }
+    .wd-rich-text-divider {
+        margin: 0 1px;
     }
 }
