@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -14,7 +15,19 @@ class OutreachTemplates
     public function listing(string $orgId): array
     {
         return DB::table('outreach_templates')->where('org_id', $orgId)->orderBy('name')->orderBy('id')
-            ->get(['id', 'name', 'subject', 'body', 'version'])->map(fn ($row) => (array) $row)->all();
+            ->get(['id', 'name', 'subject', 'body', 'version', 'updated_at'])
+            ->map(fn ($row) => [...(array) $row, 'updated_at' => Carbon::parse($row->updated_at)->toIso8601String()])->all();
+    }
+
+    /**
+     * Recently updated leads whose names can fill a draft. Lost leads are left out; the list is
+     * the workspace's own pipeline, readable by every member who can read the pipeline.
+     */
+    public function draftLeads(string $orgId, int $limit = 50): array
+    {
+        return DB::table('pipeline_entries')->where('org_id', $orgId)->where('stage', '<>', 'lost')
+            ->orderByDesc('updated_at')->orderBy('id')->limit($limit)
+            ->get(['id', 'brand_name', 'contact_name', 'contact_email'])->map(fn ($row) => (array) $row)->all();
     }
 
     public function save(int $actorId, string $orgId, array $data, ?string $id = null, ?int $version = null): string

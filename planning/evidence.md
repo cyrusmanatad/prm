@@ -66,6 +66,7 @@ These now sit with their owning milestone/workstream topics. Their inclusion her
 | --- | --- |
 | Professional | [Hub and subscriptions](professional/hub-evidence.md), [UI and pipeline panels](professional/ui-evidence.md) |
 | Partner tools | [Media kit and formatted introduction](m3a/media-kit-evidence.md) |
+| Partner tools | [Outreach templates](m3a/outreach-templates-evidence.md) |
 | Partnerships | [Brand join links](m3a/brand-join-links-evidence.md) |
 | Partnerships | [Brand hub invitations](m3a/invitations-evidence.md) |
 | Partnerships | [Table controls and partner avatars](m3a/table-controls-evidence.md) |

@@ -35,6 +35,14 @@ async function showKitSection(page: Page, name: 'Edit' | 'Preview' | 'Lead links
     if (await toggle.isVisible()) await toggle.click();
 }
 
+/** Narrow screens show one Outreach panel at a time; wide screens show all three. */
+async function showOutreachPanel(page: Page, name: 'Templates' | 'Edit' | 'Draft') {
+    const toggle = page
+        .getByRole('group', { name: 'Show panel' })
+        .getByRole('button', { name: new RegExp(`^${name}`) });
+    if (await toggle.isVisible()) await toggle.click();
+}
+
 test('Professional presentation, destinations and editor cancellation', async ({ page }, info) => {
     test.setTimeout(240_000);
     const before = process.env.PROFESSIONAL_UI_BEFORE === '1';
@@ -324,14 +332,14 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
     await page.getByLabel('Subject', { exact: true }).fill('Hello {{brand_name}}');
     await page.getByLabel('Template body', { exact: true }).fill('Hi {{contact_name}}, from {{creator_name}}.');
     await page.getByRole('button', { name: 'Create template', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Template created' })).toBeVisible();
+    await showOutreachPanel(page, 'Templates');
     await page.getByRole('button', { name: 'Client introduction', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Client introduction', exact: true })).toHaveAttribute(
-        'aria-pressed',
-        'true',
-    );
+    await expect(page.getByLabel('Template name', { exact: true })).toHaveValue('Client introduction');
+    await showOutreachPanel(page, 'Draft');
     await page.getByLabel('Client name (individual or business)', { exact: true }).fill('Independent client');
     await page.getByLabel('Contact name', { exact: true }).fill('Alex');
-    await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
+    await page.getByRole('button', { name: 'Edit before copying', exact: true }).click();
     await expect(page.getByLabel('Draft subject', { exact: true })).toHaveValue('Hello Independent client');
     await capture('templates');
 
