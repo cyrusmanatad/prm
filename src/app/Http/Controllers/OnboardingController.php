@@ -8,6 +8,7 @@ use App\Services\Pipeline;
 use Closure;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -15,19 +16,61 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class OnboardingController extends Controller
 {
+    /** `draft` is an invitation the recipient has not submitted yet. */
+    private const LIST_STATUSES = ['submitted', 'draft', 'correction', 'accepted', 'revoked', 'all'];
+
+    private const PER_PAGE = 20;
+
     public function index(Request $request, Onboarding $service, Pipeline $pipeline): mixed
     {
         if ($request->is('onboarding-requests') && (! $request->expectsJson() || $request->header('X-Inertia'))) {
             return redirect('/partner/onboarding'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
 
+        $filters = $request->validate(['request' => ['nullable', 'uuid'], 'status' => ['nullable', 'in:'.implode(',', self::LIST_STATUSES)],
+            'q' => ['nullable', 'string', 'max:160'], 'page' => ['nullable', 'integer', 'min:1', 'max:100000']]);
         $org = $request->session()->get('active_org_id');
+        $id = $filters['request'] ?? null;
+        $canWrite = $pipeline->canWrite((int) $request->user()->id, $org);
+        $q = trim($filters['q'] ?? '');
+        $list = DB::table('onboarding_requests AS r')->where('r.org_id', $org)
+            ->join('pipeline_entries AS p', fn ($join) => $join->on('p.org_id', '=', 'r.org_id')->on('p.id', '=', 'r.pipeline_entry_id'));
+        if ($q !== '') {
+            $list->whereRaw("strpos(lower(r.label || ' ' || p.brand_name), lower(?)) > 0", [$q]);
+        }
+        $counts = (clone $list)->selectRaw("count(*) FILTER (WHERE r.status = 'submitted') AS submitted, count(*) FILTER (WHERE r.status = 'draft') AS draft,
+            count(*) FILTER (WHERE r.status = 'correction') AS correction, count(*) FILTER (WHERE r.status = 'accepted') AS accepted,
+            count(*) FILTER (WHERE r.status = 'revoked') AS revoked, count(*) AS total")->first();
+        $counts = ['submitted' => (int) $counts->submitted, 'draft' => (int) $counts->draft, 'correction' => (int) $counts->correction,
+            'accepted' => (int) $counts->accepted, 'revoked' => (int) $counts->revoked, 'all' => (int) $counts->total];
+        // Requests awaiting review open first; a direct link to one request, or nothing to review, shows them all.
+        $status = $filters['status'] ?? ($id === null && $counts['submitted'] > 0 ? 'submitted' : 'all');
+        if ($status !== 'all') {
+            $list->where('r.status', $status);
+        }
+        $total = $counts[$status];
+        $page = min(max(1, (int) ($filters['page'] ?? 1)), max(1, (int) ceil($total / self::PER_PAGE)));
+        $items = $list->select(['r.id', 'r.label', 'r.status', 'r.version', 'r.pipeline_entry_id', 'r.created_at', 'r.expires_at', 'p.brand_name'])
+            ->selectSub(DB::table('onboarding_submissions AS s')->whereColumn('s.org_id', 'r.org_id')->whereColumn('s.request_id', 'r.id')->selectRaw('max(s.consent_at)'), 'submitted_at')
+            ->orderByDesc('r.created_at')->orderByDesc('r.id')->offset(($page - 1) * self::PER_PAGE)->limit(self::PER_PAGE)->get()
+            ->map(fn ($row) => [...(array) $row, ...$this->times($row)])->all();
+
         $payload = ['workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')],
-            'canWrite' => $pipeline->canWrite((int) $request->user()->id, $org),
-            'requests' => DB::table('onboarding_requests')->where('org_id', $org)->orderByDesc('created_at')->limit(100)->get(['id', 'label', 'status', 'version', 'pipeline_entry_id'])->all(),
+            'canWrite' => $canWrite,
+            'requests' => ['items' => $items, 'page' => $page, 'perPage' => self::PER_PAGE, 'total' => $total, 'counts' => $counts],
+            'filters' => ['status' => $status, 'q' => $q],
+            'leads' => $canWrite ? DB::table('pipeline_entries')->where('org_id', $org)->where('stage', '<>', 'lost')
+                ->orderByDesc('updated_at')->orderBy('id')->limit(100)->get(['id', 'brand_name'])->all() : [],
             'issuedLink' => $request->session()->has('issued_link') ? Crypt::decryptString($request->session()->get('issued_link')) : null];
-        $id = $request->validate(['request' => ['nullable', 'uuid']])['request'] ?? null;
-        $payload['selected'] = $id ? $service->detail($org, $id) : null;
+        $payload['selected'] = null;
+        if ($id) {
+            $detail = $service->detail($org, $id);
+            $row = DB::table('onboarding_requests AS r')->where('r.org_id', $org)->where('r.id', $id)
+                ->join('pipeline_entries AS p', fn ($join) => $join->on('p.org_id', '=', 'r.org_id')->on('p.id', '=', 'r.pipeline_entry_id'))
+                ->first(['r.created_at', 'r.expires_at', 'r.pipeline_entry_id', 'p.brand_name']);
+            $row->submitted_at = DB::table('onboarding_submissions')->where('org_id', $org)->where('request_id', $id)->max('consent_at');
+            $payload['selected'] = [...$detail, 'pipeline_entry_id' => $row->pipeline_entry_id, 'brand_name' => $row->brand_name, ...$this->times($row)];
+        }
         $payload['emails'] = $id ? DB::table('notification_outbox')->where('org_id', $org)->where('onboarding_request_id', $id)
             ->orderByDesc('created_at')->orderByDesc('id')->limit(20)->get(['id', 'kind', 'state', 'created_at'])->all() : [];
         $payload['submissions'] = $id ? DB::table('onboarding_submissions')->where('org_id', $org)->where('request_id', $id)->orderByDesc('revision')->get(['id', 'revision', 'snapshot', 'consent_at'])->map(fn ($r) => [...(array) $r, 'snapshot' => json_decode($r->snapshot, true)])->all() : [];
@@ -206,6 +249,13 @@ class OnboardingController extends Controller
     private function notifySubmission(Request $request): bool
     {
         return (bool) ($request->validate(['notify_submission' => ['sometimes', 'boolean']])['notify_submission'] ?? false);
+    }
+
+    /** ISO 8601 times for a request row; `submitted_at` is the latest submission, if any. */
+    private function times(object $row): array
+    {
+        return ['created_at' => Carbon::parse($row->created_at)->toIso8601String(), 'expires_at' => Carbon::parse($row->expires_at)->toIso8601String(),
+            'submitted_at' => $row->submitted_at ? Carbon::parse($row->submitted_at)->toIso8601String() : null];
     }
 
     private function page(Request $request, string $page, array $props): mixed

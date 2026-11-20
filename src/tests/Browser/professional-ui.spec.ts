@@ -405,7 +405,7 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
         await client.getByRole('button', { name: 'Submit for review', exact: true }).click();
         await expect(client.getByRole('status').filter({ hasText: 'Form submitted for review' })).toBeVisible();
         await page.goto(reviewUrl);
-        await expect(page.getByText('Awaiting review', { exact: true })).toBeVisible();
+        await expect(page.locator('.onb-detail-title')).toContainText('Awaiting review');
         await capture('onboarding-review');
         await page.getByRole('button', { name: 'Accept submission', exact: true }).click();
         await expect(page.getByRole('status').filter({ hasText: 'Onboarding accepted' })).toBeVisible();

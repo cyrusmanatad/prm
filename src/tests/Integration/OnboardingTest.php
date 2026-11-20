@@ -239,6 +239,40 @@ class OnboardingTest extends TestCase
         $this->assertNull(DB::selectOne("SELECT nullif(current_setting('app.capability',true),'') AS cap")->cap);
     }
 
+    public function test_request_list_filters_searches_pages_and_details_with_owner_only_leads(): void
+    {
+        [$u, $o, $lead, $first, $token] = $this->workspace();
+        $other = $this->postJson('/pipeline', ['brand_name' => 'Glow Labs', 'value_minor' => '0', 'currency' => 'PHP'])->json('id');
+        $ids = [$first];
+        for ($i = 0; $i < 21; $i++) {
+            $ids[] = $this->postJson('/onboarding-requests', ['pipeline_entry_id' => $other, 'label' => 'Batch '.$i])->json('id');
+        }
+        auth()->logout();
+        $this->postJson('/onboarding/session', ['token' => $token])->assertOk();
+        $this->postJson('/onboarding/form/'.$first.'/submit', [...$this->fields(), 'version' => 1, 'consent' => true, 'idempotency_key' => (string) Str::uuid()])->assertOk();
+        $this->actingAs($u)->withSession(['active_org_id' => $o]);
+        app(TenantContext::class)->run($u->id, $o, fn () => DB::table('onboarding_requests')->where('id', $ids[1])->update(['status' => 'revoked']));
+
+        // Requests awaiting review open first.
+        $this->getJson('/onboarding-requests')->assertJsonPath('filters.status', 'submitted')
+            ->assertJsonPath('requests.counts', ['submitted' => 1, 'draft' => 20, 'correction' => 0, 'accepted' => 0, 'revoked' => 1, 'all' => 22])
+            ->assertJsonCount(1, 'requests.items')->assertJsonPath('requests.items.0.id', $first)
+            ->assertJsonPath('requests.items.0.brand_name', 'Private brand')->assertJsonMissingPath('requests.items.0.notes')
+            ->assertJsonPath('leads.0.brand_name', 'Glow Labs')->assertJsonCount(2, 'leads');
+        $submittedAt = $this->getJson('/onboarding-requests')->json('requests.items.0.submitted_at');
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T/', $submittedAt);
+        // A direct link to one request lists every status, with the request's details.
+        $this->getJson('/onboarding-requests?request='.$first)->assertJsonPath('filters.status', 'all')
+            ->assertJsonPath('requests.total', 22)->assertJsonCount(20, 'requests.items')->assertJsonPath('requests.perPage', 20)
+            ->assertJsonPath('selected.brand_name', 'Private brand')->assertJsonPath('selected.pipeline_entry_id', $lead)
+            ->assertJsonPath('selected.submitted_at', $submittedAt)->assertJsonPath('submissions.0.revision', 1);
+        $this->getJson('/onboarding-requests?status=all&page=2')->assertJsonCount(2, 'requests.items')->assertJsonPath('requests.page', 2);
+        $this->getJson('/onboarding-requests?status=draft&page=9')->assertJsonPath('requests.page', 1)->assertJsonPath('requests.total', 20);
+        $this->getJson('/onboarding-requests?status=all&q=private')->assertJsonPath('requests.total', 1)->assertJsonPath('requests.counts.submitted', 1);
+        $this->getJson('/onboarding-requests?status=all&q=batch%201')->assertJsonPath('requests.counts.all', 11);
+        $this->getJson('/onboarding-requests?status=forged')->assertUnprocessable();
+    }
+
     public function test_media_kit_has_explicit_publication_consent_and_revocable_idempotent_lead_links(): void
     {
         [$u,$o] = $this->workspace();

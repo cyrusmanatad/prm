@@ -42,6 +42,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-21):** the Outreach templates page uses the approved compact layout: a searchable template list, an editor that inserts and highlights placeholders, and a live draft panel that can fill from a recent lead, copy the draft or open it in an email app. Drafts are never saved. Evidence: [outreach templates](outreach-templates-evidence.md).
 
+**Confirmed (2026-11-21):** the Onboarding requests page uses the approved compact layout: status filter chips with plain status names, a searchable paged request list, a detail panel with Submission, History and Emails tabs, a review box for submitted requests, inline replacement and confirmed revocation, and a New request dialog for any open lead. Evidence: [onboarding requests](onboarding-requests-evidence.md).
+
 ## Table controls and partner avatars (2026-11-19)
 
 **Confirmed (2026-11-19):** controls inside tables and list toolbars use one compact size, `--wd-table-control`: **36px with a fine pointer, 44px below 600px wide or with a coarse pointer**. This covers pagination (Previous, Next, page numbers), table search fields and buttons, row action buttons, rows-per-page selects, standard filter chips and links standing alone in a cell. Use the shared `wd-table-button`, `wd-table-icon-button`, `wd-table-input` and `wd-cell-link` classes rather than per-screen sizes. Form and dialog buttons, primary page actions (such as Invite partners) and the Registered leads filter fields keep their existing sizes.
