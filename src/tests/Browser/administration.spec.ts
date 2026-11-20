@@ -413,7 +413,9 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
         const menu = page.getByRole('button', { name: 'Menu', exact: true });
         await menu.click();
         const drawer = page.getByRole('dialog', { name: 'Administration menu', exact: true });
-        await expect(drawer.getByRole('link')).toHaveCount(13);
+        // Platform owners see every module, including the privacy request queue.
+        await expect(drawer.getByRole('link')).toHaveCount(14);
+        await expect(drawer.getByRole('link', { name: 'Privacy requests', exact: true })).toBeVisible();
         await clean(page);
         await page.keyboard.press('Escape');
         await expect(menu).toBeFocused();
