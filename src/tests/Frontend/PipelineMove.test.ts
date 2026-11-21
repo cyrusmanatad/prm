@@ -130,10 +130,10 @@ it('offers the optional Brand only to roles that can register, and sends it only
     await wrapper.vm.$nextTick();
     const field = wrapper.get('#create-register-with');
     expect((field.element as HTMLSelectElement).value).toBe('');
-    expect(field.text()).toContain('No Brand — keep this lead private');
+    expect(field.text()).toContain('No Brand — keep private');
     expect(field.text()).toContain('Northline Living');
     expect(field.text()).not.toContain('Paused Brand');
-    expect(wrapper.text()).toContain('This lead is for (optional)');
+    expect(wrapper.text()).toContain('Share with a Brand (optional)');
     expect(wrapper.text()).toContain('Notes, value and contact stay private.');
     await wrapper.get('#create-brand').setValue('Kanto Cafe');
     // Left empty: the request is exactly the earlier one, with no Brand.
@@ -146,4 +146,28 @@ it('offers the optional Brand only to roles that can register, and sends it only
     await field.setValue('p1');
     await wrapper.get('#create-brand').element.closest('form')!.dispatchEvent(new Event('submit'));
     expect(visit.mock.calls[1][1].data).toMatchObject({ brand_name: 'Kanto Cafe', register_with: 'p1' });
+});
+
+it('adds a lead with a blank value as zero and explains a missing name without submitting', async () => {
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    const wrapper = manager(true);
+    (wrapper.vm as unknown as { openCreate: () => void }).openCreate();
+    await wrapper.vm.$nextTick();
+    const form = wrapper.get('#create-brand').element.closest('form')!;
+    expect(form.noValidate).toBe(true);
+    expect(wrapper.get('.create-footer').text()).toContain('Add lead');
+    expect((wrapper.get('#create-amount').element as HTMLInputElement).value).toBe('');
+    form.dispatchEvent(new Event('submit'));
+    await wrapper.vm.$nextTick();
+    expect(visit).not.toHaveBeenCalled();
+    expect(wrapper.get('#create-brand-error').text()).toBe('Enter the Brand name.');
+    expect(wrapper.get('#create-brand').attributes('aria-invalid')).toBe('true');
+    // A follow-up shortcut fills the next action at 9:00 local time.
+    const tomorrow = wrapper.findAll('.entry-chip').find((chip) => chip.text() === 'Tomorrow')!;
+    await tomorrow.trigger('click');
+    expect((wrapper.get('#create-due').element as HTMLInputElement).value).toMatch(/T09:00$/);
+    await wrapper.get('#create-brand').setValue('Kanto Cafe');
+    form.dispatchEvent(new Event('submit'));
+    expect(visit.mock.calls[0][1].data).toMatchObject({ brand_name: 'Kanto Cafe', value_minor: '0', currency: 'PHP' });
+    expect(visit.mock.calls[0][1].data.next_action_due).toMatch(/Z$/);
 });

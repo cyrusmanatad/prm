@@ -33,7 +33,7 @@ test('professional workspace, shared client tools, exports and administrator MFA
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await expect(page.getByLabel('Client name (individual or business)', { exact: true })).toBeVisible();
     await page.getByLabel('Client name (individual or business)', { exact: true }).fill('Jane Individual');
-    await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+    await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Jane Individual', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');
     await page.goto('/professional/profile');
