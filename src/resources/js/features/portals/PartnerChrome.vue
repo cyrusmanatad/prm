@@ -11,7 +11,8 @@ import AccountMenu, { type AccountMenuLink } from '../../components/AccountMenu.
 const props = defineProps<{
     accountName: string;
     accountEmail?: string;
-    current: 'leads' | 'media-kit' | 'brand-sharing';
+    /** `tools` marks a Partner tool page opened from the account menu, with no main tab current. */
+    current: 'leads' | 'media-kit' | 'brand-sharing' | 'tools';
     fixture?: boolean;
     searchValue?: string;
 }>();
@@ -32,12 +33,17 @@ watch(
         search.value = value ?? '';
     },
 );
-const accountLinks = computed<AccountMenuLink[]>(() => [
-    { href: path('/partner/contacts'), label: 'Contacts and reminders', icon: ContactRound },
-    { href: path('/partner/outreach-templates'), label: 'Outreach templates', icon: FileText },
-    { href: path('/partner/onboarding'), label: 'Onboarding requests', icon: ClipboardList },
-    { href: path('/partner/brand-sharing'), label: 'Brand sharing', icon: Share2 },
-]);
+// Design fixtures have no selected workspace; real pages let the account menu derive the Partner tools.
+const accountLinks = computed<AccountMenuLink[]>(() =>
+    fixture.value
+        ? [
+              { href: '/partner/contacts', label: 'Contacts and reminders', icon: ContactRound },
+              { href: '/partner/outreach-templates', label: 'Outreach templates', icon: FileText },
+              { href: '/partner/onboarding', label: 'Onboarding requests', icon: ClipboardList },
+              { href: '/partner/brand-sharing', label: 'Brand sharing', icon: Share2 },
+          ]
+        : [],
+);
 function searchLeads(): void {
     if (!fixture.value) router.get(path('/partner/leads'), { q: search.value });
 }

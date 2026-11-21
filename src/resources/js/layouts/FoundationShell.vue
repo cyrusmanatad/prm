@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import ProfessionalShell from './ProfessionalShell.vue';
+import PartnerChrome from '../features/portals/PartnerChrome.vue';
 import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
 import { isProfessionalTool } from '../features/portals/professionalNavigation';
 import WorkspaceNotice from '../components/WorkspaceNotice.vue';
@@ -15,8 +16,16 @@ defineProps<{
 }>();
 defineEmits<{ logout: [] }>();
 const { professional } = useWorkspaceExperience();
-const page = usePage();
+const page = usePage<{ activeWorkspace?: { kind: string; experience: string } | null }>();
 const showProfessional = computed(() => professional.value && isProfessionalTool(page.url));
+// Partner tools opened from the account menu keep the Partner header, like My leads, Media kit and Brand sharing.
+const showPartner = computed(
+    () =>
+        !showProfessional.value &&
+        page.props?.activeWorkspace?.kind === 'creator' &&
+        page.props.activeWorkspace.experience === 'partner' &&
+        /^\/partner\/(contacts|outreach-templates|onboarding)(?:[/?#]|$)/.test(page.url ?? ''),
+);
 </script>
 
 <template>
@@ -27,6 +36,13 @@ const showProfessional = computed(() => professional.value && isProfessionalTool
         @logout="$emit('logout')"
         ><slot
     /></ProfessionalShell>
+    <PartnerChrome
+        v-else-if="showPartner && accountName"
+        :account-name="accountName"
+        :account-email="accountEmail"
+        current="tools"
+        ><main id="main-content" class="wd-main"><slot /></main
+    ></PartnerChrome>
     <div v-else class="wd-shell">
         <a class="wd-skip-link" href="#main-content">Skip to main content</a>
         <header class="wd-header" :class="{ 'wd-header-brand': portal === 'brand' }">

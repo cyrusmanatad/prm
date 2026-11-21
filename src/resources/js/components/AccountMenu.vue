@@ -2,7 +2,7 @@
 import { initials as nameInitials } from '../lib/initials';
 import { computed, type Component } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LogOut, Settings, ShieldCheck } from '@lucide/vue';
+import { ClipboardList, ContactRound, FileText, LogOut, Settings, Share2, ShieldCheck } from '@lucide/vue';
 import {
     DropdownMenuContent,
     DropdownMenuItem,
@@ -20,6 +20,7 @@ const props = withDefaults(
         initials?: string;
         fixture?: boolean;
         tone?: 'inverse' | 'light';
+        /** Design fixtures only; real pages derive workspace tools from the selected workspace. */
         links?: AccountMenuLink[];
     }>(),
     { fixture: false, tone: 'inverse', links: () => [] },
@@ -29,9 +30,31 @@ const emit = defineEmits<{ logout: [] }>();
 
 const letters = computed(() => props.initials ?? nameInitials(props.accountName, ''));
 
+// Partner workspace tools, offered on every page while a Partner workspace is selected. Professional workspaces
+// reach the same tools from their own navigation; Brand workspaces have none.
+const partnerTools: AccountMenuLink[] = [
+    { href: '/partner/contacts', label: 'Contacts and reminders', icon: ContactRound },
+    { href: '/partner/outreach-templates', label: 'Outreach templates', icon: FileText },
+    { href: '/partner/onboarding', label: 'Onboarding requests', icon: ClipboardList },
+    { href: '/partner/brand-sharing', label: 'Brand sharing', icon: Share2 },
+];
+
 // Shown to accounts holding a platform grant, outside administration itself. The server authorizes every admin request.
-const page = usePage<{ platformAccess?: boolean; accountClosing?: boolean }>();
+const page = usePage<{
+    platformAccess?: boolean;
+    accountClosing?: boolean;
+    activeWorkspace?: { kind: string; experience: string } | null;
+}>();
 const closing = computed(() => page.props?.accountClosing === true);
+const workspace = computed(() => page.props?.activeWorkspace);
+// `links` is only for design fixtures, which have no selected workspace.
+const tools = computed(() =>
+    props.links.length
+        ? props.links
+        : workspace.value?.kind === 'creator' && workspace.value.experience === 'partner'
+          ? partnerTools
+          : [],
+);
 const showAdministration = computed(
     () => !props.fixture && page.props?.platformAccess === true && !/^\/admin(?:[/?]|$)/.test(page.url ?? ''),
 );
@@ -77,7 +100,7 @@ function signOut(): void {
                             ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Privacy exports</Link
                         >
                     </DropdownMenuItem>
-                    <DropdownMenuItem v-for="link in closing ? [] : links" :key="link.href" as-child>
+                    <DropdownMenuItem v-for="link in closing ? [] : tools" :key="link.href" as-child>
                         <Link :href="link.href"
                             ><component :is="link.icon" :size="18" aria-hidden="true" class="shrink-0" />{{
                                 link.label

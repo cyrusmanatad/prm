@@ -22,13 +22,25 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
         ['Onboarding requests', '/partner/onboarding'],
         ['Brand sharing', '/partner/brand-sharing'],
     ];
+    // Each tool opens from the previous one: the menu offers the same items and the Partner header stays.
     for (const [name, path] of routes) {
         await page.getByRole('button', { name: 'Account menu' }).click();
         await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(7);
         await page.getByRole('menuitem', { name, exact: true }).click();
         await expect(page).toHaveURL(new RegExp(path + '$'));
-        await page.goto('/partner/leads');
+        const main = page.getByRole('navigation', { name: 'Main' });
+        await expect(main.getByRole('link', { name: 'My leads', exact: true })).toBeVisible();
+        await expect(main.getByRole('link', { name: 'Media kit', exact: true })).toBeVisible();
     }
+    // Account pages outside the Partner header offer the same workspace tools.
+    for (const path of ['/workspaces', '/automation']) {
+        await page.goto(path);
+        await page.getByRole('button', { name: 'Account menu' }).click();
+        await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(7);
+        await expect(page.getByRole('menuitem', { name: 'Onboarding requests', exact: true })).toBeVisible();
+        await page.keyboard.press('Escape');
+    }
+    await page.goto('/partner/leads');
     await page.getByRole('link', { name: 'Media kit', exact: true }).click();
     await expect(page).toHaveURL(/\/partner\/media-kit$/);
     for (let i = 0; i < 27; i++)
