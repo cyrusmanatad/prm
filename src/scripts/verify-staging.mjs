@@ -47,7 +47,8 @@ for (const width of (process.env.STAGING_WIDTHS || '390,1440').split(',').map(Nu
         await page.getByLabel('Password', { exact: true }).fill(credentials[role]);
         await page.getByRole('button', { name: 'Sign in', exact: true }).click();
         await page.waitForURL(new RegExp(role === 'partner' ? '/partner/leads$' : `/${role}$`));
-        assert(await page.getByRole('complementary', { name: 'Staging environment' }).isVisible());
+        // The site-wide staging bar was removed on 2026-11-21; upload pages keep their own unscanned-file notice.
+        assert.equal(await page.getByRole('complementary', { name: 'Staging environment' }).count(), 0);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         assert.equal((await json(page, '/admin')).status, 403);
         const cookie = (await context.cookies()).find((c) => c.name.endsWith('_session'));
@@ -211,7 +212,7 @@ for (const width of (process.env.STAGING_WIDTHS || '390,1440').split(',').map(Nu
         assert.equal((await json(page, '/logout', 'POST', {})).status, 200);
         assert.equal((await json(page, '/account')).status, 401);
         records.push(
-            `${role} ${width}x900: login, navigation, banner, no overflow, no platform access, secure session, logout`,
+            `${role} ${width}x900: login, navigation, no staging bar, no overflow, no platform access, secure session, logout`,
         );
         await context.close();
     }

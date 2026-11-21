@@ -16,7 +16,6 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'stagingMode' => (bool) config('staging.enabled'),
             'uploadsEnabled' => (bool) config('uploads.enabled'),
             'unscannedUploadsAllowed' => UploadSafety::unscannedAllowed(),
             'account' => fn () => $request->user()?->only(['name', 'email']),
