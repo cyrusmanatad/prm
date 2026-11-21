@@ -2,7 +2,17 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { baseWidth, fixture, isMobile, login, mutate, reviewWidths, smallTouchTargets } from './helpers';
+import {
+    automationTab,
+    baseWidth,
+    fixture,
+    isMobile,
+    login,
+    mutate,
+    newSchedule,
+    reviewWidths,
+    smallTouchTargets,
+} from './helpers';
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 function compose(args: string[]): void {
@@ -25,20 +35,24 @@ test('reminder email consent, scheduled capture, history and withdrawal', async 
             due_at: new Date(Date.now() + 86400000).toISOString(),
         }),
     ).toBe(201);
-    await page.goto('/automation');
+    await page.goto('/automation?tab=preferences');
     await page.getByLabel('Reminder notices', { exact: true }).check();
     await page.getByRole('button', { name: 'Save preferences', exact: true }).click();
-    await page.getByLabel('Reminder schedule name', { exact: true }).fill('Proposal review notice');
-    await page.getByRole('combobox', { name: 'Reminder', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Automation preferences saved' })).toBeVisible();
+    const schedule = await newSchedule(page, 'Reminder email', 'Proposal review notice');
+    await schedule.getByRole('combobox', { name: 'Reminder', exact: true }).click();
     await page.getByRole('option', { name: 'Review the proposal', exact: true }).click();
     const localFuture = await page.evaluate(() => {
         const date = new Date(Date.now() + 3600000);
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     });
-    await page.getByLabel('Email at', { exact: true }).fill(localFuture);
-    await page.getByLabel('I consent to this reminder email', { exact: false }).check();
-    await page.getByRole('button', { name: 'Schedule reminder email', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Proposal review notice', exact: true })).toBeVisible();
+    await schedule.getByLabel('Email at', { exact: true }).fill(localFuture);
+    await schedule.getByLabel('I consent to this reminder email', { exact: false }).check();
+    await schedule.getByRole('button', { name: 'Save schedule', exact: true }).click();
+    await expect(schedule).not.toBeVisible();
+    await automationTab(page, 'Schedules');
+    const row = page.getByRole('row', { name: /Proposal review notice/ });
+    await expect(row).toContainText('Review the proposal');
     compose(['run', '--rm', '-T', '--no-deps', 'migrate', 'php', 'tests/Browser/scheduled-notice-fixture.php', email]);
     // Background services are paused for deterministic local capture. Each command uses runtime credentials.
     compose(['exec', '-T', 'app', 'php', 'artisan', 'automation:dispatch']);
@@ -47,7 +61,7 @@ test('reminder email consent, scheduled capture, history and withdrawal', async 
     compose(['exec', '-T', 'app', 'php', 'artisan', 'queue:work', 'redis', '--stop-when-empty']);
     compose(['exec', '-T', 'app', 'php', 'artisan', 'notifications:dispatch']);
     compose(['exec', '-T', 'app', 'php', 'artisan', 'queue:work', 'redis', '--stop-when-empty']);
-    await page.reload();
+    await page.goto('/automation?tab=history');
     await expect(page.getByText('Captured locally; no external email sent', { exact: true })).toBeVisible();
     for (const width of reviewWidths(info)) {
         await page.setViewportSize({ width, height: 1080 });
@@ -62,6 +76,7 @@ test('reminder email consent, scheduled capture, history and withdrawal', async 
                 });
         }
     }
+    await automationTab(page, 'Schedules');
     const trigger = page.getByRole('button', { name: 'Withdraw consent for Proposal review notice', exact: true });
     await trigger.click();
     const dialog = page.getByRole('dialog', { name: 'Withdraw schedule consent?', exact: true });
@@ -70,6 +85,7 @@ test('reminder email consent, scheduled capture, history and withdrawal', async 
     await expect(trigger).toBeFocused();
     await trigger.click();
     await dialog.getByRole('button', { name: 'Withdraw schedule consent', exact: true }).click();
-    await expect(page.getByText('Disabled · reminder', { exact: true })).toBeVisible();
+    await expect(row).toContainText('Disabled');
+    await automationTab(page, 'Email history');
     await expect(page.getByText('Captured locally; no external email sent', { exact: true })).toBeVisible();
 });

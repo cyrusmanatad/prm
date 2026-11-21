@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import ContentSection from '../../components/ContentSection.vue';
+import DataTable, { type DataColumn } from '../../components/DataTable.vue';
+import EmptyState from '../../components/EmptyState.vue';
+import StatusBadge, { type BadgeTone } from '../../components/StatusBadge.vue';
 
 export type Notice = {
     id: string;
@@ -10,43 +12,66 @@ export type Notice = {
     failure_code?: string | null;
 };
 defineProps<{ notices: Notice[] }>();
-const states: Record<string, string> = {
-    pending: 'Queued for email; delivery pending',
-    sending: 'Send reserved; outcome pending',
-    sent: 'Accepted by mail transport; receipt unconfirmed',
-    captured: 'Captured locally; no external email sent',
-    cancelled: 'Cancelled before sending',
-    uncertain: 'Delivery uncertain; automatic resend blocked',
+const states: Record<string, [string, BadgeTone]> = {
+    pending: ['Queued for email; delivery pending', 'neutral'],
+    sending: ['Send reserved; outcome pending', 'neutral'],
+    sent: ['Accepted by mail transport; receipt unconfirmed', 'success'],
+    captured: ['Captured locally; no external email sent', 'neutral'],
+    cancelled: ['Cancelled before sending', 'neutral'],
+    uncertain: ['Delivery uncertain; automatic resend blocked', 'warning'],
 };
+const kinds: Record<string, string> = {
+    'schedule.reminder': 'Reminder email',
+    'follow_up.outreach': 'Approved follow-up email',
+    'follow_up.review': 'Follow-up review email',
+};
+const columns: DataColumn[] = [
+    { key: 'kind', label: 'Email' },
+    { key: 'state', label: 'Status' },
+    { key: 'created_at', label: 'Created' },
+];
+const created = (value: string) =>
+    new Date(value).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 </script>
 
 <template>
-    <ContentSection
-        title="Your email history"
-        description="Your latest 50 notices in this workspace. A queued email is not proof of delivery. Refresh to check the latest status."
-    >
-        <p v-if="!notices.length" class="wd-empty">No scheduled email notices yet.</p>
-        <article v-for="notice in notices" :key="notice.id" class="wd-record">
-            <h3>
-                {{
-                    notice.kind === 'schedule.reminder'
-                        ? 'Reminder email'
-                        : notice.kind === 'follow_up.outreach'
-                          ? 'Approved follow-up email'
-                          : notice.kind === 'follow_up.review'
-                            ? 'Follow-up review email'
-                            : 'Weekly review email'
-                }}
-            </h3>
-            <p>{{ states[notice.state] ?? notice.state }}</p>
-            <p v-if="notice.state === 'pending' && notice.failure_code" class="wd-hint">
-                A previous attempt was deferred. Current consent and access will be checked again before sending.
-            </p>
-            <p class="wd-hint">{{ new Date(notice.created_at).toLocaleString() }}</p>
-        </article>
-        <p class="wd-hint">
-            Withdraw consent using the saved schedule or disable a notice in preferences. A send already reserved may
-            still arrive.
-        </p>
-    </ContentSection>
+    <section class="auto-card" aria-labelledby="history-heading">
+        <header class="auto-card-head">
+            <h2 id="history-heading">Email history</h2>
+            <span class="auto-count">{{ notices.length }}</span>
+            <p class="auto-note">Your latest 50 · a queued email is not proof of delivery</p>
+        </header>
+        <DataTable
+            v-if="notices.length"
+            class="auto-table auto-history-table"
+            caption="Email history"
+            :columns="columns"
+            :rows="notices"
+            :row-key="(notice) => notice.id"
+        >
+            <template #cell-kind="{ row }"
+                ><span class="auto-row-name">{{ kinds[row.kind] ?? 'Weekly review email' }}</span></template
+            >
+            <template #cell-state="{ row }">
+                <StatusBadge :label="states[row.state]?.[0] ?? row.state" :tone="states[row.state]?.[1] ?? 'neutral'" />
+                <span v-if="row.state === 'pending' && row.failure_code" class="auto-row-sub"
+                    >A previous attempt was deferred. Consent and access are checked again before sending.</span
+                >
+            </template>
+            <template #cell-created_at="{ row }"
+                ><time :datetime="row.created_at" :title="new Date(row.created_at).toLocaleString()">{{
+                    created(row.created_at)
+                }}</time></template
+            >
+        </DataTable>
+        <EmptyState
+            v-else
+            title="No scheduled emails yet"
+            description="Reminder, digest and follow-up emails appear here."
+        />
+        <footer class="auto-card-foot">
+            Refresh to check the latest status. Withdraw consent on a schedule or in Preferences; a send already
+            reserved may still arrive.
+        </footer>
+    </section>
 </template>

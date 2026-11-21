@@ -1,24 +1,22 @@
 <script setup lang="ts">
-import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
-const { professional } = useWorkspaceExperience();
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import '../../css/automation.css';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { computed, nextTick, ref, watch } from 'vue';
+import { CalendarPlus, Info, Plus } from '@lucide/vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
-import ContentSection from '../components/ContentSection.vue';
-import FormField from '../components/FormField.vue';
-import SelectField from '../components/SelectField.vue';
-import ActionGroup from '../components/ActionGroup.vue';
-import { Button } from '../components/ui/button';
-import AutomationPreferences, { type Preferences } from '../features/automation/AutomationPreferences.vue';
+import Tabs, { type Tab } from '../components/Tabs.vue';
 import { confirmAction } from '../composables/useConfirmation';
-import { useValidationFocus } from '../composables/useValidationFocus';
-
-import ReminderSchedule, { type ReminderOption } from '../features/automation/ReminderSchedule.vue';
+import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
+import AutomationPreferences, { type Preferences } from '../features/automation/AutomationPreferences.vue';
+import DraftDrawer from '../features/automation/DraftDrawer.vue';
+import DraftTable from '../features/automation/DraftTable.vue';
+import FollowUpDialog from '../features/automation/FollowUpDialog.vue';
 import NoticeHistory, { type Notice } from '../features/automation/NoticeHistory.vue';
 import SavedSchedules from '../features/automation/SavedSchedules.vue';
-import ApprovalInbox from '../features/automation/ApprovalInbox.vue';
-import type { FollowUpDraft, LeadOption } from '../features/automation/follow-up-types';
+import ScheduleDialog, { type ReminderOption } from '../features/automation/ScheduleDialog.vue';
+import type { DraftAction, DraftFilter, FollowUpDraft, LeadOption } from '../features/automation/follow-up-types';
 import type { Schedule } from '../features/automation/types';
+
 const props = defineProps<{
     account: { name: string; email: string };
     workspace: { id: string; name: string };
@@ -31,185 +29,232 @@ const props = defineProps<{
     timezones: string[];
     canWrite: boolean;
 }>();
-const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((label, index) => ({
-    value: String(index + 1),
-    label,
-}));
-const root = ref<HTMLElement>();
-const selected = ref<string | null>(null);
-const form = useForm({
-    name: 'Weekly review',
-    kind: 'weekly_digest',
-    weekday: '1',
-    local_time: '09:00',
-    consent: false,
-    version: 1,
+const { professional } = useWorkspaceExperience();
+const page = usePage();
+
+/* Tab and open draft live in the address, so reload, Back and a saved change return to the same view. */
+type TabId = 'approvals' | 'schedules' | 'history' | 'preferences';
+const tabIds: TabId[] = ['approvals', 'schedules', 'history', 'preferences'];
+const query = (url: string) => new URLSearchParams(url.split('?')[1] ?? '');
+const base = computed(() => page.url.split('?')[0]!);
+const fromUrl = (url: string) => {
+    const tab = query(url).get('tab') as TabId | null;
+    return { tab: tab && tabIds.includes(tab) ? tab : 'approvals', draft: query(url).get('draft') };
+};
+const tab = ref<string>(fromUrl(page.url).tab);
+const draftId = ref<string | null>(fromUrl(page.url).draft);
+watch(
+    () => page.url,
+    (url) => {
+        const next = fromUrl(url);
+        tab.value = next.tab;
+        if (next.draft !== draftId.value) {
+            draftId.value = next.draft;
+            editOnOpen.value = false;
+        }
+    },
+);
+watch([tab, draftId], () => {
+    const url = new URL(window.location.href);
+    if (tab.value === 'approvals') url.searchParams.delete('tab');
+    else url.searchParams.set('tab', tab.value);
+    if (draftId.value) url.searchParams.set('draft', draftId.value);
+    else url.searchParams.delete('draft');
+    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
 });
-const generalErrors = computed(() =>
-    Object.entries(form.errors)
-        .filter(([key]) => ['kind', 'schedule'].includes(key))
-        .map(([, value]) => value),
-);
+
+const needsReview = computed(() => props.drafts.filter((draft) => draft.state === 'draft').length);
+const activeSchedules = computed(() => props.schedules.filter((schedule) => schedule.enabled).length);
+const tabs = computed<Tab[]>(() => [
+    {
+        id: 'approvals',
+        label: 'Approvals',
+        count: props.drafts.length,
+        badge: needsReview.value ? `${needsReview.value} to review` : undefined,
+    },
+    { id: 'schedules', label: 'Schedules', count: activeSchedules.value },
+    { id: 'history', label: 'Email history', count: props.notices.length },
+    { id: 'preferences', label: 'Preferences' },
+]);
+const draftFilter = ref<DraftFilter>(needsReview.value ? 'draft' : '');
+
+/* Drafts: the drawer, and Approve / Send / Discard with Cancel-first confirmation. */
+const selected = computed(() => props.drafts.find((draft) => draft.id === draftId.value) ?? null);
+const editOnOpen = ref(false);
+let drawerTrigger: HTMLElement | null = null;
+function openDraft(draft: FollowUpDraft, edit = false): void {
+    drawerTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    editOnOpen.value = edit;
+    draftId.value = draft.id;
+}
+async function closeDraft(): Promise<void> {
+    draftId.value = null;
+    editOnOpen.value = false;
+    await nextTick();
+    (drawerTrigger?.isConnected ? drawerTrigger : document.getElementById('drafts-heading'))?.focus();
+    drawerTrigger = null;
+}
+const action = useForm({ version: 1 });
+function act(draft: FollowUpDraft, kind: DraftAction, source: Event | HTMLElement): void {
+    if (action.processing) return;
+    confirmAction(
+        kind === 'approve' ? 'Approve follow-up' : kind === 'send' ? 'Send approved message' : 'Discard follow-up',
+        kind === 'approve'
+            ? `Approve “${draft.subject}” to ${draft.recipient || 'the recipient you enter'} for manual sending? No email will be sent by WeavDash.`
+            : kind === 'send'
+              ? `Send the approved version ${draft.version} of “${draft.subject}” to ${draft.recipient}? This sends the message through WeavDash. Replies go to your verified account. A reserved send cannot be recalled.`
+              : `Discard “${draft.subject}”? It will no longer be available for approval or manual handoff.`,
+        () => {
+            action.version = draft.version;
+            action.clearErrors();
+            action.post(`/automation/drafts/${draft.id}/${kind}`, { preserveScroll: true, preserveState: true });
+        },
+        source,
+        { tone: kind === 'discard' ? 'danger' : 'default' },
+    );
+}
+
+/* Schedules: one dialog for new schedules and weekly edits; withdrawal is confirmed. */
+const scheduleDialog = ref<InstanceType<typeof ScheduleDialog>>();
+const followUpDialog = ref<InstanceType<typeof FollowUpDialog>>();
 const revoke = useForm({ version: 1 });
-useValidationFocus(
-    root,
-    () => form.errors,
-    () => !form.processing,
-);
-function choose(s?: Schedule): void {
-    selected.value = s?.id ?? null;
-    form.name = s?.name ?? 'Weekly review';
-    form.weekday = String(s?.weekday ?? 1);
-    form.local_time = s?.local_time ?? '09:00';
-    form.version = s?.version ?? 1;
-    form.consent = false;
-    form.clearErrors();
-}
-function save(): void {
-    if (form.processing || form.errors.version) return;
-    const options = { preserveScroll: true, onSuccess: () => choose() };
-    if (selected.value) form.patch(`/automation/schedules/${selected.value}`, options);
-    else form.post('/automation/schedules', options);
-}
-function withdraw(s: Schedule, event: Event): void {
+function withdraw(schedule: Schedule, event: Event): void {
     if (revoke.processing) return;
     confirmAction(
         'Withdraw schedule consent',
-        `Disable ${s.name} and cancel its pending scheduled work?`,
+        `Disable ${schedule.name} and cancel its pending scheduled work?`,
         () => {
-            revoke.version = s.version;
-            revoke.delete(`/automation/schedules/${s.id}`, { preserveScroll: true, onSuccess: () => choose() });
+            revoke.version = schedule.version;
+            revoke.delete(`/automation/schedules/${schedule.id}`, { preserveScroll: true, preserveState: true });
         },
         event,
     );
 }
+async function showPreferences(): Promise<void> {
+    tab.value = 'preferences';
+    await nextTick();
+    document.getElementById('auto-tab-preferences')?.focus();
+}
+const trigger = (event: Event) => event.currentTarget as HTMLElement;
 </script>
 
 <template>
-    <Head title="Automation preferences" />
+    <Head :title="professional ? 'Automation and approvals' : 'Automation preferences'" />
     <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
-        <div ref="root" class="wd-workspace-content wd-section-stack">
-            <nav v-if="!professional" aria-label="Workspace">
-                <Link class="wd-link inline-flex min-h-11 items-center" href="/workspaces">Back to workspaces</Link>
-            </nav>
-            <div class="wd-page-heading">
-                <span class="wd-eyebrow">{{ workspace.name }}</span>
-                <h1>{{ professional ? 'Automation and approvals' : 'Automation preferences' }}</h1>
-                <p class="wd-description">Choose your timezone and consent for optional scheduled notices.</p>
-            </div>
-            <p class="wd-banner">
-                Reminder and weekly review emails go only to your verified account. Follow-up schedules prepare private
-                drafts for your review; approval does not send email.
+        <div class="auto">
+            <header class="auto-header">
+                <div>
+                    <h1>{{ professional ? 'Automation and approvals' : 'Automation preferences' }}</h1>
+                    <p>Review private follow-up drafts and choose which scheduled notices you receive.</p>
+                </div>
+                <div v-if="canWrite" class="auto-header-actions">
+                    <button type="button" class="wd-table-button" @click="scheduleDialog?.open(trigger($event))">
+                        <CalendarPlus :size="16" aria-hidden="true" />New schedule
+                    </button>
+                    <button
+                        type="button"
+                        class="wd-table-button auto-primary"
+                        @click="followUpDialog?.open(trigger($event))"
+                    >
+                        <Plus :size="16" aria-hidden="true" />Write follow-up
+                    </button>
+                </div>
+            </header>
+            <p class="auto-info">
+                <Info :size="16" aria-hidden="true" /><span
+                    >Reminder and weekly review emails go only to your verified account. Follow-up schedules prepare
+                    private drafts for your review; approval does not send email.</span
+                >
             </p>
-            <p v-if="!canWrite" class="wd-hint">Viewer access: scheduling requires an editing role.</p>
-            <div class="contents pro-automation-preferences">
+            <p v-if="!canWrite" class="auto-info">
+                <Info :size="16" aria-hidden="true" /><span
+                    >Viewer access: you can see your history, but scheduling and drafts need an editing role.</span
+                >
+            </p>
+            <Tabs v-model="tab" label="Automation" id-prefix="auto" :tabs="tabs" />
+            <div
+                v-show="tab === 'approvals'"
+                id="auto-panel-approvals"
+                role="tabpanel"
+                aria-labelledby="auto-tab-approvals"
+                class="auto-panel"
+            >
+                <div v-if="Object.keys(action.errors).length && !selected" class="wd-banner auto-banner" role="alert">
+                    <p v-for="(error, key) in action.errors" :key="key">{{ error }}</p>
+                    <a class="wd-link" :href="base">Reload drafts</a>
+                </div>
+                <DraftTable
+                    v-model:filter="draftFilter"
+                    :drafts="drafts"
+                    :can-write="canWrite"
+                    :busy="action.processing"
+                    @open="openDraft"
+                    @act="act"
+                />
+            </div>
+            <div
+                v-show="tab === 'schedules'"
+                id="auto-panel-schedules"
+                role="tabpanel"
+                aria-labelledby="auto-tab-schedules"
+                class="auto-panel"
+            >
+                <SavedSchedules
+                    :schedules="schedules"
+                    :can-write="canWrite"
+                    :busy="revoke.processing"
+                    :error="revoke.errors.version"
+                    :reload="`${base}?tab=schedules`"
+                    @edit="(schedule, source) => scheduleDialog?.open(source, schedule)"
+                    @withdraw="withdraw"
+                />
+            </div>
+            <div
+                v-show="tab === 'history'"
+                id="auto-panel-history"
+                role="tabpanel"
+                aria-labelledby="auto-tab-history"
+                class="auto-panel"
+            >
+                <NoticeHistory :notices="notices" />
+            </div>
+            <div
+                v-show="tab === 'preferences'"
+                id="auto-panel-preferences"
+                role="tabpanel"
+                aria-labelledby="auto-tab-preferences"
+                class="auto-panel"
+            >
                 <AutomationPreferences
                     :key="workspace.id"
                     :preferences="preferences"
                     :timezones="timezones"
                     :can-write="canWrite"
+                    :reload="`${base}?tab=preferences`"
                 />
-                <ContentSection
-                    title="Weekly schedule"
-                    description="One weekly digest schedule per person in this workspace. The digest will be addressed only to your verified account."
-                >
-                    <p class="wd-hint">
-                        During daylight-saving changes, a missing local time skips that week. A repeated local time runs
-                        at its first occurrence. Missed weeks produce one pending review, with no backlog burst.
-                    </p>
-                    <form v-if="canWrite" :aria-busy="form.processing" @submit.prevent="save">
-                        <div v-if="form.errors.version" class="wd-banner" role="alert">
-                            <p>{{ form.errors.version }}</p>
-                            <button
-                                type="button"
-                                class="wd-link"
-                                @click="router.get('/automation', {}, { preserveState: false })"
-                            >
-                                Reload schedules
-                            </button>
-                        </div>
-                        <fieldset
-                            class="wd-fields"
-                            :disabled="form.processing || revoke.processing || !!form.errors.version"
-                        >
-                            <legend>{{ selected ? 'Edit weekly schedule' : 'New weekly schedule' }}</legend>
-                            <FormField
-                                id="schedule-name"
-                                v-model="form.name"
-                                label="Schedule name"
-                                :maxlength="160"
-                                :error="form.errors.name"
-                            />
-                            <SelectField
-                                id="schedule-weekday"
-                                v-model="form.weekday"
-                                label="Day of week"
-                                :searchable="false"
-                                :options="weekdays"
-                                :error="form.errors.weekday"
-                            />
-                            <FormField
-                                id="schedule-time"
-                                v-model="form.local_time"
-                                label="Local time (HH:MM)"
-                                pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
-                                :error="form.errors.local_time"
-                                :hint="`Uses your saved timezone: ${preferences.timezone}`"
-                            />
-                            <label class="wd-checkbox"
-                                ><input
-                                    v-model="form.consent"
-                                    type="checkbox"
-                                    required
-                                    :aria-invalid="form.errors.consent ? true : undefined"
-                                    :aria-describedby="form.errors.consent ? 'schedule-consent-error' : undefined"
-                                />I consent to this weekly schedule for my account in this workspace.</label
-                            >
-                            <p
-                                v-if="form.errors.consent"
-                                id="schedule-consent-error"
-                                class="wd-field-error"
-                                role="alert"
-                            >
-                                {{ form.errors.consent }}
-                            </p>
-                            <p v-for="error in generalErrors" :key="error" class="wd-field-error" role="alert">
-                                {{ error }}
-                            </p>
-                            <ActionGroup
-                                ><Button class="wd-button wd-button-primary" type="submit">{{
-                                    form.processing ? 'Saving…' : 'Save weekly schedule'
-                                }}</Button
-                                ><Button
-                                    v-if="selected"
-                                    class="wd-button wd-button-secondary"
-                                    type="button"
-                                    @click="choose()"
-                                    >Cancel editing</Button
-                                ></ActionGroup
-                            >
-                        </fieldset>
-                    </form>
-                </ContentSection>
             </div>
-            <div class="contents pro-automation-scheduling">
-                <ReminderSchedule :reminders="reminders" :can-write="canWrite" />
-                <ReminderSchedule :reminders="[]" :leads="leads" follow-up :can-write="canWrite" />
-            </div>
-            <div class="contents pro-automation-review">
-                <ApprovalInbox :drafts="drafts" :leads="leads" :can-write="canWrite" />
-            </div>
-            <div class="contents pro-automation-history">
-                <SavedSchedules
+            <DraftDrawer
+                v-if="selected"
+                :draft="selected"
+                :can-write="canWrite"
+                :busy="action.processing"
+                :errors="action.errors"
+                :reload="`${base}?draft=${selected.id}`"
+                :edit-on-open="editOnOpen"
+                @close="closeDraft"
+                @act="act"
+            />
+            <template v-if="canWrite">
+                <ScheduleDialog
+                    ref="scheduleDialog"
+                    :preferences="preferences"
                     :schedules="schedules"
-                    :can-write="canWrite"
-                    :busy="form.processing || revoke.processing"
-                    :error="revoke.errors.version"
-                    @edit="choose"
-                    @withdraw="withdraw"
+                    :reminders="reminders"
+                    :leads="leads"
+                    @preferences="showPreferences"
                 />
-                <NoticeHistory :notices="notices" />
-            </div>
+                <FollowUpDialog ref="followUpDialog" :leads="leads" />
+            </template>
         </div>
     </FoundationShell>
 </template>

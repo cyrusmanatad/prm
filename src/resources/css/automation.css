@@ -1,0 +1,688 @@
+/* Automation and approvals (Partner /automation and Professional /professional/automation). */
+.auto {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 1280px;
+    min-width: 0;
+    margin-inline: auto;
+    padding-bottom: 16px;
+    color: var(--wd-ink);
+    font-size: 14px;
+    line-height: 1.4;
+}
+.auto :focus-visible,
+.auto-dialog :focus-visible,
+.auto-drawer :focus-visible {
+    outline: 2px solid var(--wd-brand);
+    outline-offset: 2px;
+}
+.auto-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+}
+.auto-header h1 {
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+}
+.auto-header p {
+    margin: 4px 0 0;
+    color: var(--wd-muted);
+}
+.auto-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.auto .wd-table-button,
+.auto-drawer .wd-table-button {
+    white-space: nowrap;
+}
+.wd-table-button.auto-primary {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand);
+    color: #fff;
+}
+.wd-table-button.auto-primary:hover:not(:disabled) {
+    border-color: var(--wd-brand-hover);
+    background: var(--wd-brand-hover);
+    color: #fff;
+}
+.wd-table-button.auto-danger {
+    color: var(--wd-danger);
+}
+.wd-table-button.auto-danger:hover:not(:disabled) {
+    background: var(--wd-danger-bg);
+    color: var(--wd-danger);
+}
+.auto-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--wd-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-body);
+    font-size: 13px;
+}
+.auto-info svg {
+    flex: none;
+    margin-top: 1px;
+    color: var(--wd-brand);
+}
+.auto-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+.auto-banner {
+    margin: 0;
+}
+
+/* The Professional shell already bounds its content width. */
+.wd-professional .auto {
+    max-width: none;
+}
+
+/* Cards */
+.auto-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+    overflow: clip;
+}
+.auto-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px 8px;
+}
+.auto-card-head h2 {
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 16px;
+    font-weight: 600;
+}
+.auto-count {
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    color: var(--wd-muted);
+    font-size: 11.5px;
+    font-weight: 700;
+}
+.auto-note {
+    margin: 0 0 0 auto;
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.auto-card-foot {
+    padding: 8px 14px;
+    border-top: 1px solid var(--wd-divider);
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.auto-card > .wd-banner {
+    margin: 0 14px 10px;
+}
+.auto-card .wd-empty-state {
+    margin: 0 14px 14px;
+}
+.auto-chips {
+    padding: 0 14px 10px;
+}
+
+/* Tables */
+.auto-table.wd-data-region {
+    border-width: 1px 0 0;
+    border-color: var(--wd-divider);
+    border-radius: 0;
+}
+.auto-table .wd-data-table {
+    font-size: 13px;
+}
+.auto-table .wd-data-table thead th {
+    padding: 8px 14px;
+    font-size: 11.5px;
+}
+.auto-table .wd-data-table tbody th,
+.auto-table .wd-data-table tbody td {
+    padding: 8px 14px;
+    vertical-align: middle;
+}
+.auto-table .wd-data-table tbody th {
+    min-width: 220px;
+    font-weight: 400;
+}
+.auto-table .wd-data-table th:last-child,
+.auto-table .wd-data-table td:last-child {
+    text-align: right;
+}
+.auto-table thead th:last-child {
+    color: transparent;
+}
+.auto-row-title {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--wd-brand);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+.auto-row-title:hover {
+    text-decoration: underline;
+}
+.auto-row-name {
+    display: block;
+    color: var(--wd-ink);
+    font-size: 13.5px;
+    font-weight: 700;
+}
+.auto-row-sub {
+    display: block;
+    max-width: 420px;
+    overflow: hidden;
+    color: var(--wd-muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.auto-ellipsis {
+    display: inline-block;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
+.auto-version {
+    margin-left: 6px;
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.auto-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+.auto-ghost.wd-table-icon-button {
+    border-color: transparent;
+    background: none;
+}
+.auto-ghost.wd-table-icon-button:hover:not(:disabled) {
+    border-color: var(--wd-control-line);
+}
+
+/* Preferences */
+.auto-prefs {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.auto-prefs-timezone {
+    max-width: 440px;
+    padding: 0 14px 12px;
+}
+.auto-switches {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--wd-divider);
+}
+.auto-switches li {
+    border-bottom: 1px solid var(--wd-divider);
+}
+.auto-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+    padding: 10px 14px;
+}
+.auto-switches li > .wd-field-error {
+    margin: -4px 14px 8px;
+}
+.auto-switch-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.auto-switch-text label {
+    color: var(--wd-ink);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.auto-switch-text > span {
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.auto-switch {
+    position: relative;
+    flex: none;
+    width: 38px;
+    height: 22px;
+    margin: 0;
+    border-radius: 999px;
+    background: var(--wd-control-line);
+    appearance: none;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+.auto-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+    transition: transform 0.15s;
+}
+.auto-switch:checked {
+    background: var(--wd-success);
+}
+.auto-switch:checked::after {
+    transform: translateX(16px);
+}
+.auto-switch:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.auto-fine {
+    margin: 10px 14px 12px;
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.auto-sticky {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--wd-divider);
+    background: var(--wd-paper);
+}
+.auto-dirty,
+.auto-clean {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 auto 0 0;
+    font-size: 12.5px;
+}
+.auto-dirty {
+    color: var(--wd-warning);
+    font-weight: 700;
+}
+.auto-dirty span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--wd-warning);
+}
+.auto-clean {
+    color: var(--wd-muted);
+}
+
+/* Dialogs */
+.auto-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    width: min(520px, calc(100dvw - 32px));
+    max-width: calc(100dvw - 32px);
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    overflow: hidden;
+}
+.auto-dialog-head,
+.auto-drawer-head {
+    display: flex;
+    flex: none;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--wd-divider);
+}
+.auto-dialog-head h2,
+.auto-drawer-head h2 {
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 20px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+.auto-dialog-sub {
+    margin: 4px 0 0;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.auto-dialog-form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+.auto-dialog-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    padding: 14px 20px 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.auto-dialog-foot {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--wd-divider);
+    background: var(--wd-paper);
+}
+.auto-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.auto-field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.auto-segments {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--wd-line);
+    border-radius: 10px;
+    background: var(--wd-paper);
+}
+.auto-segments button {
+    flex: 1;
+    min-height: 34px;
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 7px;
+    background: none;
+    color: var(--wd-muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.auto-segments button[aria-checked='true'] {
+    background: var(--wd-surface);
+    color: var(--wd-brand);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+}
+.auto-warning {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+    font-size: 12.5px;
+}
+.auto-warning p {
+    margin: 0;
+}
+
+/* Draft drawer */
+.auto-drawer[open] {
+    inset: 0 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: min(480px, 100dvw);
+    max-width: 100dvw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border-width: 0 0 0 1px;
+    border-radius: 0;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+}
+.auto-drawer-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+.auto-drawer-status {
+    margin: 0;
+}
+.auto-drawer-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+.auto-drawer-scroll {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    padding: 14px 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.auto-drawer-scroll .auto-fine {
+    margin: 0;
+}
+.auto-facts {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 6px 12px;
+    margin: 0;
+    font-size: 13px;
+}
+.auto-facts dt {
+    color: var(--wd-muted);
+}
+.auto-facts dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.auto-message {
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--wd-divider);
+    border-radius: 10px;
+    background: var(--wd-paper);
+    font-size: 13.5px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.auto-drawer-foot {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--wd-divider);
+    background: var(--wd-paper);
+}
+.auto-drawer-foot.auto-sticky {
+    position: static;
+}
+.auto-spacer {
+    flex: 1;
+}
+
+/* Touch: the switch's label and a record's title are 44px targets; negative margins keep rows compact. */
+@media (max-width: 599px), (pointer: coarse) {
+    .auto-row-title {
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+        margin-block: -12px -10px;
+    }
+    .auto-switch-text label {
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+        margin-block: -11px -9px;
+    }
+}
+@media (min-width: 600px) and (pointer: fine) {
+    .auto,
+    .auto-drawer {
+        --wd-table-control: 32px;
+    }
+}
+@media (max-width: 599px) {
+    .auto-header h1 {
+        font-size: 24px;
+    }
+    .auto-header-actions,
+    .auto-header-actions .wd-table-button {
+        flex: 1 1 auto;
+    }
+    .auto-note {
+        flex-basis: 100%;
+        margin-left: 0;
+    }
+    /* One scrollable row of tabs instead of wrapping onto a second line. */
+    .auto .wd-inline-tabs {
+        flex-wrap: nowrap;
+        gap: 14px;
+        margin-inline: -16px;
+        padding-inline: 16px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .auto .wd-inline-tabs [role='tab'] {
+        flex: none;
+        white-space: nowrap;
+    }
+    .auto-field-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .auto-segments button {
+        min-height: 44px;
+    }
+    /* Two-line records inside the card: title and status on top, details and actions below. */
+    .auto-table.wd-data-stacked {
+        border-top: 1px solid var(--wd-divider);
+    }
+    .auto-table.wd-data-stacked .wd-data-table tbody tr {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px 10px;
+        padding: 10px 14px;
+        border: 0;
+        border-radius: 0;
+    }
+    .auto-table.wd-data-stacked .wd-data-table tbody tr + tr {
+        margin-top: 0;
+        border-top: 1px solid var(--wd-divider);
+    }
+    .auto-table.wd-data-stacked .wd-data-table tbody th {
+        flex: 1 0 100%;
+        min-width: 0;
+        padding: 0 140px 2px 0;
+    }
+    .auto-table.wd-data-stacked .wd-data-table tbody td {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 0;
+        color: var(--wd-body);
+        font-size: 12.5px;
+    }
+    .auto-table.wd-data-stacked .wd-data-table td[data-label]::before {
+        content: none;
+    }
+    .auto-table.wd-data-stacked .wd-data-table td[data-label='Status'] {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+    }
+    .auto-table.wd-data-stacked .wd-data-table td[data-label='Actions'] {
+        flex: 1 0 100%;
+        justify-content: flex-end;
+        margin-top: 4px;
+    }
+    .auto-table.wd-data-stacked .wd-data-table td[data-label='Actions']:empty {
+        display: none;
+    }
+    .auto-row-sub {
+        max-width: none;
+    }
+    .auto-ellipsis {
+        max-width: 100%;
+    }
+    .auto-history-table.wd-data-stacked .wd-data-table td[data-label='Status'] {
+        position: static;
+        flex: 1 0 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .auto-history-table.wd-data-stacked .wd-data-table tbody th {
+        padding-right: 0;
+    }
+    .auto-history-table .wd-badge {
+        white-space: normal;
+    }
+}
+@media (max-width: 640px) {
+    /* Anchor to the device viewport, as the lead drawer does, so pointer coordinates reach its controls. */
+    .auto-drawer[open] {
+        inset: 0 auto 0 0;
+        width: 100dvw;
+        border-left: 0;
+    }
+    .auto-dialog[open] {
+        inset: 16px auto auto 16px;
+        margin: 0;
+    }
+}

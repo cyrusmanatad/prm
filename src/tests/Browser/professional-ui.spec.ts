@@ -1,7 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
 import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
-import { approvedBrand, fixture, login, migrationFixture, mutate, openBrandHub, smallTouchTargets } from './helpers';
+import {
+    approvedBrand,
+    automationTab,
+    fixture,
+    login,
+    migrationFixture,
+    mutate,
+    newSchedule,
+    openBrandHub,
+    smallTouchTargets,
+    writeFollowUp,
+} from './helpers';
 import AxeBuilder from '@axe-core/playwright';
 const routes = [
     '',
@@ -460,28 +471,32 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
         await context.close();
     }
 
-    await page.goto('/professional/automation');
+    await page.goto('/professional/automation?tab=preferences');
     await page.getByLabel('Weekly digest', { exact: true }).check();
     await page.getByRole('button', { name: 'Save preferences', exact: true }).click();
-    await page.getByLabel('Schedule name', { exact: true }).fill('Client weekly review');
-    await page.getByLabel('I consent to this weekly schedule', { exact: false }).check();
-    await page.getByRole('button', { name: 'Save weekly schedule', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Client weekly review', exact: true })).toBeVisible();
-    await page.getByRole('combobox', { name: 'Lead', exact: true }).click();
-    await page.getByRole('option', { name: 'Independent client', exact: true }).click();
-    await page.getByLabel('Recipient email', { exact: true }).fill('alex@example.test');
-    await page.getByLabel('Message subject', { exact: true }).fill('Next steps');
-    await page.getByLabel('Message', { exact: true }).fill('Please review the next steps.');
-    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Next steps', exact: true })).toBeVisible();
+    await expect(page).toHaveURL(/\/professional\/automation\?tab=preferences$/);
+    const weekly = await newSchedule(page, 'Weekly digest', 'Client weekly review');
+    await weekly.getByLabel('I consent to this weekly schedule', { exact: false }).check();
+    await weekly.getByRole('button', { name: 'Save schedule', exact: true }).click();
+    await expect(weekly).not.toBeVisible();
+    await automationTab(page, 'Schedules');
+    await expect(page.getByRole('row', { name: /Client weekly review/ })).toContainText('Consent active');
+    const drawer = await writeFollowUp(
+        page,
+        'Independent client',
+        'alex@example.test',
+        'Next steps',
+        'Please review the next steps.',
+    );
+    await expect(page).toHaveURL(/\/professional\/automation\?draft=/);
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Approve Next steps', exact: true }),
+        drawer.getByRole('button', { name: 'Approve Next steps', exact: true }),
         'Approve follow-up',
     );
-    await expect(page.getByText('Approved for manual sending · Version 2', { exact: true })).toBeVisible();
+    await expect(drawer.getByText('Approved for manual sending · Version 2', { exact: true })).toBeVisible();
     const messageDownload = page.waitForEvent('download');
-    await page.getByRole('link', { name: 'Download approved message', exact: true }).click();
+    await drawer.getByRole('link', { name: 'Download approved message', exact: true }).click();
     expect((await messageDownload).suggestedFilename()).toMatch(/\.txt$/);
     await capture('automation');
     await page.goto('/professional');

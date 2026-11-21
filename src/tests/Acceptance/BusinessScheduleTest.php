@@ -312,4 +312,40 @@ class BusinessScheduleTest extends AcceptanceCase
         app(BusinessSchedules::class)->execute($user->id, $org, $draft, $this->occurrence($draft)->id, fn () => $this->fail('Stale draft executed'));
         $this->assertSame('cancelled', $this->occurrence($draft)->state);
     }
+
+    public function test_automation_page_names_schedule_subjects_and_returns_to_the_same_view(): void
+    {
+        [$user, $org] = $this->setupActor();
+        $this->putJson('/automation/preferences', $this->preferences())->assertOk();
+        $lead = $this->postJson('/pipeline', ['brand_name' => 'Harbor Studio', 'currency' => 'PHP', 'value_minor' => '0'])->assertCreated()->json('id');
+        $reminder = $this->postJson('/reminders', ['title' => 'Send revised proposal', 'due_at' => now()->addDays(2)->toIso8601String()])->assertCreated()->json('id');
+        $due = now()->addDay()->utc()->format('Y-m-d\TH:i:sP');
+        $this->postJson('/automation/schedules', $this->weekly())->assertCreated();
+        $this->postJson('/automation/schedules', ['name' => 'Proposal reminder', 'kind' => 'reminder', 'subject_id' => $reminder, 'due_at' => $due, 'consent' => true])->assertCreated();
+        $this->postJson('/automation/schedules', ['name' => 'Harbor follow-up', 'kind' => 'follow_up_draft', 'subject_id' => $lead, 'due_at' => $due, 'consent' => true])->assertCreated();
+        $draft = $this->postJson('/automation/drafts', ['pipeline_entry_id' => $lead, 'recipient' => 'alex@example.test', 'subject' => 'Checking in', 'body' => 'Hello'])->assertCreated()->json('id');
+
+        $page = $this->getJson('/automation')->assertOk()->assertJsonPath('drafts.0.lead_name', 'Harbor Studio')->json();
+        $schedules = collect($page['schedules'])->keyBy('name');
+        $this->assertSame('Send revised proposal', $schedules['Proposal reminder']['subject_label']);
+        $this->assertNull($schedules['Proposal reminder']['subject_lead']);
+        $this->assertSame('Harbor Studio', $schedules['Harbor follow-up']['subject_lead']);
+        $this->assertNull($schedules['Weekly review']['subject_label']);
+        $this->assertNull($schedules['Weekly review']['subject_lead']);
+
+        // Page saves return to the tab and draft they came from; only known values survive.
+        $inertia = fn (string $referer) => $this->withHeaders(['X-Inertia' => 'true', 'Referer' => $referer]);
+        $inertia(url('/automation?tab=schedules&draft='.$draft.'&other=1'))->put('/automation/preferences', $this->preferences(['version' => $page['preferences']['version']]))
+            ->assertRedirect('/automation?tab=schedules&draft='.$draft);
+        $inertia(url('/professional/automation?tab=history'))->post('/automation/drafts/'.$draft.'/approve', ['version' => 1])
+            ->assertRedirect('/professional/automation?tab=history');
+        $inertia('https://elsewhere.test/automation?tab=unknown&draft=not-a-uuid')->post('/automation/drafts/'.$draft.'/discard', ['version' => 2])
+            ->assertRedirect('/automation');
+        $inertia(url('/partner/leads?tab=schedules'))->put('/automation/preferences', $this->preferences(['version' => $page['preferences']['version'] + 1]))
+            ->assertRedirect('/automation');
+        // A new draft opens in its drawer on the Approvals tab.
+        $created = $inertia(url('/automation?tab=history'))->post('/automation/drafts', ['pipeline_entry_id' => $lead, 'recipient' => 'alex@example.test', 'subject' => 'Second', 'body' => 'Hello']);
+        $newest = $this->control->table('follow_up_drafts')->where('org_id', $org)->where('subject', 'Second')->value('id');
+        $created->assertRedirect('/automation?draft='.$newest);
+    }
 }

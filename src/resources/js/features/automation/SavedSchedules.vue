@@ -1,59 +1,100 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
-import ContentSection from '../../components/ContentSection.vue';
-import ActionGroup from '../../components/ActionGroup.vue';
-import { Button } from '../../components/ui/button';
-import type { Schedule } from './types';
+import DataTable, { type DataColumn } from '../../components/DataTable.vue';
+import EmptyState from '../../components/EmptyState.vue';
+import StatusBadge from '../../components/StatusBadge.vue';
+import { kindLabel, weekdays, type Schedule } from './types';
 
-defineProps<{ schedules: Schedule[]; canWrite: boolean; busy: boolean; error?: string }>();
-defineEmits<{ edit: [schedule: Schedule]; withdraw: [schedule: Schedule, event: Event] }>();
+defineProps<{ schedules: Schedule[]; canWrite: boolean; busy: boolean; error?: string; reload: string }>();
+defineEmits<{ edit: [schedule: Schedule, trigger: HTMLElement]; withdraw: [schedule: Schedule, event: Event] }>();
+const columns: DataColumn[] = [
+    { key: 'name', label: 'Schedule' },
+    { key: 'kind', label: 'Type' },
+    { key: 'next', label: 'Next' },
+    { key: 'status', label: 'Status' },
+    { key: 'actions', label: 'Actions' },
+];
 function due(schedule: Schedule): string {
-    return schedule.next_due_at
+    return schedule.enabled && schedule.next_due_at
         ? new Intl.DateTimeFormat('en', {
               dateStyle: 'medium',
               timeStyle: 'short',
               timeZone: schedule.timezone,
           }).format(new Date(schedule.next_due_at))
-        : 'No future occurrence';
+        : '—';
+}
+function detail(schedule: Schedule): string {
+    if (schedule.kind === 'weekly_digest')
+        return `Every ${weekdays[(schedule.weekday ?? 1) - 1]} at ${schedule.local_time ?? ''}`.trim();
+    if (schedule.kind === 'reminder') return schedule.subject_label ?? 'Reminder no longer available';
+    return `${schedule.subject_lead ?? 'Lead no longer available'} · prepares a private draft`;
 }
 </script>
 
 <template>
-    <ContentSection
-        title="Your saved schedules"
-        description="Your latest 100 schedules. Disabled schedules retain their history."
-    >
-        <div v-if="error" class="wd-banner" role="alert">
+    <section class="auto-card" aria-labelledby="schedules-heading">
+        <header class="auto-card-head">
+            <h2 id="schedules-heading">Your schedules</h2>
+            <span class="auto-count">{{ schedules.length }}</span>
+            <p class="auto-note">Your latest 100 · disabled schedules keep their history</p>
+        </header>
+        <div v-if="error" class="wd-banner auto-banner" role="alert">
             <p>{{ error }}</p>
-            <button type="button" class="wd-link" @click="router.get('/automation', {}, { preserveState: false })">
-                Reload schedules
-            </button>
+            <a class="wd-link" :href="reload">Reload schedules</a>
         </div>
-        <p v-if="!schedules.length" class="wd-empty">
-            No schedules yet. Enable weekly digest in your preferences, then save a weekly schedule.
-        </p>
-        <article v-for="schedule in schedules" :key="schedule.id" class="wd-record">
-            <h3>{{ schedule.name }}</h3>
-            <p>{{ schedule.enabled ? 'Consent active' : 'Disabled' }} · {{ schedule.kind.replaceAll('_', ' ') }}</p>
-            <p class="wd-hint">{{ due(schedule) }} · {{ schedule.timezone }}</p>
-            <ActionGroup v-if="canWrite">
-                <Button
-                    v-if="schedule.kind === 'weekly_digest'"
-                    class="wd-button wd-button-secondary"
-                    type="button"
-                    :disabled="busy"
-                    @click="$emit('edit', schedule)"
-                    >Edit {{ schedule.name }}</Button
-                >
-                <Button
-                    v-if="schedule.enabled"
-                    class="wd-button wd-button-secondary"
-                    type="button"
-                    :disabled="busy || !!error"
-                    @click="$emit('withdraw', schedule, $event)"
-                    >Withdraw consent for {{ schedule.name }}</Button
-                >
-            </ActionGroup>
-        </article>
-    </ContentSection>
+        <DataTable
+            v-if="schedules.length"
+            class="auto-table auto-schedules-table"
+            caption="Your schedules"
+            :columns="columns"
+            :rows="schedules"
+            :row-key="(schedule) => schedule.id"
+        >
+            <template #cell-name="{ row }">
+                <span class="auto-row-name">{{ row.name }}</span>
+                <span class="auto-row-sub">{{ detail(row) }}</span>
+            </template>
+            <template #cell-kind="{ row }">{{ kindLabel(row.kind) }}</template>
+            <template #cell-next="{ row }"
+                ><span :title="row.timezone">{{ due(row) }}</span></template
+            >
+            <template #cell-status="{ row }"
+                ><StatusBadge
+                    :label="row.enabled ? 'Consent active' : 'Disabled'"
+                    :tone="row.enabled ? 'success' : 'neutral'"
+            /></template>
+            <template #cell-actions="{ row }">
+                <span v-if="canWrite" class="auto-actions">
+                    <button
+                        v-if="row.kind === 'weekly_digest'"
+                        type="button"
+                        class="wd-table-button"
+                        :disabled="busy"
+                        v-bind="{ 'aria-label': `Edit ${row.name}` }"
+                        @click="$emit('edit', row, $event.currentTarget as HTMLElement)"
+                    >
+                        Edit
+                    </button>
+                    <button
+                        v-if="row.enabled"
+                        type="button"
+                        class="wd-table-button auto-danger"
+                        :disabled="busy || !!error"
+                        v-bind="{ 'aria-label': `Withdraw consent for ${row.name}` }"
+                        @click="$emit('withdraw', row, $event)"
+                    >
+                        Withdraw
+                    </button>
+                </span>
+            </template>
+        </DataTable>
+        <EmptyState
+            v-else
+            title="No schedules yet"
+            description="Turn on a notice in Preferences, then add a schedule with New schedule."
+        />
+        <footer class="auto-card-foot">
+            Withdrawing consent disables a schedule and cancels its pending work. A send already reserved may still
+            arrive.
+        </footer>
+    </section>
 </template>

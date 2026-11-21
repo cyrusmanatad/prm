@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { fixture, login, mutate } from './helpers';
+import { fixture, login, mutate, writeFollowUp } from './helpers';
 
 test('lead edits remove obsolete approval and require fresh manual work', async ({ page }, info) => {
     const width = info.project.name.includes('mobile') ? 390 : 1440;
@@ -20,13 +20,15 @@ test('lead edits remove obsolete approval and require fresh manual work', async 
         }),
     ).toBe(201);
     await page.reload();
-    await page.getByRole('combobox', { name: 'Lead', exact: true }).click();
-    await page.getByRole('option', { name: 'Approval basis lead', exact: true }).click();
-    await page.getByLabel('Recipient email', { exact: true }).fill('recipient@example.test');
-    await page.getByLabel('Message subject', { exact: true }).fill('Review exact approval');
-    await page.getByLabel('Message', { exact: true }).fill('This message needs a current lead and approval.');
-    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
-    await page.getByRole('button', { name: 'Approve Review exact approval', exact: true }).click();
+    const drawer = await writeFollowUp(
+        page,
+        'Approval basis lead',
+        'recipient@example.test',
+        'Review exact approval',
+        'This message needs a current lead and approval.',
+    );
+    await expect(drawer).toContainText('Approval basis lead');
+    await drawer.getByRole('button', { name: 'Approve Review exact approval', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'Approve follow-up?', exact: true });
     await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
     await dialog.getByRole('button', { name: 'Approve follow-up', exact: true }).click();

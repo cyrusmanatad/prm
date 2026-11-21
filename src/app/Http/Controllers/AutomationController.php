@@ -20,10 +20,15 @@ class AutomationController extends Controller
         $org = $request->session()->get('active_org_id');
         $actor = (int) $request->user()->id;
         $payload = ['workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')],
-            'preferences' => $schedules->preferences($actor, $org), 'schedules' => DB::table('business_schedules')->orderByDesc('created_at')->limit(100)->get(),
+            'preferences' => $schedules->preferences($actor, $org), 'schedules' => DB::table('business_schedules AS s')->select('s.*')
+                // The reminder or lead a one-time schedule is for, so the list can name it.
+                ->selectSub(DB::table('reminders')->select('title')->whereColumn('reminders.org_id', 's.org_id')->whereColumn('reminders.id', 's.subject_id')->where('s.kind', 'reminder'), 'subject_label')
+                ->selectSub(DB::table('pipeline_entries')->select('brand_name')->whereColumn('pipeline_entries.org_id', 's.org_id')->whereColumn('pipeline_entries.id', 's.subject_id')->where('s.kind', 'follow_up_draft'), 'subject_lead')
+                ->orderByDesc('s.created_at')->limit(100)->get(),
             'reminders' => DB::table('reminders')->whereNull('completed_at')->orderBy('due_at')->orderBy('id')->limit(100)->get(['id', 'title', 'due_at']),
             'notices' => DB::table('notification_outbox')->where('actor_id', $actor)->where(fn ($q) => $q->whereNotNull('schedule_run_id')->orWhereNotNull('follow_up_draft_id'))->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(['id', 'kind', 'state', 'created_at', 'available_at', 'failure_code']),
-            'drafts' => DB::table('follow_up_drafts')->select('follow_up_drafts.*')->selectSub(DB::table('notification_outbox')->select('state')->where('kind', 'follow_up.outreach')->whereColumn('follow_up_draft_id', 'follow_up_drafts.id')->whereColumn('follow_up_version', 'follow_up_drafts.version')->limit(1), 'outreach_state')->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(),
+            'drafts' => DB::table('follow_up_drafts')->select('follow_up_drafts.*')
+                ->selectSub(DB::table('pipeline_entries')->select('brand_name')->whereColumn('pipeline_entries.org_id', 'follow_up_drafts.org_id')->whereColumn('pipeline_entries.id', 'follow_up_drafts.pipeline_entry_id'), 'lead_name')->selectSub(DB::table('notification_outbox')->select('state')->where('kind', 'follow_up.outreach')->whereColumn('follow_up_draft_id', 'follow_up_drafts.id')->whereColumn('follow_up_version', 'follow_up_drafts.version')->limit(1), 'outreach_state')->orderByDesc('created_at')->orderByDesc('id')->limit(50)->get(),
             'leads' => DB::table('pipeline_entries')->where('stage', '<>', 'lost')->orderByDesc('created_at')->orderByDesc('id')->limit(100)->get(['id', 'brand_name']),
             'canWrite' => $pipeline->canWrite($actor, $org), 'timezones' => DateTimeZone::listIdentifiers()];
 
@@ -37,7 +42,7 @@ class AutomationController extends Controller
             'reminders' => ['required', 'boolean'], 'weekly_digest' => ['required', 'boolean'], 'follow_up_drafts' => ['required', 'boolean'], 'follow_up_reviews' => ['sometimes', 'boolean']]);
         $schedules->savePreferences((int) $request->user()->id, $request->session()->get('active_org_id'), $data);
 
-        return $this->completed($request, ['message' => 'Automation preferences saved'], '/automation');
+        return $this->completed($request, ['message' => 'Automation preferences saved'], $this->automationReturn($request));
     }
 
     public function save(Request $request, BusinessSchedules $schedules, ?string $schedule = null): JsonResponse|RedirectResponse
@@ -50,7 +55,7 @@ class AutomationController extends Controller
             'due_at' => ['required_unless:kind,weekly_digest', 'nullable', 'date_format:Y-m-d\TH:i:sP', 'after:now', 'prohibited_if:kind,weekly_digest']]);
         $id = $schedules->save((int) $request->user()->id, $request->session()->get('active_org_id'), $data, $schedule);
 
-        return $this->completed($request, ['id' => $id, 'message' => $data['kind'] === 'follow_up_draft' ? 'Schedule saved; a private draft will be prepared when due' : 'Schedule saved; email will be queued when due'], '/automation', $schedule ? 200 : 201);
+        return $this->completed($request, ['id' => $id, 'message' => $data['kind'] === 'follow_up_draft' ? 'Schedule saved; a private draft will be prepared when due' : 'Schedule saved; email will be queued when due'], $this->automationReturn($request), $schedule ? 200 : 201);
     }
 
     public function revoke(Request $request, BusinessSchedules $schedules, string $schedule): JsonResponse|RedirectResponse
@@ -58,6 +63,6 @@ class AutomationController extends Controller
         $version = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']])['version'];
         $schedules->revoke((int) $request->user()->id, $request->session()->get('active_org_id'), $schedule, $version);
 
-        return $this->completed($request, ['message' => 'Schedule consent withdrawn'], '/automation');
+        return $this->completed($request, ['message' => 'Schedule consent withdrawn'], $this->automationReturn($request));
     }
 }
