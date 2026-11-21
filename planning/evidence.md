@@ -8,6 +8,8 @@
 
 **Brand lead visibility (2026-11-18):** [commands, results, rendering findings, unverified gates and staging runbook](shared/brand-lead-visibility-evidence.md) for the [contract](shared/brand-lead-visibility-contract.md). Local disposable stacks only; not deployed. The earlier [handoff](shared/brand-lead-visibility-handoff.md) was a documentation-only review.
 
+**Staging bar removed (2026-11-21):** the site-wide staging bar is gone at the user's request; upload pages keep their own unscanned-file notices. See [evidence](shared/staging-banner-evidence.md).
+
 **Staging presentation dataset (2026-11-18):** [provisioning, PostgreSQL isolation, backups and desktop/mobile verification](shared/staging-presentation-evidence.md).
 
 **M5 small-screen acceptance (2026-11-17):** the phone-width checks carried to Claude for M5-02 to M5-06 passed locally in Chromium at 390 and 320 px after small touch-target and readability fixes; see the [small-screen evidence](m5/small-screen-evidence.md). Provider delivery (M5-09) and inherited manual reviews remain open.
