@@ -339,4 +339,61 @@ class ProfessionalHubTest extends AcceptanceCase
         $this->getJson('/professional/exports/invoices')->assertOk()->assertSee('Consulting line')->assertSee('9007199254740993');
         $this->getJson('/professional/exports/payments')->assertOk()->assertSee('Synthetic correction')->assertSee($allocation);
     }
+
+    public function test_hub_summary_and_up_next_follow_roles_and_tenant_scope(): void
+    {
+        [$user, $org] = $this->professional();
+        $this->getJson('/professional')->assertOk()->assertJsonPath('canWrite', false)->assertJsonPath('isOwner', true);
+        $this->activate($org);
+        $this->actingAs($user);
+        $leads = [];
+        foreach (['Harbor Studio', 'Atlas Fitness', 'Closed Client'] as $name) {
+            $leads[] = $this->postJson('/pipeline', $this->lead($name))->assertCreated()->json('id');
+        }
+        $this->control->table('pipeline_entries')->where('id', $leads[1])->update(['stage' => 'pitched']);
+        $this->control->table('pipeline_entries')->where('id', $leads[2])->update(['stage' => 'lost']);
+        $remind = fn (string $title, $due, ?string $lead = null) => $this->postJson('/reminders', ['title' => $title, 'due_at' => $due->toIso8601String(), 'pipeline_entry_id' => $lead])->assertCreated();
+        $remind('Overdue proposal', now()->subDay(), $leads[0]);
+        $remind('Call within a day', now()->addHours(2));
+        $remind('Later this week', now()->addDays(3));
+        $this->control->table('reminders')->insert(['id' => (string) Str::uuid(), 'org_id' => $org, 'title' => 'Already done', 'due_at' => now()->subDays(2), 'completed_at' => now()]);
+        foreach (['submitted' => 'Website intake', 'correction' => 'Needs fixes', 'draft' => 'Not sent'] as $status => $label) {
+            $this->control->table('onboarding_requests')->insert(['id' => (string) Str::uuid(), 'org_id' => $org, 'pipeline_entry_id' => $leads[0], 'label' => $label,
+                'status' => $status, 'token_hash' => hash('sha256', (string) Str::uuid()), 'expires_at' => now()->addDays(7)]);
+        }
+        $this->postJson('/finance/invoices', ['recipient_name' => 'Harbor Studio', 'currency' => 'USD', 'due_date' => now()->addDays(3)->toDateString(), 'command_id' => (string) Str::uuid(),
+            'lines' => [['description' => 'Strategy', 'quantity' => 1, 'unit_price_minor' => '1000']]])->assertCreated();
+        $member = User::factory()->create();
+        $this->control->table('memberships')->insert(['org_id' => $org, 'user_id' => $member->id, 'role' => 'member']);
+        foreach ([$user->id, $member->id, $member->id] as $actor) {
+            $this->control->table('follow_up_drafts')->insert(['id' => (string) Str::uuid(), 'org_id' => $org, 'actor_id' => $actor, 'pipeline_entry_id' => $leads[0], 'subject_version' => 1]);
+        }
+        // Another tenant's records never reach this Hub.
+        [, $otherOrg] = $this->professional();
+        $this->activate($otherOrg);
+        $this->control->table('reminders')->insert(['id' => (string) Str::uuid(), 'org_id' => $otherOrg, 'title' => 'Foreign reminder', 'due_at' => now()->subHour()]);
+
+        $hub = $this->actingAs($user)->withSession(['active_org_id' => $org])->getJson('/professional')->assertOk()
+            ->assertJsonPath('canWrite', true)->assertJsonPath('summary.leads.open', 2)
+            ->assertJsonPath('summary.leads.stages', ['lead' => 1, 'pitched' => 1])
+            ->assertJsonPath('summary.reminders', ['overdue' => 1, 'dueDay' => 1, 'dueWeek' => 2])
+            ->assertJsonPath('summary.onboarding', ['submitted' => 1, 'correction' => 1])
+            ->assertJsonPath('summary.invoices', ['drafts' => 1, 'dueWeek' => 1])->assertJsonPath('summary.payments', 0)
+            ->assertJsonPath('summary.followUps', 1)->assertJsonPath('summary.profilePublished', false)
+            ->assertJsonPath('upNext.reminderTotal', 2)->assertJsonPath('upNext.onboardingTotal', 1)
+            ->assertJsonPath('upNext.reminders.0.title', 'Overdue proposal')->assertJsonPath('upNext.reminders.0.lead', 'Harbor Studio')
+            ->assertJsonPath('upNext.reminders.1.title', 'Call within a day')->assertJsonPath('upNext.reminders.1.lead', null)
+            ->assertJsonPath('upNext.onboarding.0.label', 'Website intake')->assertDontSee('Foreign reminder')->json();
+        $this->assertCount(2, $hub['upNext']['reminders']);
+
+        $this->actingAs($member)->withSession(['active_org_id' => $org])->getJson('/professional')->assertOk()
+            ->assertJsonPath('isOwner', false)->assertJsonPath('canWrite', true)
+            ->assertJsonPath('summary.invoices', null)->assertJsonPath('summary.payments', null)
+            ->assertJsonPath('summary.followUps', 2)->assertJsonPath('summary.leads.open', 2);
+        $this->control->table('memberships')->where('org_id', $org)->where('user_id', $member->id)->update(['role' => 'viewer']);
+        $this->getJson('/professional')->assertOk()->assertJsonPath('canWrite', false);
+        $this->activate($org, 1, 'expired');
+        $this->actingAs($user)->withSession(['active_org_id' => $org])->getJson('/professional')->assertOk()
+            ->assertJsonPath('canWrite', false)->assertJsonPath('summary.reminders.overdue', 1);
+    }
 }

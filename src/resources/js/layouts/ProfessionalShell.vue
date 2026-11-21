@@ -64,7 +64,9 @@ const active = (href: string) =>
                     <nav class="pro-mobile-nav" aria-label="Professional tools">
                         <DropdownMenuRoot v-model:open="mobileOpen" :modal="false">
                             <DropdownMenuTrigger class="pro-mobile-trigger"
-                                ><Menu :size="18" aria-hidden="true" />Menu</DropdownMenuTrigger
+                                ><Menu :size="18" aria-hidden="true" /><span class="pro-menu-label"
+                                    >Menu</span
+                                ></DropdownMenuTrigger
                             >
                             <DropdownMenuContent class="pro-nav-menu pro-mobile-menu" :side-offset="8" align="end">
                                 <DropdownMenuGroup
@@ -96,7 +98,8 @@ const active = (href: string) =>
                 </div>
             </div>
         </header>
-        <div class="pro-access"><WorkspaceNotice compact /></div>
+        <!-- The Hub shows the subscription in its own card. -->
+        <div v-if="current !== '/professional'" class="pro-access"><WorkspaceNotice compact /></div>
         <main v-if="containMain" id="main-content" class="pro-main"><slot /></main>
         <slot v-else />
     </div>

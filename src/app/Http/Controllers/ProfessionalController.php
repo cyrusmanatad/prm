@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\InvoiceDrafts;
 use App\Services\PilotEntitlements;
+use App\Services\Pipeline;
+use App\Services\ProfessionalHub;
 use App\Support\CsvDownload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,11 +13,16 @@ use Inertia\Inertia;
 
 class ProfessionalController extends Controller
 {
-    public function index(Request $request, PilotEntitlements $entitlements): mixed
+    public function index(Request $request, PilotEntitlements $entitlements, ProfessionalHub $hub, Pipeline $pipeline): mixed
     {
         $workspace = DB::table('organizations')->where('id', $request->session()->get('active_org_id'))->first(['id', 'name', 'kind', 'experience']);
         abort_unless($workspace?->experience === 'professional', 404);
-        $payload = ['workspace' => $workspace, 'subscription' => $entitlements->state($workspace->id)];
+        $actor = (int) $request->user()->id;
+        $owner = (bool) DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner']) AS allowed", [$workspace->id])->allowed;
+        $subscription = $entitlements->state($workspace->id);
+        $payload = ['workspace' => $workspace, 'subscription' => $subscription, 'isOwner' => $owner,
+            'canWrite' => $subscription['state'] === 'active' && $pipeline->canWrite($actor, $workspace->id),
+            'summary' => $hub->summary($workspace->id, $actor, $owner), 'upNext' => $hub->upNext($workspace->id)];
 
         return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($payload) : Inertia::render('Professional', $payload);
     }

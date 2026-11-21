@@ -41,9 +41,13 @@ it('limits the new shell to Professional tools, including canonical detail URLs'
         expect(wrapper.find('.professional-test').exists(), `${experience}: ${url}`).toBe(expected);
     }
 });
-it('retains all eight tools and maps canonical navigation without changing detail IDs', () => {
-    expect(professionalGroups.flatMap((group) => group.links)).toHaveLength(9);
-    expect(new Set(professionalGroups.flatMap((group) => group.links.map((link) => link.href))).size).toBe(9);
+it('retains every tool, including Brand sharing, and maps canonical navigation without changing detail IDs', () => {
+    expect(professionalGroups.flatMap((group) => group.links)).toHaveLength(10);
+    expect(new Set(professionalGroups.flatMap((group) => group.links.map((link) => link.href))).size).toBe(10);
+    expect(
+        professionalGroups.find((group) => group.label === 'Client work')!.links.map((link) => link.label),
+    ).toContain('Brand sharing');
+    expect(isProfessionalTool('/partner/brand-sharing?lead=abc')).toBe(true);
     expect(professionalDestination('/finance/invoices/123?version=2')).toBe('/professional/finance/invoices/123');
     expect(professionalDestination('/partner/media-kit')).toBe('/professional/profile');
     expect(isProfessionalTool('/professional/login')).toBe(false);
@@ -79,6 +83,19 @@ it('shows readable UTC subscription dates, exact counts and every CSV export on 
                 },
                 usage: [{ resource: 'pipeline_entries', used: 17, limit: 100 }],
             },
+            isOwner: true,
+            canWrite: false,
+            summary: {
+                leads: { open: 0, stages: {} },
+                reminders: { overdue: 0, dueDay: 0, dueWeek: 0 },
+                onboarding: { submitted: 0, correction: 0 },
+                invoices: { drafts: 0, dueWeek: 0 },
+                payments: 0,
+                templates: 0,
+                followUps: 0,
+                profilePublished: false,
+            },
+            upNext: { reminderTotal: 0, onboardingTotal: 0, reminders: [], onboarding: [] },
         },
         global: { stubs: { FoundationShell: { template: '<main><slot /></main>' } } },
     });
@@ -87,5 +104,5 @@ it('shows readable UTC subscription dates, exact counts and every CSV export on 
     expect(wrapper.text()).toContain('UTC');
     expect(wrapper.text()).not.toContain('10:00:00+00:00');
     expect(wrapper.findAll('a[href^="/professional/exports/"]')).toHaveLength(5);
-    expect(wrapper.findAll('.pro-tool-list a')).toHaveLength(8);
+    expect(wrapper.findAll('.hub-tool-group a')).toHaveLength(9);
 });
