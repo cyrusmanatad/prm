@@ -1,22 +1,35 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Check, Circle, Contrast, Diamond, RefreshCw, UserCheck, X } from '@lucide/vue';
+import { pipelineStages } from '../pipeline/stages';
 
 const props = defineProps<{ stage: string; label: string }>();
-const icons: Record<string, typeof Circle> = {
-    lead: Circle,
-    pitched: Contrast,
-    negotiating: Diamond,
-    onboarded: UserCheck,
-    active: Check,
-    'repeat-client': RefreshCw,
-    lost: X,
-};
-const icon = computed(() => icons[props.stage] ?? Circle);
+// The same coloured dots as the partner pipeline, so a stage reads the same on both sides.
+const dot = computed(() => pipelineStages.find((item) => item.value === props.stage)?.dot ?? 'var(--wd-muted)');
 </script>
 
 <template>
-    <span class="wd-badge wd-stage-badge" v-bind="{ 'data-stage': stage }"
-        ><component :is="icon" :size="14" aria-hidden="true" focusable="false" />{{ label }}</span
+    <span class="wd-stage-chip" v-bind="{ 'data-stage': stage }"
+        ><span class="wd-stage-chip-dot" :style="{ background: dot }" aria-hidden="true"></span>{{ label }}</span
     >
 </template>
+
+<style scoped>
+.wd-stage-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    color: var(--wd-ink);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 18px;
+    white-space: nowrap;
+}
+.wd-stage-chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+</style>

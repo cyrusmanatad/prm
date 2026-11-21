@@ -76,6 +76,7 @@ These now sit with their owning milestone/workstream topics. Their inclusion her
 | Partner tools | [Lead activity tab](m3a/activity-tab-evidence.md) |
 | Partnerships | [Brand join links](m3a/brand-join-links-evidence.md) |
 | Partnerships | [Brand hub invitations](m3a/invitations-evidence.md) |
+| Partnerships | [Brand lead registrations](m3a/lead-registrations-evidence.md) |
 | Partnerships | [Table controls and partner avatars](m3a/table-controls-evidence.md) |
 | Partnerships | [Compact partner pipeline](m3a/pipeline-compact-evidence.md) |
 | Partner tools | [Compact contacts and reminders](m3a/crm-compact-evidence.md) |

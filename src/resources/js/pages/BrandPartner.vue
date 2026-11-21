@@ -150,7 +150,7 @@ const profile = computed<DetailItem[]>(() => [
                     :show-partner="false"
                     :detail-href="
                         (row) =>
-                            `/brand/lead-registrations/${row.id}${query({ from: 'partner', page: pagination.page })}`
+                            `/brand/lead-registrations${query({ partner: row.partnership_id, registration: row.id })}`
                     "
                 />
                 <EmptyState

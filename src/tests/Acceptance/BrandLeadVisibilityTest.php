@@ -136,7 +136,10 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         // The Brand reads the allowlist only.
         $this->member($brandUser, $brand)->getJson('/brand')->assertJsonPath('metrics.leadsRegistered', 1)->assertJsonPath('partners.0.leads_30d', 1)->assertJsonPath('partners.0.last_active.kind', 'lead_registered');
         $list = $this->getJson('/brand/lead-registrations')->assertOk()->assertJsonCount(1, 'registrations')->assertJsonPath('pagination.total', 1);
-        $this->assertSame(['display_name', 'id', 'partner_name', 'partnership_id', 'registered_at', 'shared_updated_at', 'stage'], collect($list->json('registrations.0'))->keys()->sort()->values()->all());
+        $this->assertSame(['display_name', 'id', 'partner_name', 'partnership_id', 'registered_at', 'shared_updated_at', 'stage', 'summary'], collect($list->json('registrations.0'))->keys()->sort()->values()->all());
+        // The list header figures cover every visible registration.
+        $list->assertJsonPath('summary', ['total' => 1, 'recent' => 1, 'partners' => 1, 'updatedWeek' => 0])->assertJsonPath('registrations.0.summary', 'Wholesale interest')
+            ->assertJsonPath('selected', null);
         $detail = $this->getJson('/brand/lead-registrations/'.$id)->assertOk()->assertJsonPath('registration.display_name', 'Registered lead name')->assertJsonPath('registration.summary', 'Wholesale interest')
             ->assertJsonPath('registration.stage', 'lead')->assertJsonPath('registration.partner_name', 'Visible Partner')->assertJsonPath('registration.share_contact', false)
             ->assertJsonPath('registration.contact_name', null)->assertJsonPath('registration.contact_email', null);
@@ -147,7 +150,17 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         $this->getJson('/brand/partners/'.$relationship)->assertOk()->assertJsonPath('partner.leads_total', 1)->assertJsonCount(1, 'registrations')->assertDontSee($partner->email)->assertDontSee('Private rates');
         // Inertia responses, including partial reloads, carry the same projection.
         $this->withoutVite();
-        $this->get('/brand/lead-registrations/'.$id)->assertOk()->assertDontSee('Private rates')->assertDontSee('casey@example.test')->assertSee('Registered lead name');
+        // A registration opens in the drawer over the list; its old address redirects there.
+        $this->get('/brand/lead-registrations/'.$id)->assertRedirect('/brand/lead-registrations?registration='.$id);
+        $this->get('/brand/lead-registrations/'.$id.'?from=partner&page=2')->assertRedirect('/brand/lead-registrations?partner='.$relationship.'&registration='.$id);
+        $this->get('/brand/lead-registrations?registration='.$id)->assertOk()->assertDontSee('Private rates')->assertDontSee('casey@example.test')->assertSee('Registered lead name');
+        $selected = $this->getJson('/brand/lead-registrations?registration='.$id)->assertOk()->assertJsonPath('selected.display_name', 'Registered lead name')
+            ->assertJsonPath('selected.partner_leads', 1)->assertJsonPath('selected.partner_since', fn ($value) => is_string($value) && strtotime($value) !== false);
+        foreach (['Private rates', '987654', 'casey@example.test', $lead, 'registered_by', 'notes', 'value_minor'] as $private) {
+            $selected->assertDontSee($private);
+        }
+        $this->getJson('/brand/lead-registrations?registration='.Str::uuid())->assertNotFound();
+        $this->getJson('/brand/lead-registrations?registration=not-a-uuid')->assertUnprocessable();
         $this->get('/brand/lead-registrations', ['X-Inertia' => 'true', 'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()) ?? '', 'X-Inertia-Partial-Component' => 'BrandLeadRegistrations', 'X-Inertia-Partial-Data' => 'registrations'])
             ->assertOk()->assertJsonCount(1, 'props.registrations')->assertDontSee('Private rates')->assertDontSee($lead);
 
@@ -164,6 +177,8 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         $this->getJson('/brand/lead-registrations')->assertJsonCount(0, 'registrations');
         $this->getJson('/brand/lead-registrations?partner='.$relationship)->assertOk()->assertJsonCount(0, 'registrations')->assertJsonPath('pagination.total', 0);
         $this->getJson('/brand/lead-registrations/'.$id)->assertNotFound();
+        $this->getJson('/brand/lead-registrations?registration='.$id)->assertNotFound();
+        $this->getJson('/brand/lead-registrations')->assertJsonPath('summary.total', 0);
         $this->getJson('/brand/partners/'.$relationship)->assertNotFound();
         $this->member($stranger, $strangerOrg)->getJson('/partner/brand-sharing')->assertOk()->assertJsonCount(0, 'registrations');
         $this->getJson('/partner/brand-sharing?lead='.$lead)->assertNotFound();
