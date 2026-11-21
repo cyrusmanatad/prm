@@ -23,15 +23,22 @@ class BrandLeadController extends Controller
             return redirect('/workspaces');
         }
         $filters = $this->filters($request);
-        $page = (int) ($request->validate(['page' => ['nullable', 'integer', 'min:1', 'max:100000']])['page'] ?? 1);
+        $query = $request->validate(['page' => ['nullable', 'integer', 'min:1', 'max:100000'], 'registration' => ['nullable', 'uuid']]);
+        $page = (int) ($query['page'] ?? 1);
         $now = $this->leads->clock();
         $listing = $this->leads->listing($workspace->id, $filters, $page, $now, (int) ($filters['per_page'] ?: LeadRegistrations::PER_PAGE));
+        // The drawer over the list. Hidden, withdrawn, ended, paused and foreign registrations all answer the same way.
+        $selected = null;
+        if (isset($query['registration'])) {
+            abort_unless($selected = $this->leads->detail($workspace->id, $query['registration']), 404);
+        }
 
         return $this->respond($request, 'BrandLeadRegistrations', [
             'workspace' => $workspace, 'registrations' => $listing['rows'],
             'pagination' => ['page' => $listing['page'], 'perPage' => $listing['perPage'], 'total' => $listing['total']],
             'filters' => $filters, 'partners' => $this->leads->partnerOptions($workspace->id), 'stages' => PipelineStage::options(),
-            'facets' => $this->leads->facets($workspace->id, $filters, $now),
+            'facets' => $this->leads->facets($workspace->id, $filters, $now), 'summary' => $this->leads->summary($workspace->id, $now),
+            'selected' => $selected,
         ]);
     }
 
@@ -44,11 +51,14 @@ class BrandLeadController extends Controller
         $filters = $this->filters($request);
         // Hidden, withdrawn, ended, paused and foreign registrations all answer the same way.
         abort_unless($detail = $this->leads->detail($workspace->id, $registration), 404);
+        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+            return response()->json(['workspace' => $workspace, 'registration' => $detail, 'stages' => PipelineStage::options()]);
+        }
+        // Pages open a registration in the drawer over the list; from a Partner record, the list shows that partner's leads.
+        $list = array_filter([...$filters, 'partner' => ($from['from'] ?? null) === 'partner' ? $detail['partnership_id'] : $filters['partner'],
+            'page' => ($from['from'] ?? null) === 'partner' ? null : ($from['page'] ?? null), 'registration' => $registration], fn ($value) => $value !== null && $value !== '');
 
-        return $this->respond($request, 'BrandLeadRegistration', [
-            'workspace' => $workspace, 'registration' => $detail, 'stages' => PipelineStage::options(),
-            'back' => ['from' => $from['from'] ?? 'list', 'page' => (int) ($from['page'] ?? 1), 'filters' => $filters],
-        ]);
+        return redirect('/brand/lead-registrations?'.http_build_query($list));
     }
 
     public function partner(Request $request, string $relationship): JsonResponse|RedirectResponse|Response

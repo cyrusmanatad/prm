@@ -169,30 +169,36 @@
     opacity: 0.6;
 }
 .wd-registration-table .wd-data-table {
-    font-size: 15px;
+    font-size: 13.5px;
 }
 .wd-registration-table .wd-data-table thead th {
-    padding-block: 14px;
-    background: #f8eedf;
-    color: var(--wd-body);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
+    padding-block: 8px;
+    background: var(--wd-paper);
+    color: var(--wd-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 .wd-registration-table .wd-data-table thead th {
     vertical-align: middle;
 }
-.wd-registration-table .wd-data-table .wd-stage-badge {
-    padding: 4px 12px;
-    font-size: 13px;
-}
 @media (min-width: 600px) {
     .wd-registration-table .wd-data-table tbody th,
     .wd-registration-table .wd-data-table tbody td {
-        padding-block: 16px;
+        padding-block: 8px;
         vertical-align: middle;
     }
+}
+.wd-registration-table .wd-registration-summary {
+    display: block;
+    max-width: 360px;
+    overflow: hidden;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .wd-registration-table .wd-data-table tbody tr + tr > * {
     border-top-color: var(--wd-line);
@@ -203,7 +209,8 @@
     text-decoration: none;
 }
 .wd-registration-table .wd-data-table a.wd-registration-lead {
-    font-weight: 600;
+    color: var(--wd-brand);
+    font-weight: 700;
 }
 .wd-registration-table .wd-data-table a.wd-registration-partner {
     font-weight: 500;
@@ -212,10 +219,6 @@
 .wd-registration-table .wd-data-table a.wd-registration-partner:hover {
     color: var(--wd-brand);
     text-decoration: underline;
-}
-.wd-registration-when {
-    display: block;
-    color: var(--wd-ink);
 }
 .wd-registration-none {
     color: var(--wd-muted);
@@ -331,6 +334,63 @@
     padding: 0 4px;
     font-size: 13px;
     font-weight: 700;
+}
+@media (max-width: 599px) {
+    /* Compact two-line registration records: lead and summary with the stage on top, partner and dates below. */
+    .wd-registration-table.wd-data-stacked .wd-data-table tbody tr {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px 12px;
+        padding: 10px 14px;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table tbody tr + tr {
+        margin-top: 8px;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table tbody th {
+        flex: 1 0 100%;
+        padding: 0 120px 2px 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table tbody td {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 0;
+        color: var(--wd-body);
+        font-size: 13px;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table td[data-label]::before {
+        content: none;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table td[data-label='Stage'] {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table td[data-label='Registered']::before {
+        content: 'Registered';
+        display: inline;
+        color: var(--wd-muted);
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table td[data-label='Last update']:has(.wd-registration-none) {
+        display: none;
+    }
+    .wd-registration-table.wd-data-stacked .wd-data-table td[data-label='Last update']::before {
+        content: 'Updated';
+        display: inline;
+        color: var(--wd-muted);
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .wd-registration-table .wd-registration-summary {
+        max-width: none;
+        white-space: normal;
+    }
 }
 @media (max-width: 599px) {
     /* Compact two-line records: recipient and Revoke on top, dates and delivery below. */

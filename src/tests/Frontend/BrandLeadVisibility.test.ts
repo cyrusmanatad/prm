@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
-import { reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 import BrandDashboard from '../../resources/js/features/portals/BrandDashboard.vue';
-import BrandLeadRegistration from '../../resources/js/pages/BrandLeadRegistration.vue';
 import BrandLeadRegistrations from '../../resources/js/pages/BrandLeadRegistrations.vue';
 import BrandPartner from '../../resources/js/pages/BrandPartner.vue';
 import BrandSharing from '../../resources/js/pages/BrandSharing.vue';
@@ -196,12 +195,15 @@ const registrationList = (extra: Record<string, unknown> = {}) => ({
 it('lists registrations with links that carry the list state and states the sharing scope', () => {
     const wrapper = show(mount(BrandLeadRegistrations, { props: registrationList(), global: { stubs } }));
     expect(wrapper.get('nav[aria-label="Main"] a[aria-current="page"]').text()).toBe('Lead registrations');
-    expect(wrapper.text()).toContain("Partners' other prospects, private notes and estimates are never shown here.");
+    expect(wrapper.text()).toContain('Their private notes, estimates and other prospects are never shown.');
     expect(wrapper.get('#registered-leads-heading').text()).toBe('Registered leads');
-    expect(wrapper.text()).toContain('26 registrations');
+    expect(wrapper.get('.rg-card-head .rg-count').text()).toBe('26');
     expect(wrapper.text()).toContain('Counts are registrations, not sales, revenue or estimates.');
     const row = wrapper.get('tbody tr');
-    expect(row.get('th a').attributes('href')).toBe('/brand/lead-registrations/r1?partner=p1&window=30d&page=2');
+    // A lead opens in the drawer over the list, which keeps its filters and page.
+    expect(row.get('th a').attributes('href')).toBe(
+        '/brand/lead-registrations?partner=p1&window=30d&page=2&registration=r1',
+    );
     expect(row.findAll('td')[0]!.get('a').attributes('href')).toBe('/brand/partners/p1');
     expect(row.findAll('td')[0]!.get('.wd-partner-avatar').classes()).toContain('is-28');
     expect(row.get('[data-stage="repeat-client"]').text()).toBe('Repeat Client');
@@ -270,39 +272,65 @@ it('applies registration filters as they are chosen and keeps the sort order', a
     expect(wrapper.findAll('thead th')[0]!.attributes('aria-sort')).toBe('ascending');
 });
 
-it('shows only shared lead fields and returns to where the lead was opened from', () => {
-    const props = {
-        account,
-        workspace,
-        stages,
-        registration: {
-            ...registration,
-            brand_name: 'Northline Living',
-            summary: '',
-            share_contact: false,
-            contact_name: null,
-            contact_email: null,
-        },
-        back: {
-            from: 'list' as const,
-            page: 3,
-            filters: { partner: '', stage: 'lost', q: 'gift', window: '', sort: '', per_page: '' },
-        },
+it('opens a shared lead in a read-only drawer over the list and closes back to the same list', async () => {
+    const selected = {
+        ...registration,
+        brand_name: 'Northline Living',
+        summary: 'Corporate gifting for 40 agents',
+        share_contact: false,
+        contact_name: null,
+        contact_email: null,
+        partner_since: '2026-10-12T08:00:00+00:00',
+        partner_leads: 3,
     };
-    const wrapper = show(mount(BrandLeadRegistration, { props, global: { stubs } }));
-    expect(wrapper.get('h1').text()).toBe('Liwanag Realty gifting');
-    expect(wrapper.text()).toContain('Not shared by the partner');
-    expect(wrapper.text()).toContain('No summary provided');
-    expect(wrapper.text()).toContain('Read-only');
-    expect(wrapper.find('form').exists()).toBe(false);
-    expect(wrapper.get('.adm-back').attributes('href')).toBe('/brand/lead-registrations?stage=lost&q=gift&page=3');
-    const fromPartner = show(
-        mount(BrandLeadRegistration, {
-            props: { ...props, back: { ...props.back, from: 'partner' as const, page: 1 } },
+    const wrapper = show(
+        mount(BrandLeadRegistrations, {
+            props: {
+                ...registrationList(),
+                summary: { total: 26, recent: 4, partners: 2, updatedWeek: 1 },
+                selected,
+            },
             global: { stubs },
+            attachTo: document.body,
         }),
     );
-    expect(fromPartner.get('.adm-back').attributes('href')).toBe('/brand/partners/p1');
+    await nextTick();
+    expect(wrapper.get('ul[aria-label="Registration summary"]').text().replace(/\s+/g, ' ')).toContain(
+        'Registrations26Last 30 days4Partners registering2Updated this week1',
+    );
+    const drawer = wrapper.get('dialog[aria-labelledby="registration-title"]');
+    expect((drawer.element as HTMLDialogElement).open).toBe(true);
+    expect(drawer.get('h2').text()).toBe('Liwanag Realty gifting');
+    expect(drawer.get('[data-stage="repeat-client"]').text()).toBe('Repeat Client');
+    expect(drawer.text()).toContain('Partner since Oct 12, 2026 · 3 leads registered');
+    expect(drawer.get('a[href="/brand/partners/p1"]').text()).toContain('Open partner');
+    expect(drawer.text()).toContain('Corporate gifting for 40 agents');
+    // The contact is mentioned once, and an unchanged record says so instead of repeating the time.
+    expect(drawer.text().match(/Not shared by the partner/g)).toHaveLength(1);
+    expect(drawer.text()).toContain('Read-only');
+    expect(drawer.find('form').exists()).toBe(false);
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('Close lead registration');
+    await drawer.get('button[aria-label="Close lead registration"]').trigger('click');
+    expect(router.get).toHaveBeenLastCalledWith(
+        '/brand/lead-registrations?partner=p1&window=30d&page=2',
+        {},
+        { preserveScroll: true, preserveState: true },
+    );
+    const unchanged = show(
+        mount(BrandLeadRegistrations, {
+            props: {
+                ...registrationList(),
+                selected: { ...selected, shared_updated_at: selected.registered_at, summary: '', share_contact: true },
+            },
+            global: { stubs },
+            attachTo: document.body,
+        }),
+    );
+    await nextTick();
+    const other = unchanged.get('dialog[aria-labelledby="registration-title"]');
+    expect(other.text()).toContain('No changes since registering');
+    expect(other.text()).toContain('No summary provided');
+    expect(other.text()).toContain('Not provided');
 });
 
 it('shows a partner record with an empty optional profile and never links an unsafe address', () => {
@@ -325,7 +353,8 @@ it('shows a partner record with an empty optional profile and never links an uns
         '/brand/lead-registrations?partner=p1',
         '/brand/lead-registrations?partner=p1&window=30d',
     ]);
-    expect(wrapper.get('tbody th a').attributes('href')).toBe('/brand/lead-registrations/r1?from=partner');
+    // From a Partner record, a lead opens in the drawer over that partner's registrations.
+    expect(wrapper.get('tbody th a').attributes('href')).toBe('/brand/lead-registrations?partner=p1&registration=r1');
     expect(wrapper.get('.wd-partner-identity .wd-partner-avatar').classes()).toContain('is-48');
     expect(wrapper.find('tbody .wd-partner-avatar').exists()).toBe(false); // The record already names its partner.
     const safe = show(

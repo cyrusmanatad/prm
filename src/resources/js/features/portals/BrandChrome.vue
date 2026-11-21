@@ -83,7 +83,7 @@ const unavailable = ['Campaigns', 'Incentives', 'Enablement', 'Payouts'];
                         v-for="label in unavailable"
                         :key="label"
                         title="Unavailable in this milestone"
-                        class="px-3 py-2 text-[14px] text-ink-soft"
+                        class="hidden px-3 py-2 text-[14px] text-ink-soft sm:inline"
                         >{{ label }}</span
                     >
                 </nav>

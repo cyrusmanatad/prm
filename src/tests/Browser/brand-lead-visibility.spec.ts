@@ -163,6 +163,8 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(bp.getByRole('navigation', { name: 'Lead registrations pages' })).toContainText(
             'of 2 matching registrations',
         );
+        // Phones keep Partner, Registered and Sort behind a Filters button.
+        if (isMobile(info)) await bp.getByRole('button', { name: /^Filters/ }).click();
         await expect(bp.getByRole('combobox', { name: 'Partner' })).toContainText(second!.name);
         await expect(bp.getByRole('combobox', { name: 'Registered' })).toContainText('Last 30 days');
         await review(bp, info, 'Lead registrations');
@@ -178,12 +180,17 @@ test('a partner registers a lead and the brand follows it through the hub, list,
             'of 4 matching registrations',
         );
 
-        // Stage chips count registrations and filter as they are chosen.
-        const chips = bp.getByRole('navigation', { name: 'Filter by stage' });
-        await expect(chips.getByRole('link', { name: 'All 4' })).toHaveAttribute('aria-current', 'true');
+        // Stage chips (a Stage select on phones) count registrations and filter as they are chosen.
+        if (isMobile(info)) {
+            await expect(bp.getByRole('combobox', { name: 'Stage' })).toContainText('All stages (4)');
+        } else {
+            const chips = bp.getByRole('navigation', { name: 'Filter by stage' });
+            await expect(chips.getByRole('link', { name: 'All 4' })).toHaveAttribute('aria-current', 'true');
+        }
         // Sorting by lead name keeps working with the list state.
         if (isMobile(info)) {
             // Phones show cards without column headers; the sort order has its own control.
+            await bp.getByRole('button', { name: /^Filters/ }).click();
             await bp.getByRole('combobox', { name: 'Sort by' }).click();
             await bp.getByRole('option', { name: 'Lead name A–Z' }).click();
         } else {
@@ -193,14 +200,15 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(list.getByRole('columnheader', { name: /^Lead/ })).toHaveAttribute('aria-sort', 'ascending');
         await bp.goto('/brand/lead-registrations');
 
-        // Filter as the name is typed, open a lead, and return to the same filtered list.
+        // Filter as the name is typed, open a lead in the drawer over the list, and close it to the same list.
         await bp.getByLabel('Lead name', { exact: true }).fill('kanto');
         await expect(bp).toHaveURL(/\/brand\/lead-registrations\?q=kanto$/);
         await expect(list.getByRole('row')).toHaveCount(2);
         await expect(bp.getByLabel('Lead name', { exact: true })).toHaveValue('kanto');
         await list.getByRole('link', { name: 'Kanto Cafe chain', exact: true }).click();
-        await expect(bp.getByRole('heading', { name: 'Kanto Cafe chain', level: 1 })).toBeVisible();
-        const shared = bp.getByRole('region', { name: 'Shared lead information' });
+        await expect(bp).toHaveURL(/\/brand\/lead-registrations\?q=kanto&registration=[0-9a-f-]+$/);
+        const shared = bp.getByRole('dialog', { name: 'Kanto Cafe chain' });
+        await expect(shared).toBeVisible();
         await expect(shared).toContainText('Table linens for six branches');
         await expect(shared).toContainText('Not shared by the partner');
         await expect(shared).toContainText('Lead');
@@ -212,15 +220,18 @@ test('a partner registers a lead and the brand follows it through the hub, list,
             '40,000',
         ])
             await expect(bp.locator('body')).not.toContainText(hidden);
-        await expect(bp.getByRole('button')).toHaveCount(1); // Only the account menu: the record is read-only.
+        await expect(shared.getByRole('button')).toHaveCount(1); // Only Close: the record is read-only.
+        await expect(shared.getByRole('button', { name: 'Close lead registration' })).toBeFocused();
         await review(bp, info, 'Registered lead');
-        await bp.getByRole('link', { name: 'Back to Lead registrations' }).click();
+        await shared.getByRole('button', { name: 'Close lead registration' }).click();
         await expect(bp).toHaveURL(/\/brand\/lead-registrations\?q=kanto$/);
+        await expect(shared).toHaveCount(0);
+        await expect(list.getByRole('row')).toHaveCount(2);
         await bp.goBack();
-        await expect(bp.getByRole('heading', { name: 'Kanto Cafe chain', level: 1 })).toBeVisible();
+        await expect(shared).toBeVisible();
 
         // Partner record: shared profile, figures and this partner's registrations only.
-        await shared.getByRole('link', { name: first!.name }).click();
+        await shared.getByRole('link', { name: /Open partner/ }).click();
         await expect(bp).toHaveURL(new RegExp(`/brand/partners/${first!.relationship}$`));
         await expect(bp.getByRole('heading', { name: first!.name, level: 1 })).toBeVisible();
         await expect(bp.getByRole('region', { name: 'Shared profile' })).toContainText('Bea Santos');
@@ -234,8 +245,16 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         const related = bp.getByRole('region', { name: `Leads registered by ${first!.name} table` });
         await expect(related.getByRole('row')).toHaveCount(2);
         await review(bp, info, 'Partner record');
+        // From the Partner record a lead opens in the drawer over that partner's registrations.
         await related.getByRole('link', { name: 'Kanto Cafe chain', exact: true }).click();
-        await bp.getByRole('link', { name: `Back to ${first!.name}` }).click();
+        await expect(bp).toHaveURL(
+            new RegExp(`/brand/lead-registrations\\?partner=${first!.relationship}&registration=[0-9a-f-]+$`),
+        );
+        await expect(list.getByRole('row')).toHaveCount(2);
+        await bp
+            .getByRole('dialog', { name: 'Kanto Cafe chain' })
+            .getByRole('link', { name: /Open partner/ })
+            .click();
         await expect(bp).toHaveURL(new RegExp(`/brand/partners/${first!.relationship}$`));
 
         // A stage move by the partner reaches the Brand without re-registration.

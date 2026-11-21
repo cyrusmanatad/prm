@@ -55,6 +55,8 @@ export interface RegistrationRow {
     shared_updated_at: string;
     partnership_id: string;
     partner_name: string;
+    /** The partner's summary, shown as one line in the list. Absent on the Partner record list. */
+    summary?: string;
 }
 export interface RegistrationDetail extends RegistrationRow {
     brand_name: string;
@@ -62,6 +64,17 @@ export interface RegistrationDetail extends RegistrationRow {
     share_contact: boolean;
     contact_name: string | null;
     contact_email: string | null;
+    /** When the partnership began, for the partner card in the drawer. */
+    partner_since?: string | null;
+    /** Registrations from this partner that the Brand can see. */
+    partner_leads?: number;
+}
+/** Figures for the registration list header, over every visible registration. */
+export interface RegistrationSummary {
+    total: number;
+    recent: number;
+    partners: number;
+    updatedWeek: number;
 }
 export type RegistrationFilters = {
     partner: string;

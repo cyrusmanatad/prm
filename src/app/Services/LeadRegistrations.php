@@ -89,10 +89,28 @@ class LeadRegistrations
         $page = $this->clamp($page, $total, $perPage);
         [$column, $direction] = self::SORTS[$filters['sort'] ?? ''] ?? self::SORTS[''];
         $rows = $query->orderByRaw("$column $direction")->orderBy('r.id', $direction)->limit($perPage)->offset(($page - 1) * $perPage)
-            ->get(['r.id', 'r.display_name', 'r.stage', 'r.registered_at', 'r.shared_updated_at', 'r.partnership_id', 'p.creator_name'])
-            ->map(fn ($row) => $this->summaryRow($row))->all();
+            ->get(['r.id', 'r.display_name', 'r.stage', 'r.registered_at', 'r.shared_updated_at', 'r.partnership_id', 'p.creator_name', 'r.summary'])
+            ->map(fn ($row) => [...$this->summaryRow($row), 'summary' => $row->summary])->all();
 
         return ['rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage];
+    }
+
+    /**
+     * Figures for the registration list header, over every visible registration (filters do not apply):
+     * all registrations, those registered in the last 30 days, partners with at least one, and those whose
+     * shared details changed in the last 7 days.
+     *
+     * @return array{total: int, recent: int, partners: int, updatedWeek: int}
+     */
+    public function summary(string $org, string $now): array
+    {
+        $row = $this->visible($org)->selectRaw('count(*)::int AS total,
+            (count(*) FILTER (WHERE r.registered_at >= ?::timestamptz - '.self::WINDOW.' AND r.registered_at <= ?::timestamptz))::int AS recent,
+            count(DISTINCT r.partnership_id)::int AS partners,
+            (count(*) FILTER (WHERE r.shared_updated_at > r.registered_at AND r.shared_updated_at >= ?::timestamptz - interval \'168 hours\'
+                AND r.shared_updated_at <= ?::timestamptz))::int AS updated_week', [$now, $now, $now, $now])->first();
+
+        return ['total' => (int) $row->total, 'recent' => (int) $row->recent, 'partners' => (int) $row->partners, 'updatedWeek' => (int) $row->updated_week];
     }
 
     /**
@@ -136,10 +154,16 @@ class LeadRegistrations
     {
         $row = $this->visible($org)->join('partnerships as p', 'p.id', '=', 'r.partnership_id')->where('r.id', $id)
             ->first(['r.id', 'r.display_name', 'r.stage', 'r.registered_at', 'r.shared_updated_at', 'r.partnership_id', 'p.creator_name',
-                'p.brand_name', 'r.summary', 'r.share_contact', 'r.contact_name', 'r.contact_email']);
+                'p.brand_name', 'r.summary', 'r.share_contact', 'r.contact_name', 'r.contact_email', 'p.accepted_at']);
+        if (! $row) {
+            return null;
+        }
+        // The partner card in the registration drawer: when the partnership began and how many of its leads are visible.
+        $leads = $this->visible($org)->where('r.partnership_id', $row->partnership_id)->count();
 
-        return $row ? [...$this->summaryRow($row), 'brand_name' => $row->brand_name, 'summary' => $row->summary,
-            'share_contact' => (bool) $row->share_contact, 'contact_name' => $row->contact_name, 'contact_email' => $row->contact_email] : null;
+        return [...$this->summaryRow($row), 'brand_name' => $row->brand_name, 'summary' => $row->summary,
+            'share_contact' => (bool) $row->share_contact, 'contact_name' => $row->contact_name, 'contact_email' => $row->contact_email,
+            'partner_since' => $row->accepted_at ? Carbon::parse($row->accepted_at)->toIso8601String() : null, 'partner_leads' => $leads];
     }
 
     private function visible(string $org)

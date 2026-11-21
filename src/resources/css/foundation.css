@@ -1411,34 +1411,6 @@ summary:focus-visible {
 .wd-partner-identity.is-small {
     gap: 8px;
 }
-/* Pipeline stages in lists: each stage keeps its own icon and colour so a stage never relies on colour alone. */
-.wd-stage-badge[data-stage='pitched'] {
-    background: #e3ecf8;
-    color: #1f4f8a;
-}
-.wd-stage-badge[data-stage='negotiating'] {
-    background: var(--wd-warning-bg);
-    color: var(--wd-warning);
-}
-.wd-stage-badge[data-stage='negotiating'] svg {
-    fill: currentColor;
-}
-.wd-stage-badge[data-stage='onboarded'] {
-    background: #dff0f0;
-    color: #1d5d63;
-}
-.wd-stage-badge[data-stage='active'] {
-    background: var(--wd-success-bg);
-    color: var(--wd-success);
-}
-.wd-stage-badge[data-stage='repeat-client'] {
-    background: #efe5f6;
-    color: #5b3685;
-}
-.wd-stage-badge[data-stage='lost'] {
-    background: var(--wd-danger-bg);
-    color: var(--wd-danger);
-}
 .wd-data-region {
     max-width: 100%;
     overflow-x: auto;

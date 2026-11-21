@@ -59,17 +59,15 @@ const columns = computed<DataColumn[]>(() => {
     ].filter((column) => props.showPartner || column.key !== 'partner_name');
 });
 
-/** Short exact time for a list row, with the year only when it is not the current one. */
-function shortDate(value: string): string {
+/** One date per cell: relative within a month ("3 days ago"), then a short date; the exact time is in the title. */
+function when(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return dateTime(value);
-    const sameYear = date.getFullYear() === new Date().getFullYear();
-    return date.toLocaleString('en-GB', {
-        day: 'numeric',
+    if (Date.now() - date.getTime() < 30 * 86_400_000) return relativeTime(value);
+    return date.toLocaleDateString('en-US', {
         month: 'short',
-        ...(sameYear ? {} : { year: 'numeric' }),
-        hour: '2-digit',
-        minute: '2-digit',
+        day: 'numeric',
+        ...(date.getFullYear() === new Date().getFullYear() ? {} : { year: 'numeric' }),
     });
 }
 /** The shared record has changed since it was registered. */
@@ -109,6 +107,9 @@ const updated = (row: RegistrationRow) =>
             <Link class="wd-registration-lead" :href="detailHref(row)" v-bind="{ title: row.display_name }">{{
                 row.display_name
             }}</Link>
+            <span v-if="row.summary" class="wd-registration-summary" v-bind="{ title: row.summary }">{{
+                row.summary
+            }}</span>
         </template>
         <template #cell-partner_name="{ row }">
             <span class="wd-partner-identity is-small">
@@ -122,17 +123,17 @@ const updated = (row: RegistrationRow) =>
             <StageBadge :stage="row.stage" :label="stageLabel(stages, row.stage)" />
         </template>
         <template #cell-registered_at="{ row }">
-            <time :datetime="row.registered_at" :title="dateTime(row.registered_at)">
-                <span class="wd-registration-when">{{ relativeTime(row.registered_at) }}</span>
-                <span class="wd-data-secondary">{{ shortDate(row.registered_at) }}</span>
-            </time>
+            <time :datetime="row.registered_at" :title="dateTime(row.registered_at)">{{
+                when(row.registered_at)
+            }}</time>
         </template>
         <template #cell-shared_updated_at="{ row }">
-            <time v-if="updated(row)" :datetime="row.shared_updated_at" :title="dateTime(row.shared_updated_at)">
-                <span class="wd-registration-when">{{ relativeTime(row.shared_updated_at) }}</span>
-                <span class="wd-data-secondary">{{ shortDate(row.shared_updated_at) }}</span>
-            </time>
-            <span v-else class="wd-registration-none">No updates yet</span>
+            <time v-if="updated(row)" :datetime="row.shared_updated_at" :title="dateTime(row.shared_updated_at)">{{
+                when(row.shared_updated_at)
+            }}</time>
+            <span v-else class="wd-registration-none"
+                ><span aria-hidden="true">—</span><span class="wd-sr-only">No updates yet</span></span
+            >
         </template>
     </DataTable>
 </template>
