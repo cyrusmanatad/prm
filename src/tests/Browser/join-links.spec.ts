@@ -108,8 +108,10 @@ test('existing identity chooses among workspaces and can join from Professional'
     const pp = await partner.newPage();
     try {
         await login(pp, email);
+        // This identity already owns the Brand workspace, so a further workspace is created from the dialog.
+        await pp.getByRole('button', { name: 'New workspace', exact: true }).click();
+        await pp.getByRole('radio', { name: /^Professional/ }).check();
         await pp.getByLabel('Workspace name', { exact: true }).fill('Join Consulting');
-        await pp.locator('#workspace-kind').selectOption('professional');
         await pp.getByRole('button', { name: 'Create workspace', exact: true }).click();
         await expect(pp.getByRole('link', { name: 'Open Professional Hub', exact: true })).toBeVisible();
         // Sign in again to leave multiple eligible workspaces with no selected context.

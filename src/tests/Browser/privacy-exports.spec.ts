@@ -51,7 +51,7 @@ test('account export checks password, downloads privately and reports changed da
     const email = `m1-browser-privacy-account-${info.project.name}-${Date.now()}@example.test`;
     fixture('plain', email);
     await login(page, email);
-    await page.getByText('Account security', { exact: true }).click();
+    await page.getByRole('tab', { name: /^Account security/ }).click();
     await page.getByRole('link', { name: 'Download your data' }).click();
     await expect(page.getByRole('heading', { name: 'Privacy exports', exact: true })).toBeVisible();
     await expect(page.getByText('You have not created an export yet.')).toBeVisible();

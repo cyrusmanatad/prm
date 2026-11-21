@@ -7,13 +7,18 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
     const email = `m1-browser-ui-refinement-${info.project.name}-${Date.now()}@example.test`;
     fixture('seed-workspaces', email);
     await login(page, email);
-    await page.locator('#workspace-kind-trigger').click();
-    await page.locator('#workspace-kind-search').press('Tab');
-    await page.keyboard.press('Tab');
-    await expect(page.getByRole('option', { name: 'Brand', exact: true })).toBeFocused();
-    await page.keyboard.press('Enter');
-    await expect(page.locator('#workspace-kind-trigger')).toHaveText('Brand');
-    await expect(page.locator('#workspace-kind-trigger')).toBeFocused();
+    // The New workspace dialog starts on the chosen type; arrow keys move through the types.
+    const newWorkspace = page.getByRole('button', { name: 'New workspace', exact: true });
+    await newWorkspace.click();
+    const dialog = page.getByRole('dialog', { name: 'New workspace' });
+    await expect(dialog.getByRole('radio', { name: /^Partner/ })).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    await expect(dialog.getByRole('radio', { name: /^Brand/ })).toBeChecked();
+    await expect(dialog.getByRole('link', { name: 'Request Brand workspace', exact: true })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(newWorkspace).toBeFocused();
     await page.getByRole('button', { name: /Role test workspace/ }).click();
     await expect(page.getByRole('link', { name: 'Open partner portal', exact: true })).toBeVisible();
 

@@ -141,8 +141,9 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
     await page.getByLabel('Authenticator code', { exact: true }).fill(await code());
     await page.getByRole('button', { name: 'Verify and continue', exact: true }).click();
     await expect(page).toHaveURL(/\/workspaces$/);
-    await page.getByText('Account security', { exact: true }).click();
-    await expect(page.getByRole('link', { name: 'Authenticator and recovery codes' })).toBeVisible();
+    await page.getByRole('tab', { name: /^Account security/ }).click();
+    await expect(page.getByRole('heading', { name: 'Authenticator and recovery codes' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Manage authenticator', exact: true })).toBeVisible();
 
     await signOut(page);
     await signIn(page, email);

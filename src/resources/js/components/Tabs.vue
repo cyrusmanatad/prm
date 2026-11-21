@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { nextTick } from 'vue';
 
-export type Tab = { id: string; label: string; count?: number };
+/** `badge` is a short warning label shown after the tab name, for example "Action needed". */
+export type Tab = { id: string; label: string; count?: number; badge?: string };
 
 /**
  * In-page tabs. Panels are rendered by the parent with `role="tabpanel"`, the id `${idPrefix}-panel-${tab.id}`
@@ -44,7 +45,8 @@ async function move(event: KeyboardEvent, index: number): Promise<void> {
             @click="current = tab.id"
             @keydown="move($event, index)"
         >
-            {{ tab.label }}<span v-if="tab.count !== undefined" class="wd-inline-tabs-count">{{ tab.count }}</span>
+            {{ tab.label }}<span v-if="tab.count !== undefined" class="wd-inline-tabs-count">{{ tab.count }}</span
+            ><span v-if="tab.badge" class="wd-inline-tabs-badge">{{ tab.badge }}</span>
         </button>
     </div>
 </template>

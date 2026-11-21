@@ -23,7 +23,8 @@ class InertiaWorkspaceTest extends TestCase
             ->assertSessionMissing('active_org_id')->assertInertia(fn (Assert $page) => $page
             ->component('Workspaces')->where('account', $a->only(['name', 'email']))
             ->where('activeOrgId', null)->where('accessRevoked', true)
-            ->where('workspaces', [['id' => $own, 'name' => 'Visible workspace', 'kind' => 'creator', 'experience' => 'partner', 'role' => 'owner']])->etc());
+            ->where('workspaces', [['id' => $own, 'name' => 'Visible workspace', 'kind' => 'creator', 'experience' => 'partner', 'role' => 'owner']])
+            ->where('security', ['enrolled' => false, 'required' => true])->etc());
         $version = app(HandleInertiaRequests::class)->version(request());
         $this->get('/workspaces', [
             'X-Inertia' => 'true', 'X-Inertia-Version' => $version ?? '',
@@ -49,5 +50,16 @@ class InertiaWorkspaceTest extends TestCase
             ->assertStatus(303)->assertRedirect('/workspaces');
         $this->get('/workspaces')->assertInertia(fn (Assert $page) => $page
             ->where('workspaces.0.name', 'Updated')->where('activeOrgId', $id)->etc());
+    }
+
+    public function test_security_status_reflects_the_current_account_only(): void
+    {
+        $this->withoutVite();
+        $member = User::factory()->create();
+        app(Workspaces::class)->create(User::factory()->create()->id, 'Another owner workspace');
+        // Another account's ownership does not make the authenticator required for this one.
+        $this->actingAs($member)->get('/workspaces')->assertInertia(fn (Assert $page) => $page
+            ->where('security', ['enrolled' => false, 'required' => false])->missing('security.recovery_remaining')->etc());
+        $this->assertNull(DB::selectOne('SELECT app_actor() AS actor')->actor);
     }
 }

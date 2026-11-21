@@ -6,7 +6,7 @@ test('confirmation prevents duplicate requests while pending and retains passwor
     const email = `m1-browser-confirmation-error-${info.project.name}-${Date.now()}@example.test`;
     fixture('seed-workspaces', email);
     await login(page, email);
-    await page.getByText('Account security', { exact: true }).click();
+    await page.getByRole('tab', { name: /^Account security/ }).click();
     await page.getByLabel('Current password').fill('wrong-password');
     const trigger = page.getByRole('button', { name: 'Sign out all sessions', exact: true });
     await trigger.click();
@@ -50,5 +50,5 @@ test('confirmation prevents duplicate requests while pending and retains passwor
         await page.screenshot({ path: info.outputPath('confirmation-password-error.png'), fullPage: true });
     await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(trigger).toBeFocused();
-    await expect(page).toHaveURL(/\/workspaces$/);
+    await expect(page).toHaveURL(/\/workspaces\?tab=security$/);
 });

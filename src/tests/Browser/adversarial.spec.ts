@@ -12,7 +12,7 @@ test('all five roles enforce server permissions and revoked pages drop stale wor
         await page.reload();
         const settings = page.getByRole('region', { name: 'Role test workspace', exact: true });
         await expect(settings).toBeVisible();
-        await expect(settings.getByRole('button', { name: 'Save name' })).toHaveCount(
+        await expect(settings.getByRole('button', { name: 'Rename', exact: true })).toHaveCount(
             ['owner', 'admin'].includes(role) ? 1 : 0,
         );
         expect(await mutate(page, '/workspace/select', 'POST', { org_id: foreign })).toBe(403);
@@ -26,7 +26,7 @@ test('all five roles enforce server permissions and revoked pages drop stale wor
     await page.reload();
     await expect(page.getByRole('alert')).toContainText('Your access to the previous workspace has changed');
     await expect(page.getByText('Role test workspace', { exact: true })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Save name' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Rename', exact: true })).toHaveCount(0);
 });
 
 test('session fixation, CSRF failure, logout replay, and reset of two live sessions', async ({

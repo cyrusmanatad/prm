@@ -65,7 +65,7 @@ test('a Brand registrant requests a workspace, answers a question and opens the 
 
     // The workspace selector offers a request instead of creating a Brand workspace, and the endpoint refuses one.
     await page.goto('/workspaces');
-    await page.locator('#workspace-kind').selectOption('brand');
+    await page.getByRole('radio', { name: /^Brand/ }).check();
     await expect(page.getByRole('link', { name: 'Request Brand workspace', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Create workspace', exact: true })).toHaveCount(0);
     expect(await mutate(page, '/workspaces', 'POST', { name: 'Bypass', kind: 'brand' })).toBe(422);
@@ -181,10 +181,7 @@ test('a Brand registrant requests a workspace, answers a question and opens the 
 
         // The applicant's active workspace did not change during the reviewer's session; opening is their choice.
         await page.goto('/workspaces');
-        await expect(page.getByRole('button', { name: /Northwind Browser Brand/ })).toHaveAttribute(
-            'aria-pressed',
-            'false',
-        );
+        await expect(page.getByRole('button', { name: /^Switch to Northwind Browser Brand/ })).toBeVisible();
         await page.goto(requestUrl);
         await expect(page.getByText('Approved', { exact: true })).toBeVisible();
         await clean(page, info, 'brand-request-approved');

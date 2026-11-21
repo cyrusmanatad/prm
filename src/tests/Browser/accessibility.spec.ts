@@ -64,9 +64,10 @@ test('workspace, security disclosure, validation focus, and 200-percent root fon
     fixture('seed-workspaces', email);
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
-    await expect(page.getByRole('button', { name: 'Save name' })).toBeVisible();
-    await page.getByText('Account security', { exact: true }).focus();
-    await page.keyboard.press('Enter');
+    await expect(page.getByRole('button', { name: 'Rename', exact: true })).toBeVisible();
+    await page.getByRole('tab', { name: /^Workspaces/ }).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.getByRole('tab', { name: /^Account security/ })).toBeFocused();
     await expect(page.getByLabel('Current password')).toBeVisible();
     await audit(page, info, 'workspace-security');
     await page.getByLabel('Current password').fill('wrong-password');
