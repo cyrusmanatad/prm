@@ -24,16 +24,28 @@ abstract class Controller
      */
     protected function automationReturn(Request $request, array $overrides = []): string
     {
+        return $this->returnTo($request, ['/automation', '/professional/automation'], ['tab' => ['schedules', 'history', 'preferences'], 'draft' => 'uuid'], $overrides);
+    }
+
+    /**
+     * The page address a form came from, when it is one of `$paths`, with only the allowed query values: each key
+     * maps to its permitted values, or to 'uuid'. Any other referer returns to the first path. `$overrides` set or
+     * (with null) remove values.
+     */
+    protected function returnTo(Request $request, array $paths, array $allowed, array $overrides = []): string
+    {
         $previous = parse_url(url()->previous());
-        $fromPage = in_array($previous['path'] ?? '', ['/automation', '/professional/automation'], true);
-        $path = $fromPage ? $previous['path'] : '/automation';
+        $fromPage = in_array($previous['path'] ?? '', $paths, true);
         parse_str($fromPage ? ($previous['query'] ?? '') : '', $query);
-        $keep = array_filter([
-            'tab' => in_array($query['tab'] ?? null, ['schedules', 'history', 'preferences'], true) ? $query['tab'] : null,
-            'draft' => is_string($query['draft'] ?? null) && Str::isUuid($query['draft']) ? $query['draft'] : null,
-        ]);
+        $keep = [];
+        foreach ($allowed as $key => $values) {
+            $value = $query[$key] ?? null;
+            if (is_string($value) && ($values === 'uuid' ? Str::isUuid($value) : in_array($value, $values, true))) {
+                $keep[$key] = $value;
+            }
+        }
         $query = array_filter([...$keep, ...$overrides], fn ($value) => $value !== null);
 
-        return $path.($query ? '?'.http_build_query($query) : '');
+        return ($fromPage ? $previous['path'] : $paths[0]).($query ? '?'.http_build_query($query) : '');
     }
 }

@@ -39,10 +39,11 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
             await page.evaluate(() => document.fonts.ready);
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
             if (width === 768 && name === 'payments') {
-                const cards = page.locator('.wd-finance-columns > section');
-                const first = await cards.nth(0).boundingBox();
-                const second = await cards.nth(1).boundingBox();
-                expect(second!.y).toBeGreaterThanOrEqual(first!.y + first!.height);
+                // Summary tiles pair up below 900px instead of squeezing four across.
+                const tiles = page.getByRole('list', { name: 'Receipt summary' }).getByRole('listitem');
+                const first = await tiles.nth(0).boundingBox();
+                const third = await tiles.nth(2).boundingBox();
+                expect(third!.y).toBeGreaterThanOrEqual(first!.y + first!.height);
             }
             if (process.env.CAPTURE_BROWSER_IMAGES === '1')
                 await page.screenshot({ path: info.outputPath(`${name}-${width}.png`), fullPage: true });

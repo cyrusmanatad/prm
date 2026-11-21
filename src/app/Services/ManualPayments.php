@@ -19,9 +19,20 @@ class ManualPayments
         return DB::table('payment_allocations as a')->whereNotExists(fn ($q) => $q->selectRaw('1')->from('payment_allocation_reversals as r')->whereColumn('r.allocation_id', 'a.id'));
     }
 
-    public function listing(?string $cursor = null): array
+    public const STATUSES = ['all', 'unallocated', 'voided'];
+
+    /** Allocated so far: active (unreversed) allocations of the receipt, as exact text. */
+    private function allocated(string $column): Builder
     {
-        $query = DB::table('manual_payments')->orderByDesc('created_at')->orderByDesc('id');
+        return $this->active()->selectRaw('coalesce(sum(a.amount_minor), 0)::text')->whereColumn('a.payment_id', $column);
+    }
+
+    public function listing(?string $cursor = null, string $status = 'all'): array
+    {
+        $query = DB::table('manual_payments')->orderByDesc('created_at')->orderByDesc('id')
+            ->when($status === 'voided', fn ($q) => $q->where('status', 'voided'))
+            ->when($status === 'unallocated', fn ($q) => $q->where('status', 'recorded')
+                ->whereRaw('amount_minor > ('.$this->allocated('manual_payments.id')->toSql().')::numeric'));
         if ($cursor) {
             $row = DB::table('manual_payments')->where('id', $cursor)->first(['created_at', 'id']);
             abort_unless($row, 404);
@@ -34,12 +45,29 @@ class ManualPayments
             return ['id' => $p->id, 'currency' => $p->currency, 'amount_minor' => (string) $p->amount_minor,
                 'received_on' => $p->received_on, 'evidence_reference' => $p->evidence_reference, 'status' => $p->status,
                 'version' => $p->version, 'correction_of' => $p->correction_of, 'allocated_minor' => $allocated,
+                'created_at' => $p->created_at,
                 'allocations' => DB::table('payment_allocations as a')->leftJoin('payment_allocation_reversals as r', 'r.allocation_id', '=', 'a.id')
-                    ->where('a.payment_id', $p->id)->orderBy('a.id')->get(['a.id', 'a.invoice_id', 'a.amount_minor', 'r.reason'])->map(fn ($a) => [
-                        'id' => $a->id, 'invoice_id' => $a->invoice_id, 'amount_minor' => (string) $a->amount_minor, 'reversal_reason' => $a->reason])->all()];
+                    ->leftJoin('invoice_drafts as i', 'i.id', '=', 'a.invoice_id')
+                    ->where('a.payment_id', $p->id)->orderBy('a.id')->get(['a.id', 'a.invoice_id', 'a.amount_minor', 'r.reason', 'i.recipient_name'])->map(fn ($a) => [
+                        'id' => $a->id, 'invoice_id' => $a->invoice_id, 'amount_minor' => (string) $a->amount_minor, 'reversal_reason' => $a->reason,
+                        'recipient_name' => $a->recipient_name])->all()];
         })->all();
 
         return ['items' => $items, 'nextCursor' => $rows->count() > 25 ? end($items)['id'] : null];
+    }
+
+    /** Whole-workspace figures per currency for recorded receipts; currencies are never added together. */
+    public function summary(): array
+    {
+        $receipts = DB::table('manual_payments')->select('manual_payments.*')->selectSub($this->allocated('manual_payments.id'), 'allocated_minor')
+            ->where('status', 'recorded');
+        $rows = DB::query()->fromSub($receipts, 'p')->groupBy('currency')->orderBy('currency')
+            ->selectRaw('currency, count(*) AS receipts, sum(amount_minor)::text AS recorded_minor, sum(allocated_minor::numeric)::text AS allocated_minor, (sum(amount_minor) - sum(allocated_minor::numeric))::text AS unallocated_minor')
+            ->get()->map(fn ($r) => [...(array) $r, 'receipts' => (int) $r->receipts])->all();
+
+        return ['currencies' => $rows, 'recorded' => DB::table('manual_payments')->where('status', 'recorded')->count(),
+            'voided' => DB::table('manual_payments')->where('status', 'voided')->count(),
+            'unallocated' => DB::query()->fromSub($receipts, 'p')->whereRaw('amount_minor > allocated_minor::numeric')->count()];
     }
 
     public function command(int $actor, string $org, string $key, string $action, array $data, ?string $target): string

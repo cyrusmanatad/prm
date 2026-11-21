@@ -93,7 +93,7 @@ async function stopEditing(): Promise<void> {
     load();
     editing.value = false;
     await nextTick();
-    dialog.value?.querySelector<HTMLElement>('.auto-drawer-edit')?.focus();
+    dialog.value?.querySelector<HTMLElement>('.rec-drawer-edit')?.focus();
 }
 function save(): void {
     if (form.processing || !dirty.value || form.errors.version) return;
@@ -110,15 +110,15 @@ function save(): void {
 <template>
     <dialog
         ref="dialog"
-        class="wd-dialog auto-drawer"
+        class="wd-dialog rec-drawer"
         aria-labelledby="draft-drawer-title"
         @cancel.prevent="emit('close')"
         @keydown="containDialogFocus($event, dialog)"
     >
-        <header class="auto-drawer-head">
-            <div class="auto-drawer-identity">
+        <header class="rec-drawer-head">
+            <div class="rec-drawer-identity">
                 <h2 id="draft-drawer-title">{{ draft.subject || 'Untitled follow-up' }}</h2>
-                <p class="auto-drawer-status">
+                <p class="rec-drawer-status">
                     <StatusBadge :label="`${draftStatus(draft)} · Version ${draft.version}`" :tone="draftTone(draft)" />
                 </p>
             </div>
@@ -127,29 +127,36 @@ function save(): void {
         <form
             v-if="editing"
             id="edit-draft-form"
-            class="auto-drawer-body"
+            class="rec-drawer-body"
             novalidate
             :aria-busy="form.processing"
             @submit.prevent="save"
         >
-            <div ref="body" class="auto-drawer-scroll">
-                <p class="auto-fine">Saving an edit removes approval. Approve the new version before sending.</p>
-                <div v-if="form.errors.version" class="wd-banner auto-banner" role="alert">
+            <div ref="body" class="rec-drawer-scroll">
+                <p class="rec-fine">Saving an edit removes approval. Approve the new version before sending.</p>
+                <div v-if="form.errors.version" class="wd-banner rec-banner" role="alert">
                     <p>{{ form.errors.version }}</p>
                     <a class="wd-link" :href="reload">Reload drafts</a>
                 </div>
-                <fieldset class="auto-fields" :disabled="form.processing">
+                <fieldset class="rec-fields" :disabled="form.processing">
                     <legend class="wd-sr-only">Edit follow-up message</legend>
                     <FollowUpFields :values="form" prefix="edit-draft" :errors="form.errors" />
                 </fieldset>
             </div>
         </form>
-        <div v-else ref="body" class="auto-drawer-body auto-drawer-scroll">
-            <div v-if="Object.keys(errors).length" class="wd-banner auto-banner" role="alert">
+        <div
+            v-else
+            ref="body"
+            class="rec-drawer-body rec-drawer-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Message details"
+        >
+            <div v-if="Object.keys(errors).length" class="wd-banner rec-banner" role="alert">
                 <p v-for="(error, key) in errors" :key="key">{{ error }}</p>
                 <a class="wd-link" :href="reload">Reload drafts</a>
             </div>
-            <dl class="auto-facts">
+            <dl class="rec-facts">
                 <dt>Lead</dt>
                 <dd>{{ draft.lead_name || 'Not available' }}</dd>
                 <dt>To</dt>
@@ -157,21 +164,21 @@ function save(): void {
                 <dt>Prepared</dt>
                 <dd>{{ prepared }}</dd>
             </dl>
-            <p class="auto-message">{{ draft.body }}</p>
-            <p v-if="draft.outreach_state" class="auto-fine">
+            <p class="rec-message">{{ draft.body }}</p>
+            <p v-if="draft.outreach_state" class="rec-fine">
                 An email request exists for this version. See Email history; it will not be sent again automatically.
             </p>
-            <p v-else-if="draft.state === 'draft'" class="auto-fine">
+            <p v-else-if="draft.state === 'draft'" class="rec-fine">
                 Approving allows a manual download or a separate, confirmed Send. WeavDash never sends on approval.
             </p>
-            <p v-else-if="draft.state === 'approved'" class="auto-fine">
+            <p v-else-if="draft.state === 'approved'" class="rec-fine">
                 Download it for your own email client, or send it through WeavDash. Queued or accepted mail is not proof
                 of receipt, and a download cannot be recalled.
             </p>
         </div>
-        <footer v-if="canWrite && editing" class="auto-sticky auto-drawer-foot">
-            <p v-if="dirty" class="auto-dirty" role="status"><span aria-hidden="true"></span>Unsaved changes</p>
-            <p v-else class="auto-clean">No unsaved changes</p>
+        <footer v-if="canWrite && editing" class="rec-sticky rec-drawer-foot">
+            <p v-if="dirty" class="rec-dirty" role="status"><span aria-hidden="true"></span>Unsaved changes</p>
+            <p v-else class="rec-clean">No unsaved changes</p>
             <Button
                 type="button"
                 class="wd-button wd-button-secondary"
@@ -187,20 +194,20 @@ function save(): void {
                 >{{ form.processing ? 'Saving…' : 'Save draft' }}</Button
             >
         </footer>
-        <footer v-else-if="canWrite && isOpen(draft)" class="auto-drawer-foot">
+        <footer v-else-if="canWrite && isOpen(draft)" class="rec-drawer-foot">
             <button
                 type="button"
-                class="wd-table-button auto-danger"
+                class="wd-table-button rec-danger"
                 :disabled="busy"
                 v-bind="{ 'aria-label': `Discard ${draft.subject}` }"
                 @click="emit('act', draft, 'discard', $event)"
             >
                 <Trash2 :size="15" aria-hidden="true" />Discard
             </button>
-            <span class="auto-spacer"></span>
+            <span class="rec-spacer"></span>
             <button
                 type="button"
-                class="wd-table-button auto-drawer-edit"
+                class="wd-table-button rec-drawer-edit"
                 :disabled="busy"
                 v-bind="{ 'aria-label': `Edit ${draft.subject}` }"
                 @click="edit"
@@ -213,7 +220,7 @@ function save(): void {
             <button
                 v-if="draft.state === 'draft'"
                 type="button"
-                class="wd-table-button auto-primary"
+                class="wd-table-button rec-primary"
                 :disabled="busy"
                 v-bind="{ 'aria-label': `Approve ${draft.subject}` }"
                 @click="emit('act', draft, 'approve', $event)"
@@ -223,7 +230,7 @@ function save(): void {
             <button
                 v-if="canSend(draft)"
                 type="button"
-                class="wd-table-button auto-primary"
+                class="wd-table-button rec-primary"
                 :disabled="busy"
                 @click="emit('act', draft, 'send', $event)"
             >

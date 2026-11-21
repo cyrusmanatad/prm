@@ -35,26 +35,26 @@ const created = (value: string) =>
 </script>
 
 <template>
-    <section class="auto-card" aria-labelledby="history-heading">
-        <header class="auto-card-head">
+    <section class="rec-card" aria-labelledby="history-heading">
+        <header class="rec-card-head">
             <h2 id="history-heading">Email history</h2>
-            <span class="auto-count">{{ notices.length }}</span>
-            <p class="auto-note">Your latest 50 · a queued email is not proof of delivery</p>
+            <span class="rec-count">{{ notices.length }}</span>
+            <p class="rec-note">Your latest 50 · a queued email is not proof of delivery</p>
         </header>
         <DataTable
             v-if="notices.length"
-            class="auto-table auto-history-table"
+            class="rec-table rec-history-table"
             caption="Email history"
             :columns="columns"
             :rows="notices"
             :row-key="(notice) => notice.id"
         >
             <template #cell-kind="{ row }"
-                ><span class="auto-row-name">{{ kinds[row.kind] ?? 'Weekly review email' }}</span></template
+                ><span class="rec-row-name">{{ kinds[row.kind] ?? 'Weekly review email' }}</span></template
             >
             <template #cell-state="{ row }">
                 <StatusBadge :label="states[row.state]?.[0] ?? row.state" :tone="states[row.state]?.[1] ?? 'neutral'" />
-                <span v-if="row.state === 'pending' && row.failure_code" class="auto-row-sub"
+                <span v-if="row.state === 'pending' && row.failure_code" class="rec-row-sub"
                     >A previous attempt was deferred. Consent and access are checked again before sending.</span
                 >
             </template>
@@ -69,7 +69,7 @@ const created = (value: string) =>
             title="No scheduled emails yet"
             description="Reminder, digest and follow-up emails appear here."
         />
-        <footer class="auto-card-foot">
+        <footer class="rec-card-foot">
             Refresh to check the latest status. Withdraw consent on a schedule or in Preferences; a send already
             reserved may still arrive.
         </footer>

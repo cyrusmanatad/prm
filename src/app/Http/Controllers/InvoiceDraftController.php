@@ -14,9 +14,13 @@ class InvoiceDraftController extends Controller
     {
         $org = $request->session()->get('active_org_id');
         $drafts->authorize((int) $request->user()->id, $org);
-        $cursor = $request->validate(['cursor' => ['nullable', 'uuid']])['cursor'] ?? null;
+        $filters = $request->validate(['cursor' => ['nullable', 'uuid'], 'status' => ['nullable', 'in:'.implode(',', InvoiceDrafts::STATUSES)]]);
+        $status = $filters['status'] ?? 'open';
+        // A draft's own address opens it over the list, which keeps its filter.
         $payload = ['workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')],
-            ...($invoice ? ['invoice' => $drafts->get($invoice)] : ['invoices' => $drafts->listing($cursor)])];
+            ...($invoice ? ['invoice' => $drafts->get($invoice)] : []),
+            'invoices' => $drafts->listing($filters['cursor'] ?? null, $status), 'summary' => $drafts->summary(),
+            'filters' => ['status' => $status, 'cursor' => $filters['cursor'] ?? null]];
 
         return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($payload) : Inertia::render('Invoices', $payload);
     }
@@ -59,6 +63,9 @@ class InvoiceDraftController extends Controller
             default => 'Draft saved',
         };
 
-        return $this->completed($request, ['id' => $id, 'message' => $message], '/finance/invoices/'.$id, $action === 'create' ? 201 : 200);
+        $status = $this->returnTo($request, ['/finance/invoices', '/professional/finance/invoices', '/finance/invoices/'.$invoice], ['status' => InvoiceDrafts::STATUSES]);
+        parse_str((string) parse_url($status, PHP_URL_QUERY), $query);
+
+        return $this->completed($request, ['id' => $id, 'message' => $message], '/finance/invoices/'.$id.($query ? '?'.http_build_query($query) : ''), $action === 'create' ? 201 : 200);
     }
 }

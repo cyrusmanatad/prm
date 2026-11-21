@@ -52,29 +52,29 @@ defineExpose({ open });
 <template>
     <dialog
         ref="dialog"
-        class="wd-dialog auto-dialog"
+        class="wd-dialog rec-dialog"
         aria-labelledby="new-draft-title"
         @close="closed"
         @keydown="containDialogFocus($event, dialog)"
     >
-        <header class="auto-dialog-head">
+        <header class="rec-dialog-head">
             <div>
                 <h2 id="new-draft-title">Write a follow-up</h2>
-                <p class="auto-dialog-sub">Private to you. Review the recipient and message before approval.</p>
+                <p class="rec-dialog-sub">Private to you. Review the recipient and message before approval.</p>
             </div>
             <DialogClose label="Close write a follow-up" :disabled="form.processing" @click="close" />
         </header>
-        <form class="auto-dialog-form" novalidate :aria-busy="form.processing" @submit.prevent="save">
-            <div ref="body" class="auto-dialog-body">
-                <p v-if="!leads.length" class="auto-warning" role="status">
+        <form class="rec-dialog-form" novalidate :aria-busy="form.processing" @submit.prevent="save">
+            <div ref="body" class="rec-dialog-body">
+                <p v-if="!leads.length" class="rec-warning" role="status">
                     Add an active lead before writing a follow-up.
                 </p>
-                <fieldset class="auto-fields" :disabled="form.processing || !leads.length">
+                <fieldset class="rec-fields" :disabled="form.processing || !leads.length">
                     <legend class="wd-sr-only">Follow-up message</legend>
                     <FollowUpFields :values="form" prefix="new-draft" :errors="form.errors" :leads="leads" />
                 </fieldset>
             </div>
-            <footer class="auto-dialog-foot">
+            <footer class="rec-dialog-foot">
                 <Button type="button" class="wd-button wd-button-secondary" :disabled="form.processing" @click="close"
                     >Cancel</Button
                 >

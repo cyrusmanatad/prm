@@ -28,7 +28,7 @@
   - Rewritten: `SavedSchedules`, `NoticeHistory` and `AutomationPreferences`.
   - Removed: `ApprovalInbox`, `FollowUpComposer` and `ReminderSchedule`.
   - Reused: `Tabs`, `DataTable`, `FilterChips`, `RowActionMenu`, `StatusBadge`, `EmptyState`, `DialogClose`, `containDialogFocus` and `confirmAction`.
-  - Styles live in `resources/css/automation.css`.
+  - Styles live in `resources/css/automation.css`, renamed `records.css` on 2026-11-21 when Finance began sharing them (see [Finance evidence](finance-evidence.md)).
 
 ## Backend contract
 

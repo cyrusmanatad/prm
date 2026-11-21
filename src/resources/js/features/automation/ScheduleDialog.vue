@@ -158,15 +158,15 @@ defineExpose({ open });
 <template>
     <dialog
         ref="dialog"
-        class="wd-dialog auto-dialog"
+        class="wd-dialog rec-dialog"
         aria-labelledby="schedule-dialog-title"
         @close="closed"
         @keydown="containDialogFocus($event, dialog)"
     >
-        <header class="auto-dialog-head">
+        <header class="rec-dialog-head">
             <div>
                 <h2 id="schedule-dialog-title">{{ editing ? 'Edit weekly digest' : 'New schedule' }}</h2>
-                <p class="auto-dialog-sub">
+                <p class="rec-dialog-sub">
                     Each schedule needs your consent.
                     {{
                         form.kind === 'weekly_digest'
@@ -177,9 +177,9 @@ defineExpose({ open });
             </div>
             <DialogClose label="Close schedule" :disabled="form.processing" @click="close" />
         </header>
-        <form class="auto-dialog-form" novalidate :aria-busy="form.processing" @submit.prevent="save">
-            <div ref="body" class="auto-dialog-body">
-                <div v-if="!editing" class="auto-segments" role="radiogroup" aria-label="Schedule type">
+        <form class="rec-dialog-form" novalidate :aria-busy="form.processing" @submit.prevent="save">
+            <div ref="body" class="rec-dialog-body">
+                <div v-if="!editing" class="rec-segments" role="radiogroup" aria-label="Schedule type">
                     <button
                         v-for="(item, index) in scheduleKinds"
                         :id="`schedule-kind-${item.value}`"
@@ -194,24 +194,24 @@ defineExpose({ open });
                         {{ item.label }}
                     </button>
                 </div>
-                <div v-if="!enabled" class="auto-warning" role="status">
+                <div v-if="!enabled" class="rec-warning" role="status">
                     <p>{{ kind.label }} notices are off in your preferences. Turn them on before scheduling.</p>
                     <button type="button" class="wd-link" @click="openPreferences">Open preferences</button>
                 </div>
-                <p v-else-if="form.kind === 'weekly_digest' && activeWeekly" class="auto-warning" role="status">
+                <p v-else-if="form.kind === 'weekly_digest' && activeWeekly" class="rec-warning" role="status">
                     You already have an active weekly digest, “{{ activeWeekly.name }}”. Edit it from the Schedules tab.
                 </p>
-                <p v-else-if="form.kind !== 'weekly_digest' && !subjects.length" class="auto-warning" role="status">
+                <p v-else-if="form.kind !== 'weekly_digest' && !subjects.length" class="rec-warning" role="status">
                     {{
                         form.kind === 'reminder'
                             ? 'Create an open reminder in Contacts and reminders first.'
                             : 'Add an active lead first.'
                     }}
                 </p>
-                <div v-for="error in generalErrors" :key="error" class="wd-banner auto-banner" role="alert">
+                <div v-for="error in generalErrors" :key="error" class="wd-banner rec-banner" role="alert">
                     <p>{{ error }}</p>
                 </div>
-                <fieldset class="auto-fields" :disabled="form.processing || blocked">
+                <fieldset class="rec-fields" :disabled="form.processing || blocked">
                     <legend class="wd-sr-only">{{ kind.label }} schedule</legend>
                     <FormField
                         id="schedule-name"
@@ -220,7 +220,7 @@ defineExpose({ open });
                         :maxlength="160"
                         :error="form.errors.name"
                     />
-                    <div v-if="form.kind === 'weekly_digest'" class="auto-field-row">
+                    <div v-if="form.kind === 'weekly_digest'" class="rec-field-row">
                         <SelectField
                             id="schedule-weekday"
                             v-model="form.weekday"
@@ -273,7 +273,7 @@ defineExpose({ open });
                     </div>
                 </fieldset>
             </div>
-            <footer class="auto-dialog-foot">
+            <footer class="rec-dialog-foot">
                 <Button type="button" class="wd-button wd-button-secondary" :disabled="form.processing" @click="close"
                     >Cancel</Button
                 >
