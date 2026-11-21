@@ -1,58 +1,115 @@
 <script setup lang="ts">
-import { confirmAction } from '../composables/useConfirmation';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
+import { Ban, Eye, Pencil, Plus } from '@lucide/vue';
 import FinanceLayout from '../components/FinanceLayout.vue';
-import ContentSection from '../components/ContentSection.vue';
-import ActionGroup from '../components/ActionGroup.vue';
-import FieldGroup from '../components/FieldGroup.vue';
-type Line = { description: string; quantity: number; unit_price_minor: string };
-type Invoice = {
-    id: string;
-    recipient_name: string;
-    currency: string;
-    due_date: string | null;
-    status: string;
-    version: number;
-    total_minor: string;
-    lines: Line[];
-};
+import DataTable, { type DataColumn } from '../components/DataTable.vue';
+import EmptyState from '../components/EmptyState.vue';
+import FilterChips, { type FilterChip } from '../components/FilterChips.vue';
+import RowActionMenu, { type RowAction } from '../components/RowActionMenu.vue';
+import StatusBadge from '../components/StatusBadge.vue';
+import { confirmAction } from '../composables/useConfirmation';
+import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
+import InvoiceDrawer from '../features/finance/InvoiceDrawer.vue';
+import InvoiceEditor from '../features/finance/InvoiceEditor.vue';
+import { dateLabel, formatMoney, percent, subtract, today } from '../features/finance/amounts';
+import type { Invoice, InvoiceSummary } from '../features/finance/types';
+import { useFinanceCommand } from '../features/finance/useFinanceCommand';
+
 const props = defineProps<{
     account: { name: string; email: string };
     workspace: { id: string; name: string };
     invoice?: Invoice;
-    invoices?: { items: Invoice[]; nextCursor: string | null };
+    invoices: { items: Invoice[]; nextCursor: string | null };
+    summary: InvoiceSummary;
+    filters: { status: string; cursor: string | null };
     errors?: Record<string, string>;
     status?: string;
 }>();
-const form = ref({
-    recipient_name: props.invoice?.recipient_name ?? '',
-    currency: props.invoice?.currency ?? '',
-    due_date: props.invoice?.due_date ?? '',
-    lines: props.invoice?.lines.map((l) => ({
-        description: l.description,
-        quantity: l.quantity,
-        unit_price_minor: l.unit_price_minor,
-    })) ?? [{ description: '', quantity: 1, unit_price_minor: '0' }],
-});
-const busy = ref(false);
-const command = ref(crypto.randomUUID());
-function submit(action: 'save' | 'void'): void {
-    if (busy.value || props.errors?.version) return;
-    router.visit(`/finance/invoices${props.invoice ? '/' + props.invoice.id : ''}${action === 'void' ? '/void' : ''}`, {
-        method: props.invoice && action === 'save' ? 'patch' : 'post',
-        data: { ...form.value, version: props.invoice?.version ?? 1, command_id: command.value },
-        onStart: () => {
-            busy.value = true;
+const { professional } = useWorkspaceExperience();
+const listBase = computed(() => (professional.value ? '/professional/finance/invoices' : '/finance/invoices'));
+const paymentsBase = computed(() => (professional.value ? '/professional/finance/payments' : '/finance/payments'));
+const query = (extra: Record<string, string | null> = {}) => {
+    const params = new URLSearchParams();
+    if (props.filters.status !== 'open') params.set('status', props.filters.status);
+    for (const [key, value] of Object.entries(extra)) if (value) params.set(key, value);
+    const text = params.toString();
+    return text ? `?${text}` : '';
+};
+const errors = computed(() => props.errors ?? {});
+const { busy, send } = useFinanceCommand();
+const editor = ref<InstanceType<typeof InvoiceEditor>>();
+
+const chips = computed<FilterChip[]>(() => [
+    { value: 'open', label: 'Open', count: props.summary.open },
+    { value: 'voided', label: 'Voided', count: props.summary.voided },
+    { value: 'all', label: 'All', count: props.summary.open + props.summary.voided },
+]);
+const chipHref = (value: string) => `${listBase.value}${value === 'open' ? '' : `?status=${value}`}`;
+const columns: DataColumn[] = [
+    { key: 'recipient_name', label: 'Recipient' },
+    { key: 'due_date', label: 'Due' },
+    { key: 'total_minor', label: 'Total', numeric: true },
+    { key: 'received_minor', label: 'Received' },
+    { key: 'status', label: 'Status' },
+    { key: 'actions', label: 'Actions' },
+];
+const balance = (row: Invoice) => subtract(row.total_minor, row.received_minor);
+const pastDue = (row: Invoice) =>
+    row.status === 'draft' && !!row.due_date && row.due_date < today() && BigInt(balance(row)) > 0n;
+const totals = (key: string) =>
+    props.summary.currencies.map((row) => ({
+        currency: row.currency,
+        text: formatMoney(row[key as 'total_minor' | 'received_minor' | 'balance_minor'], row.currency),
+    }));
+
+function openInvoice(row: Invoice): void {
+    router.get(`/finance/invoices/${row.id}${query({ cursor: props.filters.cursor })}`, {}, { preserveScroll: true });
+}
+async function closeInvoice(): Promise<void> {
+    const id = props.invoice?.id;
+    router.get(
+        `${listBase.value}${query({ cursor: props.filters.cursor })}`,
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => nextTick(() => document.querySelector<HTMLElement>(`[data-invoice="${id}"]`)?.focus()),
         },
-        onFinish: () => {
-            busy.value = false;
-        },
-        onSuccess: () => {
-            command.value = crypto.randomUUID();
-        },
-        preserveState: 'errors',
+    );
+}
+function save(data: Record<string, unknown>, invoice: Invoice | null): void {
+    send(`/finance/invoices${invoice ? `/${invoice.id}` : ''}`, data, {
+        method: invoice ? 'patch' : 'post',
+        onSuccess: () => editor.value?.close(),
     });
+}
+function edit(row: Invoice, trigger: HTMLElement): void {
+    if (props.invoice?.id === row.id) editor.value?.open(trigger, props.invoice);
+    else router.get(`/finance/invoices/${row.id}${query()}`, {}, { preserveScroll: true });
+}
+function voidDraft(row: Invoice, source: Event | HTMLElement): void {
+    confirmAction(
+        'Void draft',
+        `Void the draft for ${row.recipient_name}? Its history is preserved and it can no longer be edited.`,
+        () => send(`/finance/invoices/${row.id}/void`, { version: row.version }),
+        source,
+        { tone: 'danger' },
+    );
+}
+function actions(row: Invoice): RowAction[] {
+    const list: RowAction[] = [{ label: 'Open', icon: Eye, select: () => openInvoice(row) }];
+    if (row.status !== 'draft') return list;
+    const locked = BigInt(row.received_minor) > 0n;
+    list.push({ label: 'Edit', icon: Pencil, disabled: locked, select: (trigger) => edit(row, trigger) });
+    list.push({
+        label: 'Void draft',
+        icon: Ban,
+        danger: true,
+        separated: true,
+        disabled: locked,
+        select: (trigger) => voidDraft(row, trigger),
+    });
+    return list;
 }
 </script>
 <template>
@@ -64,128 +121,153 @@ function submit(action: 'save' | 'void'): void {
         active="invoices"
         :workspace-name="workspace.name"
         :status="status"
-        :errors="errors"
+        :errors="invoice || !errors.version ? {} : { version: errors.version }"
     >
-        <template #description
-            >Draft — not issued. Prices and totals are integer minor units. No tax calculation or currency
-            conversion.</template
-        >
-        <template #error-action
-            ><Link v-if="invoice" class="wd-link" :href="`/finance/invoices/${invoice.id}`"
-                >Reload draft</Link
-            ></template
-        >
-        <ContentSection v-if="invoices" title="Saved drafts">
-            <p v-if="!invoices.items.length" class="wd-empty">No saved drafts yet. Create your first draft below.</p>
-            <ul>
-                <li v-for="row in invoices.items" :key="row.id">
-                    <Link class="wd-link" :href="`/finance/invoices/${row.id}`"
-                        >{{ row.recipient_name }} — {{ row.currency }} {{ row.total_minor }} minor units ·
-                        {{ row.status }}</Link
+        <template #description>Drafts are never issued or sent. No tax or currency conversion · owner only.</template>
+        <template #actions>
+            <button
+                type="button"
+                class="wd-table-button rec-primary"
+                @click="editor?.open($event.currentTarget as HTMLElement)"
+            >
+                <Plus :size="16" aria-hidden="true" />New draft
+            </button>
+        </template>
+        <ul class="rec-stats" aria-label="Invoice draft summary">
+            <li>
+                <span>Open drafts</span><strong>{{ summary.open }}</strong
+                ><small>{{ summary.voided }} voided · not counted</small>
+            </li>
+            <li
+                v-for="[key, label] in [
+                    ['total_minor', 'Open total'],
+                    ['received_minor', 'Received'],
+                    ['balance_minor', 'Balance'],
+                ]"
+                :key="key"
+                :class="{ 'is-alert': key === 'balance_minor' && summary.pastDue }"
+            >
+                <span>{{ label }}</span>
+                <strong v-for="row in totals(key)" :key="row.currency">{{ row.text }}</strong>
+                <strong v-if="!summary.currencies.length">—</strong>
+                <small v-if="key === 'balance_minor'"
+                    ><b v-if="summary.pastDue">{{ summary.pastDue }} past due</b
+                    ><template v-else>Nothing past due</template></small
+                >
+                <small v-else-if="key === 'received_minor'">From allocated receipts</small>
+                <small v-else>Across {{ summary.open }} open drafts</small>
+            </li>
+        </ul>
+        <section class="rec-card" aria-labelledby="drafts-heading">
+            <header class="rec-card-head">
+                <h2 id="drafts-heading">Drafts</h2>
+                <span class="rec-count">{{ summary.open + summary.voided }}</span>
+                <p class="rec-note">Newest first · 25 per page</p>
+            </header>
+            <div class="rec-chips">
+                <FilterChips
+                    label="Show drafts"
+                    :chips="chips"
+                    :current="filters.status"
+                    :href-for="chipHref"
+                    compact
+                />
+            </div>
+            <DataTable
+                v-if="invoices.items.length"
+                class="rec-table fin-invoices-table"
+                caption="Invoice drafts"
+                :columns="columns"
+                :rows="invoices.items"
+                :row-key="(row) => row.id"
+            >
+                <template #cell-recipient_name="{ row }">
+                    <button
+                        type="button"
+                        class="rec-row-title"
+                        v-bind="{ 'data-invoice': row.id }"
+                        @click="openInvoice(row)"
                     >
-                </li>
-            </ul>
-            <Link class="wd-link" v-if="invoices.nextCursor" :href="`/finance/invoices?cursor=${invoices.nextCursor}`"
-                >Next page</Link
-            >
-        </ContentSection>
-        <ContentSection :title="invoice ? 'Draft details' : 'Create draft'">
-            <p v-if="invoice">
-                {{ invoice.status }} · Version {{ invoice.version }} · {{ invoice.currency }}
-                {{ invoice.total_minor }} minor units
-            </p>
-            <form @submit.prevent="submit('save')">
-                <fieldset class="wd-fields" :disabled="busy || invoice?.status === 'voided' || !!errors?.version">
-                    <div class="wd-form-row">
-                        <FieldGroup id="invoices-field-1" label="Recipient business name"
-                            ><input id="invoices-field-1" v-model="form.recipient_name" required maxlength="160"
-                        /></FieldGroup>
-                        <FieldGroup id="invoices-field-2" label="Currency code"
-                            ><input
-                                id="invoices-field-2"
-                                v-model="form.currency"
-                                required
-                                pattern="[A-Z]{3}"
-                                maxlength="3"
-                                placeholder="USD"
-                        /></FieldGroup>
-                        <FieldGroup id="invoices-field-3" label="Due date"
-                            ><input id="invoices-field-3" v-model="form.due_date" type="date"
-                        /></FieldGroup>
-                    </div>
-                    <fieldset class="wd-finance-line wd-fields" v-for="(line, index) in form.lines" :key="index">
-                        <legend>Line {{ index + 1 }}</legend>
-                        <div class="wd-finance-line-row">
-                            <FieldGroup :id="`invoices-field-4-${index}`" label="Description"
-                                ><input
-                                    :id="`invoices-field-4-${index}`"
-                                    v-model="line.description"
-                                    required
-                                    maxlength="240"
-                            /></FieldGroup>
-                            <FieldGroup :id="`invoices-field-5-${index}`" label="Quantity"
-                                ><input
-                                    :id="`invoices-field-5-${index}`"
-                                    v-model.number="line.quantity"
-                                    type="number"
-                                    min="1"
-                                    max="1000000"
-                                    step="1"
-                                    required
-                            /></FieldGroup>
-                            <FieldGroup :id="`invoices-field-6-${index}`" label="Unit price in minor units"
-                                ><input
-                                    :id="`invoices-field-6-${index}`"
-                                    v-model="line.unit_price_minor"
-                                    inputmode="numeric"
-                                    pattern="0|[1-9][0-9]*"
-                                    required
-                            /></FieldGroup>
-                        </div>
-                        <button
-                            class="wd-button wd-button-secondary"
-                            v-if="form.lines.length > 1"
-                            type="button"
-                            @click="form.lines.splice(index, 1)"
-                        >
-                            Remove line {{ index + 1 }}
-                        </button>
-                    </fieldset>
-                    <ActionGroup>
-                        <button
-                            class="wd-button wd-button-secondary"
-                            v-if="form.lines.length < 50"
-                            type="button"
-                            @click="form.lines.push({ description: '', quantity: 1, unit_price_minor: '0' })"
-                        >
-                            Add line
-                        </button>
-                        <button class="wd-button wd-button-primary" type="submit">Save draft</button>
-                    </ActionGroup>
-                </fieldset>
-            </form>
-        </ContentSection>
-        <ContentSection
-            v-if="invoice?.status === 'draft'"
-            title="Void draft"
-            description="Keep the draft history while marking it as voided."
-        >
-            <form
-                v-if="invoice?.status === 'draft'"
-                @submit.prevent="
-                    confirmAction(
-                        'Void draft',
-                        `Void the draft for ${invoice.recipient_name}? Its history is preserved and it can no longer be edited.`,
-                        () => submit('void'),
-                        $event,
-                        { tone: 'danger' },
-                    )
+                        {{ row.recipient_name }}
+                    </button>
+                    <span class="rec-row-sub"
+                        >{{ row.line_count }} {{ row.line_count === 1 ? 'line' : 'lines' }} · v{{ row.version }}</span
+                    >
+                </template>
+                <template #cell-due_date="{ row }"
+                    ><span :class="{ 'fin-past-due': pastDue(row) }"
+                        >{{ dateLabel(row.due_date) }}<template v-if="pastDue(row)"> · past due</template></span
+                    ></template
+                >
+                <template #cell-total_minor="{ row }"
+                    ><span
+                        :class="{ 'fin-struck': row.status !== 'draft' }"
+                        :title="`${row.total_minor} minor units`"
+                        >{{ formatMoney(row.total_minor, row.currency) }}</span
+                    ></template
+                >
+                <template #cell-received_minor="{ row }">
+                    <span v-if="row.status === 'draft'" class="fin-progress">
+                        <span class="fin-bar" aria-hidden="true"
+                            ><i :style="{ width: `${percent(row.received_minor, row.total_minor)}%` }"
+                        /></span>
+                        <small>{{
+                            row.received_minor === '0'
+                                ? 'Nothing received'
+                                : balance(row) === '0'
+                                  ? `${formatMoney(row.received_minor, row.currency)} · received in full`
+                                  : `${formatMoney(row.received_minor, row.currency)} · balance ${formatMoney(balance(row), row.currency)}`
+                        }}</small>
+                    </span>
+                    <span v-else class="fin-muted">—</span>
+                </template>
+                <template #cell-status="{ row }"
+                    ><StatusBadge :label="row.status === 'draft' ? 'Draft' : 'Voided'" tone="neutral"
+                /></template>
+                <template #cell-actions="{ row }">
+                    <RowActionMenu
+                        :label="`Actions for ${row.recipient_name}`"
+                        :actions="actions(row)"
+                        trigger-class="rec-ghost"
+                    />
+                </template>
+            </DataTable>
+            <EmptyState
+                v-else
+                :title="filters.status === 'voided' ? 'No voided drafts' : 'No drafts yet'"
+                :description="
+                    filters.status === 'voided'
+                        ? 'Voided drafts appear here with their history.'
+                        : 'Create a private draft to track what a client owes.'
                 "
-            >
-                <button class="wd-button wd-button-danger" type="submit" :disabled="busy || !!errors?.version">
-                    Void draft
-                </button>
-            </form>
-        </ContentSection>
+            />
+            <footer class="rec-card-foot fin-foot">
+                <span>Amounts are exact minor units shown in each currency’s format.</span>
+                <span class="fin-pages">
+                    <Link v-if="filters.cursor" :href="`${listBase}${query()}`">Newest drafts</Link>
+                    <Link v-if="invoices.nextCursor" :href="`${listBase}${query({ cursor: invoices.nextCursor })}`"
+                        >Older drafts</Link
+                    >
+                </span>
+            </footer>
+        </section>
+        <InvoiceDrawer
+            v-if="invoice"
+            :invoice="invoice"
+            :busy="busy"
+            :errors="errors"
+            :reload="`/finance/invoices/${invoice.id}${query()}`"
+            :payments-href="`${paymentsBase}?status=unallocated`"
+            @close="closeInvoice"
+            @edit="(trigger) => editor?.open(trigger, invoice)"
+            @void="(event) => voidDraft(invoice!, event)"
+        />
+        <InvoiceEditor
+            ref="editor"
+            @save="save"
+            :errors="errors"
+            :busy="busy"
+            :reload="invoice ? `/finance/invoices/${invoice.id}${query()}` : undefined"
+        />
     </FinanceLayout>
 </template>

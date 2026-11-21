@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -14,9 +15,15 @@ class InvoiceDrafts
         abort_unless(DB::selectOne("SELECT app_has_membership(?::uuid, ARRAY['owner']) AS allowed", [$org])->allowed, 403);
     }
 
-    public function listing(?string $cursor): array
+    public const STATUSES = ['open', 'voided', 'all'];
+
+    public function listing(?string $cursor, string $status = 'all'): array
     {
-        $query = DB::table('invoice_drafts')->orderByDesc('created_at')->orderByDesc('id');
+        $query = DB::table('invoice_drafts')->select('invoice_drafts.*')
+            ->selectSub($this->received('invoice_drafts.id'), 'received_minor')
+            ->selectSub(DB::table('invoice_draft_lines')->selectRaw('count(*)')->whereColumn('invoice_draft_lines.invoice_id', 'invoice_drafts.id'), 'line_count')
+            ->when($status !== 'all', fn ($q) => $q->where('status', $status === 'open' ? 'draft' : 'voided'))
+            ->orderByDesc('created_at')->orderByDesc('id');
         if ($cursor) {
             $row = DB::table('invoice_drafts')->where('id', $cursor)->first(['created_at', 'id']);
             abort_unless($row, 404);
@@ -29,11 +36,50 @@ class InvoiceDrafts
         return ['items' => $rows, 'nextCursor' => $more ? end($rows)['id'] : null];
     }
 
+    /** Received so far: active (unreversed) allocations to the draft, as exact text. */
+    private function received(string $column): Builder
+    {
+        return app(ManualPayments::class)->active()->selectRaw('coalesce(sum(a.amount_minor), 0)::text')->whereColumn('a.invoice_id', $column);
+    }
+
+    /** Whole-workspace figures per currency; currencies are never added together. */
+    public function summary(): array
+    {
+        $today = now()->toDateString();
+        $drafts = DB::table('invoice_drafts')->select('invoice_drafts.*')->selectSub($this->received('invoice_drafts.id'), 'received_minor');
+        $rows = DB::query()->fromSub($drafts, 'd')->where('status', 'draft')->groupBy('currency')->orderBy('currency')
+            ->selectRaw('currency, count(*) AS drafts, sum(total_minor)::text AS total_minor, sum(received_minor::numeric)::text AS received_minor, (sum(total_minor) - sum(received_minor::numeric))::text AS balance_minor')
+            ->get()->map(fn ($r) => (array) $r)->all();
+        $pastDue = DB::query()->fromSub($drafts, 'd')->where('status', 'draft')->where('due_date', '<', $today)
+            ->whereRaw('total_minor > received_minor::numeric')->count();
+
+        return ['currencies' => array_map(fn ($r) => [...$r, 'drafts' => (int) $r['drafts']], $rows),
+            'open' => DB::table('invoice_drafts')->where('status', 'draft')->count(),
+            'voided' => DB::table('invoice_drafts')->where('status', 'voided')->count(), 'pastDue' => $pastDue];
+    }
+
+    /** Open drafts that can still receive an allocation, for the allocation dialog. */
+    public function allocatable(): array
+    {
+        $drafts = DB::table('invoice_drafts')->select(['id', 'recipient_name', 'currency', 'version', 'due_date', 'total_minor'])
+            ->selectSub($this->received('invoice_drafts.id'), 'received_minor')->where('status', 'draft');
+
+        return DB::query()->fromSub($drafts, 'd')->whereRaw('total_minor > received_minor::numeric')
+            ->orderBy('recipient_name')->orderBy('id')->limit(200)
+            ->get(['id', 'recipient_name', 'currency', 'version', 'due_date', DB::raw('total_minor::text AS total_minor'), 'received_minor'])
+            ->map(fn ($r) => (array) $r)->all();
+    }
+
     public function get(string $id): array
     {
-        $row = DB::table('invoice_drafts')->where('id', $id)->first();
+        $row = DB::table('invoice_drafts')->select('invoice_drafts.*')->selectSub($this->received('invoice_drafts.id'), 'received_minor')
+            ->where('id', $id)->first();
         abort_unless($row, 404);
         $data = $this->project($row);
+        $data['allocations'] = DB::table('payment_allocations as a')->join('manual_payments as p', 'p.id', '=', 'a.payment_id')
+            ->leftJoin('payment_allocation_reversals as r', 'r.allocation_id', '=', 'a.id')->where('a.invoice_id', $id)->orderBy('a.created_at')->orderBy('a.id')
+            ->get(['a.id', DB::raw('a.amount_minor::text AS amount_minor'), 'p.evidence_reference', 'p.received_on', 'r.reason AS reversal_reason'])
+            ->map(fn ($a) => (array) $a)->all();
         $data['lines'] = DB::table('invoice_draft_lines')->where('invoice_id', $id)->orderBy('position')->get()
             ->map(fn ($l) => ['description' => $l->description, 'quantity' => $l->quantity,
                 'unit_price_minor' => (string) $l->unit_price_minor, 'total_minor' => (string) $l->total_minor])->all();
@@ -44,7 +90,8 @@ class InvoiceDrafts
     private function project(object $row): array
     {
         return ['id' => $row->id, 'recipient_name' => $row->recipient_name, 'currency' => $row->currency,
-            'due_date' => $row->due_date, 'status' => $row->status, 'total_minor' => (string) $row->total_minor, 'version' => $row->version];
+            'due_date' => $row->due_date, 'status' => $row->status, 'total_minor' => (string) $row->total_minor, 'version' => $row->version,
+            'received_minor' => (string) ($row->received_minor ?? '0'), 'line_count' => isset($row->line_count) ? (int) $row->line_count : null];
     }
 
     public function command(int $actor, string $org, string $key, string $action, array $data, ?string $id): string

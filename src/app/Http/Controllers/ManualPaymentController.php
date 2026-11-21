@@ -14,10 +14,12 @@ class ManualPaymentController extends Controller
     {
         $org = $request->session()->get('active_org_id');
         $drafts->authorize((int) $request->user()->id, $org);
-        $filters = $request->validate(['cursor' => ['nullable', 'uuid'], 'draft_cursor' => ['nullable', 'uuid']]);
-        $cursor = $filters['cursor'] ?? null;
-        $listing = $payments->listing($cursor);
-        $payload = ['workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')], 'payments' => $listing['items'], 'nextCursor' => $listing['nextCursor'], 'drafts' => $drafts->listing($filters['draft_cursor'] ?? null)];
+        $filters = $request->validate(['cursor' => ['nullable', 'uuid'], 'draft_cursor' => ['nullable', 'uuid'], 'status' => ['nullable', 'in:'.implode(',', ManualPayments::STATUSES)]]);
+        $status = $filters['status'] ?? 'all';
+        $listing = $payments->listing($filters['cursor'] ?? null, $status);
+        $payload = ['workspace' => ['id' => $org, 'name' => DB::table('organizations')->where('id', $org)->value('name')], 'payments' => $listing['items'], 'nextCursor' => $listing['nextCursor'],
+            'drafts' => $drafts->listing($filters['draft_cursor'] ?? null), 'openDrafts' => $drafts->allocatable(), 'summary' => $payments->summary(),
+            'filters' => ['status' => $status, 'cursor' => $filters['cursor'] ?? null]];
 
         return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($payload) : Inertia::render('Payments', $payload);
     }
@@ -55,6 +57,7 @@ class ManualPaymentController extends Controller
             default => 'Payment saved',
         };
 
-        return $this->completed($request, ['id' => $id, 'message' => $message], '/finance/payments', $action === 'record' ? 201 : 200);
+        return $this->completed($request, ['id' => $id, 'message' => $message],
+            $this->returnTo($request, ['/finance/payments', '/professional/finance/payments'], ['status' => ManualPayments::STATUSES]), $action === 'record' ? 201 : 200);
     }
 }

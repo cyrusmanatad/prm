@@ -104,4 +104,72 @@ class ManualPaymentTest extends AcceptanceCase
             }
         }
     }
+
+    public function test_finance_pages_summarize_balances_per_currency_filter_and_return_to_the_same_view(): void
+    {
+        $user = User::factory()->create();
+        $org = app(Workspaces::class)->create($user->id, 'Finance summaries');
+        $this->actingAs($user)->withSession(['active_org_id' => $org]);
+        $draft = fn (string $name, string $currency, string $unit, ?string $due = null) => $this->command('/finance/invoices', ['recipient_name' => $name,
+            'currency' => $currency, 'due_date' => $due, 'lines' => [['description' => 'Work', 'quantity' => 2, 'unit_price_minor' => $unit]]], 201)['id'];
+        $big = $draft('Exact client', 'USD', '4503599627370497', now()->subDay()->toDateString());
+        $small = $draft('Small client', 'USD', '500');
+        $euro = $draft('Euro client', 'EUR', '1000');
+        $voided = $draft('Voided client', 'USD', '100');
+        $this->command('/finance/invoices/'.$voided.'/void', ['version' => 1]);
+        $receipt = fn (string $reference, string $currency, string $amount) => $this->command('/finance/payments',
+            ['currency' => $currency, 'amount_minor' => $amount, 'received_on' => '2026-11-18', 'evidence_reference' => $reference], 201)['id'];
+        $paid = $receipt('Transfer 1', 'USD', '1000');
+        $this->command('/finance/payments/'.$paid.'/allocate', ['invoice_id' => $small, 'invoice_version' => 1, 'version' => 1, 'amount_minor' => '1000']);
+        $partial = $receipt('Transfer 2', 'USD', '9007199254740993');
+        $allocation = $this->command('/finance/payments/'.$partial.'/allocate', ['invoice_id' => $big, 'invoice_version' => 1, 'version' => 1, 'amount_minor' => '3'])['id'];
+        $reversed = $this->command('/finance/payments/'.$partial.'/allocate', ['invoice_id' => $big, 'invoice_version' => 1, 'version' => 2, 'amount_minor' => '2'])['id'];
+        $this->command('/finance/allocations/'.$reversed.'/reverse', ['reason' => 'Wrong draft']);
+        $cash = $receipt('Cash 1', 'USD', '50');
+        $this->command('/finance/payments/'.$cash.'/void', ['version' => 1]);
+
+        // Received counts only unreversed allocations; currencies stay separate and exact.
+        $page = $this->getJson('/finance/invoices')->assertOk()->assertJsonPath('filters.status', 'open')
+            ->assertJsonCount(3, 'invoices.items')->assertJsonPath('summary.open', 3)->assertJsonPath('summary.voided', 1)
+            ->assertJsonPath('summary.pastDue', 1)->json();
+        $this->assertSame([
+            ['currency' => 'EUR', 'drafts' => 1, 'total_minor' => '2000', 'received_minor' => '0', 'balance_minor' => '2000'],
+            ['currency' => 'USD', 'drafts' => 2, 'total_minor' => '9007199254741994', 'received_minor' => '1003', 'balance_minor' => '9007199254740991'],
+        ], $page['summary']['currencies']);
+        $rows = collect($page['invoices']['items'])->keyBy('recipient_name');
+        $this->assertSame('3', $rows['Exact client']['received_minor']);
+        $this->assertSame('1000', $rows['Small client']['received_minor']);
+        $this->assertSame(1, $rows['Small client']['line_count']);
+        $this->getJson('/finance/invoices?status=voided')->assertJsonCount(1, 'invoices.items')->assertJsonPath('invoices.items.0.id', $voided);
+        $this->getJson('/finance/invoices?status=all')->assertJsonCount(4, 'invoices.items');
+        $this->getJson('/finance/invoices?status=paid')->assertUnprocessable();
+        $detail = $this->getJson('/finance/invoices/'.$big)->assertOk()->assertJsonPath('invoice.received_minor', '3')
+            ->assertJsonPath('invoice.lines.0.total_minor', '9007199254740994')->assertJsonCount(3, 'invoices.items')->json('invoice.allocations');
+        $this->assertSame([[$allocation, '3', 'Transfer 2', null], [$reversed, '2', 'Transfer 2', 'Wrong draft']],
+            array_map(fn ($a) => [$a['id'], $a['amount_minor'], $a['evidence_reference'], $a['reversal_reason']], $detail));
+
+        $payments = $this->getJson('/finance/payments')->assertOk()->assertJsonPath('summary.recorded', 2)->assertJsonPath('summary.voided', 1)
+            ->assertJsonPath('summary.unallocated', 1)->json();
+        $this->assertSame([['currency' => 'USD', 'receipts' => 2, 'recorded_minor' => '9007199254741993', 'allocated_minor' => '1003', 'unallocated_minor' => '9007199254740990']],
+            $payments['summary']['currencies']);
+        $this->assertSame(['Exact client', 'Exact client'], array_column(collect($payments['payments'])->firstWhere('id', $partial)['allocations'], 'recipient_name'));
+        // Only open drafts with a balance can receive an allocation; the fully received one is left out.
+        $this->assertEqualsCanonicalizing([$big, $euro], array_column($payments['openDrafts'], 'id'));
+        $this->getJson('/finance/payments?status=unallocated')->assertJsonCount(1, 'payments')->assertJsonPath('payments.0.id', $partial);
+        $this->getJson('/finance/payments?status=voided')->assertJsonCount(1, 'payments')->assertJsonPath('payments.0.id', $cash);
+
+        // Page forms return to the list or draft they came from, keeping only a known filter.
+        $inertia = fn (string $referer) => $this->withHeaders(['X-Inertia' => 'true', 'Referer' => $referer]);
+        $inertia(url('/professional/finance/payments?status=unallocated&cursor=x'))->post('/finance/payments',
+            ['currency' => 'USD', 'amount_minor' => '7', 'received_on' => '2026-11-18', 'evidence_reference' => 'Back 1', 'command_id' => (string) Str::uuid()])
+            ->assertRedirect('/professional/finance/payments?status=unallocated');
+        $inertia(url('/finance/leads?status=voided'))->post('/finance/payments',
+            ['currency' => 'USD', 'amount_minor' => '7', 'received_on' => '2026-11-18', 'evidence_reference' => 'Back 2', 'command_id' => (string) Str::uuid()])
+            ->assertRedirect('/finance/payments');
+        $inertia(url('/finance/invoices/'.$euro.'?status=all'))->patch('/finance/invoices/'.$euro, ['recipient_name' => 'Euro client 2', 'currency' => 'EUR',
+            'version' => 1, 'lines' => [['description' => 'Work', 'quantity' => 1, 'unit_price_minor' => '1000']], 'command_id' => (string) Str::uuid()])
+            ->assertRedirect('/finance/invoices/'.$euro.'?status=all');
+        $inertia(url('/professional/finance/invoices?status=bogus'))->post('/finance/invoices/'.$euro.'/void', ['version' => 2, 'command_id' => (string) Str::uuid()])
+            ->assertRedirect('/finance/invoices/'.$euro);
+    }
 }

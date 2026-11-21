@@ -421,28 +421,38 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
     await expect(page.getByRole('status').filter({ hasText: 'Lead link revoked' })).toBeVisible();
 
     await page.goto('/professional/finance/invoices');
-    await page.getByLabel('Recipient business name').fill('Independent client');
-    await page.getByLabel('Currency code').fill('USD');
-    await page.getByLabel('Description', { exact: true }).fill('Consulting work');
-    await page.getByLabel('Unit price in minor units').fill('9007199254740993');
-    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await page.getByRole('button', { name: 'New draft', exact: true }).click();
+    const editor = page.getByRole('dialog', { name: 'New draft', exact: true });
+    await editor.getByLabel('Recipient business name').fill('Independent client');
+    await editor.getByLabel('Currency code').fill('USD');
+    await editor.getByLabel('Line 1 description').fill('Consulting work');
+    await editor.getByLabel('Line 1 unit price').fill('90071992547409.93');
+    await editor.getByRole('button', { name: 'Save draft', exact: true }).click();
     await expect(page).toHaveURL(/\/finance\/invoices\/[a-f0-9-]+$/);
-    const invoice = page.url().split('/').pop()!;
     await expect(page.locator('.wd-professional')).toBeVisible();
-    await expect(page.getByLabel('Unit price in minor units')).toHaveValue('9007199254740993');
+    const invoiceDrawer = page.getByRole('dialog', { name: 'Independent client', exact: true });
+    await expect(invoiceDrawer.getByRole('cell', { name: 'USD 90,071,992,547,409.93' })).toHaveAttribute(
+        'title',
+        '9007199254740993 minor units',
+    );
     await capture('invoice-detail');
-    await page.goto('/professional/finance/payments');
-    await page.getByLabel('Currency code').fill('USD');
-    await page.getByLabel('Amount in minor units', { exact: true }).fill('800');
-    await page.getByLabel('Received on').fill('2026-11-08');
-    await page.getByLabel('Unique evidence reference').fill('Professional test receipt');
-    await page.getByRole('button', { name: 'Record manual receipt' }).click();
-    await expect(page.getByRole('heading', { name: 'Professional test receipt' })).toBeVisible();
-    await page.locator('#allocation-payment').selectOption({ label: 'Professional test receipt · USD' });
-    await page.locator('#allocation-draft').selectOption(invoice);
-    await page.getByLabel('Allocation in minor units').fill('500');
-    await page.getByRole('button', { name: 'Allocate receipt', exact: true }).click();
-    await expect(page.getByText(/Allocated 500/)).toBeVisible();
+    await invoiceDrawer.getByRole('link', { name: 'Match a receipt', exact: true }).click();
+    await expect(page).toHaveURL(/\/professional\/finance\/payments\?status=unallocated$/);
+    await page.getByRole('button', { name: 'Record receipt', exact: true }).click();
+    const receipt = page.getByRole('dialog', { name: 'Record receipt', exact: true });
+    await receipt.getByLabel('Currency code').fill('USD');
+    await receipt.getByLabel('Amount', { exact: true }).fill('8.00');
+    await receipt.getByLabel('Received on').fill('2026-11-08');
+    await receipt.getByLabel('Evidence reference').fill('Professional test receipt');
+    await receipt.getByRole('button', { name: 'Record receipt', exact: true }).click();
+    await expect(page).toHaveURL(/\/professional\/finance\/payments\?status=unallocated$/);
+    const receiptRow = page.getByRole('row', { name: /Professional test receipt/ });
+    await receiptRow.getByRole('button', { name: 'Allocate Professional test receipt', exact: true }).click();
+    const allocation = page.getByRole('dialog', { name: 'Allocate receipt', exact: true });
+    await expect(allocation.getByRole('combobox', { name: 'Draft', exact: true })).toContainText('Independent client');
+    await allocation.getByLabel('Amount (USD)').fill('5.00');
+    await allocation.getByRole('button', { name: 'Allocate', exact: true }).click();
+    await expect(receiptRow).toContainText('Allocated USD 5.00 · USD 3.00 left');
     await capture('payments');
 
     await page.goto(leadUrl);

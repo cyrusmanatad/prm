@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import '../../css/automation.css';
+import '../../css/records.css';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, ref, watch } from 'vue';
 import { CalendarPlus, Info, Plus } from '@lucide/vue';
@@ -141,32 +141,32 @@ const trigger = (event: Event) => event.currentTarget as HTMLElement;
 <template>
     <Head :title="professional ? 'Automation and approvals' : 'Automation preferences'" />
     <FoundationShell :account-name="account.name" :account-email="account.email" @logout="router.post('/logout')">
-        <div class="auto">
-            <header class="auto-header">
+        <div class="rec-page">
+            <header class="rec-header">
                 <div>
                     <h1>{{ professional ? 'Automation and approvals' : 'Automation preferences' }}</h1>
                     <p>Review private follow-up drafts and choose which scheduled notices you receive.</p>
                 </div>
-                <div v-if="canWrite" class="auto-header-actions">
+                <div v-if="canWrite" class="rec-header-actions">
                     <button type="button" class="wd-table-button" @click="scheduleDialog?.open(trigger($event))">
                         <CalendarPlus :size="16" aria-hidden="true" />New schedule
                     </button>
                     <button
                         type="button"
-                        class="wd-table-button auto-primary"
+                        class="wd-table-button rec-primary"
                         @click="followUpDialog?.open(trigger($event))"
                     >
                         <Plus :size="16" aria-hidden="true" />Write follow-up
                     </button>
                 </div>
             </header>
-            <p class="auto-info">
+            <p class="rec-info">
                 <Info :size="16" aria-hidden="true" /><span
                     >Reminder and weekly review emails go only to your verified account. Follow-up schedules prepare
                     private drafts for your review; approval does not send email.</span
                 >
             </p>
-            <p v-if="!canWrite" class="auto-info">
+            <p v-if="!canWrite" class="rec-info">
                 <Info :size="16" aria-hidden="true" /><span
                     >Viewer access: you can see your history, but scheduling and drafts need an editing role.</span
                 >
@@ -177,9 +177,9 @@ const trigger = (event: Event) => event.currentTarget as HTMLElement;
                 id="auto-panel-approvals"
                 role="tabpanel"
                 aria-labelledby="auto-tab-approvals"
-                class="auto-panel"
+                class="rec-panel"
             >
-                <div v-if="Object.keys(action.errors).length && !selected" class="wd-banner auto-banner" role="alert">
+                <div v-if="Object.keys(action.errors).length && !selected" class="wd-banner rec-banner" role="alert">
                     <p v-for="(error, key) in action.errors" :key="key">{{ error }}</p>
                     <a class="wd-link" :href="base">Reload drafts</a>
                 </div>
@@ -197,7 +197,7 @@ const trigger = (event: Event) => event.currentTarget as HTMLElement;
                 id="auto-panel-schedules"
                 role="tabpanel"
                 aria-labelledby="auto-tab-schedules"
-                class="auto-panel"
+                class="rec-panel"
             >
                 <SavedSchedules
                     :schedules="schedules"
@@ -214,7 +214,7 @@ const trigger = (event: Event) => event.currentTarget as HTMLElement;
                 id="auto-panel-history"
                 role="tabpanel"
                 aria-labelledby="auto-tab-history"
-                class="auto-panel"
+                class="rec-panel"
             >
                 <NoticeHistory :notices="notices" />
             </div>
@@ -223,7 +223,7 @@ const trigger = (event: Event) => event.currentTarget as HTMLElement;
                 id="auto-panel-preferences"
                 role="tabpanel"
                 aria-labelledby="auto-tab-preferences"
-                class="auto-panel"
+                class="rec-panel"
             >
                 <AutomationPreferences
                     :key="workspace.id"

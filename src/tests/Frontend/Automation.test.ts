@@ -159,7 +159,7 @@ it('reads the tab and open draft from the address and shows the draft in a drawe
     render();
     expect(tab('Email history').attributes('aria-selected')).toBe('true');
     await flushPromises();
-    const drawer = wrapper.get('dialog.auto-drawer');
+    const drawer = wrapper.get('dialog.rec-drawer');
     expect(drawer.text()).toContain('Approved for manual sending · Version 2');
     expect(drawer.get('a[download]').attributes('href')).toBe('/automation/drafts/d2/handoff?version=2');
     expect(drawer.findAll('button').some((button) => button.text() === 'Send approved message')).toBe(true);
@@ -186,10 +186,10 @@ it('filters drafts and confirms Approve before posting the current version', asy
 
 it('edits a draft in the drawer with Save disabled until the message changes', async () => {
     render();
-    await panel('approvals').get('button.auto-row-title').trigger('click');
+    await panel('approvals').get('button.rec-row-title').trigger('click');
     await flushPromises();
     expect(window.location.search).toBe('?draft=d1');
-    const drawer = () => wrapper.get('dialog.auto-drawer');
+    const drawer = () => wrapper.get('dialog.rec-drawer');
     await drawer().get('[aria-label="Edit Checking in"]').trigger('click');
     const save = () =>
         drawer()
@@ -214,7 +214,7 @@ it('explains blocked schedule types and saves a reminder email with an exact ins
         .findAll('button')
         .find((button) => button.text() === 'New schedule')!
         .trigger('click');
-    const dialog = () => wrapper.findAll('dialog.auto-dialog')[0]!;
+    const dialog = () => wrapper.findAll('dialog.rec-dialog')[0]!;
     const save = () =>
         dialog()
             .findAll('button')

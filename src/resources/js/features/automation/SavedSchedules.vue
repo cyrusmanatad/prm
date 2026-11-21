@@ -31,27 +31,27 @@ function detail(schedule: Schedule): string {
 </script>
 
 <template>
-    <section class="auto-card" aria-labelledby="schedules-heading">
-        <header class="auto-card-head">
+    <section class="rec-card" aria-labelledby="schedules-heading">
+        <header class="rec-card-head">
             <h2 id="schedules-heading">Your schedules</h2>
-            <span class="auto-count">{{ schedules.length }}</span>
-            <p class="auto-note">Your latest 100 · disabled schedules keep their history</p>
+            <span class="rec-count">{{ schedules.length }}</span>
+            <p class="rec-note">Your latest 100 · disabled schedules keep their history</p>
         </header>
-        <div v-if="error" class="wd-banner auto-banner" role="alert">
+        <div v-if="error" class="wd-banner rec-banner" role="alert">
             <p>{{ error }}</p>
             <a class="wd-link" :href="reload">Reload schedules</a>
         </div>
         <DataTable
             v-if="schedules.length"
-            class="auto-table auto-schedules-table"
+            class="rec-table rec-schedules-table"
             caption="Your schedules"
             :columns="columns"
             :rows="schedules"
             :row-key="(schedule) => schedule.id"
         >
             <template #cell-name="{ row }">
-                <span class="auto-row-name">{{ row.name }}</span>
-                <span class="auto-row-sub">{{ detail(row) }}</span>
+                <span class="rec-row-name">{{ row.name }}</span>
+                <span class="rec-row-sub">{{ detail(row) }}</span>
             </template>
             <template #cell-kind="{ row }">{{ kindLabel(row.kind) }}</template>
             <template #cell-next="{ row }"
@@ -63,7 +63,7 @@ function detail(schedule: Schedule): string {
                     :tone="row.enabled ? 'success' : 'neutral'"
             /></template>
             <template #cell-actions="{ row }">
-                <span v-if="canWrite" class="auto-actions">
+                <span v-if="canWrite" class="rec-actions">
                     <button
                         v-if="row.kind === 'weekly_digest'"
                         type="button"
@@ -77,7 +77,7 @@ function detail(schedule: Schedule): string {
                     <button
                         v-if="row.enabled"
                         type="button"
-                        class="wd-table-button auto-danger"
+                        class="wd-table-button rec-danger"
                         :disabled="busy || !!error"
                         v-bind="{ 'aria-label': `Withdraw consent for ${row.name}` }"
                         @click="$emit('withdraw', row, $event)"
@@ -92,7 +92,7 @@ function detail(schedule: Schedule): string {
             title="No schedules yet"
             description="Turn on a notice in Preferences, then add a schedule with New schedule."
         />
-        <footer class="auto-card-foot">
+        <footer class="rec-card-foot">
             Withdrawing consent disables a schedule and cancels its pending work. A send already reserved may still
             arrive.
         </footer>

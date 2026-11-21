@@ -68,13 +68,13 @@ function actions(draft: FollowUpDraft): RowAction[] {
 </script>
 
 <template>
-    <section class="auto-card" aria-labelledby="drafts-heading">
-        <header class="auto-card-head">
+    <section class="rec-card" aria-labelledby="drafts-heading">
+        <header class="rec-card-head">
             <h2 id="drafts-heading" tabindex="-1">Your follow-up drafts</h2>
-            <span class="auto-count">{{ drafts.length }}</span>
-            <p class="auto-note">Private to you · your latest 50</p>
+            <span class="rec-count">{{ drafts.length }}</span>
+            <p class="rec-note">Private to you · your latest 50</p>
         </header>
-        <div class="auto-chips">
+        <div class="rec-chips">
             <FilterChips
                 label="Show drafts"
                 :chips="chips"
@@ -85,33 +85,33 @@ function actions(draft: FollowUpDraft): RowAction[] {
         </div>
         <DataTable
             v-if="rows.length"
-            class="auto-table auto-drafts-table"
+            class="rec-table rec-drafts-table"
             caption="Your follow-up drafts"
             :columns="columns"
             :rows="rows"
             :row-key="(draft) => draft.id"
         >
             <template #cell-subject="{ row }">
-                <button type="button" class="auto-row-title" @click="emit('open', row)">
+                <button type="button" class="rec-row-title" @click="emit('open', row)">
                     {{ row.subject || 'Untitled follow-up' }}
                 </button>
-                <span class="auto-row-sub">{{ row.body }}</span>
+                <span class="rec-row-sub">{{ row.body }}</span>
             </template>
             <template #cell-lead="{ row }">{{ row.lead_name || '—' }}</template>
             <template #cell-recipient="{ row }"
-                ><span class="auto-ellipsis">{{ row.recipient || 'No recipient yet' }}</span></template
+                ><span class="rec-ellipsis">{{ row.recipient || 'No recipient yet' }}</span></template
             >
             <template #cell-status="{ row }"
-                ><StatusBadge :label="draftShortStatus(row)" :tone="draftTone(row)" /><span class="auto-version"
+                ><StatusBadge :label="draftShortStatus(row)" :tone="draftTone(row)" /><span class="rec-version"
                     >v{{ row.version }}</span
                 ></template
             >
             <template #cell-actions="{ row }">
-                <span class="auto-actions">
+                <span class="rec-actions">
                     <button
                         v-if="canWrite && row.state === 'draft'"
                         type="button"
-                        class="wd-table-button auto-primary"
+                        class="wd-table-button rec-primary"
                         :disabled="busy"
                         v-bind="{ 'aria-label': `Approve ${row.subject}` }"
                         @click="emit('act', row, 'approve', $event)"
@@ -132,7 +132,7 @@ function actions(draft: FollowUpDraft): RowAction[] {
                         :label="`Actions for ${row.subject || 'untitled follow-up'}`"
                         :actions="actions(row)"
                         :disabled="busy"
-                        trigger-class="auto-ghost"
+                        trigger-class="rec-ghost"
                     />
                 </span>
             </template>
@@ -146,7 +146,7 @@ function actions(draft: FollowUpDraft): RowAction[] {
                     : 'Drafts you write or schedule appear here for review.'
             "
         />
-        <footer class="auto-card-foot">
+        <footer class="rec-card-foot">
             Approval never sends email. Sending an approved message is a separate, confirmed step.
         </footer>
     </section>
