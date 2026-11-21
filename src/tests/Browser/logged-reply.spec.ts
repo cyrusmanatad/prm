@@ -50,6 +50,7 @@ test('confirmed reply clears next action and cancels approved follow-up history'
     }, lead);
     await page.getByLabel('Private notes', { exact: true }).fill('Retain this unsaved note.');
     await page.getByRole('tab', { name: 'Activity', exact: true }).click();
+    await page.getByRole('button', { name: /Log activity/ }).click();
     await page
         .getByRole('radiogroup', { name: 'Type', exact: true })
         .getByRole('radio', { name: 'Reply received' })

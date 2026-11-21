@@ -5,7 +5,21 @@ import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { Link, router } from '@inertiajs/vue3';
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch, type Component, type Ref } from 'vue';
-import { ChevronRight, Circle, Mail, MessageCircle, NotebookPen, Phone, Plus, Reply } from '@lucide/vue';
+import {
+    ArrowRightLeft,
+    ChevronRight,
+    Circle,
+    Clock,
+    Mail,
+    MessageCircle,
+    NotebookPen,
+    Pencil,
+    Phone,
+    Plus,
+    Reply,
+} from '@lucide/vue';
+import FilterChips, { type FilterChip } from '../../components/FilterChips.vue';
+import { activityGroup, activityLabels, byDay, changeText, timeLabel, type ActivityGroup } from './activity';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
 import SelectField from '../../components/SelectField.vue';
@@ -136,6 +150,47 @@ const activityOptions = [
     { value: 'chat', label: 'Chat' },
     { value: 'reply', label: 'Reply received' },
 ];
+// The composer opens from a one-line box so the history stays in view; it closes after recording or on Cancel.
+const composerOpen = ref(false);
+const composerTrigger = ref<HTMLButtonElement>();
+async function openComposer(): Promise<void> {
+    composerOpen.value = true;
+    await nextTick();
+    document.querySelector<HTMLInputElement>('#lead-activity .activity-kind input:checked')?.focus();
+}
+async function closeComposer(): Promise<void> {
+    if (busy.value) return;
+    composerOpen.value = false;
+    activityBody.value = '';
+    activityKind.value = 'note';
+    await nextTick();
+    composerTrigger.value?.focus();
+}
+function onComposerKey(event: KeyboardEvent): void {
+    // Escape closes the composer first, not the whole drawer.
+    if (event.key !== 'Escape' || !composerOpen.value) return;
+    event.preventDefault();
+    event.stopPropagation();
+    void closeComposer();
+}
+const historyFilter = ref<'all' | ActivityGroup>('all');
+const historyChips = computed<FilterChip[]>(() => {
+    const items = props.selected?.activities ?? [];
+    const conversations = items.filter((item) => activityGroup(item.kind) === 'conversation').length;
+    return [
+        { value: 'all', label: 'All', count: items.length },
+        { value: 'conversation', label: 'Conversations', count: conversations },
+        { value: 'change', label: 'Changes', count: items.length - conversations },
+    ];
+});
+const historyDays = computed(() =>
+    byDay(
+        (props.selected?.activities ?? []).filter(
+            (item) => historyFilter.value === 'all' || activityGroup(item.kind) === historyFilter.value,
+        ),
+    ),
+);
+const stageName = (value: string): string => props.stages.find((item) => item.value === value)?.label ?? value;
 function recordActivity(event: Event): void {
     if (busy.value || errors.value.version) return;
     const kind = activityKind.value;
@@ -144,6 +199,8 @@ function recordActivity(event: Event): void {
         command('activities', { kind, body }, () => {
             activityBody.value = '';
             if (kind === 'reply') editForm.value.next_action_due = '';
+            composerOpen.value = false;
+            activityKind.value = 'note';
         });
     if (kind === 'reply') {
         confirmAction(
@@ -156,17 +213,6 @@ function recordActivity(event: Event): void {
     } else save();
 }
 const stageDots = Object.fromEntries(pipelineStages.map((stage) => [stage.value, stage.dot]));
-const activityLabels: Record<string, string> = {
-    note: 'Note',
-    call: 'Call',
-    email: 'Email',
-    chat: 'Chat',
-    reply: 'Reply received',
-    created: 'Created',
-    updated: 'Updated',
-    stage: 'Stage',
-    snoozed: 'Snoozed',
-};
 const stamp = (value: string | null): string => (value ? new Date(value).toLocaleString() : 'No next action');
 watch(
     [() => props.workspace.id, () => props.selected?.id],
@@ -188,6 +234,8 @@ watch(
         stage.value = row?.stage ?? 'lead';
         drawerTab.value = 'details';
         activityBody.value = '';
+        composerOpen.value = false;
+        historyFilter.value = 'all';
         formErrors.value = {};
     },
     { immediate: true },
@@ -387,21 +435,15 @@ const activityIcons: Record<string, Component> = {
     chat: MessageCircle,
     reply: Reply,
     created: Plus,
+    stage: ArrowRightLeft,
+    snoozed: Clock,
+    updated: Pencil,
 };
 function activityIcon(kind: string): Component {
     return activityIcons[kind] ?? Circle;
 }
 function activityLabel(kind: string): string {
     return activityLabels[kind] ?? kind;
-}
-function activityWhen(value: string): string {
-    return new Date(value).toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    });
 }
 function onTabKey(event: KeyboardEvent): void {
     const order = ['details', 'activity'] as const;
@@ -591,7 +633,6 @@ function reloadSelected(): void {
                                     {{ stageLabel }}
                                 </span>
                                 <span class="drawer-value">{{ money(selected.value_minor, selected.currency) }}</span>
-                                <span v-if="updatedAgo" class="drawer-updated">· Updated {{ updatedAgo }}</span>
                                 <span v-if="!canWrite" class="drawer-view-only">View only</span>
                             </div>
                         </div>
@@ -609,9 +650,12 @@ function reloadSelected(): void {
                             <DialogClose label="Close lead" :disabled="busy" @click="close" />
                         </div>
                     </div>
-                    <Link class="contacts-pill" :href="path(`/partner/contacts?entry=${selected.id}`)"
-                        >Contacts &amp; reminders<ChevronRight :size="14" aria-hidden="true"
-                    /></Link>
+                    <div class="drawer-subrow">
+                        <Link class="contacts-pill" :href="path(`/partner/contacts?entry=${selected.id}`)"
+                            >Contacts &amp; reminders<ChevronRight :size="14" aria-hidden="true"
+                        /></Link>
+                        <span v-if="updatedAgo" class="drawer-updated">Updated {{ updatedAgo }}</span>
+                    </div>
                     <div class="drawer-tabs" role="tablist" aria-label="Lead sections" @keydown="onTabKey">
                         <button
                             id="lead-tab-details"
@@ -738,94 +782,169 @@ function reloadSelected(): void {
                         aria-labelledby="lead-tab-activity"
                         class="drawer-stack"
                     >
-                        <form
-                            v-if="canWrite"
-                            class="activity-composer"
-                            :aria-busy="busy"
-                            @submit.prevent="recordActivity($event)"
-                        >
-                            <fieldset class="activity-fields" :disabled="busy || !!errors.version">
-                                <legend class="wd-sr-only">Log an activity</legend>
-                                <fieldset class="activity-kinds" role="radiogroup">
-                                    <legend>Type</legend>
-                                    <label v-for="option in activityOptions" :key="option.value" class="activity-kind">
-                                        <input
-                                            v-model="activityKind"
-                                            type="radio"
-                                            name="activity-kind"
-                                            :value="option.value"
+                        <template v-if="canWrite">
+                            <button
+                                v-show="!composerOpen"
+                                ref="composerTrigger"
+                                type="button"
+                                class="composer-open"
+                                aria-controls="activity-composer"
+                                :aria-expanded="composerOpen"
+                                :disabled="!!errors.version"
+                                @click="openComposer"
+                            >
+                                <NotebookPen :size="15" aria-hidden="true" />
+                                <span class="composer-open-text">Log a call, email, chat or note…</span>
+                                <span class="composer-open-action">Log activity</span>
+                            </button>
+                            <form
+                                v-show="composerOpen"
+                                id="activity-composer"
+                                class="activity-composer"
+                                :aria-busy="busy"
+                                @submit.prevent="recordActivity($event)"
+                                @keydown="onComposerKey"
+                            >
+                                <fieldset class="activity-fields" :disabled="busy || !!errors.version">
+                                    <legend class="wd-sr-only">Log an activity</legend>
+                                    <fieldset class="activity-kinds" role="radiogroup">
+                                        <legend>Type</legend>
+                                        <label
+                                            v-for="option in activityOptions"
+                                            :key="option.value"
+                                            class="activity-kind"
+                                        >
+                                            <input
+                                                v-model="activityKind"
+                                                type="radio"
+                                                name="activity-kind"
+                                                :value="option.value"
+                                            />
+                                            <span>{{ option.label }}</span>
+                                        </label>
+                                    </fieldset>
+                                    <div class="wd-field">
+                                        <label for="activity-body">Details</label>
+                                        <textarea
+                                            id="activity-body"
+                                            v-model="activityBody"
+                                            class="drawer-activity-notes"
+                                            maxlength="5000"
+                                            rows="3"
+                                            placeholder="What happened?"
+                                            :aria-invalid="
+                                                formAction === 'activities' && errors.body ? true : undefined
+                                            "
+                                            :aria-describedby="
+                                                [
+                                                    'activity-body-hint',
+                                                    formAction === 'activities' && errors.body
+                                                        ? 'activity-body-error'
+                                                        : '',
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(' ')
+                                            "
                                         />
-                                        <span>{{ option.label }}</span>
-                                    </label>
+                                        <p
+                                            v-if="formAction === 'activities' && errors.kind"
+                                            class="wd-field-error"
+                                            role="alert"
+                                        >
+                                            {{ errors.kind }}
+                                        </p>
+                                        <p
+                                            v-if="formAction === 'activities' && errors.body"
+                                            id="activity-body-error"
+                                            class="wd-field-error"
+                                            role="alert"
+                                        >
+                                            {{ errors.body }}
+                                        </p>
+                                    </div>
+                                    <div class="activity-submit">
+                                        <p id="activity-body-hint" class="wd-hint">
+                                            {{
+                                                activityKind === 'reply'
+                                                    ? 'Cancels existing follow-ups and clears the next-action date after confirmation. Other reminders stay active.'
+                                                    : 'Records a past conversation or private note. No message is sent.'
+                                            }}
+                                        </p>
+                                        <div class="activity-actions">
+                                            <Button
+                                                type="button"
+                                                class="wd-button wd-button-secondary"
+                                                @click="closeComposer"
+                                                >Cancel</Button
+                                            >
+                                            <Button class="wd-button wd-button-primary" type="submit"
+                                                >Record activity</Button
+                                            >
+                                        </div>
+                                    </div>
                                 </fieldset>
-                                <div class="wd-field">
-                                    <label for="activity-body">Details</label>
-                                    <textarea
-                                        id="activity-body"
-                                        v-model="activityBody"
-                                        class="drawer-activity-notes"
-                                        maxlength="5000"
-                                        rows="3"
-                                        placeholder="What happened?"
-                                        :aria-invalid="formAction === 'activities' && errors.body ? true : undefined"
-                                        :aria-describedby="
-                                            [
-                                                'activity-body-hint',
-                                                formAction === 'activities' && errors.body ? 'activity-body-error' : '',
-                                            ]
-                                                .filter(Boolean)
-                                                .join(' ')
-                                        "
-                                    />
-                                    <p
-                                        v-if="formAction === 'activities' && errors.kind"
-                                        class="wd-field-error"
-                                        role="alert"
-                                    >
-                                        {{ errors.kind }}
-                                    </p>
-                                    <p
-                                        v-if="formAction === 'activities' && errors.body"
-                                        id="activity-body-error"
-                                        class="wd-field-error"
-                                        role="alert"
-                                    >
-                                        {{ errors.body }}
-                                    </p>
-                                </div>
-                                <div class="activity-submit">
-                                    <p id="activity-body-hint" class="wd-hint">
-                                        {{
-                                            activityKind === 'reply'
-                                                ? 'Cancels existing follow-ups and clears the next-action date after confirmation. Other reminders stay active.'
-                                                : 'Records a past conversation or private note. No message is sent.'
-                                        }}
-                                    </p>
-                                    <Button class="wd-button wd-button-primary" type="submit">Record activity</Button>
-                                </div>
-                            </fieldset>
-                        </form>
+                            </form>
+                        </template>
                         <section class="history" aria-labelledby="activity-history-title">
                             <div class="history-head">
                                 <h3 id="activity-history-title" class="drawer-heading">Activity history</h3>
-                                <p class="wd-hint">Most recent 50 events</p>
+                                <FilterChips
+                                    label="Show activity"
+                                    :chips="historyChips"
+                                    :current="historyFilter"
+                                    compact
+                                    @select="historyFilter = $event as 'all' | ActivityGroup"
+                                />
                             </div>
-                            <ol class="timeline">
-                                <li v-for="item in selected.activities" :key="item.id">
-                                    <span class="timeline-icon" aria-hidden="true"
-                                        ><component :is="activityIcon(item.kind)" :size="14"
-                                    /></span>
-                                    <span class="timeline-copy">
-                                        <span class="timeline-title">{{ item.body || activityLabel(item.kind) }}</span>
-                                        <span class="timeline-meta"
-                                            >{{ activityLabel(item.kind) }} ·
-                                            <time :datetime="item.occurred_at">{{
-                                                activityWhen(item.occurred_at)
-                                            }}</time></span
-                                        >
-                                    </span>
-                                </li>
-                            </ol>
+                            <p v-if="!historyDays.length" class="wd-hint history-empty">
+                                {{
+                                    historyFilter === 'conversation'
+                                        ? 'No conversations logged yet.'
+                                        : 'No automatic changes yet.'
+                                }}
+                            </p>
+                            <div v-for="group in historyDays" :key="group.day" class="history-day">
+                                <h4 class="history-day-label">{{ group.day }}</h4>
+                                <ol class="timeline">
+                                    <li
+                                        v-for="item in group.items"
+                                        :key="item.id"
+                                        :class="activityGroup(item.kind) === 'change' ? 'is-change' : 'is-conversation'"
+                                    >
+                                        <span class="timeline-icon" aria-hidden="true"
+                                            ><component :is="activityIcon(item.kind)" :size="14"
+                                        /></span>
+                                        <div v-if="activityGroup(item.kind) === 'conversation'" class="timeline-card">
+                                            <p class="timeline-meta">
+                                                <strong>{{ activityLabel(item.kind) }}</strong>
+                                                <time :datetime="item.occurred_at">{{
+                                                    timeLabel(item.occurred_at)
+                                                }}</time>
+                                            </p>
+                                            <p class="timeline-title">{{ item.body || activityLabel(item.kind) }}</p>
+                                        </div>
+                                        <p v-else class="timeline-change">
+                                            {{ changeText(item, stageName).lead }}
+                                            <strong v-if="changeText(item, stageName).value">{{
+                                                changeText(item, stageName).value
+                                            }}</strong>
+                                            <span class="timeline-time"
+                                                >·
+                                                <time :datetime="item.occurred_at">{{
+                                                    timeLabel(item.occurred_at)
+                                                }}</time></span
+                                            >
+                                        </p>
+                                    </li>
+                                </ol>
+                            </div>
+                            <p class="history-end">
+                                {{
+                                    selected.activities.length >= 50
+                                        ? 'Showing the latest 50 events.'
+                                        : "Start of this lead's history"
+                                }}
+                            </p>
                         </section>
                     </div>
                 </div>
@@ -1135,6 +1254,17 @@ function reloadSelected(): void {
     gap: 6px;
     --wd-table-control: 32px;
 }
+.drawer-subrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 10px;
+}
+.drawer-updated {
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
 .contacts-pill {
     display: inline-flex;
     align-self: flex-start;
@@ -1340,6 +1470,43 @@ function reloadSelected(): void {
     outline: 3px solid var(--wd-focus);
     outline-offset: 2px;
 }
+.composer-open {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-muted);
+    font: inherit;
+    font-size: 13.5px;
+    text-align: left;
+    cursor: text;
+}
+.composer-open:hover:not(:disabled) {
+    border-color: var(--wd-brand);
+}
+.composer-open:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.composer-open-text {
+    flex: 1;
+    min-width: 0;
+}
+.composer-open-action {
+    color: var(--wd-brand);
+    font-size: 12.5px;
+    font-weight: 700;
+}
+.activity-actions {
+    display: flex;
+    flex: none;
+    gap: 8px;
+}
 .activity-submit {
     display: flex;
     align-items: center;
@@ -1422,44 +1589,115 @@ function reloadSelected(): void {
 }
 .history-head {
     display: flex;
-    align-items: baseline;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 8px 12px;
 }
-.history-head .wd-hint {
+.history-day {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.history-day-label {
+    margin: 4px 0 0;
+    color: var(--wd-muted);
+    font-family: var(--wd-font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+.history-empty {
     margin: 0;
+}
+.history-end {
+    margin: 4px 0 0;
+    color: var(--wd-muted);
+    font-size: 12px;
+    text-align: center;
 }
 .drawer-stack > .history:first-child {
     padding-top: 0;
     border-top: 0;
 }
 .timeline {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     margin: 0;
     padding: 0;
     list-style: none;
 }
+/* A thin rail joins the entries of one day. */
+.timeline::before {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 12px;
+    width: 1px;
+    background: var(--wd-line);
+    content: '';
+}
 .timeline li {
+    position: relative;
     display: flex;
+    align-items: flex-start;
     gap: 10px;
 }
-.timeline-copy {
-    display: flex;
+.timeline li.is-change .timeline-icon {
+    width: 26px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    color: var(--wd-muted);
+}
+.timeline li.is-conversation .timeline-icon {
+    background: var(--color-blush, #f6e3ec);
+}
+.timeline-card {
+    flex: 1;
     min-width: 0;
-    flex-direction: column;
-    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid var(--wd-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+}
+.timeline-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0;
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.timeline-meta strong {
+    color: var(--wd-ink);
 }
 .timeline-title {
-    font-size: 14px;
-    font-weight: 600;
+    margin: 3px 0 0;
+    font-size: 13.5px;
+    line-height: 1.45;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
 }
-.timeline-meta {
-    color: var(--wd-muted);
+.timeline-change {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding-top: 2px;
+    color: var(--wd-body);
     font-size: 13px;
+    overflow-wrap: anywhere;
+}
+.timeline-change strong {
+    color: var(--wd-ink);
+}
+.timeline-time {
+    margin-left: 4px;
+    color: var(--wd-muted);
+    white-space: nowrap;
 }
 .drawer-footer {
     display: flex;
@@ -1539,6 +1777,18 @@ function reloadSelected(): void {
     .activity-submit {
         flex-direction: column;
         align-items: stretch;
+    }
+    .activity-actions :deep(.wd-button) {
+        flex: 1;
+        min-height: 44px;
+    }
+    .composer-open {
+        min-height: 44px;
+    }
+    .composer-open-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     .drawer-summary {
         grid-template-columns: minmax(0, 1fr);
