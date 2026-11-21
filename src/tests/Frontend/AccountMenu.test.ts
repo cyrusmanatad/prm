@@ -57,7 +57,7 @@ it('offers only closure and security navigation while the account is closing', a
     expect(await open()).toEqual(['Account closure', 'Authenticator security', 'Sign out']);
 });
 
-it('offers the Partner tools on every page while a Partner workspace is selected', async () => {
+it("offers the selected workspace's tools on every page", async () => {
     const partnerTools = ['Contacts and reminders', 'Outreach templates', 'Onboarding requests', 'Brand sharing'];
     page.props = { activeWorkspace: { kind: 'creator', experience: 'partner' } };
     for (const url of ['/workspaces', '/automation', '/partner/contacts', '/account/exports']) {
@@ -72,12 +72,23 @@ it('offers the Partner tools on every page while a Partner workspace is selected
         wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     }
 
-    // Professional workspaces use their own navigation; Brand workspaces and no selection have no workspace tools.
-    for (const activeWorkspace of [
-        { kind: 'creator', experience: 'professional' },
-        { kind: 'brand', experience: 'partner' },
-        null,
-    ]) {
+    // Brand workspaces offer their hub and lead registrations on every page, outside the Brand header too.
+    page.props = { activeWorkspace: { kind: 'brand', experience: 'partner' } };
+    for (const url of ['/brand', '/workspaces', '/automation']) {
+        page.url = url;
+        expect(await open()).toEqual([
+            'Switch workspace / account security',
+            'Privacy exports',
+            'Partner hub',
+            'Lead registrations',
+            'Sign out',
+        ]);
+        expect(document.body.querySelector('a[href="/brand/lead-registrations"]')).not.toBeNull();
+        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+    }
+
+    // Professional workspaces use their own navigation; no selection has no workspace tools.
+    for (const activeWorkspace of [{ kind: 'creator', experience: 'professional' }, null]) {
         page.props = { activeWorkspace };
         expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
         wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
