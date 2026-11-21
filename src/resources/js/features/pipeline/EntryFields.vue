@@ -19,14 +19,18 @@ const valueDescribedBy = computed(() =>
 
 <template>
     <div class="entry">
-        <section class="entry-section" :aria-label="`${clientLabel} and value`">
-            <FormField
-                :id="`${prefix}-brand`"
-                v-model="form.brand_name"
-                :label="clientLabel"
-                :maxlength="160"
-                :error="errors.brand_name"
-            />
+        <section class="entry-section" :aria-label="$slots.stage ? 'Lead' : `${clientLabel} and value`">
+            <div :class="{ 'entry-grid': $slots.stage }">
+                <FormField
+                    :id="`${prefix}-brand`"
+                    v-model="form.brand_name"
+                    :label="clientLabel"
+                    :maxlength="160"
+                    :error="errors.brand_name"
+                />
+                <!-- The lead drawer places Stage beside the name; Add lead always starts in Lead. -->
+                <slot name="stage" />
+            </div>
             <div class="wd-field">
                 <div class="entry-label">
                     <label :for="`${prefix}-amount`">Estimated value</label>
@@ -180,6 +184,14 @@ const valueDescribedBy = computed(() =>
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
     gap: 12px;
+}
+.entry-grid > * {
+    min-width: 0;
+}
+/* Date-time inputs have a wide intrinsic size; keep them inside their column. */
+.entry :deep(input[type='datetime-local']) {
+    width: 100%;
+    min-width: 0;
 }
 .entry-value {
     display: flex;

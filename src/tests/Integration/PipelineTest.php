@@ -39,7 +39,9 @@ class PipelineTest extends TestCase
         $this->getJson('/pipeline')->assertOk()->assertJsonPath('entries.0.stage', 'lead')->assertJsonPath('entries.0.version', 1)
             ->assertJsonMissingPath('entries.0.notes')->assertJsonPath('totals.0.amount_minor', '450050');
         $this->getJson('/pipeline?entry='.$id)->assertJsonPath('selected.notes', 'Never share with a brand')
-            ->assertJsonPath('selected.activities.0.kind', 'created');
+            ->assertJsonPath('selected.activities.0.kind', 'created')->assertJsonPath('selected.onboarding', null)
+            ->assertJsonPath('selected.sharing', [])->assertJsonPath('selected.updated_at', fn ($value) => is_string($value) && strtotime($value) !== false);
+
         $this->patchJson('/pipeline/'.$id, [...$this->lead(['brand_name' => 'Changed']), 'version' => 1])->assertOk();
         $version = 2;
         foreach (['pitched', 'negotiating', 'onboarded', 'active', 'repeat-client', 'lost', 'lead'] as $stage) {
@@ -218,5 +220,18 @@ class PipelineTest extends TestCase
             $this->assertSame(0, DB::table('pipeline_activities')->count());
             $this->assertSame(0, DB::table('audit_logs')->where('event', 'pipeline.created')->count());
         });
+    }
+
+    public function test_lead_detail_reports_its_latest_onboarding_request_and_keeps_it_from_deletion(): void
+    {
+        $this->workspace();
+        $id = $this->postJson('/pipeline', $this->lead())->assertCreated()->json('id');
+        // Starting onboarding shows on the lead; the drawer receives only its ID, status and start time.
+        $this->postJson('/onboarding-requests', ['pipeline_entry_id' => $id, 'label' => 'Onboarding for Private brand'])->assertCreated();
+        $onboarding = $this->getJson('/pipeline?entry='.$id)->assertJsonPath('selected.onboarding.status', 'draft')->json('selected.onboarding');
+        $this->assertSame(['id', 'status', 'created_at'], array_keys($onboarding));
+        $this->assertStringNotContainsString('token', json_encode($onboarding));
+        // A lead with onboarding history is kept, as before.
+        $this->deleteJson('/pipeline/'.$id, ['version' => 1])->assertStatus(409)->assertJsonValidationErrors('entry');
     }
 }

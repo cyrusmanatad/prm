@@ -30,7 +30,9 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
             .click();
         await page.getByRole('button', { name: 'Save lead', exact: true }).click();
         await expect(page.getByRole('status').filter({ hasText: 'Stage updated to' })).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeEnabled();
+        // Saved: nothing is pending, so Save waits for the next change.
+        await expect(page.getByText('No unsaved changes', { exact: true })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeDisabled();
         await page.reload();
         await expect(page.locator('#lead-stage')).toHaveValue(stage);
     }
@@ -64,9 +66,13 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await expect(page.getByText('Discussed the next collaboration.', { exact: true })).toBeVisible();
     await page.getByRole('tab', { name: 'Details', exact: true }).click();
     await expect(page.getByLabel('Private notes', { exact: true })).toHaveValue('Draft kept across activity updates.');
-    await page.getByRole('button', { name: 'Save lead', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Lead saved' }).last()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeDisabled();
+    // An unsaved edit is announced and can be discarded without saving.
+    await page.getByLabel('Private notes', { exact: true }).fill('Discard me');
+    await expect(page.getByRole('status').filter({ hasText: 'Unsaved changes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Discard', exact: true }).click();
+    await expect(page.getByLabel('Private notes', { exact: true })).toHaveValue('Draft kept across activity updates.');
+    await expect(page.getByRole('button', { name: 'Save lead', exact: true })).toBeDisabled();
     await page.reload();
     await expect(page.getByLabel('Next action', { exact: true })).toHaveValue('2035-06-10T09:30');
     const scan = await new AxeBuilder({ page })
@@ -86,10 +92,9 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await expect(page.getByRole('heading', { name: 'No leads match these filters', exact: true })).toBeVisible();
     await page.goto(leadUrl);
     await expect(page.getByRole('button', { name: /Open Latest studio/ })).toHaveCount(1);
-    await page.getByText('Delete lead', { exact: true }).click();
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Delete this lead', exact: true }),
+        page.getByRole('button', { name: 'Delete lead', exact: true }),
         'Delete permanently',
         info,
     );

@@ -715,6 +715,13 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         $id = $this->member($partner, $org)->postJson('/pipeline', [...$lead, 'register_with' => $relationship])->assertCreated()->assertJsonPath('registered', true)->json('id');
         $registration = $this->control->table('lead_registrations')->where('pipeline_entry_id', $id)->first();
         $this->assertSame([$relationship, 'Captured for the Brand', '', false, 'lead', 'active'], [$registration->partnership_id, $registration->display_name, $registration->summary, $registration->share_contact, $registration->stage, $registration->state]);
+        // The lead drawer shows which Brands the lead is shared with; a private lead lists none.
+        $shared = $this->member($partner, $org)->getJson('/pipeline?entry='.$id)->assertOk()->assertJsonCount(1, 'selected.sharing')
+            ->assertJsonPath('selected.sharing.0.paused', false)->assertJsonPath('selected.onboarding', null)->json('selected.sharing.0');
+        $this->assertSame($this->control->table('partnerships')->where('id', $relationship)->value('brand_name'), $shared['brand_name']);
+        $this->assertSame(['brand_name', 'paused', 'registered_at'], array_keys($shared));
+        $private = $this->control->table('pipeline_entries')->where('org_id', $org)->where('id', '<>', $id)->value('id');
+        $this->getJson('/pipeline?entry='.$private)->assertOk()->assertJsonCount(0, 'selected.sharing');
         $this->assertSame(1, $visible());
         $this->getJson('/brand/lead-registrations/'.$registration->id)->assertOk()->assertJsonPath('registration.display_name', 'Captured for the Brand')
             ->assertJsonPath('registration.contact_email', null)->assertDontSee('Private capture note')->assertDontSee('private@example.test')->assertDontSee('777000');
@@ -733,6 +740,8 @@ class BrandLeadVisibilityTest extends AcceptanceCase
             $this->control->table('memberships')->where('org_id', $org)->update(['role' => $role]);
             $this->postJson('/pipeline', [...$lead, 'register_with' => $relationship])->assertUnprocessable()->assertJsonValidationErrors('register_with');
             $this->getJson('/partner/leads')->assertJsonPath('pipeline.registration.canRegister', false);
+            // Every role sees the lead's sharing status in the drawer.
+            $this->getJson('/pipeline?entry='.$id)->assertOk()->assertJsonCount(1, 'selected.sharing');
         }
         $this->assertSame($count, $leads());
         $this->assertSame(1, $this->control->table('lead_registrations')->where('creator_org_id', $org)->count());

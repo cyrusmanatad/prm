@@ -72,16 +72,15 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
     await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'UI review studio', exact: true });
     await expect(drawer).toBeVisible();
-    const disclosure = drawer.locator('summary').filter({ hasText: 'Delete lead' });
-    await disclosure.focus();
+    // Delete sits beside Close in the header, in keyboard order, with 44px targets on phones.
+    const remove = drawer.getByRole('button', { name: 'Delete lead', exact: true });
+    await remove.focus();
     await page.keyboard.press('Tab');
-    await expect(drawer.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
-    await disclosure.click();
-    await disclosure.focus();
-    await page.keyboard.press('Tab');
-    await expect(drawer.getByRole('button', { name: 'Delete this lead', exact: true })).toBeFocused();
+    await expect(drawer.getByRole('button', { name: 'Close lead', exact: true })).toBeFocused();
     await page.keyboard.press('Shift+Tab');
-    await expect(disclosure).toBeFocused();
+    await expect(remove).toBeFocused();
+    expect((await remove.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await expect(drawer.getByRole('button', { name: 'Save lead', exact: true })).toBeDisabled();
     await drawer.getByRole('button', { name: 'Close lead', exact: true }).click();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')

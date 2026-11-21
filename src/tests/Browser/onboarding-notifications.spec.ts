@@ -40,6 +40,7 @@ test('onboarding email is explicit, captured, usable and safely replaced or revo
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('Invitation Studio');
     await page.getByRole('button', { name: 'Add lead', exact: true }).click();
+    await page.getByRole('button', { name: 'Start onboarding…', exact: true }).click();
     await expect(page.getByLabel('Email this onboarding invitation')).not.toBeChecked();
     await expect(page.getByLabel('Invitation recipient email')).toHaveCount(0);
     await page.getByLabel('Email this onboarding invitation').check();

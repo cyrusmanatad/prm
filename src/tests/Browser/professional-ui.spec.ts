@@ -389,6 +389,7 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
     await capture('payments');
 
     await page.goto(leadUrl);
+    await page.getByRole('button', { name: 'Start onboarding…', exact: true }).click();
     await page.getByRole('button', { name: 'Start onboarding', exact: true }).click();
     const invite = await page.getByLabel('Private invitation link (copy now)').inputValue();
     const reviewUrl = page.url();
