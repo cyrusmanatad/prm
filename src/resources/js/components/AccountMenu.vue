@@ -2,7 +2,17 @@
 import { initials as nameInitials } from '../lib/initials';
 import { computed, type Component } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ClipboardList, ContactRound, FileText, LogOut, Settings, Share2, ShieldCheck } from '@lucide/vue';
+import {
+    ClipboardCheck,
+    ClipboardList,
+    ContactRound,
+    FileText,
+    LogOut,
+    Settings,
+    Share2,
+    ShieldCheck,
+    Users,
+} from '@lucide/vue';
 import {
     DropdownMenuContent,
     DropdownMenuItem,
@@ -30,13 +40,17 @@ const emit = defineEmits<{ logout: [] }>();
 
 const letters = computed(() => props.initials ?? nameInitials(props.accountName, ''));
 
-// Partner workspace tools, offered on every page while a Partner workspace is selected. Professional workspaces
-// reach the same tools from their own navigation; Brand workspaces have none.
+// Workspace tools, offered on every page while that kind of workspace is selected. Professional workspaces reach
+// their tools from their own navigation.
 const partnerTools: AccountMenuLink[] = [
     { href: '/partner/contacts', label: 'Contacts and reminders', icon: ContactRound },
     { href: '/partner/outreach-templates', label: 'Outreach templates', icon: FileText },
     { href: '/partner/onboarding', label: 'Onboarding requests', icon: ClipboardList },
     { href: '/partner/brand-sharing', label: 'Brand sharing', icon: Share2 },
+];
+const brandTools: AccountMenuLink[] = [
+    { href: '/brand', label: 'Partner hub', icon: Users },
+    { href: '/brand/lead-registrations', label: 'Lead registrations', icon: ClipboardCheck },
 ];
 
 // Shown to accounts holding a platform grant, outside administration itself. The server authorizes every admin request.
@@ -53,7 +67,9 @@ const tools = computed(() =>
         ? props.links
         : workspace.value?.kind === 'creator' && workspace.value.experience === 'partner'
           ? partnerTools
-          : [],
+          : workspace.value?.kind === 'brand'
+            ? brandTools
+            : [],
 );
 const showAdministration = computed(
     () => !props.fixture && page.props?.platformAccess === true && !/^\/admin(?:[/?]|$)/.test(page.url ?? ''),

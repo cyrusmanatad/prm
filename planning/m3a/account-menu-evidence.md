@@ -32,3 +32,20 @@ Checked on the running app as a Partner owner:
 - **Rendering:** Contacts, Outreach templates, Onboarding requests and Brand sharing were inspected at 1440, 1024 and 390px, along with the menu on `/workspaces`. No horizontal overflow; page content is unchanged under the Partner header. Temporary captures were deleted.
 - **Not changed:** Automation, Finance and account pages keep the plain header; only their menu items change. Contacts content starts at the `wd-main` width (1360px) while Brand sharing uses 1280px, as before.
 - **Not verified:** WebKit/Safari, staging, manual screen reader, the full PostgreSQL suite with `rls.sql`, and `privacy-*` specs (they need the separate privacy stacks).
+
+## Brand follow-up (2026-11-21)
+
+**Scope:** the same consistency for Brand workspaces, checked on the running app as a Brand owner.
+
+- **Before:** the account menu showed only Switch workspace / account security, Privacy exports and Sign out on every page. A Brand owner on Automation, Finance, Entitlements, Support access or Privacy exports (all plain header) had no direct way back to the Brand pages.
+- **Change:** while a Brand workspace is selected, the menu adds **Partner hub** (`/brand`) and **Lead registrations** (`/brand/lead-registrations`) on every page. Both are available to every Brand role.
+- **Header:** all Brand pages (hub, partner detail, lead registrations and detail) already use the Brand header; no change was needed. Shared workspace pages keep the plain header, as for Partner.
+- **Administration link:** the shared-read fix above already covers Brand pages.
+
+| Command | Result |
+| --- | --- |
+| `npm test` | `AccountMenu.test.ts`: Brand items on `/brand`, `/workspaces` and `/automation`; none for Professional or no selection. |
+| Browser `pipeline`, `portals`, `partner-navigation`, `join-links`, `notifications`, `administration`, desktop and mobile | 20 passed. `portals` now opens the menu on `/workspaces` and `/automation` as a Brand owner, checks the five items and returns to the Partner hub from the menu. |
+
+- **Rendering:** no layout change; the menu reuses its existing item markup and Lucide icons. The items were checked through the browser assertions above, not a separate visual pass.
+

@@ -52,6 +52,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-21):** the Add lead dialog uses the approved Option A layout: a compact centred dialog with a fixed header and footer, the lead drawer's field groups (name and value with a currency picker, optional primary contact, optional follow-up with shortcuts and private notes), an optional Share with a Brand box, field-level errors instead of browser bubbles, an "Add lead" submit and a full-screen sheet on phones. Evidence: [Add lead](add-lead-evidence.md).
 
+**Confirmed (2026-11-21):** Brand workspaces follow the same account menu rule: while one is selected, the menu offers Partner hub and Lead registrations on every page. Evidence: [account menu consistency](account-menu-evidence.md#brand-follow-up-2026-11-21).
+
 ## Table controls and partner avatars (2026-11-19)
 
 **Confirmed (2026-11-19):** controls inside tables and list toolbars use one compact size, `--wd-table-control`: **36px with a fine pointer, 44px below 600px wide or with a coarse pointer**. This covers pagination (Previous, Next, page numbers), table search fields and buttons, row action buttons, rows-per-page selects, standard filter chips and links standing alone in a cell. Use the shared `wd-table-button`, `wd-table-icon-button`, `wd-table-input` and `wd-cell-link` classes rather than per-screen sizes. Form and dialog buttons, primary page actions (such as Invite partners) and the Registered leads filter fields keep their existing sizes.

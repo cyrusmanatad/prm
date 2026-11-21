@@ -61,6 +61,17 @@ test('same relationship appears in both portals, private leads survive removal, 
         await login(bp, brandEmail);
         await openBrandHub(bp, 'Habi Home');
         await expect(bp.getByRole('heading', { name: 'Partner hub', exact: true })).toBeVisible();
+        // The account menu offers the Brand pages everywhere, including shared pages with the plain header.
+        for (const path of ['/workspaces', '/automation']) {
+            await bp.goto(path);
+            await bp.getByRole('button', { name: /^Account menu/ }).click();
+            await expect(bp.getByRole('menuitem').locator('svg')).toHaveCount(5);
+            await expect(bp.getByRole('menuitem', { name: 'Partner hub', exact: true })).toBeVisible();
+            await expect(bp.getByRole('menuitem', { name: 'Lead registrations', exact: true })).toBeVisible();
+        }
+        await bp.getByRole('menuitem', { name: 'Partner hub', exact: true }).click();
+        await expect(bp).toHaveURL(/\/brand$/);
+        await expect(bp.getByRole('heading', { name: 'Partner hub', exact: true })).toBeVisible();
         await bp.getByRole('button', { name: '+ Invite partners', exact: true }).click();
         const invitationDialog = bp.getByRole('dialog', { name: 'Invite a partner', exact: true });
         await expect(invitationDialog).toBeVisible();
