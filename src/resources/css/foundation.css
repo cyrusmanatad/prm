@@ -2232,6 +2232,13 @@ summary:focus-visible {
     color: var(--wd-muted);
     font-size: 11px;
 }
+.wd-inline-tabs-badge {
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+    font-size: 11px;
+}
 @media (max-width: 599px), (pointer: coarse) {
     .wd-inline-tabs [role='tab'] {
         min-height: 44px;

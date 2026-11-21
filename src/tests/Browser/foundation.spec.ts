@@ -24,7 +24,7 @@ test('registration, verification, workspace errors, create, and settings', async
     await expect(page.getByRole('status').filter({ hasText: 'Verification link requested' })).toBeVisible();
     await page.goto(fixture('verify', email).url);
     await expect(page).toHaveURL(/\/workspaces$/);
-    const create = page.getByRole('region', { name: 'Start something new.' });
+    const create = page.getByRole('region', { name: 'Create your first workspace' });
     await create.getByLabel('Workspace name').fill('   ');
     await create.getByRole('button', { name: 'Create workspace' }).click();
     await expect(create.getByRole('alert')).toBeVisible();
@@ -50,10 +50,18 @@ test('registration, verification, workspace errors, create, and settings', async
     }
     const settings = page.getByRole('region', { name: 'Browser workspace', exact: true });
     await expect(settings).toBeVisible();
-    await expect(create.getByLabel('Workspace name')).toHaveValue('');
-    await settings.getByLabel('Workspace name').fill('Renamed browser workspace');
-    await settings.getByRole('button', { name: 'Save name' }).click();
+    // The first-workspace form gives way to the workspace cards; renaming happens in a dialog.
+    await expect(create).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'New workspace', exact: true })).toBeVisible();
+    const rename = page.getByRole('button', { name: 'Rename', exact: true });
+    await rename.click();
+    const renameDialog = page.getByRole('dialog', { name: 'Rename workspace' });
+    await expect(renameDialog.getByLabel('Workspace name')).toBeFocused();
+    await renameDialog.getByLabel('Workspace name').fill('Renamed browser workspace');
+    await renameDialog.getByRole('button', { name: 'Save name' }).click();
     await expect(page.getByRole('region', { name: 'Renamed browser workspace', exact: true })).toBeVisible();
+    await expect(renameDialog).toBeHidden();
+    await expect(rename).toBeFocused();
     await expect(page.locator('#nprogress')).toHaveCount(0);
     await expect(page.locator('body')).toHaveJSProperty('scrollWidth', await page.evaluate(() => innerWidth));
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
@@ -87,7 +95,7 @@ test('recovery, invalid login, and revocation of two real database sessions', as
     try {
         const second = await other.newPage();
         await login(second, email, 'reset-password-456');
-        await page.getByText('Account security', { exact: true }).click();
+        await page.getByRole('tab', { name: /^Account security/ }).click();
         await page.getByLabel('Current password').fill('reset-password-456');
         await confirmMutation(
             page,

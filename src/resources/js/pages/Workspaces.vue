@@ -2,7 +2,13 @@
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import WorkspaceScreen from '../features/workspaces/WorkspaceScreen.vue';
-import type { AccountSummary, FieldErrors, WorkspaceAction, WorkspaceSummary } from '../types/foundation';
+import type {
+    AccountSecurityStatus,
+    AccountSummary,
+    FieldErrors,
+    WorkspaceAction,
+    WorkspaceSummary,
+} from '../types/foundation';
 
 const props = withDefaults(
     defineProps<{
@@ -10,10 +16,11 @@ const props = withDefaults(
         workspaces: WorkspaceSummary[];
         activeOrgId: string | null;
         accessRevoked?: boolean;
+        security?: AccountSecurityStatus;
         status?: string;
         errors?: Record<string, string | FieldErrors>;
     }>(),
-    { accessRevoked: false, status: '', errors: () => ({}) },
+    { accessRevoked: false, security: () => ({ enrolled: false, required: false }), status: '', errors: () => ({}) },
 );
 const screen = ref<InstanceType<typeof WorkspaceScreen>>();
 const pending = ref<WorkspaceAction | null>(null);
@@ -49,6 +56,7 @@ function submit(action: WorkspaceAction, data: Record<string, string>): void {
         },
         onSuccess: () => {
             if (action === 'create') screen.value?.clearCreateForm();
+            if (action === 'rename') screen.value?.closeRename();
         },
         onFinish: () => {
             pending.value = null;
@@ -81,6 +89,7 @@ function logout(): void {
         :workspaces="workspaces"
         :active-org-id="activeOrgId"
         :access-revoked="accessRevoked"
+        :security="security"
         :status="status"
         :errors="errors"
         :pending-action="pending"

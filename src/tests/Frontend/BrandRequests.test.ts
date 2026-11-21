@@ -87,7 +87,7 @@ it('replaces Brand creation in the workspace selector with a request link', asyn
     });
     wrappers.push(wrapper);
     expect(wrapper.find('#workspace_name').exists()).toBe(true);
-    await wrapper.findComponent({ name: 'SelectField' }).vm.$emit('update:modelValue', 'brand');
+    await wrapper.get('input[value="brand"]').setValue(true);
     expect(wrapper.find('#workspace_name').exists()).toBe(false);
     const create = wrapper.get('[aria-labelledby="workspace-create-title"]');
     expect(create.find('button[type="submit"]').exists()).toBe(false);
@@ -97,7 +97,7 @@ it('replaces Brand creation in the workspace selector with a request link', asyn
     await wrapper.get('form').trigger('submit');
     expect(wrapper.emitted('create')).toBeUndefined();
     // Partner and Professional creation stay available.
-    await wrapper.findComponent({ name: 'SelectField' }).vm.$emit('update:modelValue', 'professional');
+    await wrapper.get('input[value="professional"]').setValue(true);
     await wrapper.get('#workspace_name').setValue('Solo');
     await wrapper.get('form').trigger('submit');
     expect(wrapper.emitted('create')).toEqual([['Solo', 'creator', 'professional']]);

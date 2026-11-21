@@ -14,12 +14,18 @@ test('repeated actions, history and network recovery retain honest accessible fe
     await dismissNotifications(page);
     await expect(page.locator('.Toastify__toast')).toHaveCount(0);
     const workspace = page.getByRole('region', { name: /Role test workspace/ });
-    const save = workspace.getByRole('button', { name: 'Save name' });
-    await save.click();
+    const renameDialog = page.getByRole('dialog', { name: 'Rename workspace' });
+    const saveName = renameDialog.getByRole('button', { name: 'Save name' });
+    const save = async () => {
+        await workspace.getByRole('button', { name: 'Rename', exact: true }).click();
+        await saveName.click();
+        await expect(renameDialog).toBeHidden();
+    };
+    await save();
     const saved = page.locator('.Toastify__toast').filter({ hasText: 'Workspace updated' });
     await expect(saved).toHaveCount(1);
     const firstAnnouncement = await saved.first().getAttribute('id');
-    await save.click();
+    await save();
     await expect
         .poll(() =>
             saved.evaluateAll((nodes, previous) => nodes.some((node) => node.id !== previous), firstAnnouncement),
@@ -35,7 +41,8 @@ test('repeated actions, history and network recovery retain honest accessible fe
     await expect(saved).toHaveCount(0);
     // Abort a mutation before it reaches the server; keep advice until recovery.
     await page.route('**/workspace', (route) => route.abort('failed'));
-    await save.click();
+    await workspace.getByRole('button', { name: 'Rename', exact: true }).click();
+    await saveName.click();
     const network = page.locator('.Toastify__toast').filter({ hasText: 'Connection lost' });
     await expect(network).toContainText('Check the current record before trying again');
     await expect(network).toBeVisible();
@@ -55,8 +62,9 @@ test('repeated actions, history and network recovery retain honest accessible fe
         await page.setViewportSize(original);
     }
     await page.unroute('**/workspace');
-    // The PATCH never reached the server in this controlled test, so retry is safe.
-    await save.click();
+    // The PATCH never reached the server in this controlled test, so retry is safe; the dialog stayed open.
+    await saveName.click();
+    await expect(renameDialog).toBeHidden();
     await expect(network).toHaveCount(0);
     // Reduced motion must preserve automatic dismissal, without a moving progress bar.
     await page.mouse.move(0, 0);

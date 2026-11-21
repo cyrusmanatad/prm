@@ -8,6 +8,12 @@ export interface WorkspaceSummary {
     role: WorkspaceRole;
 }
 
+/** Authenticator status for the signed-in account; `required` when it owns a workspace or is enrolled. */
+export interface AccountSecurityStatus {
+    enrolled: boolean;
+    required: boolean;
+}
+
 export interface AccountSummary {
     name: string;
     email: string;

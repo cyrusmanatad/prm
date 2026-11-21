@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Services\Workspaces;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class WorkspaceController extends Controller
 {
-    public function index(Request $request, Workspaces $workspaces): JsonResponse|Response
+    public function index(Request $request, Workspaces $workspaces, TenantContext $context): JsonResponse|Response
     {
         $listing = $workspaces->listing((int) $request->user()->id);
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
@@ -23,10 +25,15 @@ class WorkspaceController extends Controller
             $request->session()->forget('active_org_id');
         }
 
+        $id = (int) $request->user()->id;
+        // Authenticator status only (no secrets or recovery counts); owners and enrolled accounts must use it.
+        $mfa = $context->run($id, null, fn () => json_decode(DB::selectOne('SELECT app_account_mfa_state() AS data')->data, true, flags: JSON_THROW_ON_ERROR));
+
         // Materialized allowlisted data only; no lazy tenant queries after context closes.
         return Inertia::render('Workspaces', [
             'workspaces' => $listing, 'activeOrgId' => $revoked ? null : $selected,
             'accessRevoked' => $revoked,
+            'security' => ['enrolled' => (bool) $mfa['enrolled'], 'required' => $mfa['owner'] || $mfa['enrolled']],
         ]);
     }
 
