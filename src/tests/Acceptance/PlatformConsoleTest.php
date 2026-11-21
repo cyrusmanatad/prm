@@ -125,6 +125,11 @@ class PlatformConsoleTest extends AcceptanceCase
         $operator = $this->operator('{directory.read}');
         $this->actingAs($operator)->get('/workspaces')->assertOk()->assertInertia(fn ($page) => $page->where('platformAccess', true));
         $this->actingAs($operator)->get('/admin/accounts')->assertRedirect('/admin/security');
+        // Workspace pages render inside the workspace's tenant context; the hint and the selected workspace still resolve.
+        $org = app(Workspaces::class)->create($operator->id, 'Operator studio');
+        $this->actingAs($operator)->withSession(['active_org_id' => $org])->get('/partner/contacts')->assertOk()
+            ->assertInertia(fn ($page) => $page->where('platformAccess', true)
+                ->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'partner']));
 
         $unverified = User::factory()->unverified()->create();
         $this->control->table('platform_grants')->insert(['user_id' => $unverified->id, 'permissions' => '{directory.read}']);

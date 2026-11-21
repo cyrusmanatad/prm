@@ -56,3 +56,34 @@ it('offers only closure and security navigation while the account is closing', a
     page.props = { accountClosing: true };
     expect(await open()).toEqual(['Account closure', 'Authenticator security', 'Sign out']);
 });
+
+it('offers the Partner tools on every page while a Partner workspace is selected', async () => {
+    const partnerTools = ['Contacts and reminders', 'Outreach templates', 'Onboarding requests', 'Brand sharing'];
+    page.props = { activeWorkspace: { kind: 'creator', experience: 'partner' } };
+    for (const url of ['/workspaces', '/automation', '/partner/contacts', '/account/exports']) {
+        page.url = url;
+        expect(await open()).toEqual([
+            'Switch workspace / account security',
+            'Privacy exports',
+            ...partnerTools,
+            'Sign out',
+        ]);
+        expect(document.body.querySelector('a[href="/partner/onboarding"]')).not.toBeNull();
+        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+    }
+
+    // Professional workspaces use their own navigation; Brand workspaces and no selection have no workspace tools.
+    for (const activeWorkspace of [
+        { kind: 'creator', experience: 'professional' },
+        { kind: 'brand', experience: 'partner' },
+        null,
+    ]) {
+        page.props = { activeWorkspace };
+        expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
+        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+    }
+
+    // A closing account still sees only closure and security navigation.
+    page.props = { accountClosing: true, activeWorkspace: { kind: 'creator', experience: 'partner' } };
+    expect(await open()).toEqual(['Account closure', 'Authenticator security', 'Sign out']);
+});

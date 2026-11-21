@@ -62,4 +62,27 @@ class InertiaWorkspaceTest extends TestCase
             ->where('security', ['enrolled' => false, 'required' => false])->missing('security.recovery_remaining')->etc());
         $this->assertNull(DB::selectOne('SELECT app_actor() AS actor')->actor);
     }
+
+    public function test_active_workspace_is_shared_only_for_a_current_membership(): void
+    {
+        $this->withoutVite();
+        $user = User::factory()->create();
+        $service = app(Workspaces::class);
+        $own = $service->create($user->id, 'Shared menu workspace');
+        $professional = $service->create($user->id, 'Shared menu consulting', experience: 'professional');
+        $foreign = $service->create(User::factory()->create()->id, 'Not a member');
+        $this->actingAs($user)->withSession(['active_org_id' => $own])->get('/workspaces')
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'partner'])->etc());
+        $this->withSession(['active_org_id' => $professional])->get('/workspaces')
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'professional'])->etc());
+        // Workspace pages render inside the workspace's own tenant context and still describe it.
+        $this->withSession(['active_org_id' => $own])->get('/partner/contacts')->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'partner'])->etc());
+        $this->withSession(['active_org_id' => $professional])->get('/professional/contacts')->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'professional'])->etc());
+        // Another account's workspace is never described, even if the session names it.
+        $this->withSession(['active_org_id' => $foreign])->get('/workspaces')
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', null)->etc());
+        $this->assertNull(DB::selectOne('SELECT app_actor() AS actor')->actor);
+    }
 }
