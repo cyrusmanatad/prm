@@ -12,6 +12,7 @@ import DialogClose from '../../components/DialogClose.vue';
 import OnboardingEmailFields from '../../components/OnboardingEmailFields.vue';
 import OnboardingSubmissionNotice from '../../components/OnboardingSubmissionNotice.vue';
 import EntryFields from './EntryFields.vue';
+import { currencyOptions as leadCurrencyOptions, localInput, snoozeValue } from './leadFields';
 import PipelineBoard from './PipelineBoard.vue';
 import { fromMinor, money, toMinor } from './money';
 import { pipelineStages } from './stages';
@@ -107,7 +108,7 @@ const blank = (): LeadForm => ({
     contact_email: '',
     notes: '',
     currency: 'PHP',
-    amount: '0',
+    amount: '',
     next_action_due: '',
 });
 const createForm = ref(blank());
@@ -151,26 +152,6 @@ function recordActivity(event: Event): void {
         );
     } else save();
 }
-const currencyCodes = [
-    'PHP',
-    'USD',
-    'JPY',
-    'EUR',
-    'GBP',
-    'SGD',
-    'AUD',
-    'CAD',
-    'HKD',
-    'CNY',
-    'KRW',
-    'THB',
-    'MYR',
-    'IDR',
-    'VND',
-    'INR',
-    'AED',
-];
-const currencyNames = new Intl.DisplayNames(['en'], { type: 'currency' });
 const stageDots = Object.fromEntries(pipelineStages.map((stage) => [stage.value, stage.dot]));
 const activityLabels: Record<string, string> = {
     note: 'Note',
@@ -184,11 +165,6 @@ const activityLabels: Record<string, string> = {
     snoozed: 'Snoozed',
 };
 const stamp = (value: string | null): string => (value ? new Date(value).toLocaleString() : 'No next action');
-const localInput = (value: string | null): string => {
-    if (!value) return '';
-    const date = new Date(value);
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
-};
 watch(
     [() => props.workspace.id, () => props.selected?.id],
     () => {
@@ -267,7 +243,8 @@ function visit(
     });
 }
 function details(form: LeadForm): Record<string, string | null> | null {
-    const amount = toMinor(form.amount, form.currency);
+    // The value is optional; an empty amount is stored as zero.
+    const amount = toMinor(form.amount.trim() === '' ? '0' : form.amount, form.currency);
     if (amount === null) {
         formErrors.value = {
             value_minor: 'Enter a valid value for this currency and a three-letter uppercase currency code.',
@@ -286,6 +263,11 @@ function details(form: LeadForm): Record<string, string | null> | null {
 }
 function create(): void {
     formAction.value = 'create';
+    // The form skips browser validation bubbles; the name is checked here and every field again on the server.
+    if (!createForm.value.brand_name.trim()) {
+        formErrors.value = { brand_name: professional.value ? 'Enter the client name.' : 'Enter the Brand name.' };
+        return;
+    }
     const data = details(createForm.value);
     if (data)
         visit('post', '/pipeline', registerWith.value ? { ...data, register_with: registerWith.value } : data, () => {
@@ -325,10 +307,7 @@ function update(): void {
     visit('patch', `/pipeline/${selected.id}`, { ...data, version: loadedVersion.value }, saveStage);
 }
 function snoozeBy(days: number): void {
-    const date = new Date();
-    date.setDate(date.getDate() + days);
-    date.setHours(9, 0, 0, 0);
-    editForm.value.next_action_due = localInput(date.toISOString());
+    editForm.value.next_action_due = snoozeValue(days);
 }
 function activityLabel(kind: string): string {
     return activityLabels[kind] ?? kind;
@@ -341,13 +320,6 @@ function activityWhen(value: string): string {
         hour: 'numeric',
         minute: '2-digit',
     });
-}
-function currencyHint(code: string): string {
-    try {
-        return currencyNames.of(code) ?? '';
-    } catch {
-        return '';
-    }
 }
 function onTabKey(event: KeyboardEvent): void {
     const order = ['details', 'activity'] as const;
@@ -364,12 +336,7 @@ function onTabKey(event: KeyboardEvent): void {
 }
 const stageLabel = computed(() => props.stages.find((item) => item.value === stage.value)?.label ?? stage.value);
 const stageDot = computed(() => stageDots[stage.value] ?? 'var(--wd-muted)');
-const currencyOptions = computed(() => {
-    const codes = [...currencyCodes];
-    if (/^[A-Z]{3}$/.test(editForm.value.currency) && !codes.includes(editForm.value.currency))
-        codes.push(editForm.value.currency);
-    return codes.map((code) => ({ value: code, label: code, hint: currencyHint(code) }));
-});
+const currencyOptions = computed(() => leadCurrencyOptions(editForm.value.currency));
 const detailErrors = computed((): Record<string, string> => (formAction.value === 'update' ? errors.value : {}));
 function command(action: string, data: Record<string, string | null>, done?: () => void): void {
     formAction.value = action;
@@ -959,39 +926,69 @@ function reloadSelected(): void {
                 </footer>
             </template>
             <template v-else>
-                <div class="wd-dialog-header">
-                    <h2 id="lead-dialog-title">Add lead</h2>
+                <header class="create-header">
+                    <div>
+                        <h2 id="lead-dialog-title">Add lead</h2>
+                        <p class="create-sub">
+                            Private to your workspace · starts in
+                            <span class="stage-chip"
+                                ><span
+                                    class="stage-dot"
+                                    :style="{ background: stageDots.lead }"
+                                    aria-hidden="true"
+                                ></span
+                                >Lead</span
+                            >
+                        </p>
+                    </div>
                     <DialogClose label="Close add lead" :disabled="busy" @click="close" />
-                </div>
-                <div v-if="errors.version" class="wd-banner">
-                    <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
-                    <p class="wd-hint">Copy any unsaved changes before reloading.</p>
-                </div>
-                <form v-if="creating && canWrite" :aria-busy="busy" @submit.prevent="create">
-                    <fieldset class="wd-fields" :disabled="busy || !!errors.version">
-                        <legend class="wd-sr-only">New lead</legend>
-                        <EntryFields
-                            v-model="createForm"
-                            prefix="create"
-                            :errors="formAction === 'create' ? errors : {}"
-                        />
-                        <SelectField
-                            v-if="brandChoices.length"
-                            id="create-register-with"
-                            v-model="registerWith"
-                            label="This lead is for (optional)"
-                            :options="[{ value: '', label: 'No Brand — keep this lead private' }, ...brandChoices]"
-                            :searchable="brandChoices.length > 8"
-                            hint="Choose a connected Brand to register this lead with them now. They will see the lead's name and stage, kept up to date. Notes, value and contact stay private. You can change or withdraw this in Brand sharing."
-                            :error="formAction === 'create' ? errors.register_with : undefined"
-                        />
-                        <div class="wd-dialog-footer">
-                            <Button type="button" class="wd-button wd-button-secondary" @click="close">Cancel</Button>
-                            <Button type="submit" class="wd-button wd-button-primary">{{
-                                busy ? 'Saving…' : 'Capture lead'
-                            }}</Button>
+                </header>
+                <form
+                    v-if="creating && canWrite"
+                    class="create-form"
+                    novalidate
+                    :aria-busy="busy"
+                    @submit.prevent="create"
+                >
+                    <div class="create-body">
+                        <div v-if="errors.version" class="wd-banner">
+                            <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
+                            <p class="wd-hint">Copy any unsaved changes before reloading.</p>
                         </div>
-                    </fieldset>
+                        <fieldset class="create-fields" :disabled="busy || !!errors.version">
+                            <legend class="wd-sr-only">New lead</legend>
+                            <EntryFields
+                                v-model="createForm"
+                                prefix="create"
+                                :errors="formAction === 'create' ? errors : {}"
+                            />
+                            <div v-if="brandChoices.length" class="create-share">
+                                <SelectField
+                                    id="create-register-with"
+                                    v-model="registerWith"
+                                    label="Share with a Brand (optional)"
+                                    :options="[{ value: '', label: 'No Brand — keep private' }, ...brandChoices]"
+                                    :searchable="brandChoices.length > 8"
+                                    hint="The Brand sees the lead's name and stage. Notes, value and contact stay private. Change this later in Brand sharing."
+                                    :error="formAction === 'create' ? errors.register_with : undefined"
+                                />
+                            </div>
+                        </fieldset>
+                    </div>
+                    <footer class="create-footer">
+                        <p class="create-required">
+                            Only the {{ professional ? 'client name' : 'Brand name' }} is required.
+                        </p>
+                        <Button type="button" class="wd-button wd-button-secondary" :disabled="busy" @click="close"
+                            >Cancel</Button
+                        >
+                        <Button
+                            type="submit"
+                            class="wd-button wd-button-primary"
+                            :disabled="busy || !!errors.version"
+                            >{{ busy ? 'Saving…' : 'Add lead' }}</Button
+                        >
+                    </footer>
                 </form>
             </template>
         </dialog>
@@ -1001,6 +998,79 @@ function reloadSelected(): void {
 .lead-dialog {
     width: min(640px, calc(100dvw - 32px));
     max-width: calc(100dvw - 32px);
+}
+/* Add lead: the header and footer stay in view while the fields scroll. */
+.lead-dialog:not(.lead-drawer)[open] {
+    display: flex;
+    flex-direction: column;
+    width: min(600px, calc(100dvw - 32px));
+    padding: 0;
+    overflow: hidden;
+}
+.create-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--wd-divider);
+}
+.create-header h2 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.2;
+}
+.create-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 0;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.create-form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+.create-body {
+    flex: 1;
+    min-height: 0;
+    padding: 16px 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.create-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.create-share {
+    padding: 12px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-paper);
+}
+.create-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--wd-divider);
+    background: var(--wd-paper);
+}
+.create-required {
+    margin: 0 auto 0 0;
+    color: var(--wd-muted);
+    font-size: 12.5px;
 }
 .lead-dialog.lead-drawer {
     inset: 0 0 0 auto;
@@ -1441,6 +1511,23 @@ function reloadSelected(): void {
     .lead-dialog {
         inset: 16px auto auto 16px;
         margin: 0;
+    }
+    /* Add lead opens as a full-screen sheet on phones, still anchored to the device viewport. */
+    .lead-dialog:not(.lead-drawer)[open] {
+        inset: 0 auto auto 0;
+        width: 100dvw;
+        max-width: 100dvw;
+        height: 100dvh;
+        max-height: 100dvh;
+        border: 0;
+        border-radius: 0;
+    }
+    .create-required {
+        flex-basis: 100%;
+    }
+    .create-footer :deep(.wd-button) {
+        flex: 1;
+        min-height: 44px;
     }
     .lead-dialog.lead-drawer {
         inset: 0 auto 0 0;

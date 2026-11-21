@@ -56,7 +56,7 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
             dialog
                 .getByRole('button', { name, exact: true })
                 .evaluate((button) => getComputedStyle(button).backgroundColor);
-        expect(await background('Cancel')).not.toBe(await background('Capture lead'));
+        expect(await background('Cancel')).not.toBe(await background('Add lead'));
         await expect(page.getByLabel('Brand name', { exact: true })).toBeFocused();
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         if (process.env.CAPTURE_BROWSER_IMAGES === '1')
@@ -69,7 +69,7 @@ test('shared controls preserve keyboard intent and layouts adapt across viewport
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('UI review studio');
-    await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+    await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'UI review studio', exact: true });
     await expect(drawer).toBeVisible();
     const disclosure = drawer.locator('summary').filter({ hasText: 'Delete lead' });

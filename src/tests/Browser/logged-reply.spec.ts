@@ -11,7 +11,7 @@ test('confirmed reply clears next action and cancels approved follow-up history'
     await page.getByRole('link', { name: 'Open partner portal' }).click();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('Synthetic reply lead');
-    await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+    await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Synthetic reply lead', exact: true })).toBeVisible();
     const leadUrl = page.url();
     const lead = new URL(leadUrl).searchParams.get('entry')!;
