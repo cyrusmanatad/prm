@@ -169,3 +169,72 @@ it('records activity with a chosen type and shows a labelled summary to viewers'
     expect(viewer.find('button[aria-label="Delete lead"]').exists()).toBe(false);
     expect(viewer.findAll('.drawer-status-row button')).toHaveLength(0);
 });
+
+it('opens the composer from one line, keeps Escape inside it and returns focus on Cancel', async () => {
+    const wrapper = await drawer();
+    await wrapper.get('#lead-tab-activity').trigger('click');
+    const trigger = wrapper.get('.composer-open');
+    const composer = wrapper.get('#activity-composer');
+    expect(composer.isVisible()).toBe(false);
+    expect(trigger.attributes('aria-expanded')).toBe('false');
+    await trigger.trigger('click');
+    await nextTick();
+    expect(composer.isVisible()).toBe(true);
+    expect((document.activeElement as HTMLInputElement).value).toBe('note');
+    await wrapper.get('#activity-body').setValue('Draft to drop');
+    const escape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    composer.element.dispatchEvent(escape);
+    await nextTick();
+    await nextTick();
+    expect(escape.defaultPrevented).toBe(true);
+    expect(composer.isVisible()).toBe(false);
+    expect((wrapper.get('#activity-body').element as HTMLTextAreaElement).value).toBe('');
+    expect(document.activeElement).toBe(trigger.element);
+    // The drawer itself stays open.
+    expect((wrapper.get('dialog.lead-drawer').element as HTMLDialogElement).open).toBe(true);
+});
+
+it('groups history by day, filters conversations and changes, and reads changes plainly', async () => {
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+    const at = (hours: number) => new Date(today.getTime() - hours * 3_600_000).toISOString();
+    const wrapper = await drawer({
+        activities: [
+            { id: 'a4', kind: 'note', body: 'Budget is tight.', occurred_at: at(0) },
+            { id: 'a3', kind: 'stage', body: 'Stage changed from lead to pitched.', occurred_at: at(1) },
+            { id: 'a2', kind: 'call', body: 'Intro call.', occurred_at: at(30) },
+            { id: 'a1', kind: 'created', body: 'Lead captured.', occurred_at: at(31) },
+        ],
+    });
+    await wrapper.get('#lead-tab-activity').trigger('click');
+    const history = () => wrapper.get('.history');
+    expect(
+        history()
+            .findAll('.history-day-label')
+            .map((day) => day.text()),
+    ).toEqual(['Today', 'Yesterday']);
+    expect(history().text()).toContain('Stage Lead → Pitched');
+    expect(history().text()).toContain('Lead captured');
+    expect(history().text()).not.toContain('Stage changed from');
+    expect(history().get('.history-end').text()).toBe("Start of this lead's history");
+    const chips = history().findAll('.wd-filter-chips button');
+    expect(chips.map((chip) => chip.text().replace(/\s+/g, ' '))).toEqual(['All 4', 'Conversations 2', 'Changes 2']);
+    await chips[1]!.trigger('click');
+    expect(history().findAll('.timeline li')).toHaveLength(2);
+    expect(history().findAll('.timeline li.is-change')).toHaveLength(0);
+    await chips[2]!.trigger('click');
+    expect(history().findAll('.timeline li.is-conversation')).toHaveLength(0);
+    expect(chips[2]!.attributes('aria-pressed')).toBe('true');
+});
+
+it('says when the history is cut off at 50 events', async () => {
+    const activities = Array.from({ length: 50 }, (_, index) => ({
+        id: `e${index}`,
+        kind: 'note',
+        body: `Event ${index}`,
+        occurred_at: new Date(Date.now() - index * 60_000).toISOString(),
+    }));
+    const wrapper = await drawer({ activities });
+    await wrapper.get('#lead-tab-activity').trigger('click');
+    expect(wrapper.get('.history-end').text()).toBe('Showing the latest 50 events.');
+});

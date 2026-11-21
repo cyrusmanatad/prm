@@ -54,6 +54,7 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.getByRole('button', { name: 'Save lead', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Lead saved' }).last()).toBeVisible();
     await page.getByRole('tab', { name: 'Activity', exact: true }).click();
+    await page.getByRole('button', { name: /Log activity/ }).click();
     await page.getByLabel('Details', { exact: true }).fill('Discussed the next collaboration.');
     await Promise.all([
         page.waitForResponse(
