@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
-import { approvedBrand, fixture, login, migrationFixture, openBrandHub } from './helpers';
+import { approvedBrand, fixture, login, migrationFixture, mutate, openBrandHub, smallTouchTargets } from './helpers';
 import AxeBuilder from '@axe-core/playwright';
 const routes = [
     '',
@@ -134,6 +134,12 @@ test('Professional presentation, destinations and editor cancellation', async ({
                     await expect(badge).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.12)');
                     await expect(badge).toHaveCSS('font-size', '12px');
                     await expect(badge).toHaveCSS('padding', '3px 8px');
+                    // From 360px the brand, Menu and account share one header row.
+                    if (width >= 360 && width < 1024) {
+                        const brandBox = (await brand.boundingBox())!;
+                        const menuBox = (await page.getByRole('button', { name: 'Menu', exact: true }).boundingBox())!;
+                        expect(menuBox.y).toBeLessThan(brandBox.y + brandBox.height);
+                    }
                     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
                         await page.locator('.pro-header').screenshot({
                             path: info.outputPath('professional-ui.spec-capture-6964.png'),
@@ -174,7 +180,8 @@ test('Professional presentation, destinations and editor cancellation', async ({
     const menu = page.getByRole('button', { name: 'Menu', exact: true });
     await menu.click();
     const nav = page.getByRole('menu', { name: 'Menu', exact: true });
-    await expect(nav.getByRole('menuitem')).toHaveCount(9);
+    await expect(nav.getByRole('menuitem')).toHaveCount(10);
+    await expect(nav.getByRole('menuitem', { name: 'Brand sharing', exact: true })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
         await page.screenshot({
@@ -191,6 +198,45 @@ test('Professional presentation, destinations and editor cancellation', async ({
     await expect(page.getByRole('menuitem', { name: 'Client leads', exact: true })).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(clientWork).toBeFocused();
+});
+
+test('Professional Hub summarizes work, queues what is due and opens Add lead', async ({ page }, info) => {
+    test.setTimeout(120_000);
+    await startProfessional(page, info.project.name);
+    const mobile = info.project.name.includes('mobile');
+    expect(
+        await mutate(page, '/pipeline', 'POST', { brand_name: 'Harbor Studio', currency: 'USD', value_minor: '0' }),
+    ).toBe(201);
+    const overdue = new Date(Date.now() - 86_400_000).toISOString();
+    expect(await mutate(page, '/reminders', 'POST', { title: 'Send revised proposal', due_at: overdue })).toBe(201);
+    await page.goto('/professional');
+    await expect(page.getByRole('heading', { level: 1, name: 'Professional Hub' })).toHaveCSS(
+        'font-size',
+        mobile ? '24px' : '28px',
+    );
+    await expect(page.getByRole('complementary', { name: 'Professional subscription' })).toHaveCount(0);
+    const summary = page.getByRole('list', { name: 'Workspace summary' });
+    await expect(summary.getByRole('link')).toHaveCount(4);
+    await expect(summary.getByRole('link', { name: /Open client leads/ })).toContainText('1');
+    await expect(summary.getByRole('link', { name: /Reminders due/ })).toContainText('1 overdue');
+    const queue = page.getByRole('region', { name: 'Up next' });
+    await expect(queue.getByRole('link', { name: /Send revised proposal/ })).toContainText('Overdue');
+    await queue.getByRole('button', { name: /^Onboarding/ }).click();
+    await expect(queue.getByRole('link', { name: /Send revised proposal/ })).toHaveCount(0);
+    await queue.getByRole('button', { name: /^All/ }).click();
+    await expect(page.getByRole('region', { name: 'Tools' }).getByRole('link')).toHaveCount(9);
+    await expect(page.getByRole('region', { name: 'Subscription' })).toContainText('Active');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (mobile) expect(await smallTouchTargets(page)).toEqual([]);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    if (!mobile) {
+        await page.setViewportSize({ width: 1024, height: 900 });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await page.setViewportSize({ width: 1440, height: 900 });
+    }
+    await page.getByRole('link', { name: 'Add client lead', exact: true }).click();
+    await expect(page).toHaveURL(/\/professional\/leads\?create=1$/);
+    await expect(page.getByRole('dialog', { name: 'Add lead' })).toBeVisible();
 });
 
 test('Professional pipeline panels retain empty and populated partnerships across widths', async ({

@@ -6,6 +6,7 @@ export const professionalGroups = [
             { href: '/professional/leads', label: 'Client leads' },
             { href: '/professional/contacts', label: 'Contacts and reminders' },
             { href: '/professional/onboarding', label: 'Client onboarding' },
+            { href: '/professional/brand-sharing', label: 'Brand sharing' },
         ],
     },
     {
