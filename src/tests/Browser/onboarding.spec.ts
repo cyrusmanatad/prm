@@ -36,8 +36,8 @@ test('creator invites brand, brand resumes, uploads, submits and corrects; creat
     await page.getByRole('link', { name: 'Open partner portal' }).click();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('Onboarding Studio');
-    await page.getByLabel('Private notes (optional)').fill('PRIVATE creator notes must never be shown to brand');
-    await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+    await page.getByLabel('Private notes', { exact: true }).fill('PRIVATE creator notes must never be shown to brand');
+    await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     await page.getByRole('button', { name: 'Start onboarding', exact: true }).click();
     const link = await page.getByLabel('Private invitation link (copy now)').inputValue();
     const ownerUrl = page.url();

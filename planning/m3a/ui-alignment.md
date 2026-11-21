@@ -50,6 +50,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-21):** the account menu offers the same items on every page: while a Partner workspace is selected, it lists Contacts and reminders, Outreach templates, Onboarding requests and Brand sharing, including on Workspaces, Automation, Finance and account pages. Contacts, Outreach templates and Onboarding requests keep the Partner header (My leads, Media kit). Platform staff see the administration link on workspace pages too. Evidence: [account menu consistency](account-menu-evidence.md).
 
+**Confirmed (2026-11-21):** the Add lead dialog uses the approved Option A layout: a compact centred dialog with a fixed header and footer, the lead drawer's field groups (name and value with a currency picker, optional primary contact, optional follow-up with shortcuts and private notes), an optional Share with a Brand box, field-level errors instead of browser bubbles, an "Add lead" submit and a full-screen sheet on phones. Evidence: [Add lead](add-lead-evidence.md).
+
 **Confirmed (2026-11-21):** Brand workspaces follow the same account menu rule: while one is selected, the menu offers Partner hub and Lead registrations on every page. Evidence: [account menu consistency](account-menu-evidence.md#brand-follow-up-2026-11-21).
 
 ## Table controls and partner avatars (2026-11-19)

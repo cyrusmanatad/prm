@@ -311,7 +311,7 @@ test('Professional tools retain client, onboarding, publishing, finance and auto
     await page.goto('/professional/leads');
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Client name (individual or business)', { exact: true }).fill('Independent client');
-    await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+    await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Independent client', exact: true })).toBeVisible();
     const leadUrl = page.url();
     await capture('lead-editor');

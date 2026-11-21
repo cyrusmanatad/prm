@@ -14,8 +14,8 @@ test('private pipeline capture, seven stages, stale tabs, snooze, activity, and 
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('M2 Studio');
     await page.getByLabel('Estimated value', { exact: true }).fill('1234.56');
-    await page.getByLabel('Private notes (optional)').fill('Private creator notes');
-    await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+    await page.getByLabel('Private notes', { exact: true }).fill('Private creator notes');
+    await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'M2 Studio', exact: true })).toBeVisible();
     await expect(page.getByRole('status').filter({ hasText: 'Lead captured' })).toBeVisible();
     await expect(page.locator('.pipeline-card')).toContainText('PHP 1,234.56');

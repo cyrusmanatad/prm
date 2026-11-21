@@ -322,9 +322,9 @@ test('a partner can name the brand while adding a lead, or leave it private', as
             await pp.getByRole('button', { name: '+ Add lead', exact: true }).click();
             const dialog = pp.getByRole('dialog', { name: 'Add lead', exact: true });
             await expect(dialog).toBeVisible();
-            const choice = dialog.getByRole('combobox', { name: 'This lead is for (optional)', exact: true });
+            const choice = dialog.getByRole('combobox', { name: 'Share with a Brand (optional)', exact: true });
             // Optional and private by default.
-            await expect(choice).toHaveText('No Brand — keep this lead private');
+            await expect(choice).toHaveText('No Brand — keep private');
             await expect(dialog).toContainText('Notes, value and contact stay private.');
             await pp.getByLabel('Brand name', { exact: true }).fill(name);
             if (forBrand) {
@@ -335,7 +335,7 @@ test('a partner can name the brand while adding a lead, or leave it private', as
                 expect(scan.violations).toEqual([]);
                 expect(await pp.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
             }
-            await dialog.getByRole('button', { name: 'Capture lead', exact: true }).click();
+            await dialog.getByRole('button', { name: 'Add lead', exact: true }).click();
             await expect(dialog).not.toBeVisible();
             await dismissNotifications(pp);
             await pp.goto('/partner/leads');
@@ -344,8 +344,8 @@ test('a partner can name the brand while adding a lead, or leave it private', as
         await add('Captured for the brand', true);
         // The next lead starts private again.
         await pp.getByRole('button', { name: '+ Add lead', exact: true }).click();
-        await expect(pp.getByRole('combobox', { name: 'This lead is for (optional)', exact: true })).toHaveText(
-            'No Brand — keep this lead private',
+        await expect(pp.getByRole('combobox', { name: 'Share with a Brand (optional)', exact: true })).toHaveText(
+            'No Brand — keep private',
         );
         await pp.keyboard.press('Escape');
         await pp.goto('/partner/brand-sharing');

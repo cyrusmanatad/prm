@@ -19,7 +19,7 @@ test('contacts are reusable and reminders snooze, complete and reopen', async ({
     await page.getByRole('link', { name: 'Open partner portal' }).click();
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('CRM Studio');
-    await page.getByRole('button', { name: 'Capture lead', exact: true }).click();
+    await page.getByRole('button', { name: 'Add lead', exact: true }).click();
     await page.getByRole('link', { name: /Contacts & reminders/ }).click();
     await page.getByRole('button', { name: 'New contact', exact: true }).click();
     await page.getByLabel('Contact name', { exact: true }).fill('Sam Contact');
