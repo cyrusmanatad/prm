@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 export function fixture(action: 'seed' | 'seed-unverified', email: string): { email: string };
@@ -158,4 +158,38 @@ export async function smallTouchTargets(page: Page): Promise<string[]> {
         }
         return [...new Set(found)];
     });
+}
+
+/** Opens a tab on the Automation page (Approvals, Schedules, Email history or Preferences). */
+export async function automationTab(page: Page, name: 'Approvals' | 'Schedules' | 'Email history' | 'Preferences') {
+    await page.getByRole('tab', { name: new RegExp(`^${name}`) }).click();
+}
+
+/** Opens New schedule, picks its type and, when given, fills the schedule name. */
+export async function newSchedule(
+    page: Page,
+    type: 'Weekly digest' | 'Reminder email' | 'Follow-up draft',
+    name?: string,
+): Promise<Locator> {
+    await page.getByRole('button', { name: 'New schedule', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'New schedule', exact: true });
+    await dialog.getByRole('radio', { name: type, exact: true }).click();
+    if (name) await dialog.getByLabel('Schedule name', { exact: true }).fill(name);
+    return dialog;
+}
+
+/** Opens Write follow-up and fills it; the saved draft then opens in its drawer. */
+export async function writeFollowUp(page: Page, lead: string, recipient: string, subject: string, message: string) {
+    await page.getByRole('button', { name: 'Write follow-up', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Write a follow-up', exact: true });
+    await dialog.getByRole('combobox', { name: 'Lead', exact: true }).click();
+    await page.getByRole('option', { name: lead, exact: true }).click();
+    await dialog.getByLabel('Recipient email', { exact: true }).fill(recipient);
+    await dialog.getByLabel('Message subject', { exact: true }).fill(subject);
+    await dialog.getByLabel('Message', { exact: true }).fill(message);
+    await dialog.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await expect(dialog).not.toBeVisible();
+    const drawer = page.getByRole('dialog', { name: subject, exact: true });
+    await expect(drawer).toBeVisible();
+    return drawer;
 }

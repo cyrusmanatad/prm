@@ -21,7 +21,8 @@ class FollowUpController extends Controller
         ]);
         $id = $drafts->save((int) $request->user()->id, $request->session()->get('active_org_id'), $data, $draft);
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Draft saved for review'], '/automation', $draft ? 200 : 201);
+        return $this->completed($request, ['id' => $id, 'message' => 'Draft saved for review'],
+            $this->automationReturn($request, $draft ? [] : ['tab' => null, 'draft' => $id]), $draft ? 200 : 201);
     }
 
     public function handoff(Request $request, FollowUpDrafts $drafts, string $draft): Response
@@ -38,7 +39,7 @@ class FollowUpController extends Controller
         $data = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']]);
         $id = $drafts->queueSend((int) $request->user()->id, $request->session()->get('active_org_id'), $draft, $data['version']);
 
-        return $this->completed($request, ['id' => $id, 'message' => 'Follow-up email queued; receipt is not confirmed'], '/automation');
+        return $this->completed($request, ['id' => $id, 'message' => 'Follow-up email queued; receipt is not confirmed'], $this->automationReturn($request));
     }
 
     public function transition(Request $request, FollowUpDrafts $drafts, string $draft, string $action): JsonResponse|RedirectResponse
@@ -46,6 +47,6 @@ class FollowUpController extends Controller
         $data = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646']]);
         $drafts->transition((int) $request->user()->id, $request->session()->get('active_org_id'), $draft, $data['version'], $action);
 
-        return $this->completed($request, ['message' => $action === 'approve' ? 'Approved for manual sending; no email sent' : 'Draft discarded'], '/automation');
+        return $this->completed($request, ['message' => $action === 'approve' ? 'Approved for manual sending; no email sent' : 'Draft discarded'], $this->automationReturn($request));
     }
 }

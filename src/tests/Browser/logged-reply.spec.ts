@@ -83,9 +83,15 @@ test('confirmed reply clears next action and cancels approved follow-up history'
             .then((r) => r.status()),
     ).toBe(409);
     await page.goto('/automation');
-    await expect(page.getByText('Cancelled after a reply · Version 3', { exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Download approved message' })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Edit Obsolete follow-up', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: /^Closed/ }).click();
+    const row = page.getByRole('row', { name: /Obsolete follow-up/ });
+    await expect(row).toContainText('Cancelled');
+    await row.getByRole('button', { name: 'Obsolete follow-up', exact: true }).click();
+    const drawer = page.getByRole('dialog', { name: 'Obsolete follow-up', exact: true });
+    await expect(drawer.getByText('Cancelled after a reply · Version 3', { exact: true })).toBeVisible();
+    await expect(drawer.getByRole('link', { name: 'Download approved message' })).toHaveCount(0);
+    await expect(drawer.getByRole('button', { name: 'Edit Obsolete follow-up', exact: true })).toHaveCount(0);
+    await drawer.getByRole('button', { name: 'Close follow-up draft', exact: true }).click();
     for (const width of reviewWidths(info)) {
         await page.setViewportSize({ width, height: 1080 });
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);

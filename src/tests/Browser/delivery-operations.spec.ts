@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { fixture, login, mutate } from './helpers';
+import { automationTab, fixture, login, mutate, writeFollowUp } from './helpers';
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 test('explicit approved sending and MFA-protected resolution never replay uncertain email', async ({ page }, info) => {
@@ -15,7 +15,7 @@ test('explicit approved sending and MFA-protected resolution never replay uncert
     await page.getByRole('button', { name: /Role test workspace/ }).click();
     await page.getByRole('link', { name: 'Open partner portal', exact: true }).click();
     await expect(page).toHaveURL(/\/partner\/leads/);
-    await page.goto('/automation');
+    await page.goto('/automation?tab=preferences');
     await page.getByLabel('Follow-up review emails to my account', { exact: true }).check();
     await page.getByRole('button', { name: 'Save preferences', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Automation preferences saved' })).toBeVisible();
@@ -23,32 +23,35 @@ test('explicit approved sending and MFA-protected resolution never replay uncert
         await mutate(page, '/pipeline', 'POST', { brand_name: 'Delivery client', currency: 'PHP', value_minor: '0' }),
     ).toBe(201);
     await page.reload();
-    await page.getByRole('combobox', { name: 'Lead', exact: true }).click();
-    await page.getByRole('option', { name: 'Delivery client', exact: true }).click();
-    await page.getByLabel('Recipient email', { exact: true }).fill('explicit@example.test');
-    await page.getByLabel('Message subject', { exact: true }).fill('Approved delivery example');
-    await page
-        .getByLabel('Message', { exact: true })
-        .fill('This is the exact message approved for synthetic delivery.');
-    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Follow-up review email', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Approve Approved delivery example', exact: true }).click();
+    const drawer = await writeFollowUp(
+        page,
+        'Delivery client',
+        'explicit@example.test',
+        'Approved delivery example',
+        'This is the exact message approved for synthetic delivery.',
+    );
+    await drawer.getByRole('button', { name: 'Approve Approved delivery example', exact: true }).click();
     await page
         .getByRole('dialog', { name: 'Approve follow-up?', exact: true })
         .getByRole('button', { name: 'Approve follow-up', exact: true })
         .click();
-    const send = page.getByRole('button', { name: 'Send approved message', exact: true });
+    const send = drawer.getByRole('button', { name: 'Send approved message', exact: true });
     await send.click();
     const dialog = page.getByRole('dialog', { name: 'Send approved message?', exact: true });
     await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
     await expect(dialog).toContainText('explicit@example.test');
     await page.keyboard.press('Escape');
     await expect(send).toBeFocused();
-    await expect(page.getByRole('heading', { name: 'Approved follow-up email', exact: true })).toHaveCount(0);
     await send.click();
     await dialog.getByRole('button', { name: 'Send approved message', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Approved follow-up email', exact: true })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Follow-up email queued' })).toBeVisible();
     await expect(send).toHaveCount(0);
+    await expect(drawer).toContainText('An email request exists for this version.');
+    await drawer.getByRole('button', { name: 'Close follow-up draft', exact: true }).click();
+    await automationTab(page, 'Email history');
+    const history = page.getByRole('table', { name: 'Email history' });
+    await expect(history.getByText('Follow-up review email', { exact: true })).toBeVisible();
+    await expect(history.getByText('Approved follow-up email', { exact: true })).toBeVisible();
     if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
         if (process.env.CAPTURE_BROWSER_IMAGES === '1')
             await page.screenshot({
