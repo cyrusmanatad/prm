@@ -50,8 +50,10 @@ test('confirmed reply clears next action and cancels approved follow-up history'
     }, lead);
     await page.getByLabel('Private notes', { exact: true }).fill('Retain this unsaved note.');
     await page.getByRole('tab', { name: 'Activity', exact: true }).click();
-    await page.getByRole('combobox', { name: 'Type', exact: true }).click();
-    await page.getByRole('option', { name: 'Reply received', exact: true }).click();
+    await page
+        .getByRole('radiogroup', { name: 'Type', exact: true })
+        .getByRole('radio', { name: 'Reply received' })
+        .check();
     await page.getByLabel('Details', { exact: true }).fill('The brand replied through my email client.');
     const trigger = page.getByRole('button', { name: 'Record activity', exact: true });
     await trigger.click();

@@ -42,6 +42,7 @@ test('onboarding lifecycle controls queue explicit outcomes and open fresh scope
     await page.getByRole('button', { name: '+ Add lead', exact: true }).click();
     await page.getByLabel('Brand name', { exact: true }).fill('Lifecycle Studio');
     await page.getByRole('button', { name: 'Add lead', exact: true }).click();
+    await page.getByRole('button', { name: 'Start onboarding…', exact: true }).click();
     await expect(page.getByLabel('Email me when this form is submitted')).not.toBeChecked();
     await page.getByLabel('Email me when this form is submitted').check();
     await page.getByRole('button', { name: 'Start onboarding', exact: true }).click();

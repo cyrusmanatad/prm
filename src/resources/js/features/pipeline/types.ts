@@ -12,6 +12,12 @@ export interface Entry {
 export interface EntryDetail extends Entry {
     notes: string;
     activities: { id: string; kind: string; body: string; occurred_at: string }[];
+    /** Absent from older payloads. */
+    updated_at?: string;
+    /** The latest onboarding request for this lead. */
+    onboarding?: { id: string; status: string; created_at: string } | null;
+    /** Brands this lead is currently shared with. */
+    sharing?: { brand_name: string; paused: boolean; registered_at: string }[];
 }
 export interface LeadForm {
     brand_name: string;

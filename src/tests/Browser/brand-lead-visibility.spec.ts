@@ -82,7 +82,7 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await pp.getByRole('button', { name: 'Sign in', exact: true }).click();
         await expect(pp).toHaveURL(/\/partner\/leads$/);
         await pp.goto(`/partner/leads?entry=${seed.lead}`);
-        await pp.getByRole('link', { name: 'Register with a Brand', exact: true }).click();
+        await pp.getByRole('link', { name: 'Share with a Brand', exact: true }).click();
         await expect(pp).toHaveURL(new RegExp(`/partner/brand-sharing\\?lead=${seed.lead}$`));
         await expect(pp.getByRole('heading', { name: 'Brand sharing', level: 1 })).toBeVisible();
         await expect(pp.getByText('Nothing from your pipeline is visible to any Brand.')).toBeVisible();

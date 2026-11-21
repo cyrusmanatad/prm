@@ -4,7 +4,8 @@ const { professional, path, clientLabel } = useWorkspaceExperience();
 import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { Link, router } from '@inertiajs/vue3';
-import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch, type Component, type Ref } from 'vue';
+import { ChevronRight, Circle, Mail, MessageCircle, NotebookPen, Phone, Plus, Reply } from '@lucide/vue';
 import { Button } from '../../components/ui/button';
 import FormField from '../../components/FormField.vue';
 import SelectField from '../../components/SelectField.vue';
@@ -12,7 +13,9 @@ import DialogClose from '../../components/DialogClose.vue';
 import OnboardingEmailFields from '../../components/OnboardingEmailFields.vue';
 import OnboardingSubmissionNotice from '../../components/OnboardingSubmissionNotice.vue';
 import EntryFields from './EntryFields.vue';
-import { currencyOptions as leadCurrencyOptions, localInput, snoozeValue } from './leadFields';
+import { localInput } from './leadFields';
+import StatusBadge, { type BadgeTone } from '../../components/StatusBadge.vue';
+import { ago, requestStatuses, type RequestStatus } from '../onboarding/requests';
 import PipelineBoard from './PipelineBoard.vue';
 import { fromMinor, money, toMinor } from './money';
 import { pipelineStages } from './stages';
@@ -306,8 +309,87 @@ function update(): void {
     }
     visit('patch', `/pipeline/${selected.id}`, { ...data, version: loadedVersion.value }, saveStage);
 }
-function snoozeBy(days: number): void {
-    editForm.value.next_action_due = snoozeValue(days);
+// Unsaved edits: the footer says so and offers Discard; Save stays off until something changed.
+const dirty = computed(
+    () =>
+        !!props.selected &&
+        props.canWrite &&
+        (!sameLead(editForm.value, props.selected) || stage.value !== props.selected.stage),
+);
+function discard(): void {
+    if (busy.value || !props.selected) return;
+    refreshEdit();
+    stage.value = props.selected.stage;
+    formErrors.value = {};
+}
+function deleteLead(event: Event): void {
+    const selected = props.selected;
+    if (!selected) return;
+    confirmAction(
+        'Delete permanently',
+        `Permanently delete ${selected.brand_name}, its private notes and activity history? This can't be undone.`,
+        () => {
+            formAction.value = 'delete';
+            visit('delete', `/pipeline/${selected.id}`, { version: loadedVersion.value });
+        },
+        event,
+        { tone: 'danger' },
+    );
+}
+const updatedAgo = computed(() => (props.selected?.updated_at ? ago(props.selected.updated_at) : ''));
+const onboardingState = computed(() => {
+    const request = props.selected?.onboarding;
+    if (!request) return { label: 'Not started', tone: 'neutral' as BadgeTone, detail: 'No onboarding request yet' };
+    const known = requestStatuses[request.status as RequestStatus];
+    return {
+        label: known?.label ?? request.status,
+        tone: known?.tone ?? ('neutral' as BadgeTone),
+        detail: `Started ${ago(request.created_at)}`,
+    };
+});
+const sharingState = computed(() => {
+    const shared = props.selected?.sharing ?? [];
+    if (!shared.length) return { label: 'Private', tone: 'neutral' as BadgeTone, detail: 'Not shared with any Brand' };
+    const paused = shared.every((item) => item.paused);
+    const first = shared[0]!;
+    return {
+        label: paused ? 'Paused' : 'Shared',
+        tone: (paused ? 'warning' : 'success') as BadgeTone,
+        detail:
+            shared.length === 1
+                ? `Shared with ${first.brand_name} since ${shortDate(first.registered_at)}${first.paused ? ' · paused' : ''}`
+                : `Shared with ${shared.length} Brands`,
+    };
+});
+const shortDate = (value: string): string =>
+    new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+// Starting onboarding opens a small dialog with the existing email choices.
+const onboardingDialog = ref<HTMLDialogElement>();
+const onboardingOpen = ref(false);
+let onboardingTrigger: HTMLElement | null = null;
+async function openOnboarding(event: Event): Promise<void> {
+    if (busy.value) return;
+    onboardingTrigger = event.currentTarget as HTMLElement;
+    onboardingOpen.value = true;
+    await nextTick();
+    onboardingDialog.value?.showModal();
+    onboardingDialog.value?.querySelector<HTMLInputElement>('input[type="checkbox"]')?.focus();
+}
+function onOnboardingClosed(): void {
+    onboardingOpen.value = false;
+    onboardingTrigger?.focus();
+}
+const activityIcons: Record<string, Component> = {
+    note: NotebookPen,
+    call: Phone,
+    email: Mail,
+    chat: MessageCircle,
+    reply: Reply,
+    created: Plus,
+};
+function activityIcon(kind: string): Component {
+    return activityIcons[kind] ?? Circle;
 }
 function activityLabel(kind: string): string {
     return activityLabels[kind] ?? kind;
@@ -336,7 +418,6 @@ function onTabKey(event: KeyboardEvent): void {
 }
 const stageLabel = computed(() => props.stages.find((item) => item.value === stage.value)?.label ?? stage.value);
 const stageDot = computed(() => stageDots[stage.value] ?? 'var(--wd-muted)');
-const currencyOptions = computed(() => leadCurrencyOptions(editForm.value.currency));
 const detailErrors = computed((): Record<string, string> => (formAction.value === 'update' ? errors.value : {}));
 function command(action: string, data: Record<string, string | null>, done?: () => void): void {
     formAction.value = action;
@@ -510,45 +591,27 @@ function reloadSelected(): void {
                                     {{ stageLabel }}
                                 </span>
                                 <span class="drawer-value">{{ money(selected.value_minor, selected.currency) }}</span>
+                                <span v-if="updatedAgo" class="drawer-updated">· Updated {{ updatedAgo }}</span>
+                                <span v-if="!canWrite" class="drawer-view-only">View only</span>
                             </div>
                         </div>
-                        <DialogClose label="Close lead" :disabled="busy" @click="close" />
-                    </div>
-                    <Link class="contacts-link" :href="path(`/partner/contacts?entry=${selected.id}`)">
-                        <span class="contacts-icon" aria-hidden="true">
-                            <svg
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                        <div class="drawer-head-actions">
+                            <button
+                                v-if="canWrite && !selected.onboarding"
+                                type="button"
+                                class="wd-table-button drawer-delete-button"
+                                aria-label="Delete lead"
+                                :disabled="busy || !!errors.version"
+                                @click="deleteLead"
                             >
-                                <circle cx="12" cy="8" r="3.5" />
-                                <path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" />
-                            </svg>
-                        </span>
-                        <span class="contacts-copy">
-                            <span class="contacts-title">Contacts &amp; reminders</span>
-                            <span class="contacts-description">Manage people and due dates for this lead</span>
-                        </span>
-                        <svg
-                            class="contacts-chevron"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            aria-hidden="true"
-                        >
-                            <path d="M9 6l6 6-6 6" />
-                        </svg>
-                    </Link>
+                                Delete
+                            </button>
+                            <DialogClose label="Close lead" :disabled="busy" @click="close" />
+                        </div>
+                    </div>
+                    <Link class="contacts-pill" :href="path(`/partner/contacts?entry=${selected.id}`)"
+                        >Contacts &amp; reminders<ChevronRight :size="14" aria-hidden="true"
+                    /></Link>
                     <div class="drawer-tabs" role="tablist" aria-label="Lead sections" @keydown="onTabKey">
                         <button
                             id="lead-tab-details"
@@ -570,7 +633,9 @@ function reloadSelected(): void {
                             aria-controls="lead-activity"
                             @click="drawerTab = 'activity'"
                         >
-                            Activity
+                            Activity<span class="drawer-tab-count" aria-hidden="true">{{
+                                selected.activities.length
+                            }}</span>
                         </button>
                     </div>
                 </header>
@@ -579,6 +644,9 @@ function reloadSelected(): void {
                         <button type="button" class="wd-link" @click="reloadSelected">Reload latest lead</button>
                         <p class="wd-hint">Copy any unsaved changes before reloading.</p>
                     </div>
+                    <p v-if="formAction === 'delete' && errors.entry" class="wd-field-error" role="alert">
+                        {{ errors.entry }}
+                    </p>
                     <div
                         v-if="drawerTab === 'details'"
                         id="lead-details"
@@ -586,246 +654,82 @@ function reloadSelected(): void {
                         aria-labelledby="lead-tab-details"
                         class="drawer-stack"
                     >
-                        <form v-if="canWrite" id="lead-edit-form" :aria-busy="busy" @submit.prevent="update">
+                        <form v-if="canWrite" id="lead-edit-form" novalidate :aria-busy="busy" @submit.prevent="update">
                             <fieldset class="drawer-fields" :disabled="busy || !!errors.version">
                                 <legend class="wd-sr-only">Lead details</legend>
-                                <section class="drawer-section">
-                                    <h3 class="drawer-kicker">Lead</h3>
-                                    <FormField
-                                        id="edit-brand"
-                                        v-model="editForm.brand_name"
-                                        :label="clientLabel"
-                                        :maxlength="160"
-                                        :error="detailErrors.brand_name"
-                                    />
-                                    <SelectField
-                                        id="lead-stage"
-                                        v-model="stage"
-                                        label="Stage"
-                                        :options="stages"
-                                        empty-text="No matches"
-                                        search-placeholder="Search stages"
-                                        search-label="Search stages"
-                                        show-mark
-                                        show-search-icon
-                                        :error="formAction === 'stage' ? errors.stage : undefined"
-                                    />
-                                    <div class="wd-field">
-                                        <label for="edit-amount">Estimated value</label>
-                                        <div class="value-row">
-                                            <SelectField
-                                                id="edit-currency"
-                                                v-model="editForm.currency"
-                                                class="value-currency"
-                                                label="Currency"
-                                                :options="currencyOptions"
-                                                empty-text="No matches"
-                                                search-placeholder="Search code or name"
-                                                search-label="Search currencies"
-                                                show-mark
-                                                show-search-icon
-                                                :error="detailErrors.currency"
-                                            />
-                                            <input
-                                                id="edit-amount"
-                                                v-model="editForm.amount"
-                                                class="value-amount"
-                                                inputmode="decimal"
-                                                maxlength="24"
-                                                :aria-invalid="detailErrors.value_minor ? true : undefined"
-                                                :aria-describedby="
-                                                    [
-                                                        'edit-value-hint',
-                                                        detailErrors.value_minor ? 'edit-amount-error' : '',
-                                                    ]
-                                                        .filter(Boolean)
-                                                        .join(' ') || undefined
-                                                "
-                                            />
-                                        </div>
-                                        <p id="edit-value-hint" class="wd-hint">
-                                            Totals are kept separate for each currency.
-                                        </p>
-                                        <p
-                                            v-if="detailErrors.value_minor"
-                                            id="edit-amount-error"
-                                            class="wd-field-error"
-                                            role="alert"
-                                        >
-                                            {{ detailErrors.value_minor }}
-                                        </p>
-                                    </div>
-                                </section>
-                                <section class="drawer-section">
-                                    <h3 class="drawer-kicker">Primary contact</h3>
-                                    <div class="contact-grid">
-                                        <FormField
-                                            id="edit-contact"
-                                            v-model="editForm.contact_name"
-                                            :required="false"
-                                            label="Name"
-                                            :maxlength="120"
-                                            :error="detailErrors.contact_name"
+                                <EntryFields v-model="editForm" prefix="edit" :errors="detailErrors">
+                                    <template #stage>
+                                        <SelectField
+                                            id="lead-stage"
+                                            v-model="stage"
+                                            label="Stage"
+                                            :options="stages"
+                                            empty-text="No matches"
+                                            search-placeholder="Search stages"
+                                            search-label="Search stages"
+                                            show-mark
+                                            show-search-icon
+                                            :error="formAction === 'stage' ? errors.stage : undefined"
                                         />
-                                        <FormField
-                                            id="edit-email"
-                                            v-model="editForm.contact_email"
-                                            :required="false"
-                                            label="Email"
-                                            type="email"
-                                            :maxlength="255"
-                                            :error="detailErrors.contact_email"
-                                        />
-                                    </div>
-                                </section>
-                                <section class="drawer-section">
-                                    <h3 class="drawer-kicker">Follow-up</h3>
-                                    <FormField
-                                        id="edit-due"
-                                        v-model="editForm.next_action_due"
-                                        :required="false"
-                                        label="Next action"
-                                        type="datetime-local"
-                                        hint="Shown in your local time."
-                                        :error="detailErrors.next_action_due"
-                                    >
-                                        <div class="snooze-row">
-                                            <span>Snooze:</span>
-                                            <button type="button" class="snooze-chip" @click="snoozeBy(1)">
-                                                Tomorrow
-                                            </button>
-                                            <button type="button" class="snooze-chip" @click="snoozeBy(3)">
-                                                In 3 days
-                                            </button>
-                                            <button type="button" class="snooze-chip" @click="snoozeBy(7)">
-                                                Next week
-                                            </button>
-                                        </div>
-                                    </FormField>
-                                    <div class="wd-field">
-                                        <label for="edit-notes">Private notes</label>
-                                        <textarea
-                                            id="edit-notes"
-                                            v-model="editForm.notes"
-                                            class="drawer-notes"
-                                            rows="3"
-                                            maxlength="5000"
-                                            placeholder="Only you can see these"
-                                            :aria-invalid="detailErrors.notes ? true : undefined"
-                                            :aria-describedby="detailErrors.notes ? 'edit-notes-error' : undefined"
-                                        />
-                                        <p
-                                            v-if="detailErrors.notes"
-                                            id="edit-notes-error"
-                                            class="wd-field-error"
-                                            role="alert"
-                                        >
-                                            {{ detailErrors.notes }}
-                                        </p>
-                                    </div>
-                                </section>
+                                    </template>
+                                </EntryFields>
                             </fieldset>
                         </form>
-                        <div v-else class="drawer-fields">
-                            <section class="drawer-section">
-                                <h3 class="drawer-kicker">Lead</h3>
-                                <p>{{ selected.brand_name }}</p>
-                                <p>{{ stageLabel }}</p>
-                                <p class="drawer-value">{{ money(selected.value_minor, selected.currency) }}</p>
-                            </section>
-                            <section class="drawer-section">
-                                <h3 class="drawer-kicker">Primary contact</h3>
-                                <p>{{ selected.contact_name }} {{ selected.contact_email }}</p>
-                            </section>
-                            <section class="drawer-section">
-                                <h3 class="drawer-kicker">Follow-up</h3>
-                                <p>{{ stamp(selected.next_action_due) }}</p>
-                                <p class="wd-pipeline-note">{{ selected.notes || 'No private notes yet.' }}</p>
-                            </section>
-                        </div>
-                        <form
-                            v-if="canWrite"
-                            class="onboarding-card"
-                            :aria-busy="busy"
-                            @submit.prevent="startOnboarding"
-                        >
-                            <fieldset class="onboarding-fields" :disabled="busy || !!errors.version">
-                                <legend class="wd-sr-only">Onboarding invitation</legend>
-                                <div class="onboarding-copy">
-                                    <h3>Onboarding invitation</h3>
-                                    <p>Start onboarding when this lead is ready to join.</p>
-                                </div>
-                                <OnboardingEmailFields
-                                    prefix="start-onboarding"
-                                    v-model:send-email="sendOnboardingEmail"
-                                    v-model:recipient="onboardingRecipient"
-                                    :errors="errors"
-                                />
-                                <Button type="submit" class="wd-button wd-button-secondary drawer-outline-brand"
-                                    >Start onboarding</Button
+                        <dl v-else class="drawer-summary">
+                            <dt>Contact</dt>
+                            <dd>
+                                <template v-if="selected.contact_name || selected.contact_email">
+                                    {{ selected.contact_name }}
+                                    <span v-if="selected.contact_email" class="drawer-muted">{{
+                                        selected.contact_email
+                                    }}</span>
+                                </template>
+                                <span v-else class="drawer-muted">None</span>
+                            </dd>
+                            <dt>Next action</dt>
+                            <dd :class="{ 'drawer-muted': !selected.next_action_due }">
+                                {{ selected.next_action_due ? stamp(selected.next_action_due) : 'None' }}
+                            </dd>
+                            <dt>Private notes</dt>
+                            <dd :class="{ 'drawer-muted': !selected.notes }">{{ selected.notes || 'None' }}</dd>
+                        </dl>
+                        <section class="drawer-status" aria-label="Onboarding and Brand sharing">
+                            <div class="drawer-status-row">
+                                <span class="drawer-status-copy"
+                                    ><strong>Onboarding</strong><small>{{ onboardingState.detail }}</small></span
                                 >
-                                <OnboardingSubmissionNotice
-                                    prefix="start-onboarding"
-                                    v-model="notifySubmission"
-                                    :error="errors.notify_submission"
-                                />
-                            </fieldset>
-                        </form>
-                        <section class="onboarding-card">
-                            <div class="onboarding-copy">
-                                <h3>Brand sharing</h3>
-                                <p>
-                                    This lead is private. A connected Brand sees it only if you register it with them.
-                                </p>
-                            </div>
-                            <Link
-                                :href="`${path('/partner/brand-sharing')}?lead=${selected.id}`"
-                                class="wd-button wd-button-secondary drawer-outline-brand"
-                                >Register with a Brand</Link
-                            >
-                        </section>
-                        <details v-if="canWrite" class="drawer-delete">
-                            <summary>
-                                <span>Delete lead</span>
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    aria-hidden="true"
+                                <StatusBadge :label="onboardingState.label" :tone="onboardingState.tone" />
+                                <Link
+                                    v-if="selected.onboarding"
+                                    class="wd-table-button"
+                                    :href="`${path('/partner/onboarding')}?request=${selected.onboarding.id}`"
+                                    >Open</Link
                                 >
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </summary>
-                            <div class="drawer-delete-body">
-                                <p>
-                                    This removes {{ selected.brand_name }} and its activity history. This can't be
-                                    undone.
-                                </p>
-                                <Button
+                                <button
+                                    v-else-if="canWrite"
                                     type="button"
-                                    class="wd-button wd-button-secondary drawer-delete-button"
+                                    class="wd-table-button"
                                     :disabled="busy || !!errors.version"
-                                    @click="
-                                        confirmAction(
-                                            'Delete permanently',
-                                            `Permanently delete ${selected.brand_name}, its private notes and activity history?`,
-                                            () =>
-                                                visit('delete', `/pipeline/${selected!.id}`, {
-                                                    version: loadedVersion,
-                                                }),
-                                            $event,
-                                            { tone: 'danger' },
-                                        )
-                                    "
-                                    >Delete this lead</Button
+                                    @click="openOnboarding"
+                                >
+                                    Start onboarding…
+                                </button>
+                            </div>
+                            <p v-if="canWrite && selected.onboarding" class="drawer-status-note">
+                                Leads with onboarding history are kept. Revoke access from Onboarding requests.
+                            </p>
+                            <div class="drawer-status-row">
+                                <span class="drawer-status-copy"
+                                    ><strong>Brand sharing</strong><small>{{ sharingState.detail }}</small></span
+                                >
+                                <StatusBadge :label="sharingState.label" :tone="sharingState.tone" />
+                                <Link
+                                    class="wd-table-button"
+                                    :href="`${path('/partner/brand-sharing')}?lead=${selected.id}`"
+                                    >{{ selected.sharing?.length ? 'Manage sharing' : 'Share with a Brand' }}</Link
                                 >
                             </div>
-                        </details>
+                        </section>
                     </div>
                     <div
                         v-else
@@ -834,22 +738,26 @@ function reloadSelected(): void {
                         aria-labelledby="lead-tab-activity"
                         class="drawer-stack"
                     >
-                        <form v-if="canWrite" :aria-busy="busy" @submit.prevent="recordActivity($event)">
+                        <form
+                            v-if="canWrite"
+                            class="activity-composer"
+                            :aria-busy="busy"
+                            @submit.prevent="recordActivity($event)"
+                        >
                             <fieldset class="activity-fields" :disabled="busy || !!errors.version">
                                 <legend class="wd-sr-only">Log an activity</legend>
-                                <h3 class="drawer-heading">Log an activity</h3>
-                                <SelectField
-                                    id="activity-kind"
-                                    v-model="activityKind"
-                                    label="Type"
-                                    :options="activityOptions"
-                                    empty-text="No matches"
-                                    search-placeholder="Search activity types"
-                                    search-label="Search activity types"
-                                    show-mark
-                                    show-search-icon
-                                    :error="formAction === 'activities' ? errors.kind : undefined"
-                                />
+                                <fieldset class="activity-kinds" role="radiogroup">
+                                    <legend>Type</legend>
+                                    <label v-for="option in activityOptions" :key="option.value" class="activity-kind">
+                                        <input
+                                            v-model="activityKind"
+                                            type="radio"
+                                            name="activity-kind"
+                                            :value="option.value"
+                                        />
+                                        <span>{{ option.label }}</span>
+                                    </label>
+                                </fieldset>
                                 <div class="wd-field">
                                     <label for="activity-body">Details</label>
                                     <textarea
@@ -857,7 +765,7 @@ function reloadSelected(): void {
                                         v-model="activityBody"
                                         class="drawer-activity-notes"
                                         maxlength="5000"
-                                        rows="4"
+                                        rows="3"
                                         placeholder="What happened?"
                                         :aria-invalid="formAction === 'activities' && errors.body ? true : undefined"
                                         :aria-describedby="
@@ -869,12 +777,12 @@ function reloadSelected(): void {
                                                 .join(' ')
                                         "
                                     />
-                                    <p id="activity-body-hint" class="wd-hint">
-                                        {{
-                                            activityKind === 'reply'
-                                                ? 'Cancels existing follow-ups and clears the next-action date after confirmation. Other reminders stay active.'
-                                                : 'Records a past conversation or private note. No message is sent.'
-                                        }}
+                                    <p
+                                        v-if="formAction === 'activities' && errors.kind"
+                                        class="wd-field-error"
+                                        role="alert"
+                                    >
+                                        {{ errors.kind }}
                                     </p>
                                     <p
                                         v-if="formAction === 'activities' && errors.body"
@@ -885,7 +793,16 @@ function reloadSelected(): void {
                                         {{ errors.body }}
                                     </p>
                                 </div>
-                                <Button class="wd-button wd-button-primary" type="submit">Record activity</Button>
+                                <div class="activity-submit">
+                                    <p id="activity-body-hint" class="wd-hint">
+                                        {{
+                                            activityKind === 'reply'
+                                                ? 'Cancels existing follow-ups and clears the next-action date after confirmation. Other reminders stay active.'
+                                                : 'Records a past conversation or private note. No message is sent.'
+                                        }}
+                                    </p>
+                                    <Button class="wd-button wd-button-primary" type="submit">Record activity</Button>
+                                </div>
                             </fieldset>
                         </form>
                         <section class="history" aria-labelledby="activity-history-title">
@@ -895,9 +812,9 @@ function reloadSelected(): void {
                             </div>
                             <ol class="timeline">
                                 <li v-for="item in selected.activities" :key="item.id">
-                                    <span class="timeline-rail" aria-hidden="true"
-                                        ><span class="timeline-dot"></span
-                                    ></span>
+                                    <span class="timeline-icon" aria-hidden="true"
+                                        ><component :is="activityIcon(item.kind)" :size="14"
+                                    /></span>
                                     <span class="timeline-copy">
                                         <span class="timeline-title">{{ item.body || activityLabel(item.kind) }}</span>
                                         <span class="timeline-meta"
@@ -913,14 +830,23 @@ function reloadSelected(): void {
                     </div>
                 </div>
                 <footer v-if="drawerTab === 'details' && canWrite" class="drawer-footer">
-                    <Button type="button" class="wd-button wd-button-secondary" :disabled="busy" @click="close"
-                        >Cancel</Button
+                    <p v-if="dirty" class="drawer-dirty" role="status">
+                        <span aria-hidden="true"></span>Unsaved changes
+                    </p>
+                    <p v-else class="drawer-clean">No unsaved changes</p>
+                    <Button
+                        v-if="dirty"
+                        type="button"
+                        class="wd-button wd-button-secondary"
+                        :disabled="busy"
+                        @click="discard"
+                        >Discard</Button
                     >
                     <Button
                         type="submit"
                         form="lead-edit-form"
                         class="wd-button wd-button-primary"
-                        :disabled="busy || !!errors.version"
+                        :disabled="busy || !!errors.version || !dirty"
                         >{{ busy ? 'Saving…' : 'Save lead' }}</Button
                     >
                 </footer>
@@ -991,6 +917,46 @@ function reloadSelected(): void {
                     </footer>
                 </form>
             </template>
+        </dialog>
+        <dialog
+            ref="onboardingDialog"
+            class="wd-dialog onboarding-dialog"
+            aria-labelledby="onboarding-dialog-title"
+            @close="onOnboardingClosed"
+            @keydown="containDialogFocus($event, onboardingDialog)"
+        >
+            <div class="wd-dialog-header">
+                <h2 id="onboarding-dialog-title">Start onboarding</h2>
+                <DialogClose label="Close start onboarding" :disabled="busy" @click="onboardingDialog?.close()" />
+            </div>
+            <form v-if="onboardingOpen && selected && canWrite" :aria-busy="busy" @submit.prevent="startOnboarding">
+                <fieldset class="onboarding-fields" :disabled="busy || !!errors.version">
+                    <legend class="wd-sr-only">Onboarding invitation for {{ selected.brand_name }}</legend>
+                    <p class="wd-hint">
+                        Creates a private onboarding form for {{ selected.brand_name }} and opens it in Onboarding
+                        requests, where you can copy the link.
+                    </p>
+                    <OnboardingEmailFields
+                        prefix="start-onboarding"
+                        v-model:send-email="sendOnboardingEmail"
+                        v-model:recipient="onboardingRecipient"
+                        :errors="errors"
+                    />
+                    <OnboardingSubmissionNotice
+                        prefix="start-onboarding"
+                        v-model="notifySubmission"
+                        :error="errors.notify_submission"
+                    />
+                    <div class="wd-dialog-footer">
+                        <Button type="button" class="wd-button wd-button-secondary" @click="onboardingDialog?.close()"
+                            >Cancel</Button
+                        >
+                        <Button type="submit" class="wd-button wd-button-primary">{{
+                            busy ? 'Starting…' : 'Start onboarding'
+                        }}</Button>
+                    </div>
+                </fieldset>
+            </form>
         </dialog>
     </div>
 </template>
@@ -1091,7 +1057,8 @@ function reloadSelected(): void {
     outline-offset: 2px;
     box-shadow: none;
 }
-.lead-drawer :deep(.wd-field > label) {
+.lead-drawer :deep(.wd-field > label),
+.lead-drawer :deep(.entry-label > label) {
     font-size: 14px;
     font-weight: 600;
     color: var(--wd-ink);
@@ -1119,8 +1086,8 @@ function reloadSelected(): void {
     display: flex;
     flex: none;
     flex-direction: column;
-    gap: 16px;
-    padding: 24px 24px 16px;
+    gap: 10px;
+    padding: 16px 20px 0;
 }
 .drawer-heading-row {
     display: flex;
@@ -1132,23 +1099,60 @@ function reloadSelected(): void {
     display: flex;
     min-width: 0;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 .drawer-title {
     margin: 0;
-    font-size: 24px;
-    line-height: 30px;
+    font-size: 20px;
+    line-height: 26px;
     letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
 }
 .drawer-meta {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 4px 8px;
     color: var(--wd-muted);
-    font-size: 14px;
+    font-size: 13px;
 }
 .drawer-value {
+    color: var(--wd-ink);
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
+}
+.drawer-view-only {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    font-size: 12px;
+    font-weight: 700;
+}
+.drawer-head-actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    --wd-table-control: 32px;
+}
+.contacts-pill {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 999px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font-size: 12.5px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.contacts-pill:hover {
+    background: var(--wd-paper);
+    color: var(--wd-brand);
 }
 .stage-chip {
     display: inline-flex;
@@ -1167,84 +1171,55 @@ function reloadSelected(): void {
     border-radius: 50%;
 }
 .drawer-heading-row :deep(.wd-dialog-close) {
-    margin: -8px -10px 0 0;
-}
-.contacts-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border: 1px solid var(--color-lilac, var(--wd-line));
-    border-radius: 12px;
-    background: var(--color-blush, var(--wd-paper));
-    color: var(--wd-ink);
-    text-decoration: none;
-}
-.contacts-icon {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--color-lilac, var(--wd-line));
-    border-radius: 8px;
-    background: var(--wd-surface);
-    color: var(--wd-brand);
-}
-.contacts-copy {
-    display: flex;
-    min-width: 0;
-    flex: 1;
-    flex-direction: column;
-}
-.contacts-title {
-    font-size: 15px;
-    font-weight: 600;
-}
-.contacts-description {
-    color: var(--wd-muted);
-    font-size: 13px;
-}
-.contacts-chevron {
-    flex: none;
-    color: var(--wd-muted);
+    margin: -6px -8px 0 0;
 }
 .drawer-tabs {
     display: flex;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 12px;
-    background: var(--wd-divider);
+    gap: 18px;
+    margin: 0 -20px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--wd-divider);
 }
 .drawer-tabs [role='tab'] {
-    flex: 1;
-    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 0;
     border: 0;
-    border-radius: 9px;
     background: transparent;
     color: var(--wd-muted);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
 }
 .drawer-tabs [role='tab'][aria-selected='true'] {
-    background: var(--wd-surface);
-    color: var(--wd-ink);
-    box-shadow: 0 1px 2px rgb(31 26 29 / 14%);
+    box-shadow: inset 0 -2px 0 var(--wd-brand);
+    color: var(--wd-brand-hover);
+}
+.drawer-tabs [role='tab']:focus-visible {
+    outline: 2px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.drawer-tab-count {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    color: var(--wd-muted);
+    font-size: 11px;
 }
 .drawer-body {
     flex: 1 1 auto;
     min-height: 0;
-    padding: 8px 24px 24px;
+    padding: 0 20px 20px;
     overflow-y: auto;
-    border-top: 1px solid var(--wd-divider);
+    overscroll-behavior: contain;
 }
 .drawer-stack,
 .drawer-fields,
 .activity-fields {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 16px;
     min-width: 0;
     margin: 0;
     padding: 0;
@@ -1254,103 +1229,161 @@ function reloadSelected(): void {
     padding-top: 16px;
 }
 .activity-fields {
-    gap: 16px;
+    gap: 12px;
 }
-.drawer-section {
+.drawer-summary {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 10px 12px;
+    margin: 0;
+    font-size: 14px;
+}
+.drawer-summary dt {
+    color: var(--wd-muted);
+    font-weight: 600;
+}
+.drawer-summary dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+.drawer-muted {
+    display: block;
+    color: var(--wd-muted);
+}
+.drawer-status {
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.drawer-status-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    padding: 10px 12px;
+    --wd-table-control: 30px;
+}
+.drawer-status-row + .drawer-status-row,
+.drawer-status-note + .drawer-status-row {
+    border-top: 1px solid var(--wd-divider);
+}
+.drawer-status-copy {
+    display: flex;
+    flex: 1 1 160px;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+.drawer-status-copy strong {
+    font-size: 13.5px;
+}
+.drawer-status-copy small {
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.drawer-status-note {
+    margin: -6px 0 0;
+    padding: 0 12px 10px;
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.activity-composer {
+    padding: 12px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-paper);
+}
+.activity-kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.activity-kinds legend {
+    margin-bottom: 6px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 700;
+}
+.activity-kind {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 11px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 999px;
+    background: var(--wd-surface);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+/* The native radio covers its chip, so pointer, keyboard and assistive technology all use the real input. */
+.activity-kind input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.activity-kind:has(input:checked) {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand);
+    color: #fff;
+}
+.activity-kind:has(input:focus-visible) {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.activity-submit {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.activity-submit .wd-hint {
+    margin: 0;
+}
+.timeline-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--wd-divider);
+    color: var(--wd-brand-hover);
+}
+.onboarding-dialog[open] {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+    width: min(500px, calc(100dvw - 32px));
 }
-.drawer-kicker,
+.onboarding-dialog .wd-dialog-header {
+    margin-bottom: 0;
+}
 .drawer-heading {
     margin: 0;
     font-family: var(--wd-font-body);
-}
-.drawer-kicker {
-    color: var(--wd-muted);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 .drawer-heading {
     color: var(--wd-ink);
     font-size: 16px;
     font-weight: 700;
 }
-.contact-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-.value-row {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-}
-.value-currency {
-    position: relative;
-    flex: none;
-    width: 104px;
-}
-.value-currency :deep(> label) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-.value-currency :deep(.wd-select-panel) {
-    right: auto;
-    width: min(320px, calc(100vw - 48px));
-}
-.value-amount {
-    flex: 1;
-    min-width: 0;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-}
 .lead-drawer textarea {
     padding: 12px 14px;
     line-height: 22px;
     resize: vertical;
 }
-.drawer-notes {
-    height: 88px;
-}
 .drawer-activity-notes {
-    height: 104px;
-}
-.snooze-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin-top: 4px;
-    color: var(--wd-muted);
-    font-size: 13px;
-}
-.snooze-chip {
-    height: 32px;
-    padding: 0 12px;
-    border: 1px solid var(--wd-control-line);
-    border-radius: 999px;
-    background: var(--wd-surface);
-    color: var(--wd-ink);
-    font-size: 13px;
-    font-weight: 600;
-}
-.onboarding-card {
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    border: 1px solid var(--color-lilac, var(--wd-line));
-    border-radius: 12px;
-    background: var(--color-blush, var(--wd-paper));
+    height: 76px;
 }
 .onboarding-fields {
     display: flex;
@@ -1360,23 +1393,6 @@ function reloadSelected(): void {
     margin: 0;
     padding: 0;
     border: 0;
-}
-.onboarding-copy h3 {
-    margin: 0;
-    font-family: var(--wd-font-body);
-    font-size: 16px;
-    font-weight: 700;
-}
-.onboarding-copy p {
-    margin: 0;
-    color: var(--wd-muted);
-    font-size: 13px;
-}
-.onboarding-card :deep(.wd-fields > label) {
-    align-items: center;
-    min-height: 44px;
-    font-size: 15px;
-    font-weight: 400;
 }
 .drawer-footer :deep(.wd-button-secondary) {
     border-color: var(--wd-control-line);
@@ -1389,57 +1405,20 @@ function reloadSelected(): void {
     background: var(--wd-brand);
     color: #fff;
 }
-.activity-fields :deep(.wd-button),
-.onboarding-fields :deep(.wd-button) {
-    align-self: flex-start;
-}
-.drawer-outline-brand {
-    border-color: var(--wd-brand);
-    background: var(--wd-surface);
-    color: var(--wd-brand);
-}
-.drawer-delete {
-    border-top: 1px solid var(--wd-divider);
-    padding-top: 8px;
-}
-.drawer-delete summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 44px;
-    color: var(--wd-danger);
-    font-size: 15px;
-    font-weight: 600;
-    list-style: none;
-    cursor: pointer;
-}
-.drawer-delete summary::-webkit-details-marker {
-    display: none;
-}
-.drawer-delete[open] .drawer-delete-body {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 4px 0 8px;
-}
-.drawer-delete-body p {
-    margin: 0;
-    color: var(--wd-muted);
-    font-size: 13px;
-    line-height: 19px;
+.activity-submit :deep(.wd-button) {
+    flex: none;
 }
 .drawer-delete-button {
-    align-self: flex-start;
-    border-color: var(--wd-danger);
-    background: var(--wd-surface);
+    color: var(--wd-danger);
+}
+.lead-drawer .drawer-delete-button:hover:not(:disabled) {
+    background: var(--wd-danger-bg);
     color: var(--wd-danger);
 }
 .history {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding-top: 24px;
-    border-top: 1px solid var(--wd-divider);
+    gap: 12px;
 }
 .history-head {
     display: flex;
@@ -1457,27 +1436,14 @@ function reloadSelected(): void {
 .timeline {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 .timeline li {
     display: flex;
-    gap: 14px;
-}
-.timeline-rail {
-    display: flex;
-    flex: none;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 6px;
-}
-.timeline-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--wd-brand);
+    gap: 10px;
 }
 .timeline-copy {
     display: flex;
@@ -1486,7 +1452,7 @@ function reloadSelected(): void {
     gap: 2px;
 }
 .timeline-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
@@ -1498,12 +1464,34 @@ function reloadSelected(): void {
 .drawer-footer {
     display: flex;
     flex: none;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
-    padding: 16px 24px;
+    gap: 10px;
+    padding: 12px 20px;
     border-top: 1px solid var(--wd-divider);
-    background: var(--wd-surface);
+    background: var(--wd-paper);
+}
+.drawer-dirty,
+.drawer-clean {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 auto 0 0;
+    font-size: 12.5px;
+}
+.drawer-dirty {
+    color: var(--wd-warning);
+    font-weight: 700;
+}
+.drawer-dirty span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--wd-warning);
+}
+.drawer-clean {
+    color: var(--wd-muted);
 }
 /* A mobile layout viewport can widen after focus/scroll inside a native dialog.
    Anchor to the device viewport so pointer coordinates still reach its controls. */
@@ -1528,6 +1516,36 @@ function reloadSelected(): void {
     .create-footer :deep(.wd-button) {
         flex: 1;
         min-height: 44px;
+    }
+    .drawer-dirty,
+    .drawer-clean {
+        flex-basis: 100%;
+    }
+    .drawer-footer :deep(.wd-button) {
+        flex: 1;
+        min-height: 44px;
+    }
+    .drawer-head-actions,
+    .drawer-status-row {
+        --wd-table-control: 44px;
+    }
+    .contacts-pill,
+    .activity-kind {
+        min-height: 44px;
+    }
+    .drawer-tabs [role='tab'] {
+        min-height: 44px;
+    }
+    .activity-submit {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .drawer-summary {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2px;
+    }
+    .drawer-summary dd {
+        margin-bottom: 8px;
     }
     .lead-dialog.lead-drawer {
         inset: 0 auto 0 0;

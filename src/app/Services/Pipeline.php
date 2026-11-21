@@ -69,7 +69,21 @@ class Pipeline
             ->orderByDesc('occurred_at')->orderByDesc('id')->limit(50)->get(['id', 'kind', 'body', 'occurred_at'])
             ->map(fn ($row) => [...(array) $row, 'occurred_at' => Carbon::parse($row->occurred_at)->toIso8601String()])->all();
 
-        return [...$this->project($entry), 'notes' => $entry->notes, 'activities' => $activities];
+        // The latest onboarding request and the Brands this lead is shared with, so the drawer shows real status.
+        $onboarding = DB::table('onboarding_requests')->where('org_id', $orgId)->where('pipeline_entry_id', $id)
+            ->orderByDesc('created_at')->orderByDesc('id')->first(['id', 'status', 'created_at']);
+        $sharing = DB::table('lead_registrations AS r')->join('partnerships AS p', 'p.id', '=', 'r.partnership_id')
+            ->where('r.creator_org_id', $orgId)->where('r.pipeline_entry_id', $id)->where('r.state', 'active')
+            ->orderBy('r.registered_at')->orderBy('r.id')
+            ->get(['p.brand_name', 'r.registered_at', DB::raw('app_partnership_paused(p.id) AS paused')])
+            ->map(fn ($row) => ['brand_name' => $row->brand_name, 'paused' => (bool) $row->paused,
+                'registered_at' => Carbon::parse($row->registered_at)->toIso8601String()])->all();
+
+        return [...$this->project($entry), 'notes' => $entry->notes, 'activities' => $activities,
+            'updated_at' => Carbon::parse($entry->updated_at)->toIso8601String(),
+            'onboarding' => $onboarding ? ['id' => $onboarding->id, 'status' => $onboarding->status,
+                'created_at' => Carbon::parse($onboarding->created_at)->toIso8601String()] : null,
+            'sharing' => $sharing];
     }
 
     private function project(object $row): array
