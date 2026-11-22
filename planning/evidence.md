@@ -1,3 +1,5 @@
+**Compact administration Jobs and health and Data cleanup (2026-11-26):** [health tiles, cleanup batch status and dialogs, backend latest dry run, commands, rendering findings and unverified gates](administration/compact-operations-cleanup-evidence.md). Local stack only; not deployed.
+
 **Compact administration Brand and Privacy requests (2026-11-25):** [status chips, privacy summary and drawer, backend counts, commands, rendering findings and unverified gates](administration/compact-review-queues-evidence.md). Local stack only; not deployed.
 
 **Compact administration Platform access (2026-11-24):** [operators card, row menu, access dialog, commands, rendering findings and unverified gates](administration/compact-platform-access-evidence.md). Local stack only; not deployed.

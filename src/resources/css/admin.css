@@ -301,7 +301,7 @@
     padding-left: 18px;
 }
 
-/* Compact pages (Overview, Accounts): the records-page header, summary tiles, attention queue and list toolbar. */
+/* Compact pages: the records-page header, summary tiles (a tile may open the list it counts), attention queue and list toolbar. */
 .wd-admin .adm-content.is-compact {
     gap: 14px;
     font-size: 14px;
@@ -310,22 +310,23 @@
 .wd-admin .adm-stats {
     grid-template-columns: repeat(6, minmax(0, 1fr));
 }
-.wd-admin .adm-stats a {
+.wd-admin .rec-stats a,
+.wd-admin .rec-stats li > div {
     display: contents;
     color: inherit;
     text-decoration: none;
 }
-.wd-admin .adm-stats li:has(a:hover) {
+.wd-admin .rec-stats li:has(a:hover) {
     border-color: var(--wd-control-line);
 }
-.wd-admin .adm-stats li:has(a:focus-visible) {
+.wd-admin .rec-stats li:has(a:focus-visible) {
     outline: 3px solid var(--wd-focus);
     outline-offset: 2px;
 }
-.wd-admin .adm-stats a:focus-visible {
+.wd-admin .rec-stats a:focus-visible {
     outline: none;
 }
-.wd-admin .adm-stats strong {
+.wd-admin .rec-stats strong {
     color: var(--wd-ink);
 }
 .wd-admin .adm-attention {
@@ -581,4 +582,8 @@
 }
 .wd-admin .adm-drawer-heading + .rec-fine {
     margin: 0 0 12px;
+}
+/* A status badge beside header buttons keeps its own height. */
+.wd-admin .rec-header-actions {
+    align-items: center;
 }

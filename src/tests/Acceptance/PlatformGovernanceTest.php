@@ -307,8 +307,13 @@ class PlatformGovernanceTest extends AcceptanceCase
             $version++;
         }
         $mark('workspace', $cleanOrg)->assertConflict();
+        // The list reports each batch's latest dry run; the shared database can hold other batches, so find this one.
+        $listed = fn () => collect($this->getJson('/admin/cleanup')->assertOk()->json('batches'))->firstWhere('id', $batch);
+        $this->assertSame([7, 0, null], [$listed()['marks'], $listed()['runs'], $listed()['latest_run']]);
 
         $run = $this->postJson('/admin/cleanup/'.$batch.'/runs', ['expected_version' => $version])->assertCreated()->json('id');
+        $latest = $listed()['latest_run'];
+        $this->assertSame([$run, 2, 4, 1, false], [$latest['id'], $latest['eligible'], $latest['blocked'], $latest['protected'], $latest['stale']]);
         $manifest = collect($this->getJson('/admin/cleanup/runs/'.$run)->assertOk()->assertJsonPath('run.stale', false)->assertJsonPath('run.eligible', 2)->assertJsonPath('run.blocked', 4)->assertJsonPath('run.protected', 1)->json('run.items'))->keyBy('reference');
         $this->assertSame(['blocked', ['Holds finance records, which cleanup never removes']], [$manifest[$financeOrg]['disposition'], $manifest[$financeOrg]['reasons']]);
         $this->assertSame(1, $manifest[$financeOrg]['records']['invoice_drafts']);
@@ -325,6 +330,7 @@ class PlatformGovernanceTest extends AcceptanceCase
         $mark('account', (string) $reviewer->id, ['remove' => true])->assertOk();
         $this->getJson('/admin/cleanup/runs/'.$run)->assertOk()->assertJsonPath('run.stale', true)->assertJsonPath('run.protected', 1);
         $this->getJson('/admin/cleanup/'.$batch)->assertOk()->assertJsonCount(6, 'marks')->assertJsonPath('runs.0.stale', true);
+        $this->assertSame([$run, true], [$listed()['latest_run']['id'], $listed()['latest_run']['stale']]);
 
         // Nothing was deleted, no execution function exists, and the runtime role cannot touch the tables directly.
         $this->assertSame($before, $counts());
