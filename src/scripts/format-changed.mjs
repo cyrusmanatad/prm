@@ -7,18 +7,37 @@ import * as prettier from 'prettier';
 const appRoot = fileURLToPath(new URL('../', import.meta.url));
 const repoRoot = path.resolve(appRoot, '..');
 const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).split('\0').filter(Boolean);
-const base = process.env.PRETTIER_BASE_REF || 'HEAD';
+const requested = process.env.PRETTIER_BASE_REF || 'HEAD';
+const defaultBranch = process.env.PRETTIER_DEFAULT_BRANCH || 'main';
+const currentBranch = () =>
+    process.env.GITHUB_REF_TYPE === 'tag'
+        ? ''
+        : process.env.GITHUB_REF_NAME || git('rev-parse', '--abbrev-ref', 'HEAD').join('').trim();
+// A first push has no previous commit (`before` is all zeros). On the default branch, check every tracked
+// file. On any other branch, compare against the merge base with the fetched default branch.
+let base = requested;
+let checkAll = false;
 try {
     git('rev-parse', '--show-toplevel');
-    if (!/^0+$/.test(base)) git('rev-parse', '--verify', `${base}^{commit}`);
+    if (/^0+$/.test(requested)) {
+        if (currentBranch() === defaultBranch) {
+            checkAll = true;
+        } else {
+            base = `origin/${defaultBranch}`;
+            git('rev-parse', '--verify', `${base}^{commit}`);
+            base = git('merge-base', base, 'HEAD').join('').trim();
+            console.log(`First push of a branch: comparing against merge base ${base} with origin/${defaultBranch}.`);
+        }
+    } else {
+        git('rev-parse', '--verify', `${base}^{commit}`);
+    }
 } catch {
     console.error(
         `Cannot compare frontend files in ${repoRoot} against ${base}. Verify Git ownership and fetch the base commit.`,
     );
     process.exit(1);
 }
-// A first push has no previous commit. Check all source files in that case.
-const changed = /^0+$/.test(base)
+const changed = checkAll
     ? git('ls-files', '-z')
     : git('diff', '--name-only', '-z', '--diff-filter=ACMR', base, '--', 'src/');
 const files = [...new Set([...changed, ...git('ls-files', '--others', '--exclude-standard', '-z', '--', 'src/')])]
