@@ -2,6 +2,8 @@
 
 **Compact administration lists (2026-11-23):** [Workspaces, Notifications and Audit: change, backend counts, commands, rendering findings and unverified gates](administration/compact-lists-evidence.md). Local stack only; not deployed.
 
+**Administration browser tests split (2026-11-22):** [independent tests, TOTP reuse, grant teardown, commands and timings](administration/browser-split-evidence.md). Test-only; local disposable stack.
+
 **Compact administration Overview and Accounts (2026-11-22):** [change, backend counts and names, commands, rendering findings and unverified gates](administration/compact-console-evidence.md). Local stack only; not deployed.
 
 **M3-02 PRIV-03 (2026-11-20):** [Closure verification and handoff](m3/closure-evidence.md), following export commit `64b1a6f`.
