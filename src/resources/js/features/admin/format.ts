@@ -266,7 +266,7 @@ export function recentTime(value: string, now: Date = new Date()): string {
     const days = Math.round((day(now) - day(date)) / 86400000);
     if (days === 0) return `Today, ${time}`;
     if (days === 1) return `Yesterday, ${time}`;
-    return dateTime(value);
+    return shortDateTime(value);
 }
 
 /** Calendar date only, for dense directory columns; the full timestamp belongs in a title or detail page. */
