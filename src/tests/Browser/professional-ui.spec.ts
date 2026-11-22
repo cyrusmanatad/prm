@@ -43,6 +43,8 @@ async function showKitSection(page: Page, name: 'Edit' | 'Preview' | 'Lead links
     const toggle = page
         .getByRole('group', { name: 'Show section' })
         .getByRole('button', { name: new RegExp(`^${name}`) });
+    // isVisible() does not wait: after a reload, WebKit can still be mounting the page, so wait for its heading first.
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeAttached();
     if (await toggle.isVisible()) await toggle.click();
 }
 
@@ -51,6 +53,8 @@ async function showOutreachPanel(page: Page, name: 'Templates' | 'Edit' | 'Draft
     const toggle = page
         .getByRole('group', { name: 'Show panel' })
         .getByRole('button', { name: new RegExp(`^${name}`) });
+    // isVisible() does not wait: after a reload, WebKit can still be mounting the page, so wait for the editor first.
+    await expect(page.getByLabel('Template name', { exact: true })).toBeAttached();
     if (await toggle.isVisible()) await toggle.click();
 }
 

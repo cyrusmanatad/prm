@@ -14,7 +14,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl libpq-dev 
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 WORKDIR /var/www/html
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts --no-progress
+# Package downloads occasionally fail with a transient 5xx from GitHub; retry before failing the build.
+RUN for attempt in 1 2 3; do \
+        composer install --no-dev --no-interaction --prefer-dist --no-scripts --no-progress && exit 0; \
+        echo "composer install failed (attempt $attempt of 3); retrying" >&2; sleep $((attempt * 10)); \
+    done; exit 1
 COPY . .
 COPY --from=frontend /build/public/build ./public/build
 COPY docker/staging-fpm.conf /usr/local/etc/php-fpm.d/zz-staging.conf

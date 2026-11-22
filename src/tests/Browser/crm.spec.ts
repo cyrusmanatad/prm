@@ -1,4 +1,5 @@
 import { confirmMutation } from './confirmations';
+import { settleNotificationAnimations } from './feedback';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { changeRole, fixture, login } from './helpers';
@@ -283,6 +284,8 @@ test('contacts support bulk actions, row menus, quick snooze and CSV export', as
     const reminderDownload = page.waitForEvent('download');
     await page.getByRole('menuitem', { name: /^Reminders/ }).click();
     expect((await reminderDownload).suggestedFilename()).toBe('reminders.csv');
+    // Toasts fade in; scanning mid-animation reports colour contrast against a half-transparent toast.
+    await settleNotificationAnimations(page);
     const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
     expect(scan.violations.map((item) => item.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
