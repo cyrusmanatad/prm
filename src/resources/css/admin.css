@@ -540,3 +540,18 @@
         padding-right: 0;
     }
 }
+.wd-admin .adm-more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.wd-admin .adm-more p {
+    margin: 0;
+}
+.wd-admin .adm-row-note {
+    display: block;
+    color: var(--wd-muted);
+    font-size: 12px;
+}
