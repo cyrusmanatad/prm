@@ -44,6 +44,8 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await expect(stale.getByLabel('Template body', { exact: true })).toHaveValue('Unsaved stale pitch');
     await expect(stale.getByRole('button', { name: 'Save template', exact: true })).toBeDisabled();
     await stale.getByRole('button', { name: 'Reload latest templates', exact: true }).click();
+    // The reload remounts the page and resets the narrow-screen panel, so switch only after it lands.
+    await expect(stale.getByRole('alert').filter({ hasText: 'changed in another session' })).toHaveCount(0);
     await showOutreachPanel(stale, 'Templates');
     await expect(stale.getByRole('button', { name: 'Latest pitch', exact: true })).toBeVisible();
     await stale.close();
