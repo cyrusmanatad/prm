@@ -128,7 +128,7 @@ it('shows a calm overview, and never presents capability gaps or missing telemet
             activity: null,
         },
     });
-    const failed = wrapper.findAll('.wd-stat-card').find((card) => card.text().includes('Failed jobs'))!;
+    const failed = wrapper.findAll('.adm-stats li').find((card) => card.text().includes('Failed jobs'))!;
     expect(failed.text()).toContain('Unavailable');
     expect(failed.text()).toContain('Outside your capabilities');
     expect(failed.find('a').exists()).toBe(false);
@@ -149,9 +149,26 @@ it('lists attention items with a next step and a link to the filtered list', () 
     });
     const items = wrapper.findAll('.adm-attention li');
     expect(items).toHaveLength(5);
-    expect(items[0]!.text()).toContain('2 uncertain sends need review');
-    expect(items[0]!.text()).toContain('Nothing is resent automatically');
-    expect(items[0]!.get('a').attributes('href')).toBe('/admin/notifications?state=uncertain');
+    // Failures come first; reviews keep their order after them.
+    expect(items[0]!.text()).toContain('1 background job failed in the last 24 hours');
+    expect(items[0]!.text()).toContain('Action needed');
+    expect(items[1]!.text()).toContain('2 uncertain sends need review');
+    expect(items[1]!.text()).toContain('Nothing is resent automatically');
+    // The visible label is short; the accessible name keeps the full destination.
+    const link = items[1]!.get('a');
+    expect(link.attributes('href')).toBe('/admin/notifications?state=uncertain');
+    expect(link.text()).toBe('Review');
+    expect(link.attributes('aria-label')).toBe('Review uncertain sends');
+    // Tiles link to their lists and flag what needs a look.
+    const notices = wrapper.findAll('.adm-stats li').find((card) => card.text().includes('Queued notices'))!;
+    expect(notices.text()).toContain('2 uncertain');
+    expect(notices.get('a').attributes('href')).toBe('/admin/notifications?state=uncertain');
+    expect(
+        wrapper
+            .findAll('.adm-stats li')
+            .find((card) => card.text().includes('Failed jobs'))!
+            .classes(),
+    ).toContain('is-alert');
     expect(wrapper.text()).toContain('No scheduler heartbeat has been observed');
     expect(wrapper.text()).toContain('1 workspace has an expired assignment');
 });
@@ -210,6 +227,107 @@ it('filters both directories by a labelled, inclusive date range and reports it 
     expect(workspaces.get('label[for="workspace-created-to"]').text()).toBe('Created to (inclusive)');
     expect(workspaces.get('[aria-label="Applied filters"]').text()).toContain('Created to: 2026-11-15');
     expect(workspaces.text()).toContain('calendar days in UTC');
+});
+
+it('names recent actions and their targets in plain language, keeping unnamed targets as references', () => {
+    const wrapper = render(PlatformOverview, {
+        overview: {
+            ...overview,
+            activity: [
+                {
+                    id: '7',
+                    occurred_at: '2026-11-16T08:00:00+00:00',
+                    event: 'plan.assigned',
+                    target: '919a4aad-2886-4aa4-a93a-333b953822c1',
+                    actor: 'Ari Cruz',
+                    target_kind: 'workspace',
+                    target_name: 'Northline Living',
+                },
+                {
+                    id: '6',
+                    occurred_at: '2026-11-16T07:00:00+00:00',
+                    event: 'cleanup.dry_run',
+                    target: '3ab9340b-c84e-4c5d-86f4-5d1fae3fc457',
+                    actor: 'Ari Cruz',
+                    target_kind: 'cleanup',
+                    target_name: null,
+                },
+                {
+                    id: '5',
+                    occurred_at: '2026-11-16T06:00:00+00:00',
+                    event: 'something.new_kind',
+                    target: 'admin',
+                    actor: 'application',
+                },
+            ],
+        },
+    });
+    const rows = wrapper.get('table').findAll('tbody tr');
+    expect(rows[0]!.text()).toContain('Plan assigned');
+    expect(rows[0]!.text()).toContain('Workspace · Northline Living');
+    expect(rows[0]!.get('a').attributes('href')).toBe('/admin/audit/platform/7');
+    expect(rows[0]!.get('time').attributes('datetime')).toBe('2026-11-16T08:00:00+00:00');
+    expect(rows[1]!.text()).toContain('Cleanup dry run');
+    expect(rows[1]!.text()).toContain('Cleanup · 3ab9340b…');
+    // Unknown codes stay readable rather than hidden.
+    expect(rows[2]!.text()).toContain('Something new kind');
+    expect(rows[2]!.text()).toContain('admin');
+});
+
+it('offers account quick views with counts, one status per row and numbered pages', () => {
+    const row = (id: number, extra: Record<string, unknown> = {}) => ({
+        id,
+        name: `Account ${id}`,
+        email: `account-${id}@example.test`,
+        email_verified_at: '2026-11-01T00:00:00+00:00',
+        created_at: '2026-11-01T10:00:00+00:00',
+        workspaces: 1,
+        platform_access: false,
+        suspended: false,
+        ...extra,
+    });
+    const wrapper = render(PlatformAccounts, {
+        accounts: {
+            total: 60,
+            facets: { all: 60, active: 58, suspended: 2, unverified: 3, granted: 1 },
+            rows: [
+                row(1),
+                row(2, { suspended: true, email_verified_at: null }),
+                row(3, { email_verified_at: null, platform_access: true }),
+            ],
+        },
+        filters: { q: 'acc', verified: '', grant: '', access: 'suspended', from: '', to: '' },
+        page: 2,
+    });
+    const chips = wrapper.get('[aria-label="Show accounts"]');
+    expect(chips.text()).toContain('Suspended');
+    expect(chips.get('[aria-current="true"]').text()).toContain('Suspended');
+    // A quick view replaces the access, verification and grant filters and keeps the search.
+    const unverified = chips.findAll('a').find((link) => link.text().includes('Unverified'))!;
+    expect(unverified.attributes('href')).toBe('/admin/accounts?q=acc&verified=no');
+    expect(unverified.text()).toContain('3');
+    const statuses = wrapper.findAll('tbody tr').map((tr) => tr.findAll('td')[0]!.text());
+    // Suspension outranks verification.
+    expect(statuses).toEqual(['Active', 'Suspended', 'Unverified']);
+    expect(wrapper.findAll('tbody tr')[2]!.text()).toContain('Platform grant');
+    expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('None');
+    expect(wrapper.text()).toContain('Showing 26–28 of 60 matching accounts, all pages');
+    expect(wrapper.get('[aria-label="Page 3"]').attributes('href')).toBe(
+        '/admin/accounts?q=acc&access=suspended&page=3',
+    );
+    expect(wrapper.get('[aria-current="page"]').text()).toBe('2');
+});
+
+it('applies account dropdown filters as they are chosen', async () => {
+    const wrapper = render(PlatformAccounts, {
+        accounts: { total: 0, rows: [], facets: { all: 0, active: 0, suspended: 0, unverified: 0, granted: 0 } },
+        filters: { q: 'kim', verified: '', grant: '', access: '', from: '', to: '' },
+        page: 1,
+    });
+    await wrapper.get('#account-verified-trigger, [aria-labelledby="account-verified-label"]').trigger('click');
+    const option = wrapper.findAll('[role="option"]').find((item) => item.text() === 'Unverified')!;
+    await option.trigger('click');
+    expect(get).toHaveBeenCalledWith('/admin/accounts', { q: 'kim', verified: 'no' }, expect.anything());
 });
 
 const accountImpact = {

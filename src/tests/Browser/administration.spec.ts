@@ -49,7 +49,8 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
     page,
     browser,
 }, info) => {
-    test.setTimeout(480_000);
+    // One long journey across every module; on a well-used local stack it runs close to eight minutes.
+    test.setTimeout(600_000);
     const mobile = info.project.name.includes('mobile');
     const base = mobile ? 390 : 1440;
     await page.setViewportSize({ width: base, height: 1000 });
@@ -133,22 +134,30 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
 
     // Directory: applied filters, truthful counts, restorable history.
     await page.goto('/admin/accounts');
-    await page.getByLabel('Name, email or account ID', { exact: true }).fill(email);
-    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    // Quick views carry counts; search and dates scope them.
+    await expect(
+        page.getByRole('navigation', { name: 'Show accounts' }).getByRole('link', { name: /^All/ }),
+    ).toHaveAttribute('aria-current', 'true');
+    const search = page.getByLabel('Name, email or account ID', { exact: true });
+    await search.fill(email);
+    await search.press('Enter');
     await expect(page).toHaveURL((url) => url.searchParams.get('q') === email);
     await expect(page.getByText('Showing 1–1 of 1 matching accounts, all pages', { exact: true })).toBeVisible();
     await expect(page.getByRole('list', { name: 'Applied filters' })).toContainText(`Search: ${email}`);
-    await page.getByLabel('Name, email or account ID', { exact: true }).fill('no-such-account-zzz');
-    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await expect(page.getByRole('navigation', { name: 'Show accounts' })).toContainText('All 1');
+    await search.fill('no-such-account-zzz');
+    await search.press('Enter');
     await expect(page.getByRole('heading', { name: 'No accounts match these filters' })).toBeVisible();
     await page.goBack();
-    await expect(page.getByLabel('Name, email or account ID', { exact: true })).toHaveValue(email);
+    await expect(search).toHaveValue(email);
     await expect(page.getByText('Showing 1–1 of 1 matching accounts, all pages', { exact: true })).toBeVisible();
     // Joined-date range: labelled date inputs, inclusive end date, reported as applied and restored from the URL.
     const today = new Date().toISOString().slice(0, 10);
+    if (mobile) await page.getByRole('button', { name: /^Filters/ }).click();
+    await page.getByRole('button', { name: 'Joined: any time' }).click();
     await page.getByLabel('Joined from', { exact: true }).fill(today);
     await page.getByLabel('Joined to (inclusive)', { exact: true }).fill(today);
-    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await page.getByRole('button', { name: 'Apply dates', exact: true }).click();
     await expect(page).toHaveURL(
         (url) => url.searchParams.get('from') === today && url.searchParams.get('to') === today,
     );
@@ -157,7 +166,7 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
     await clean(page);
     await page.getByLabel('Joined from', { exact: true }).fill('2000-01-01');
     await page.getByLabel('Joined to (inclusive)', { exact: true }).fill('2000-01-02');
-    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await page.getByRole('button', { name: 'Apply dates', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'No accounts match these filters' })).toBeVisible();
     await page.goBack();
     await expect(page.getByLabel('Joined from', { exact: true })).toHaveValue(today);

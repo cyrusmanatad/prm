@@ -26,7 +26,7 @@ defineEmits<{ select: [value: string] }>();
                     preserve-scroll
                 >
                     {{ chip.label }}
-                    <span class="wd-filter-chip-count">{{ chip.count }}</span>
+                    <span class="wd-filter-chip-count">{{ chip.count.toLocaleString('en-GB') }}</span>
                 </Link>
             </li>
         </ul>
@@ -36,7 +36,7 @@ defineEmits<{ select: [value: string] }>();
             <li v-for="chip in chips" :key="chip.value || 'all'">
                 <button type="button" :aria-pressed="chip.value === current" @click="$emit('select', chip.value)">
                     {{ chip.label }}
-                    <span class="wd-filter-chip-count">{{ chip.count }}</span>
+                    <span class="wd-filter-chip-count">{{ chip.count.toLocaleString('en-GB') }}</span>
                 </button>
             </li>
         </ul>

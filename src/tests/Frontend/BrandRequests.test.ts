@@ -360,7 +360,9 @@ it('adds Brand requests to navigation and the overview only for the review capab
     };
     const wrapper = render(PlatformOverview, { overview });
     expect(wrapper.text()).toContain('2 Brand requests are awaiting a decision');
-    expect(wrapper.get('a[href="/admin/brand-requests?status=pending"]').text()).toContain('Review Brand requests');
+    expect(wrapper.get('a[href="/admin/brand-requests?status=pending"]').attributes('aria-label')).toBe(
+        'Review Brand requests',
+    );
     expect(wrapper.text()).toContain('1 Brand workspace has no recorded approval');
 });
 

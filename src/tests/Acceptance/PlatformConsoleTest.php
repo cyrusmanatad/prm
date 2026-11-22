@@ -242,6 +242,49 @@ class PlatformConsoleTest extends AcceptanceCase
         $this->getJson('/admin/accounts')->assertForbidden();
     }
 
+    public function test_account_counts_follow_search_and_dates_but_not_the_status_filters(): void
+    {
+        $prefix = 'Facet Synthetic '.Str::random(8);
+        $verified = User::factory()->create(['name' => $prefix.' A']);
+        User::factory()->unverified()->create(['name' => $prefix.' B']);
+        $granted = User::factory()->create(['name' => $prefix.' C']);
+        $this->control->table('platform_grants')->insert(['user_id' => $granted->id, 'permissions' => '{directory.read}']);
+        $this->verified($this->operator('{directory.read}'));
+        // Keys in jsonb order.
+        $facets = ['all' => 3, 'active' => 3, 'granted' => 1, 'suspended' => 0, 'unverified' => 1];
+        $this->getJson('/admin/accounts?q='.urlencode($prefix))->assertOk()->assertJsonPath('accounts.total', 3)->assertJsonPath('accounts.facets', $facets);
+        // A status filter narrows the rows; the counts still say what each quick view would show.
+        $this->getJson('/admin/accounts?verified=no&q='.urlencode($prefix))->assertOk()->assertJsonPath('accounts.total', 1)->assertJsonPath('accounts.facets', $facets);
+        $this->getJson('/admin/accounts?grant=yes&q='.urlencode($prefix))->assertOk()->assertJsonPath('accounts.rows.0.id', $granted->id);
+        $this->getJson('/admin/accounts?from='.now()->addDay()->format('Y-m-d').'&q='.urlencode($prefix))->assertOk()
+            ->assertJsonPath('accounts.facets', ['all' => 0, 'active' => 0, 'granted' => 0, 'suspended' => 0, 'unverified' => 0]);
+        $this->assertNotNull($verified->email_verified_at);
+    }
+
+    public function test_recent_activity_names_targets_only_for_directory_readers(): void
+    {
+        $owner = User::factory()->create(['name' => 'Target Person Synthetic']);
+        $org = app(Workspaces::class)->create($owner->id, 'Target Studio Synthetic');
+        $support = (string) Str::uuid();
+        // Seconds ahead of now, so these are the latest actions even on a shared database.
+        $this->control->table('platform_audit')->insert([
+            ['operator' => 'synthetic', 'event' => 'plan.assigned', 'target' => $org, 'reason' => 'Synthetic', 'occurred_at' => now()->addSeconds(3)],
+            ['operator' => 'synthetic', 'event' => 'mfa.verified', 'target' => (string) $owner->id, 'reason' => 'Synthetic', 'occurred_at' => now()->addSeconds(2)],
+            ['operator' => 'synthetic', 'event' => 'support.requested', 'target' => $support, 'reason' => 'Synthetic', 'occurred_at' => now()->addSecond()],
+        ]);
+        $find = fn (array $activity, string $target) => collect($activity)->firstWhere('target', $target);
+        $activity = fn ($response) => $response->assertOk()->viewData('page')['props']['overview']['activity'];
+        $named = $activity($this->verified($this->operator('{directory.read,audit.read}'))->get('/admin'));
+        $this->assertSame(['workspace', 'Target Studio Synthetic'], array_values(array_intersect_key($find($named, $org), ['target_kind' => 1, 'target_name' => 1])));
+        $this->assertSame(['account', 'Target Person Synthetic'], array_values(array_intersect_key($find($named, (string) $owner->id), ['target_kind' => 1, 'target_name' => 1])));
+        // A support grant that cannot be found keeps its kind and reference, with no name.
+        $this->assertSame(['support', null], array_values(array_intersect_key($find($named, $support), ['target_kind' => 1, 'target_name' => 1])));
+        // Without the directory capability, kinds remain but names are withheld.
+        $unnamed = $activity($this->verified($this->operator('{audit.read}'))->get('/admin'));
+        $this->assertSame(['workspace', null], array_values(array_intersect_key($find($unnamed, $org), ['target_kind' => 1, 'target_name' => 1])));
+        $this->assertNull($find($unnamed, (string) $owner->id)['target_name']);
+    }
+
     public function test_audit_review_lists_actions_and_denials_with_recorded_fields_only(): void
     {
         $owner = User::factory()->create();

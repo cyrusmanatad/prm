@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import '../../css/records.css';
 import '../../css/admin.css';
 import { computed, ref, watch } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
@@ -9,7 +10,8 @@ import DialogClose from '../components/DialogClose.vue';
 import { containDialogFocus } from '../composables/useDialogFocus';
 import { activeHref, operatorLabel, visibleGroups, type AdminContext } from '../features/admin/navigation';
 
-defineProps<{ title: string; description?: string; eyebrow?: string }>();
+/** `compact` uses the records-page header (28px title, no eyebrow) shared with the compact workspace pages. */
+defineProps<{ title: string; description?: string; eyebrow?: string; compact?: boolean }>();
 
 const page = usePage<{ admin?: AdminContext; account?: { name: string; email: string } | null }>();
 const context = computed(() => page.props.admin);
@@ -83,9 +85,18 @@ watch(() => page.url, close);
                 </div>
             </nav>
             <main id="main-content" class="adm-main">
-                <div class="adm-content">
+                <div class="adm-content" :class="{ 'is-compact': compact }">
                     <slot name="back" />
-                    <header class="adm-page-heading">
+                    <header v-if="compact" class="rec-header">
+                        <div>
+                            <h1>{{ title }}</h1>
+                            <p v-if="description || $slots.description">
+                                <slot name="description">{{ description }}</slot>
+                            </p>
+                        </div>
+                        <slot name="actions" />
+                    </header>
+                    <header v-else class="adm-page-heading">
                         <div>
                             <span class="wd-eyebrow">{{ eyebrow ?? 'Platform administration' }}</span>
                             <h1>{{ title }}</h1>

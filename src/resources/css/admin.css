@@ -244,40 +244,6 @@
         padding: 16px;
     }
 }
-.wd-admin .adm-attention {
-    display: grid;
-    gap: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-.wd-admin .adm-attention li {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px 16px;
-    align-items: center;
-    justify-items: start;
-    padding: 16px 0;
-}
-.wd-admin .adm-attention li + li {
-    border-top: 1px solid var(--wd-divider);
-}
-.wd-admin .adm-attention li:first-child {
-    padding-top: 0;
-}
-.wd-admin .adm-attention li:last-child {
-    padding-bottom: 0;
-}
-.wd-admin .adm-attention h3,
-.wd-admin .adm-attention p {
-    margin: 0;
-}
-.wd-admin .adm-attention h3 {
-    font-size: 15px;
-}
-.wd-admin .adm-attention p {
-    color: var(--wd-body);
-}
 .wd-admin .adm-capabilities {
     display: grid;
     gap: 4px;
@@ -327,15 +293,234 @@
     list-style: disc;
     color: var(--wd-body);
 }
-@media (min-width: 768px) {
-    .wd-admin .adm-attention li {
-        grid-template-columns: auto minmax(0, 1fr) auto;
-    }
-}
 .wd-admin .adm-support-banner {
     border: 1px solid var(--wd-wood);
 }
 .wd-admin .wd-data-table ul {
     margin: 0;
     padding-left: 18px;
+}
+
+/* Compact pages (Overview, Accounts): the records-page header, summary tiles, attention queue and list toolbar. */
+.wd-admin .adm-content.is-compact {
+    gap: 14px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.wd-admin .adm-stats {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.wd-admin .adm-stats a {
+    display: contents;
+    color: inherit;
+    text-decoration: none;
+}
+.wd-admin .adm-stats li:has(a:hover) {
+    border-color: var(--wd-control-line);
+}
+.wd-admin .adm-stats li:has(a:focus-visible) {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.wd-admin .adm-stats a:focus-visible {
+    outline: none;
+}
+.wd-admin .adm-stats strong {
+    color: var(--wd-ink);
+}
+.wd-admin .adm-attention {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.wd-admin .adm-attention li {
+    display: grid;
+    grid-template-columns: 136px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 9px 14px;
+    border-top: 1px solid var(--wd-divider);
+}
+.wd-admin .adm-attention li > div {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 8px;
+    min-width: 0;
+}
+.wd-admin .adm-attention .wd-badge {
+    justify-self: start;
+}
+.wd-admin .adm-attention h3 {
+    margin: 0;
+    font-family: var(--wd-font-body);
+    font-size: 13.5px;
+    font-weight: 700;
+}
+.wd-admin .adm-attention p {
+    margin: 0;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.wd-admin .adm-attention a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.wd-admin .adm-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 0 14px 10px;
+}
+.wd-admin .adm-search {
+    display: flex;
+    flex: 1 1 260px;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 8px;
+    background: var(--wd-surface);
+    color: var(--wd-muted);
+}
+.wd-admin .adm-search:focus-within {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 1px;
+}
+.wd-admin .adm-search input {
+    flex: 1;
+    min-width: 0;
+    min-height: var(--wd-table-control);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--wd-ink);
+    outline: none;
+}
+.wd-admin .adm-filter-set {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+}
+/* Inline filters keep their labels for assistive technology; each option names what it filters. */
+.wd-admin .adm-toolbar .wd-select > label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+.wd-admin .adm-toolbar .wd-select {
+    position: relative;
+    min-width: 190px;
+}
+.wd-admin .adm-toolbar .wd-select-trigger {
+    min-height: var(--wd-table-control);
+    padding-block: 0;
+    font-size: 13px;
+}
+.wd-admin .adm-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+    flex-basis: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--wd-line);
+    border-radius: 10px;
+    background: var(--wd-paper);
+}
+.wd-admin .adm-dates .wd-field {
+    min-width: 180px;
+}
+.wd-admin .adm-filters-toggle {
+    display: none;
+}
+.wd-admin .adm-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 0 14px 10px;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.wd-admin .adm-status ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.wd-admin .adm-status button {
+    min-height: 44px;
+}
+.wd-admin .rec-card .rec-table a.rec-row-title {
+    text-decoration: none;
+}
+.wd-admin .rec-card .rec-table a.rec-row-title:hover {
+    text-decoration: underline;
+}
+.wd-admin .rec-table .wd-data-table th:last-child,
+.wd-admin .rec-table .wd-data-table td:last-child {
+    text-align: right;
+}
+.wd-admin .rec-table thead th:last-child {
+    color: inherit;
+}
+.wd-admin .rec-card-foot .wd-pagination {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+@media (max-width: 1199px) {
+    .wd-admin .adm-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+/* Phone records follow the shared two-line records pattern; the status badges here are narrower than its default reserve. */
+.wd-admin .adm-phone-only {
+    display: none;
+}
+@media (max-width: 599px) {
+    .wd-admin .rec-table.wd-data-stacked .wd-data-table tbody th {
+        padding-right: 112px;
+    }
+    .wd-admin .adm-phone-only {
+        display: inline;
+    }
+    .wd-admin .adm-phone-hidden {
+        display: none;
+    }
+}
+@media (max-width: 639px) {
+    .wd-admin .adm-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .wd-admin .adm-attention li {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .wd-admin .adm-attention li > div {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        flex-direction: column;
+    }
+    .wd-admin .adm-filters-toggle {
+        display: inline-flex;
+    }
+    .wd-admin .adm-filter-set:not(.is-open) {
+        display: none;
+    }
+    .wd-admin .adm-filter-set,
+    .wd-admin .adm-filter-set .wd-select {
+        flex-basis: 100%;
+    }
 }
