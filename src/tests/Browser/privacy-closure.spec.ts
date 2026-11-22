@@ -111,10 +111,8 @@ test('workspace closure revokes publication and cancellation keeps it unpublishe
     );
     await page.getByRole('button', { name: /Closure review workspace/ }).click();
     await selected;
-    await expect(page.getByRole('button', { name: /Closure review workspace/ })).toHaveAttribute(
-        'aria-pressed',
-        'true',
-    );
+    // The chosen workspace becomes current: its settings panel is named after it.
+    await expect(page.getByRole('region', { name: 'Closure review workspace', exact: true })).toBeVisible();
     await page.goto('/partner/leads');
     await page.goto('/account/closure');
     await page.getByRole('combobox', { name: 'Closure scope' }).click();
@@ -195,4 +193,26 @@ test('platform owner assigns and records a metadata-only privacy review', async 
     await clean(page);
     if (process.env.CAPTURE_CLOSURE_IMAGES === '1')
         await page.screenshot({ path: info.outputPath('operator-review.png'), fullPage: true });
+
+    // Cancelling on the requester's behalf needs a verified reference and a Cancel-first confirmation.
+    await openRequest();
+    await request.getByRole('combobox', { name: 'Review action' }).click();
+    await page.getByRole('option', { name: 'Cancel verified closure request' }).click();
+    await request.getByLabel('Review reason').fill('Requester withdrew through verified support case');
+    await request.getByLabel('Verified request reference').fill('CASE-SYNTHETIC-0001');
+    await request.getByLabel('Current password').fill(password);
+    await request.getByLabel('Authenticator code').fill(await code());
+    const save = request.getByRole('button', { name: 'Save request update', exact: true });
+    await save.click();
+    const confirm = page.getByRole('dialog', { name: 'Cancel verified closure request?', exact: true });
+    await expect(confirm.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+    await expect(confirm).toContainText(`the account ${data.label}`);
+    await clean(page);
+    await page.keyboard.press('Escape');
+    await expect(save).toBeFocused();
+    await expect(request).toBeVisible();
+    await save.click();
+    await confirm.getByRole('button', { name: 'Cancel verified closure request', exact: true }).click();
+    await expect(confirm).toBeHidden();
+    await expect(request).toBeHidden();
 });

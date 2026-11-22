@@ -7,6 +7,7 @@ import FormField from '../../components/FormField.vue';
 import SelectField from '../../components/SelectField.vue';
 import StatusBadge from '../../components/StatusBadge.vue';
 import { Button } from '../../components/ui/button';
+import { confirmAction } from '../../composables/useConfirmation';
 import { containDialogFocus } from '../../composables/useDialogFocus';
 import { useValidationFocus } from '../../composables/useValidationFocus';
 import ClosureImpact from './ClosureImpact.vue';
@@ -15,7 +16,8 @@ import { privacyStatus, type ReviewRequest } from './review';
 /**
  * One closure request over the queue: its metadata, the closure impact counts and the handling form (assign, record
  * review, or cancel a verified request). Every change needs a reason, the operator's password and a fresh code.
- * Nothing here erases records. The drawer stays open on errors and closes when the update is saved.
+ * Nothing here erases records. The drawer stays open on errors and closes when the update is saved. Cancelling a
+ * verified request ends the closure on the requester's behalf, so it is confirmed first (Cancel-first, danger tone).
  */
 const props = defineProps<{ request: ReviewRequest | null }>();
 const emit = defineEmits<{ close: [] }>();
@@ -51,9 +53,8 @@ watch(
         dialog.value?.querySelector<HTMLElement>('.wd-dialog-close')?.focus();
     },
 );
-function save(): void {
-    if (form.processing || !props.request) return;
-    form.post(`/admin/privacy-requests/${props.request.id}`, {
+function send(id: string): void {
+    form.post(`/admin/privacy-requests/${id}`, {
         preserveScroll: true,
         onSuccess: () => emit('close'),
         onFinish: () => {
@@ -61,6 +62,20 @@ function save(): void {
             form.code = '';
         },
     });
+}
+function save(event: SubmitEvent): void {
+    const request = props.request;
+    if (form.processing || !request) return;
+    if (form.action !== 'cancel') return send(request.id);
+    const subject =
+        request.scope === 'account' ? `the account ${request.subject_label}` : `the workspace ${request.subject_label}`;
+    confirmAction(
+        'Cancel verified closure request',
+        `Cancel the closure of ${subject} on the requester's behalf? Erasure will not go ahead and eligible access is restored. Publication, links, partnerships and cancelled work do not resume automatically.`,
+        () => send(request.id),
+        event,
+        { tone: 'danger' },
+    );
 }
 </script>
 

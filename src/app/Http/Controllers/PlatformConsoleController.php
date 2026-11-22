@@ -140,12 +140,16 @@ class PlatformConsoleController extends Controller
 
     public function operators(Request $request, PlatformAdministration $admin): mixed
     {
-        $data = $request->validate(['account' => ['nullable', 'integer', 'min:1']]);
+        $data = $request->validate(['account' => ['nullable', 'integer', 'min:1'], 'pin' => ['nullable', 'integer', 'min:1'], 'q' => ['nullable', 'string', 'max:120'],
+            'view' => ['nullable', Rule::in(['active', 'unenrolled', 'revoked'])], 'page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
 
         return $this->read($request, $admin, 'platform.owner', 'PlatformOperators', function () use ($data) {
             $candidate = isset($data['account']) ? DB::table('users')->where('id', $data['account'])->first(['id', 'name', 'email', 'email_verified_at']) : null;
+            // The operator reached from an account page, or the one just changed, is listed first after your own grant.
+            $pin = $data['pin'] ?? $data['account'] ?? null;
 
-            return ['operators' => $this->json('SELECT app_platform_operators() AS data'), 'capabilities' => self::CAPABILITIES,
+            return ['operators' => $this->json('SELECT app_platform_operator_list(?::jsonb,?) AS data', [$this->filters(['q' => $data['q'] ?? null, 'view' => $data['view'] ?? null, 'pin' => $pin]), $data['page'] ?? 1]),
+                'filters' => ['q' => $data['q'] ?? '', 'view' => $data['view'] ?? ''], 'page' => (int) ($data['page'] ?? 1), 'pinned' => $pin, 'capabilities' => self::CAPABILITIES,
                 'candidate' => $candidate ? ['id' => $candidate->id, 'name' => $candidate->name, 'email' => $candidate->email, 'verified' => $candidate->email_verified_at !== null] : null];
         });
     }
@@ -162,7 +166,7 @@ class PlatformConsoleController extends Controller
                 $admin->confirm($request, $data['password'], $data['code']);
                 DB::selectOne('SELECT app_platform_grant_save(?,?,?::text[],?,?) AS version', [$data['user'], $data['expected_version'], '{'.implode(',', $data['capabilities'] ?? []).'}', $data['revoke'] ? 'true' : 'false', trim($data['reason'])]);
 
-                return $this->completed($request, ['message' => $data['revoke'] ? 'Platform access revoked' : 'Platform access recorded'], '/admin/operators');
+                return $this->completed($request, ['message' => $data['revoke'] ? 'Platform access revoked' : 'Platform access recorded'], '/admin/operators?pin='.$data['user']);
             });
         } catch (QueryException $error) {
             $state = $error->errorInfo[0] ?? '';
