@@ -210,10 +210,32 @@ const auditEvents: Record<string, string> = {
     'workspace.reactivated': 'Workspace reactivated',
     'workspace.suspended': 'Workspace suspended',
 };
-export function auditEventLabel(event: string): string {
-    if (auditEvents[event]) return auditEvents[event];
-    const text = event.replaceAll(/[._]+/g, ' ').trim();
+/** A recorded code made readable ("brand_request.approved" → "Brand request approved"). */
+export function readableCode(code: string): string {
+    const text = code.replaceAll(/[._]+/g, ' ').trim();
     return text.charAt(0).toUpperCase() + text.slice(1);
+}
+export function auditEventLabel(event: string): string {
+    return auditEvents[event] ?? readableCode(event);
+}
+
+/** Plain-language names for notification kinds; unknown kinds stay readable. */
+const notificationKinds: Record<string, string> = {
+    'brand_request.approved': 'Brand request approved',
+    'brand_request.declined': 'Brand request declined',
+    'brand_request.needs_information': 'Brand request needs information',
+    'follow_up.outreach': 'Approved follow-up email',
+    'follow_up.review': 'Follow-up review email',
+    'onboarding.accepted': 'Onboarding accepted',
+    'onboarding.corrected': 'Onboarding correction requested',
+    'onboarding.invitation': 'Onboarding invitation',
+    'onboarding.submitted': 'Onboarding submitted',
+    'partner.invitation': 'Partner invitation',
+    'schedule.reminder': 'Reminder email',
+    'schedule.weekly_digest': 'Weekly review email',
+};
+export function notificationKindLabel(kind: string): string {
+    return notificationKinds[kind] ?? readableCode(kind);
 }
 
 const targetKinds: Record<string, string> = {

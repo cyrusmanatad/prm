@@ -176,7 +176,7 @@ test('a Brand registrant requests a workspace, answers a question and opens the 
         // The outcome email is listed by account in delivery diagnostics, without the address.
         await admin.goto('/admin/notifications?q=Ana%20Browser%20Applicant');
         await expect(admin.getByText('Account: Ana Browser Applicant').first()).toBeVisible();
-        await expect(admin.getByText('brand_request.approved').first()).toBeVisible();
+        await expect(admin.getByText('Brand request approved').first()).toBeVisible();
         await expect(admin.getByText(email)).toHaveCount(0);
 
         // The applicant's active workspace did not change during the reviewer's session; opening is their choice.

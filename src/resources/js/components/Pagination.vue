@@ -33,7 +33,7 @@ const pages = computed<(number | null)[]>(() => {
 const summary = computed(() => {
     if (!props.count) return props.total ? `No ${props.noun} on this page` : `No ${props.noun}`;
     if (props.total === null) return `Showing ${props.count} ${props.noun} on this page; total unavailable`;
-    return `Showing ${first.value}–${last.value} of ${props.total} matching ${props.noun}, all pages`;
+    return `Showing ${first.value.toLocaleString('en-GB')}–${last.value.toLocaleString('en-GB')} of ${props.total.toLocaleString('en-GB')} matching ${props.noun}, all pages`;
 });
 </script>
 

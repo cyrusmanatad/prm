@@ -9,6 +9,8 @@ import PlatformOperations from '../../resources/js/pages/PlatformOperations.vue'
 import PlatformOperators from '../../resources/js/pages/PlatformOperators.vue';
 import PlatformOverview from '../../resources/js/pages/PlatformOverview.vue';
 import PlatformWorkspaces from '../../resources/js/pages/PlatformWorkspaces.vue';
+import PlatformNotifications from '../../resources/js/pages/PlatformNotifications.vue';
+import PlatformAudit from '../../resources/js/pages/PlatformAudit.vue';
 import PlatformCleanupRun from '../../resources/js/pages/PlatformCleanupRun.vue';
 import PlatformSupportGrant from '../../resources/js/pages/PlatformSupportGrant.vue';
 import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
@@ -226,7 +228,7 @@ it('filters both directories by a labelled, inclusive date range and reports it 
     });
     expect(workspaces.get('label[for="workspace-created-to"]').text()).toBe('Created to (inclusive)');
     expect(workspaces.get('[aria-label="Applied filters"]').text()).toContain('Created to: 2026-11-15');
-    expect(workspaces.text()).toContain('calendar days in UTC');
+    expect(workspaces.text()).toContain('created dates are UTC days');
 });
 
 it('names recent actions and their targets in plain language, keeping unnamed targets as references', () => {
@@ -328,6 +330,142 @@ it('applies account dropdown filters as they are chosen', async () => {
     const option = wrapper.findAll('[role="option"]').find((item) => item.text() === 'Unverified')!;
     await option.trigger('click');
     expect(get).toHaveBeenCalledWith('/admin/accounts', { q: 'kim', verified: 'no' }, expect.anything());
+});
+
+it('lists workspaces with type chips that combine with entitlement, access and dates', async () => {
+    const row = {
+        id: 'w-1',
+        name: 'Harbor Studio',
+        kind: 'creator',
+        experience: 'professional',
+        created_at: '2026-11-01T10:00:00+00:00',
+        entitlement_state: 'expired',
+        members: 1,
+        owners: ['Ana', 'Ben', 'Cy'],
+        owner_count: 4,
+        plan: 'Pilot v2',
+        suspended: true,
+    };
+    const wrapper = render(PlatformWorkspaces, {
+        workspaces: { total: 30, rows: [row], facets: { all: 30, creator: 20, brand: 10 } },
+        filters: { q: '', kind: '', state: 'expired', access: '', from: '', to: '' },
+        page: 1,
+    });
+    const chips = wrapper.get('[aria-label="Show workspaces"]');
+    expect(chips.get('[aria-current="true"]').text()).toContain('All');
+    // A type chip keeps the entitlement filter.
+    expect(
+        chips
+            .findAll('a')
+            .find((link) => link.text().includes('Brand'))!
+            .attributes('href'),
+    ).toBe('/admin/workspaces?kind=brand&state=expired');
+    const cells = wrapper.get('tbody tr');
+    expect(cells.text()).toContain('Creator · Professional');
+    expect(cells.text()).toContain('Suspended');
+    expect(cells.text()).toContain('Ana, Ben, Cy and 1 more');
+    expect(cells.text()).toContain('Pilot v2');
+    expect(wrapper.get('[aria-label="Applied filters"]').text()).toContain('Entitlement:');
+    await wrapper.get('[aria-labelledby="workspace-access-label"]').trigger('click');
+    await wrapper
+        .findAll('[role="option"]')
+        .find((item) => item.text() === 'Suspended')!
+        .trigger('click');
+    expect(get).toHaveBeenCalledWith('/admin/workspaces', { state: 'expired', access: 'suspended' }, expect.anything());
+});
+
+it('filters deliveries by state chips with counts and names notification kinds', () => {
+    const wrapper = render(PlatformNotifications, {
+        notices: [
+            {
+                id: '01d43fc8-4bf1-45bc-b138-22b988db6d6d',
+                org_id: null,
+                workspace: null,
+                account: 'Ana Applicant',
+                kind: 'brand_request.approved',
+                state: 'uncertain',
+                created_at: '2026-11-16T08:00:00+00:00',
+                started_at: null,
+                completed_at: null,
+                available_at: '2026-11-16T08:00:00+00:00',
+                defer_count: 0,
+                failure_code: null,
+                resolution: null,
+                resolved_at: null,
+                resolution_version: 0,
+            },
+        ],
+        total: 1,
+        facets: { all: 9, pending: 2, sending: 0, sent: 3, captured: 1, cancelled: 0, uncertain: 3 },
+        workspace: '',
+        q: 'ana',
+        state: 'uncertain',
+        page: 1,
+        canResolve: true,
+    });
+    const chips = wrapper.get('[aria-label="Delivery state"]');
+    expect(chips.get('[aria-current="true"]').text()).toContain('3');
+    expect(chips.findAll('a')[0]!.attributes('href')).toBe('/admin/notifications?q=ana');
+    const row = wrapper.get('tbody tr');
+    expect(row.text()).toContain('Brand request approved');
+    expect(row.text()).toContain('Account: Ana Applicant');
+    expect(row.text()).toContain('Review delivery');
+    expect(row.get('a').attributes('href')).toBe('/admin/notifications/01d43fc8-4bf1-45bc-b138-22b988db6d6d');
+    expect(wrapper.find('[aria-label="Applied filters"]').text()).toContain('Search: ana');
+});
+
+it('shows audit events in plain language with outcome chips and named targets', () => {
+    const wrapper = render(PlatformAudit, {
+        events: {
+            total: 2,
+            facets: { all: 5, recorded: 3, denied: 2 },
+            rows: [
+                {
+                    source: 'platform',
+                    id: '9',
+                    occurred_at: '2026-11-16T08:00:00+00:00',
+                    actor: 'Ari Cruz',
+                    actor_email: 'ari@example.test',
+                    event: 'workspace.suspended',
+                    target: '0446a17c-1c40-464f-a416-e42419a58552',
+                    outcome: 'recorded',
+                    workspace: null,
+                    target_kind: 'workspace',
+                    target_name: 'Harbor Studio',
+                },
+                {
+                    source: 'local-pilot',
+                    id: 'p-1',
+                    occurred_at: '2026-11-16T07:00:00+00:00',
+                    actor: 'local-operator',
+                    actor_email: null,
+                    event: 'plan.created',
+                    target: 'subject-1',
+                    outcome: null,
+                    workspace: 'Cedar Studio',
+                },
+            ],
+        },
+        filters: { q: '', source: '', outcome: '', from: '', to: '' },
+        page: 1,
+    });
+    const chips = wrapper.get('[aria-label="Outcome"]');
+    expect(
+        chips
+            .findAll('a')
+            .find((link) => link.text().includes('Denied'))!
+            .attributes('href'),
+    ).toBe('/admin/audit?outcome=denied');
+    const rows = wrapper.findAll('tbody tr');
+    expect(rows[0]!.text()).toContain('Workspace suspended');
+    expect(rows[0]!.text()).toContain('Workspace · Harbor Studio');
+    expect(rows[0]!.text()).toContain('Completed');
+    expect(rows[0]!.get('a').attributes('href')).toBe('/admin/audit/platform/9');
+    // Local pilot events keep their subject and workspace.
+    expect(rows[1]!.text()).toContain('Plan created');
+    expect(rows[1]!.text()).toContain('subject-1');
+    expect(rows[1]!.text()).toContain('Cedar Studio');
+    expect(rows[1]!.text()).toContain('Not recorded');
 });
 
 const accountImpact = {

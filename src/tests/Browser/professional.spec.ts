@@ -74,7 +74,7 @@ test('professional workspace, shared client tools, exports and administrator MFA
     await expect(page.getByRole('heading', { name: 'Overview', level: 1 })).toBeVisible();
     await page.goto('/admin/workspaces');
     await page.getByLabel('Name or workspace ID', { exact: true }).fill(workspaceName);
-    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await page.getByLabel('Name or workspace ID', { exact: true }).press('Enter');
     await expect(page).toHaveURL(
         (url) => url.pathname === '/admin/workspaces' && url.searchParams.get('q') === workspaceName,
     );

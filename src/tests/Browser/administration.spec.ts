@@ -49,8 +49,9 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
     page,
     browser,
 }, info) => {
-    // One long journey across every module; on a well-used local stack it runs close to eight minutes.
-    test.setTimeout(600_000);
+    // One long journey across every module. Each single-use authenticator code waits for a fresh 30-second step and
+    // every module is scanned at three widths, so on a well-used local stack it runs eight to ten minutes.
+    test.setTimeout(900_000);
     const mobile = info.project.name.includes('mobile');
     const base = mobile ? 390 : 1440;
     await page.setViewportSize({ width: base, height: 1000 });
@@ -406,16 +407,20 @@ test('platform owner reviews directory, entitlements, operations, audit and oper
     // Audit records each action with its reason, and denied requests separately.
     await page.goto('/admin/audit');
     const events = page.getByRole('table', { name: 'Audit events' });
-    for (const action of ['workspace.reactivated', 'workspace.suspended', 'cleanup.dry_run', 'support.ended'])
+    // Actions read in plain language; the recorded codes stay on each event's page.
+    for (const action of ['Workspace reactivated', 'Workspace suspended', 'Cleanup dry run', 'Support access ended'])
         await expect(events).toContainText(action);
     await page.goto('/admin/audit?q=grant.revoked');
-    await events.getByRole('link', { name: 'grant.revoked', exact: true }).first().click();
+    await events.getByRole('link', { name: 'Platform access revoked', exact: true }).first().click();
     await expect(page.getByText('Journey complete', { exact: true })).toBeVisible();
     await capture(page, info, 'audit-event');
     await expect(page.getByText('Not recorded in this event source').first()).toBeVisible();
     await clean(page);
     await page.goto('/admin/audit?outcome=denied');
-    await expect(page.getByRole('table', { name: 'Audit events' })).toContainText('request.denied');
+    await expect(page.getByRole('table', { name: 'Audit events' })).toContainText('Request denied');
+    await expect(
+        page.getByRole('navigation', { name: 'Outcome' }).getByRole('link', { name: /^Denied/ }),
+    ).toHaveAttribute('aria-current', 'true');
 
     // Small screens reach every module through a modal drawer that restores focus.
     if (mobile) {
