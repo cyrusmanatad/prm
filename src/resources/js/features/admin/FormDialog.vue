@@ -19,6 +19,8 @@ const props = defineProps<{
     submitLabel: string;
     processing?: boolean;
     errors?: FieldErrors;
+    /** `danger` for a destructive change; its confirmation still follows on top of the dialog. */
+    tone?: 'default' | 'danger';
 }>();
 const emit = defineEmits<{ submit: [event: SubmitEvent] }>();
 const dialog = ref<HTMLDialogElement>();
@@ -74,9 +76,13 @@ defineExpose({ open, close });
                 <Button type="button" class="wd-button wd-button-secondary" :disabled="processing" @click="cancel"
                     >Cancel</Button
                 >
-                <Button type="submit" class="wd-button wd-button-primary" :disabled="processing">{{
-                    submitLabel
-                }}</Button>
+                <Button
+                    type="submit"
+                    class="wd-button"
+                    :class="tone === 'danger' ? 'wd-button-danger' : 'wd-button-primary'"
+                    :disabled="processing"
+                    >{{ submitLabel }}</Button
+                >
             </footer>
         </form>
     </dialog>

@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
-import ActionGroup from '../../components/ActionGroup.vue';
 import FormField from '../../components/FormField.vue';
-import StatusBadge from '../../components/StatusBadge.vue';
 import UnavailableNotice from '../../components/UnavailableNotice.vue';
 import { Button } from '../../components/ui/button';
 import { confirmAction } from '../../composables/useConfirmation';
-import { useValidationFocus } from '../../composables/useValidationFocus';
+import FormDialog from './FormDialog.vue';
 import { dateTime } from './format';
 
 export type AccessImpact = {
@@ -38,14 +36,13 @@ const props = defineProps<{
 }>();
 
 const path = computed(() => `/admin/${props.kind === 'account' ? 'accounts' : 'workspaces'}/${props.reference}`);
+/**
+ * Access actions as compact rows in the page's Access card. Each opens a dialog with the server-computed impact, a
+ * reason, the operator's password and a fresh code; saving then asks for the shared Cancel-first confirmation.
+ */
 const mode = ref<Mode | null>(null);
-const root = ref<HTMLElement>();
+const dialog = ref<InstanceType<typeof FormDialog>>();
 const form = useForm({ expected_version: 0, reason: '', password: '', code: '' });
-useValidationFocus(
-    root,
-    () => form.errors,
-    () => !form.processing,
-);
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 // What the server says will happen, in the operator's words. Counts are current as of this page load.
 const consequences = computed(() => {
@@ -79,20 +76,27 @@ const blocked = computed(() => {
         return 'This is the last usable platform owner. Give another verified person platform owner access first.';
     return null;
 });
-async function open(next: Mode) {
+function open(next: Mode, event: Event) {
     mode.value = next;
     form.clearErrors();
     form.expected_version = props.access?.version ?? 0;
     form.reason = '';
     form.password = '';
     form.code = '';
-    await nextTick();
-    root.value?.querySelector<HTMLElement>('input')?.focus();
+    dialog.value?.open(event.currentTarget as HTMLElement);
 }
+// One-line previews for the rows; the dialog lists the full impact.
+const summary = computed(() => {
+    const a = props.access;
+    if (!a) return '';
+    if (props.kind === 'account')
+        return `Signs out ${plural(a.sessions ?? 0, 'session', 'sessions')} and blocks ${plural(a.memberships ?? 0, 'workspace', 'workspaces')}.${a.sole_owner_of?.length ? ` Sole owner of ${a.sole_owner_of.map((row) => row.name).join(', ')}.` : ''}`;
+    return `Blocks ${plural(a.members ?? 0, 'member', 'members')}. Queued work is cancelled and not replayed on reactivation.`;
+});
 const labels: Record<Mode, { title: string; submit: string }> = {
-    suspend: { title: `Suspend ${props.kind}`, submit: `Suspend ${props.kind}` },
-    reactivate: { title: `Reactivate ${props.kind}`, submit: `Reactivate ${props.kind}` },
-    'sign-out': { title: 'Sign out sessions', submit: 'Sign out sessions' },
+    suspend: { title: `Suspend ${props.kind}`, submit: 'Review suspension' },
+    reactivate: { title: `Reactivate ${props.kind}`, submit: 'Review reactivation' },
+    'sign-out': { title: 'Sign out sessions', submit: 'Review sign-out' },
 };
 function submit(event: SubmitEvent) {
     if (form.processing || !mode.value) return;
@@ -109,7 +113,7 @@ function submit(event: SubmitEvent) {
         () =>
             form.post(`${path.value}/${current}`, {
                 preserveScroll: true,
-                onSuccess: () => (mode.value = null),
+                onSuccess: () => dialog.value?.close(),
                 onFinish: () => form.reset('password', 'code'),
             }),
         event,
@@ -125,41 +129,55 @@ function submit(event: SubmitEvent) {
         reason="Suspending, reactivating and signing out sessions need the access management capability."
     />
     <template v-else>
-        <p>
-            <StatusBadge
-                :label="access.suspended ? 'Suspended' : 'Active'"
-                :tone="access.suspended ? 'danger' : 'success'"
-            />
-            <template v-if="access.suspension">
-                Suspended {{ dateTime(access.suspension.since) }} by {{ access.suspension.by }}. Reason:
-                {{ access.suspension.reason }}</template
-            >
-        </p>
-        <UnavailableNotice v-if="blocked" title="This account cannot be suspended" :reason="blocked" />
-        <ActionGroup v-else-if="!mode" :label="`Access actions for ${name}`">
-            <Button
-                v-if="access.suspended"
-                type="button"
-                class="wd-button wd-button-primary"
-                @click="open('reactivate')"
+        <div v-if="access.suspended" class="adm-action-row">
+            <div>
+                <h3>Suspended</h3>
+                <p v-if="access.suspension">
+                    Suspended {{ dateTime(access.suspension.since) }} by {{ access.suspension.by }}. Reason:
+                    {{ access.suspension.reason }}
+                </p>
+                <p>Reactivating restores access from now on; cancelled work is not replayed.</p>
+            </div>
+            <Button type="button" class="wd-button wd-button-secondary" @click="open('reactivate', $event)"
                 >Reactivate {{ kind }}</Button
             >
-            <Button v-else type="button" class="wd-button wd-button-danger-outline" @click="open('suspend')"
-                >Suspend {{ kind }}</Button
-            >
-            <Button
-                v-if="kind === 'account' && !access.suspended && (access.sessions ?? 0) > 0"
-                type="button"
-                class="wd-button wd-button-secondary"
-                @click="open('sign-out')"
-                >Sign out sessions</Button
-            >
-        </ActionGroup>
-        <form v-if="mode" ref="root" class="adm-access-form" @submit.prevent="submit">
-            <h3>{{ labels[mode].title }}</h3>
+        </div>
+        <UnavailableNotice v-else-if="blocked" title="This account cannot be suspended" :reason="blocked" />
+        <template v-else>
+            <div class="adm-action-row">
+                <div>
+                    <h3>Suspend {{ kind }}</h3>
+                    <p>{{ summary }}</p>
+                </div>
+                <Button type="button" class="wd-button wd-button-danger-outline" @click="open('suspend', $event)"
+                    >Suspend {{ kind }}</Button
+                >
+            </div>
+            <div v-if="kind === 'account' && (access.sessions ?? 0) > 0" class="adm-action-row">
+                <div>
+                    <h3>Sign out everywhere</h3>
+                    <p>Ends {{ plural(access.sessions ?? 0, 'session', 'sessions') }}. The account stays active.</p>
+                </div>
+                <Button type="button" class="wd-button wd-button-secondary" @click="open('sign-out', $event)"
+                    >Sign out sessions</Button
+                >
+            </div>
+        </template>
+        <FormDialog
+            v-if="access.suspended || !blocked"
+            :id="`access-${kind}`"
+            ref="dialog"
+            :title="mode ? labels[mode].title : ''"
+            :description="`For ${name}.`"
+            :submit-label="mode ? labels[mode].submit : ''"
+            :tone="mode === 'reactivate' ? 'default' : 'danger'"
+            :processing="form.processing"
+            :errors="form.errors"
+            @submit="submit"
+        >
             <template v-if="mode === 'suspend'">
                 <p>What this will do:</p>
-                <ul>
+                <ul class="adm-impact">
                     <li v-for="line in consequences" :key="line">{{ line }}</li>
                 </ul>
             </template>
@@ -167,12 +185,14 @@ function submit(event: SubmitEvent) {
                 Access is restored from now on only. Revoked memberships and grants, expired links and cancelled work
                 are not restored or replayed.
             </p>
-            <p v-else>Ends {{ plural(access.sessions ?? 0, 'session', 'sessions') }}. The person can sign in again.</p>
-            <p v-if="form.errors.expected_version" class="wd-banner" role="alert">
+            <p v-else-if="mode === 'sign-out'">
+                Ends {{ plural(access.sessions ?? 0, 'session', 'sessions') }}. The person can sign in again.
+            </p>
+            <p v-if="form.errors.expected_version" class="wd-banner rec-banner" role="alert">
                 {{ form.errors.expected_version }}
                 <Link :href="path" class="wd-link">Reload this {{ kind }}</Link>
             </p>
-            <fieldset class="wd-fields" :disabled="form.processing">
+            <fieldset v-if="mode" class="wd-fields" :disabled="form.processing">
                 <legend class="wd-sr-only">{{ labels[mode].title }}</legend>
                 <FormField
                     :id="`access-reason-${kind}`"
@@ -200,16 +220,7 @@ function submit(event: SubmitEvent) {
                     :error="form.errors.code"
                     hint="A fresh six-digit code."
                 />
-                <ActionGroup>
-                    <Button
-                        type="submit"
-                        class="wd-button"
-                        :class="mode === 'reactivate' ? 'wd-button-primary' : 'wd-button-danger'"
-                        >{{ labels[mode].submit }}</Button
-                    >
-                    <Button type="button" class="wd-button wd-button-secondary" @click="mode = null">Cancel</Button>
-                </ActionGroup>
             </fieldset>
-        </form>
+        </FormDialog>
     </template>
 </template>

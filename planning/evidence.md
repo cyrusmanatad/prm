@@ -1,3 +1,5 @@
+**Compact administration detail pages, pilot (2026-11-28):** [Account and Workspace header, tiles, fact cards, access rows in dialogs, commands and unverified gates](administration/compact-detail-pilot-evidence.md). Local stack only; not deployed.
+
 **Administration follow-ups (2026-11-27):** [Workspaces test fix, Cancel-first confirmation for cancelling a verified closure, paged Platform access, commands and unverified gates](administration/admin-followups-evidence.md). Local stack only; not deployed.
 
 **Compact administration Jobs and health and Data cleanup (2026-11-26):** [health tiles, cleanup batch status and dialogs, backend latest dry run, commands, rendering findings and unverified gates](administration/compact-operations-cleanup-evidence.md). Local stack only; not deployed.

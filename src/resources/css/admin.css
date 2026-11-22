@@ -587,3 +587,108 @@
 .wd-admin .rec-header-actions {
     align-items: center;
 }
+/* Compact detail pages (Account, Workspace): header facts, summary tiles, fact grid and action rows. */
+.wd-admin .adm-content.is-compact > .wd-tabs {
+    margin: 0;
+}
+.wd-admin .adm-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 10px;
+}
+.wd-admin .adm-stats-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.wd-admin .adm-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-top: 1px solid var(--wd-divider);
+}
+.wd-admin .adm-facts > div {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 8px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--wd-divider);
+    font-size: 13.5px;
+}
+.wd-admin .adm-facts > div.is-wide {
+    grid-column: 1 / -1;
+}
+.wd-admin .adm-facts dt {
+    color: var(--wd-muted);
+}
+.wd-admin .adm-facts dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.wd-admin .adm-facts .wd-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--wd-table-control);
+    margin-block: -12px;
+}
+.wd-admin .rec-card > .adm-facts:last-child {
+    border-bottom: 0;
+}
+.wd-admin .rec-card > .adm-facts:last-child > div:last-child,
+.wd-admin .rec-card > .adm-facts:last-child > div:nth-last-child(2):not(.is-wide):nth-child(odd) {
+    border-bottom: 0;
+}
+.wd-admin .adm-action-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--wd-divider);
+}
+.wd-admin .adm-action-row > div {
+    flex: 1;
+    min-width: 0;
+}
+.wd-admin .adm-action-row h3 {
+    margin: 0;
+    font-family: var(--wd-font-body);
+    font-size: 13.5px;
+    font-weight: 700;
+}
+.wd-admin .adm-action-row p {
+    margin: 2px 0 0;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.wd-admin .rec-card > .wd-unavailable,
+.wd-admin .rec-card > .wd-empty-state {
+    margin: 0 14px 14px;
+}
+.wd-admin .rec-card > .rec-table:last-child,
+.wd-admin .rec-card > .wd-data-region:last-child {
+    border-radius: 0 0 10px 10px;
+}
+@media (max-width: 599px) {
+    .wd-admin .adm-stats-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .wd-admin .adm-facts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .wd-admin .adm-facts > div {
+        grid-template-columns: 112px minmax(0, 1fr);
+        padding: 8px 14px;
+    }
+    .wd-admin .rec-card > .adm-facts:last-child > div:nth-last-child(2):not(.is-wide):nth-child(odd) {
+        border-bottom: 1px solid var(--wd-divider);
+    }
+    .wd-admin .adm-action-row {
+        flex-wrap: wrap;
+    }
+    .wd-admin .adm-action-row > .wd-button {
+        width: 100%;
+    }
+}
+.wd-admin .adm-impact {
+    margin: 0;
+    padding-left: 18px;
+}
