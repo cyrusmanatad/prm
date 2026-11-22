@@ -218,7 +218,7 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
     await page.getByLabel('Your authenticator code', { exact: true }).fill(await proof(1));
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Reset authenticator', exact: true }),
+        page.getByRole('button', { name: 'Review reset', exact: true }),
         'Reset authenticator',
         info,
     );

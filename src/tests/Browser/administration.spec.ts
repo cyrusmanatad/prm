@@ -319,7 +319,8 @@ test('directory filters report truthful counts and restore from history', async 
     await clean(page);
     await sections.getByRole('link', { name: 'Activity', exact: true }).click();
     await clean(page);
-    await sections.getByRole('link', { name: 'Workspaces', exact: true }).click();
+    // Section tabs carry counts, such as "Workspaces 1".
+    await sections.getByRole('link', { name: /^Workspaces \d+$/ }).click();
     await clean(page);
 });
 
@@ -328,9 +329,13 @@ test('workspace entitlements: reviewed, confirmed, version-checked assignment', 
     await page.goto(`/admin/workspaces/${workspace}`);
     await expect(page.getByRole('button', { name: 'Suspend workspace', exact: true })).toBeVisible();
     const tabs = page.getByRole('navigation', { name: 'Workspace sections', exact: true });
-    for (const tab of ['Members', 'Operations', 'Activity', 'Entitlements']) {
-        await tabs.getByRole('link', { name: tab, exact: true }).click();
-        await expect(tabs.getByRole('link', { name: tab, exact: true })).toHaveAttribute('aria-current', 'page');
+    for (const tab of [/^Members \d+$/, 'Operations', 'Activity', 'Entitlements']) {
+        const link =
+            typeof tab === 'string'
+                ? tabs.getByRole('link', { name: tab, exact: true })
+                : tabs.getByRole('link', { name: tab });
+        await link.click();
+        await expect(link).toHaveAttribute('aria-current', 'page');
         await clean(page);
     }
     await expect(page.getByText('Unassigned (development use)').first()).toBeVisible();
@@ -450,7 +455,7 @@ test('account suspension: server-computed impact, reason, fresh proof; reactivat
     await capture(page, info, 'suspend-account');
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Suspend account', exact: true }),
+        page.getByRole('button', { name: 'Review suspension', exact: true }),
         'Suspend account',
         info,
     );
@@ -463,7 +468,7 @@ test('account suspension: server-computed impact, reason, fresh proof; reactivat
     await prove();
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Reactivate account', exact: true }),
+        page.getByRole('button', { name: 'Review reactivation', exact: true }),
         'Reactivate account',
         info,
     );
@@ -567,7 +572,7 @@ test('workspace suspension blocks members with a plain message; reactivation res
     await prove();
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Suspend workspace', exact: true }),
+        page.getByRole('button', { name: 'Review suspension', exact: true }),
         'Suspend workspace',
         info,
     );
@@ -580,7 +585,7 @@ test('workspace suspension blocks members with a plain message; reactivation res
     await prove();
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'Reactivate workspace', exact: true }),
+        page.getByRole('button', { name: 'Review reactivation', exact: true }),
         'Reactivate workspace',
         info,
     );

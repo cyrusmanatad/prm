@@ -21,6 +21,7 @@ import PlatformCleanupRun from '../../resources/js/pages/PlatformCleanupRun.vue'
 import PlatformSupportGrant from '../../resources/js/pages/PlatformSupportGrant.vue';
 import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
 import AccessChange from '../../resources/js/features/admin/AccessChange.vue';
+import AuthenticatorReset from '../../resources/js/features/admin/AuthenticatorReset.vue';
 import UsageTable from '../../resources/js/features/admin/UsageTable.vue';
 import OperatorAccessDialog from '../../resources/js/features/admin/OperatorAccessDialog.vue';
 import SelectField from '../../resources/js/components/SelectField.vue';
@@ -742,9 +743,15 @@ it('keeps access actions away from operators who cannot manage access and marks 
 });
 
 it('reviews a suspension with server-supplied impact, fresh proof and a destructive confirmation', async () => {
+    dialogs();
     const wrapper = access({ access: accountImpact });
     expect(wrapper.find('input').exists()).toBe(false);
     await press(wrapper, 'Suspend account');
+    // The form opens in a dialog whose submit reviews the change; the confirmation comes next.
+    const dialog = wrapper.get('dialog');
+    expect(dialog.attributes('open')).toBeDefined();
+    expect(dialog.get('h2').text()).toBe('Suspend account');
+    expect(dialog.find('button[type="submit"]').text()).toBe('Review suspension');
     const text = wrapper.text();
     expect(text).toContain('Signs out 2 sessions and refuses sign-in on every device.');
     expect(text).toContain('Blocks access to 3 workspaces.');
@@ -767,6 +774,25 @@ it('reviews a suspension with server-supplied impact, fresh proof and a destruct
     expect(pending()?.description).toContain('They can sign in again straight away');
 });
 
+it('resets an authenticator from a row through a dialog and a destructive confirmation', async () => {
+    dialogs();
+    const wrapper = mount(AuthenticatorReset, {
+        props: { account: 9, name: 'Sam Owner', enrolled: true, platformGrant: false, self: false, canManage: true },
+        attachTo: document.body,
+    });
+    wrappers.push(wrapper);
+    expect(wrapper.find('#reset-reason').isVisible()).toBe(false);
+    await press(wrapper, 'Reset authenticator');
+    const dialog = wrapper.get('dialog');
+    expect(dialog.attributes('open')).toBeDefined();
+    expect(dialog.find('button[type="submit"]').text()).toBe('Review reset');
+    await dialog.get('form').trigger('submit');
+    expect(post).not.toHaveBeenCalled();
+    expect(pending()).toMatchObject({ title: 'Reset authenticator', tone: 'danger' });
+    pending()?.action();
+    expect(post.mock.calls[0]![0]).toBe('/admin/accounts/9/reset-authenticator');
+});
+
 it('offers reactivation for a suspended subject and states what it does not restore', async () => {
     const wrapper = access({
         kind: 'workspace',
@@ -786,7 +812,13 @@ it('offers reactivation for a suspended subject and states what it does not rest
     });
     expect(wrapper.text()).toContain('Suspended');
     expect(wrapper.text()).toContain('by Morgan Reyes. Reason: Abuse report');
-    expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['Reactivate workspace']);
+    // The only action outside the (closed) dialog is reactivation.
+    expect(
+        wrapper
+            .findAll('button')
+            .filter((button) => !button.element.closest('dialog'))
+            .map((button) => button.text()),
+    ).toEqual(['Reactivate workspace']);
     await press(wrapper, 'Reactivate workspace');
     expect(wrapper.text()).toContain('expired links and cancelled work are not restored or replayed');
     await wrapper.get('form').trigger('submit');
