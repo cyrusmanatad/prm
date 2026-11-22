@@ -1,3 +1,5 @@
+**Intermittent CI failures (2026-11-23):** [causes from run evidence and the test, build and wait fixes](shared/ci-flakes-evidence.md). Local Chromium plus PR CI.
+
 **Administration small fixes (2026-11-23):** [44px toast close button, Platform access own-row note, ADM register notes](administration/small-fixes-evidence.md). Local stack only; not deployed.
 
 **Compact administration detail pages (2026-11-29):** [remaining eight detail pages, AdminCard, support end dialog, commands and unverified gates](administration/compact-detail-pages-evidence.md). Local stack only; not deployed.

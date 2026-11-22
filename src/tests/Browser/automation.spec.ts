@@ -83,6 +83,9 @@ test('automation preferences persist consent and timezone with confirmed withdra
     const preferencesDialog = page.getByRole('dialog', { name: 'Withdraw notice consent?', exact: true });
     await expect(preferencesDialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
     await preferencesDialog.getByRole('button', { name: 'Withdraw notice consent', exact: true }).click();
+    // Reloading while the save is in flight can cancel it in WebKit; wait until it has landed.
+    await expect(preferencesDialog).not.toBeVisible();
+    await expect(page.getByText('No unsaved changes', { exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByLabel('Weekly digest', { exact: true })).not.toBeChecked();
     await automationTab(page, 'Schedules');
