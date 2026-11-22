@@ -78,6 +78,15 @@
 }
 
 .Toastify__toast .Toastify__close-button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    /* A 44px target around the library's 14px icon, overlapping the toast's own padding so the toast keeps its size. */
+    min-width: 44px;
+    min-height: 44px;
+    margin: -8px -8px -8px 0;
+    border-radius: 10px;
     color: currentColor;
     opacity: 1;
 }

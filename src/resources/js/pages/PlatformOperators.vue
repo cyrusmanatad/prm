@@ -152,9 +152,9 @@ const columns = [
                     ><Link class="rec-row-title" :href="`/admin/accounts/${row.user_id}?tab=security`">{{
                         row.name
                     }}</Link
-                    ><span class="rec-row-sub">{{ row.self ? `${row.email} · This is you` : row.email }}</span
+                    ><span class="rec-row-sub" :title="row.email">{{ row.email }}</span
                     ><span v-if="row.self" class="adm-row-note"
-                        >You cannot change your own grant{{
+                        >This is you. You cannot change your own grant{{
                             row.last_owner ? '. You are the last usable platform owner' : ''
                         }}.</span
                     ><span v-else-if="row.user_id === pinnedId" class="adm-row-note"
