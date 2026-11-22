@@ -162,7 +162,7 @@ const attention = computed(() => {
             tone: 'warning',
             title: `${o.cleanup_blocked} cleanup ${o.cleanup_blocked === 1 ? 'batch has' : 'batches have'} blocked records in the latest dry run`,
             next: 'Open the dry run to see why each record is blocked. Dry runs delete nothing.',
-            href: '/admin/cleanup',
+            href: '/admin/cleanup?view=blocked',
             link: 'Review cleanup batches',
         });
     // Failures first, then reviews, keeping the order within each group.

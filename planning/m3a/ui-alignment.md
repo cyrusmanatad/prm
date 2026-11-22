@@ -76,6 +76,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-25):** administration Brand requests and Privacy requests follow the same pattern: Brand requests with status chips, search and a Source filter; Privacy requests with summary tiles, a compact table and a drawer per request that holds the existing handling form. Evidence: [compact Brand and Privacy requests](../administration/compact-review-queues-evidence.md).
 
+**Confirmed (2026-11-26):** administration Jobs and health and Data cleanup complete the compact console: health summary tiles with compact Services and Failed jobs cards; a cleanup batch list with latest-dry-run status chips; and batch and dry-run pages whose forms open in the shared `FormDialog`. Cleanup remains dry-run only. Evidence: [compact Jobs and health and Data cleanup](../administration/compact-operations-cleanup-evidence.md).
+
 ## Table controls and partner avatars (2026-11-19)
 
 **Confirmed (2026-11-19):** controls inside tables and list toolbars use one compact size, `--wd-table-control`: **36px with a fine pointer, 44px below 600px wide or with a coarse pointer**. This covers pagination (Previous, Next, page numbers), table search fields and buttons, row action buttons, rows-per-page selects, standard filter chips and links standing alone in a cell. Use the shared `wd-table-button`, `wd-table-icon-button`, `wd-table-input` and `wd-cell-link` classes rather than per-screen sizes. Form and dialog buttons, primary page actions (such as Invite partners) and the Registered leads filter fields keep their existing sizes.
