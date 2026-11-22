@@ -409,7 +409,10 @@ test('operator access: fresh verification, explicit review, confirmed and audite
     const row = operators.getByRole('row').filter({ hasText: peerEmail });
     await expect(row).toContainText('Directory, Audit review');
     await expect(row).toContainText('Not enrolled');
-    await row.getByRole('button', { name: /^Revoke platform access for / }).click();
+    // Row actions sit in a menu; revoking opens the access dialog with the reason and fresh proof.
+    await row.getByRole('button', { name: /^Actions for / }).click();
+    await page.getByRole('menuitem', { name: 'Revoke platform access', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Revoke platform access', exact: true })).toBeVisible();
     await page.getByLabel('Reason', { exact: true }).fill('Journey complete');
     await prove();
     await confirmMutation(

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
-import { reactive, type Component } from 'vue';
+import { nextTick, reactive, type Component } from 'vue';
 import PlatformAccount from '../../resources/js/pages/PlatformAccount.vue';
 import PlatformAccounts from '../../resources/js/pages/PlatformAccounts.vue';
 import PlatformAssign from '../../resources/js/pages/PlatformAssign.vue';
@@ -19,6 +19,7 @@ import PlatformSupportGrant from '../../resources/js/pages/PlatformSupportGrant.
 import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
 import AccessChange from '../../resources/js/features/admin/AccessChange.vue';
 import UsageTable from '../../resources/js/features/admin/UsageTable.vue';
+import OperatorAccessDialog from '../../resources/js/features/admin/OperatorAccessDialog.vue';
 import { confirmation, type Confirmation } from '../../resources/js/composables/useConfirmation';
 
 // Read through a function so TypeScript does not narrow the shared ref after a test clears it.
@@ -576,6 +577,40 @@ it('filters support access by state chips and keeps the request form for a chose
     expect(row.get('a').attributes('href')).toBe('/admin/support-access/g-1');
 });
 
+it('shows 50 operators at a time and keeps your own row and the one just changed at the top', async () => {
+    const operator = (id: number, extra: Record<string, unknown> = {}) => ({
+        user_id: id,
+        name: `Operator ${String(id).padStart(3, '0')}`,
+        email: `operator-${id}@example.test`,
+        verified: true,
+        permissions: ['directory.read'],
+        version: 1,
+        revoked_at: null,
+        mfa_ready: true,
+        self: false,
+        last_owner: false,
+        suspended: false,
+        ...extra,
+    });
+    const operators = [
+        ...Array.from({ length: 70 }, (_, index) => operator(index + 1)),
+        operator(99, { name: 'Zed Owner', self: true, permissions: ['platform.owner'] }),
+    ];
+    const wrapper = render(PlatformOperators, { operators, capabilities: ['directory.read'], candidate: null });
+    const rows = () => wrapper.findAll('tbody tr');
+    expect(rows()).toHaveLength(50);
+    expect(rows()[0]!.text()).toContain('Zed Owner');
+    expect(wrapper.text()).toContain('Showing 50 of 71 operators');
+    await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Show 21 more')!
+        .trigger('click');
+    expect(rows()).toHaveLength(71);
+    wrapper.findComponent(OperatorAccessDialog).vm.$emit('saved', 70);
+    await nextTick();
+    expect(rows()[1]!.text()).toContain('Operator 070');
+});
+
 const accountImpact = {
     suspended: false,
     version: 0,
@@ -840,17 +875,37 @@ it('protects the acting owner, and reviews reductions and revocations as destruc
         'operations.read',
         'audit.read',
     ];
+    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+        this.open = true;
+    };
+    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+        this.open = false;
+        this.dispatchEvent(new Event('close'));
+    };
     const wrapper = render(PlatformOperators, { operators, capabilities, candidate: null });
     const rows = wrapper.findAll('tbody tr');
     expect(rows[0]!.text()).toContain('You cannot change your own grant. You are the last usable platform owner.');
     expect(rows[0]!.findAll('button')).toHaveLength(0);
     expect(rows[1]!.text()).toContain('Directory, Audit review');
     expect(rows[1]!.text()).toContain('Not enrolled');
+    expect(rows[1]!.get('button').attributes('aria-label')).toBe('Actions for Ari Cruz');
     expect(wrapper.find('#operator-reason').exists()).toBe(false);
-    await rows[1]!
+    // Views and search filter the whole list in the browser.
+    const chips = wrapper.get('[aria-label="Show operators"]');
+    expect(chips.text()).toContain('No authenticator');
+    await chips
         .findAll('button')
-        .find((button) => button.text() === 'Change')!
+        .find((button) => button.text().startsWith('No authenticator'))!
         .trigger('click');
+    expect(wrapper.findAll('tbody tr')).toHaveLength(1);
+    await wrapper.get('#operator-search').setValue('nobody');
+    expect(wrapper.text()).toContain('No operators match');
+    await wrapper.get('#operator-search').setValue('');
+    // The row menu opens the dialog; it is driven directly here.
+    const dialog = wrapper.findComponent(OperatorAccessDialog);
+    dialog.vm.open('change', { id: 2, name: 'Ari Cruz', email: 'ari@example.test' }, operators[1] as never);
+    await nextTick();
+    expect(wrapper.get('#operator-access-title').text()).toBe('Change capabilities');
     const boxes = wrapper.findAll<HTMLInputElement>('input[type="checkbox"]');
     expect(boxes.filter((box) => box.element.checked).map((box) => box.element.value)).toEqual([
         'directory.read',
@@ -858,17 +913,16 @@ it('protects the acting owner, and reviews reductions and revocations as destruc
     ]);
     await boxes.find((box) => box.element.value === 'audit.read')!.setValue(false);
     expect(wrapper.get('.wd-warning').text()).toContain('This removes: Audit review.');
-    await wrapper.get('form').trigger('submit');
+    await wrapper.get('dialog form').trigger('submit');
     expect(post).not.toHaveBeenCalled();
     expect(pending()).toMatchObject({ title: 'Reduce platform access', tone: 'danger' });
     expect(pending()?.description).toContain('Ari Cruz (ari@example.test)');
     confirmation.value = null;
-    await rows[1]!
-        .findAll('button')
-        .find((button) => button.text() === 'Revoke')!
-        .trigger('click');
-    expect(wrapper.findAll('input[type="checkbox"]')).toHaveLength(0);
-    await wrapper.get('form').trigger('submit');
+    dialog.vm.open('revoke', { id: 2, name: 'Ari Cruz', email: 'ari@example.test' }, operators[1] as never);
+    await nextTick();
+    expect(wrapper.get('#operator-access-title').text()).toBe('Revoke platform access');
+    expect(wrapper.findAll('dialog input[type="checkbox"]')).toHaveLength(0);
+    await wrapper.get('dialog form').trigger('submit');
     expect(pending()).toMatchObject({ title: 'Revoke platform access', tone: 'danger' });
     expect(pending()?.description).toContain('Their workspace memberships are not affected');
 });

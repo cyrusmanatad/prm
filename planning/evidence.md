@@ -1,3 +1,5 @@
+**Compact administration Platform access (2026-11-24):** [operators card, row menu, access dialog, commands, rendering findings and unverified gates](administration/compact-platform-access-evidence.md). Local stack only; not deployed.
+
 **Compact administration Plans, Assignments and Support access (2026-11-24):** [change, backend counts, commands, rendering findings and unverified gates](administration/compact-entitlements-evidence.md). Local stack only; not deployed.
 
 **Compact administration lists (2026-11-23):** [Workspaces, Notifications and Audit: change, backend counts, commands, rendering findings and unverified gates](administration/compact-lists-evidence.md). Local stack only; not deployed.
