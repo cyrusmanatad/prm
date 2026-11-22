@@ -2,11 +2,12 @@
 import { computed, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import AdminShell from '../layouts/AdminShell.vue';
-import ContentSection from '../components/ContentSection.vue';
 import FormField from '../components/FormField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { Button } from '../components/ui/button';
+import AdminCard from '../features/admin/AdminCard.vue';
 import BackLink from '../features/admin/BackLink.vue';
+import FactList from '../features/admin/FactList.vue';
 import UsageTable from '../features/admin/UsageTable.vue';
 import { confirmAction } from '../composables/useConfirmation';
 import { useValidationFocus } from '../composables/useValidationFocus';
@@ -72,25 +73,29 @@ function assign(event: SubmitEvent) {
 <template>
     <AdminShell
         :title="entitlement.assignment ? 'Replace assignment' : 'Record assignment'"
-        :description="`For ${workspace.name}. This records an immutable plan version and assignment. No payment is collected.`"
-        eyebrow="Entitlements"
+        :description="`For ${workspace.name} · records an immutable plan version and assignment · no payment is collected`"
+        compact
     >
         <template #back><BackLink :href="back" :label="`Back to ${workspace.name}`" /></template>
-        <ContentSection title="Current state">
-            <p>
-                <StatusBadge :label="state?.label ?? entitlement.state" :tone="state?.tone ?? 'neutral'" />
-            </p>
-            <p v-if="entitlement.assignment && entitlement.plan">
-                {{ entitlement.plan.name }} v{{ entitlement.plan.version }}, assignment version
-                {{ entitlement.assignment.version }}: {{ dateTime(entitlement.assignment.starts_at) }} to
-                {{ dateTime(entitlement.assignment.ends_at) }}.
-            </p>
-            <p v-else>{{ state?.meaning }}</p>
-            <UsageTable :entitlement="entitlement" />
-        </ContentSection>
-        <ContentSection title="New assignment">
-            <form ref="root" @submit.prevent="assign">
-                <p v-if="form.errors.expected_version" class="wd-banner" role="alert">
+        <AdminCard title="Current state">
+            <template #badge
+                ><StatusBadge :label="state?.label ?? entitlement.state" :tone="state?.tone ?? 'neutral'"
+            /></template>
+            <FactList
+                v-if="entitlement.assignment && entitlement.plan"
+                :items="[
+                    { key: 'plan', label: 'Plan', value: `${entitlement.plan.name} v${entitlement.plan.version}` },
+                    { key: 'version', label: 'Assignment version', value: entitlement.assignment.version },
+                    { key: 'starts', label: 'Starts', value: dateTime(entitlement.assignment.starts_at) },
+                    { key: 'ends', label: 'Ends', value: dateTime(entitlement.assignment.ends_at) },
+                ]"
+            />
+            <p v-else class="rec-fine">{{ state?.meaning }}</p>
+            <UsageTable class="rec-table" :entitlement="entitlement" />
+        </AdminCard>
+        <AdminCard title="New assignment" note="Reviewed and confirmed before it is recorded">
+            <form ref="root" class="adm-panel-body" @submit.prevent="assign">
+                <p v-if="form.errors.expected_version" class="wd-banner rec-banner" role="alert">
                     {{ form.errors.expected_version }} Your entries are kept on this page; copy what you need before
                     reloading.
                     <Link :href="`/admin/assignments/create?workspace=${workspace.id}`" class="wd-link"
@@ -151,6 +156,6 @@ function assign(event: SubmitEvent) {
                     <Button type="submit" class="wd-button wd-button-primary">Record assignment</Button>
                 </fieldset>
             </form>
-        </ContentSection>
+        </AdminCard>
     </AdminShell>
 </template>

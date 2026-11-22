@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import ContentSection from '../../components/ContentSection.vue';
+import AdminCard from '../admin/AdminCard.vue';
 import FormField from '../../components/FormField.vue';
 import SelectField from '../../components/SelectField.vue';
 import { Button } from '../../components/ui/button';
@@ -31,11 +31,11 @@ function resolve(event: Event) {
 }
 </script>
 <template>
-    <ContentSection
+    <AdminCard
         title="Record a resolution"
-        description="An uncertain email is never replayed. A replacement send requires a new invitation or a fresh draft approval."
+        note="An uncertain email is never replayed · a replacement needs a new invitation or a fresh draft approval"
     >
-        <form ref="root" @submit.prevent="resolve">
+        <form ref="root" class="adm-panel-body" @submit.prevent="resolve">
             <p v-if="form.errors.version" class="wd-banner" role="alert">
                 {{ form.errors.version }}
                 <button type="button" class="wd-link" @click="reload">Reload diagnostics</button>
@@ -58,5 +58,5 @@ function resolve(event: Event) {
                 /><Button type="submit" class="wd-button wd-button-primary">Record resolution</Button>
             </fieldset>
         </form>
-    </ContentSection>
+    </AdminCard>
 </template>

@@ -2,9 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
 import AdminShell from '../layouts/AdminShell.vue';
-import ContentSection from '../components/ContentSection.vue';
 import CopyReference from '../components/CopyReference.vue';
-import DetailList from '../components/DetailList.vue';
 import FieldGroup from '../components/FieldGroup.vue';
 import SelectField from '../components/SelectField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
@@ -12,8 +10,10 @@ import UnavailableNotice from '../components/UnavailableNotice.vue';
 import { Button } from '../components/ui/button';
 import { confirmAction } from '../composables/useConfirmation';
 import { useValidationFocus } from '../composables/useValidationFocus';
+import AdminCard from '../features/admin/AdminCard.vue';
 import BackLink from '../features/admin/BackLink.vue';
-import { dateTime } from '../features/admin/format';
+import FactList from '../features/admin/FactList.vue';
+import { dateOnly, dateTime } from '../features/admin/format';
 import RequestHistory from '../features/brand-requests/RequestHistory.vue';
 import SubmissionDetails from '../features/brand-requests/SubmissionDetails.vue';
 import {
@@ -82,21 +82,24 @@ function decide(event: SubmitEvent) {
 </script>
 
 <template>
-    <AdminShell
-        :title="title"
-        :description="
-            request.source === 'rollout'
-                ? 'Approval recorded for a Brand workspace that existed before review was required.'
-                : `Brand workspace request from ${applicant?.name ?? 'an applicant'}`
-        "
-        eyebrow="Brand request"
-    >
+    <AdminShell :title="title" compact>
         <template #back><BackLink href="/admin/brand-requests" label="All Brand requests" /></template>
+        <template #description
+            ><span class="adm-meta"
+                ><span
+                    >{{
+                        request.source === 'rollout'
+                            ? 'Approval recorded for a Brand workspace that existed before review was required'
+                            : `Brand workspace request from ${applicant?.name ?? 'an applicant'}`
+                    }}
+                    · Submitted {{ dateOnly(request.submitted_at) }} · Reference</span
+                ><CopyReference :value="request.id" label="request reference" /></span
+        ></template>
         <template #actions>
             <StatusBadge :label="state?.label ?? request.status" :tone="state?.tone ?? 'neutral'" />
         </template>
-        <ContentSection v-if="applicant" title="Applicant">
-            <DetailList
+        <AdminCard v-if="applicant" title="Applicant">
+            <FactList
                 :items="[
                     { key: 'name', label: 'Account' },
                     { key: 'email', label: 'Email', value: applicant.email },
@@ -105,11 +108,9 @@ function decide(event: SubmitEvent) {
                 ]"
             >
                 <template #name
-                    ><Link
-                        v-if="canDirectory"
-                        :href="`/admin/accounts/${applicant.id}`"
-                        class="wd-link inline-flex min-h-11 items-center"
-                        >{{ applicant.name }}</Link
+                    ><Link v-if="canDirectory" :href="`/admin/accounts/${applicant.id}`" class="wd-link">{{
+                        applicant.name
+                    }}</Link
                     ><template v-else>{{ applicant.name }}</template></template
                 >
                 <template #verified
@@ -122,47 +123,43 @@ function decide(event: SubmitEvent) {
                         :label="applicant.suspended ? 'Suspended' : 'Active'"
                         :tone="applicant.suspended ? 'danger' : 'success'"
                 /></template>
-            </DetailList>
-        </ContentSection>
-        <ContentSection
+            </FactList>
+        </AdminCard>
+        <AdminCard
             v-if="request.source === 'request'"
             title="Business information"
-            description="Supplied by the applicant. WeavDash has not checked it, and the address is not opened by the application."
+            note="Supplied by the applicant · not checked by WeavDash, and the address is not opened"
         >
-            <SubmissionDetails :fields="request" link />
-        </ContentSection>
-        <ContentSection title="Request">
-            <DetailList
+            <div class="adm-panel-body"><SubmissionDetails :fields="request" link /></div>
+        </AdminCard>
+        <AdminCard title="Request">
+            <FactList
                 :items="[
-                    { key: 'id', label: 'Reference' },
                     { key: 'source', label: 'Source', value: brandSources[request.source] ?? request.source },
                     { key: 'submitted', label: 'Submitted', value: dateTime(request.submitted_at) },
                     { key: 'decided', label: 'Decided', value: dateTime(request.decided_at, 'Not decided') },
                     { key: 'workspace', label: 'Resulting workspace' },
                 ]"
             >
-                <template #id><CopyReference :value="request.id" label="request reference" /></template>
                 <template #workspace
                     ><template v-if="workspace"
-                        ><Link
-                            v-if="canDirectory"
-                            :href="`/admin/workspaces/${workspace.id}`"
-                            class="wd-link inline-flex min-h-11 items-center"
-                            >{{ workspace.name }}</Link
+                        ><Link v-if="canDirectory" :href="`/admin/workspaces/${workspace.id}`" class="wd-link">{{
+                            workspace.name
+                        }}</Link
                         ><template v-else>{{ workspace.name }}</template> · created
                         {{ dateTime(workspace.created_at) }}</template
                     ><template v-else>None: a workspace is created only on approval</template></template
                 >
-            </DetailList>
-        </ContentSection>
-        <ContentSection v-if="decidable" title="Decision">
+            </FactList>
+        </AdminCard>
+        <AdminCard v-if="decidable" title="Decision">
             <UnavailableNotice
                 v-if="applicant?.self"
                 title="You cannot review your own request"
                 reason="Another operator with the Brand review capability must decide it."
             />
-            <form v-else ref="root" :aria-busy="form.processing" @submit.prevent="decide">
-                <p v-if="form.errors.expected_version" class="wd-banner" role="alert">
+            <form v-else ref="root" class="adm-panel-body" :aria-busy="form.processing" @submit.prevent="decide">
+                <p v-if="form.errors.expected_version" class="wd-banner rec-banner" role="alert">
                     {{ form.errors.expected_version }}
                     <Button type="button" class="wd-button wd-button-secondary" @click="router.reload()"
                         >Load the latest version</Button
@@ -216,18 +213,15 @@ function decide(event: SubmitEvent) {
                     >
                 </fieldset>
             </form>
-        </ContentSection>
-        <ContentSection v-else-if="request.status === 'needs_information'" title="Decision">
-            <p>
+        </AdminCard>
+        <AdminCard v-else-if="request.status === 'needs_information'" title="Decision">
+            <p class="rec-fine">
                 Waiting for the applicant to update and resubmit. A decision can be recorded once the request is back in
                 review.
             </p>
-        </ContentSection>
-        <ContentSection
-            title="History"
-            description="Submissions and decisions, newest first. Nothing here is edited or removed."
-        >
-            <RequestHistory :history="history" reviewer />
-        </ContentSection>
+        </AdminCard>
+        <AdminCard title="History" note="Submissions and decisions, newest first · nothing here is edited or removed">
+            <div class="adm-panel-body"><RequestHistory :history="history" reviewer /></div>
+        </AdminCard>
     </AdminShell>
 </template>

@@ -706,10 +706,11 @@ function access(props: Record<string, unknown>) {
     wrappers.push(wrapper);
     return wrapper;
 }
-// Visible button labels; icon-only controls such as copy are excluded.
+// Visible button labels; icon-only controls such as copy, and controls inside a closed dialog, are excluded.
 const buttons = (wrapper: VueWrapper) =>
     wrapper
         .findAll('button')
+        .filter((button) => !button.element.closest('dialog:not([open])'))
         .map((button) => button.text())
         .filter(Boolean);
 const press = (wrapper: VueWrapper, label: string) =>
@@ -1064,6 +1065,7 @@ const grant = {
 };
 
 it('shows a persistent support banner, only approved areas, and no way to edit or export', async () => {
+    dialogs();
     const wrapper = render(PlatformSupportGrant, {
         grant,
         area: 'pipeline_entries',
@@ -1094,7 +1096,10 @@ it('shows a persistent support banner, only approved areas, and no way to edit o
     expect(wrapper.text()).toContain('1250.00 USD');
     expect(buttons(wrapper)).toEqual(['End support access']);
     await press(wrapper, 'End support access');
-    await wrapper.get('form').trigger('submit');
+    // The reason is entered in a dialog; its submit asks for the destructive confirmation.
+    expect(wrapper.get('dialog').attributes('open')).toBeDefined();
+    expect(wrapper.get('dialog button[type="submit"]').text()).toBe('Review ending');
+    await wrapper.get('dialog form').trigger('submit');
     expect(pending()).toMatchObject({ title: 'End support access', tone: 'danger' });
 });
 

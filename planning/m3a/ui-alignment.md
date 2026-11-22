@@ -82,6 +82,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-28):** administration detail pages use a compact layout, piloted on Account and Workspace: the records header with a fact line and status badges, four summary tiles that open their tab, tabs with counts, `FactList` cards, and an Access card of action rows whose forms open in `FormDialog` before the Cancel-first confirmation. Evidence: [compact detail pages pilot](../administration/compact-detail-pilot-evidence.md).
 
+**Confirmed (2026-11-29):** the remaining administration detail pages (Plan, Assign, Notification, Brand request, Audit event, Support access grant, My admin security and Administration unavailable) use the same compact layout through the shared `AdminCard` and `FactList`; ending or withdrawing support access opens in `FormDialog` before the Cancel-first confirmation. Every administration page is now compact. Evidence: [compact detail pages](../administration/compact-detail-pages-evidence.md).
+
 ## Table controls and partner avatars (2026-11-19)
 
 **Confirmed (2026-11-19):** controls inside tables and list toolbars use one compact size, `--wd-table-control`: **36px with a fine pointer, 44px below 600px wide or with a coarse pointer**. This covers pagination (Previous, Next, page numbers), table search fields and buttons, row action buttons, rows-per-page selects, standard filter chips and links standing alone in a cell. Use the shared `wd-table-button`, `wd-table-icon-button`, `wd-table-input` and `wd-cell-link` classes rather than per-screen sizes. Form and dialog buttons, primary page actions (such as Invite partners) and the Registered leads filter fields keep their existing sizes.

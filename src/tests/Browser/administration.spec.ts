@@ -518,7 +518,7 @@ test('support access: requested, approved by the workspace owner, read-only, end
     await page.getByLabel('Reason', { exact: true }).fill('Support journey complete');
     await confirmMutation(
         page,
-        page.getByRole('button', { name: 'End support access', exact: true }).last(),
+        page.getByRole('button', { name: 'Review ending', exact: true }),
         'End support access',
         info,
     );
