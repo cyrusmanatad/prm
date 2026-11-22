@@ -1,3 +1,5 @@
+**Compact administration Plans, Assignments and Support access (2026-11-24):** [change, backend counts, commands, rendering findings and unverified gates](administration/compact-entitlements-evidence.md). Local stack only; not deployed.
+
 **Compact administration lists (2026-11-23):** [Workspaces, Notifications and Audit: change, backend counts, commands, rendering findings and unverified gates](administration/compact-lists-evidence.md). Local stack only; not deployed.
 
 **Compact administration Overview and Accounts (2026-11-22):** [change, backend counts and names, commands, rendering findings and unverified gates](administration/compact-console-evidence.md). Local stack only; not deployed.

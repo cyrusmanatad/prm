@@ -524,3 +524,19 @@
         flex-basis: 100%;
     }
 }
+/* A form card above a compact list, such as the support request reached from a workspace. */
+.wd-admin .adm-panel-body {
+    padding: 4px 14px 14px;
+}
+.wd-admin .adm-panel > .wd-unavailable {
+    margin: 0 14px 14px;
+}
+.wd-admin .adm-nowrap {
+    white-space: nowrap;
+}
+/* Phone records without a status column need no space reserved for one. */
+@media (max-width: 599px) {
+    .wd-admin .rec-table.adm-no-status.wd-data-stacked .wd-data-table tbody th {
+        padding-right: 0;
+    }
+}

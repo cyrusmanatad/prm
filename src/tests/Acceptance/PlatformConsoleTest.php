@@ -316,6 +316,21 @@ class PlatformConsoleTest extends AcceptanceCase
         $this->assertSame(['account', null], [$hidden['target_kind'], $hidden['target_name']]);
     }
 
+    public function test_assignment_and_support_counts_follow_the_workspace_but_not_the_view(): void
+    {
+        $owner = User::factory()->create();
+        $org = app(Workspaces::class)->create($owner->id, 'Count Studio '.Str::random(6));
+        $this->verified($this->operator('{plans.assign,support.request,directory.read}'));
+        $views = ['all' => 0, 'active' => 0, 'current' => 0, 'expired' => 0, 'scheduled' => 0, 'superseded' => 0];
+        $this->getJson('/admin/assignments?workspace='.$org)->assertOk()->assertJsonPath('assignments.facets', $views);
+        $this->getJson('/admin/assignments?history=all&state=active&workspace='.$org)->assertOk()->assertJsonPath('assignments.facets', $views);
+        $states = ['all' => 0, 'expired' => 0, 'revoked' => 0, 'approved' => 0, 'declined' => 0, 'cancelled' => 0, 'requested' => 0];
+        $this->getJson('/admin/support-access?workspace='.$org)->assertOk()->assertJsonPath('grants.facets', $states);
+        $this->postJson('/admin/support-access', ['workspace' => $org, 'purpose' => 'Synthetic support check', 'hours' => 4, 'resources' => ['pipeline_entries']])->assertCreated();
+        $this->getJson('/admin/support-access?state=approved&workspace='.$org)->assertOk()->assertJsonPath('grants.total', 0)
+            ->assertJsonPath('grants.facets', [...$states, 'all' => 1, 'requested' => 1]);
+    }
+
     public function test_audit_review_lists_actions_and_denials_with_recorded_fields_only(): void
     {
         $owner = User::factory()->create();

@@ -11,6 +11,9 @@ import PlatformOverview from '../../resources/js/pages/PlatformOverview.vue';
 import PlatformWorkspaces from '../../resources/js/pages/PlatformWorkspaces.vue';
 import PlatformNotifications from '../../resources/js/pages/PlatformNotifications.vue';
 import PlatformAudit from '../../resources/js/pages/PlatformAudit.vue';
+import PlatformAssignments from '../../resources/js/pages/PlatformAssignments.vue';
+import PlatformPlans from '../../resources/js/pages/PlatformPlans.vue';
+import PlatformSupport from '../../resources/js/pages/PlatformSupport.vue';
 import PlatformCleanupRun from '../../resources/js/pages/PlatformCleanupRun.vue';
 import PlatformSupportGrant from '../../resources/js/pages/PlatformSupportGrant.vue';
 import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
@@ -466,6 +469,111 @@ it('shows audit events in plain language with outcome chips and named targets', 
     expect(rows[1]!.text()).toContain('subject-1');
     expect(rows[1]!.text()).toContain('Cedar Studio');
     expect(rows[1]!.text()).toContain('Not recorded');
+});
+
+it('offers assignment views for current, each state and the full history', () => {
+    const wrapper = render(PlatformAssignments, {
+        assignments: {
+            total: 1,
+            facets: { all: 9, current: 6, active: 3, scheduled: 1, expired: 2, superseded: 3 },
+            rows: [
+                {
+                    id: 'a-1',
+                    org_id: 'w-1',
+                    workspace: 'Harbor Studio',
+                    plan_id: 'p-1',
+                    plan: 'Pilot',
+                    plan_version: 2,
+                    version: 4,
+                    starts_at: '2026-11-01T00:00:00+00:00',
+                    ends_at: '2026-12-01T00:00:00+00:00',
+                    created_at: '2026-11-01T00:00:00+00:00',
+                    selected: false,
+                    state: 'superseded',
+                },
+            ],
+        },
+        filters: { workspace: '', state: '', history: 'all' },
+        page: 1,
+    });
+    const chips = wrapper.get('[aria-label="Show assignments"]');
+    expect(chips.get('[aria-current="true"]').text()).toContain('Full history');
+    expect(
+        chips
+            .findAll('a')
+            .find((link) => link.text().includes('Expired'))!
+            .attributes('href'),
+    ).toBe('/admin/assignments?state=expired');
+    expect(chips.text()).toContain('Current');
+    const row = wrapper.get('tbody tr');
+    expect(row.text()).toContain('Assignment v4');
+    expect(row.text()).toContain('Pilot v2');
+    expect(row.get('a').attributes('href')).toBe('/admin/workspaces/w-1?tab=entitlements');
+});
+
+it('lists plan versions in a compact card with search', async () => {
+    const wrapper = render(PlatformPlans, {
+        plans: {
+            total: 1,
+            rows: [
+                {
+                    id: 'p-1',
+                    name: 'Pilot',
+                    version: 3,
+                    created_at: '2026-11-01T00:00:00+00:00',
+                    selected_workspaces: 2,
+                },
+            ],
+        },
+        filters: { q: '' },
+        page: 1,
+    });
+    expect(wrapper.get('tbody tr').text()).toContain('Version 3');
+    expect(wrapper.get('tbody tr a').attributes('href')).toBe('/admin/plans/p-1');
+    await wrapper.get('#plan-search').setValue('pilot');
+    await wrapper.get('form').trigger('submit');
+    expect(get.mock.calls[0]![1]).toEqual({ q: 'pilot' });
+});
+
+it('filters support access by state chips and keeps the request form for a chosen workspace', () => {
+    const wrapper = render(PlatformSupport, {
+        grants: {
+            total: 1,
+            facets: { all: 4, requested: 1, approved: 1, declined: 0, revoked: 1, cancelled: 1, expired: 0 },
+            rows: [
+                {
+                    id: 'g-1',
+                    org_id: 'w-1',
+                    workspace: 'Harbor Studio',
+                    operator_id: 1,
+                    operator: 'Ari Cruz',
+                    purpose: 'Check',
+                    resources: ['pipeline_entries', 'brand_contacts'],
+                    hours: 4,
+                    state: 'requested',
+                    requested_at: '2026-11-16T08:00:00+00:00',
+                    decided_at: null,
+                    decided_by: null,
+                    expires_at: null,
+                    ended_at: null,
+                    ended_by: null,
+                    end_reason: null,
+                    version: 1,
+                },
+            ],
+        },
+        filters: { state: 'requested', workspace: '' },
+        page: 1,
+        areas: ['pipeline_entries', 'brand_contacts'],
+        target: { id: 'w-1', name: 'Harbor Studio', suspended: false },
+    });
+    expect(wrapper.text()).toContain('Request access to Harbor Studio');
+    const chips = wrapper.get('[aria-label="Support access state"]');
+    expect(chips.get('[aria-current="true"]').text()).toContain('Awaiting workspace owner');
+    const row = wrapper.get('tbody tr');
+    expect(row.text()).toContain('Leads, Contacts');
+    expect(row.text()).toContain('4 h after approval');
+    expect(row.get('a').attributes('href')).toBe('/admin/support-access/g-1');
 });
 
 const accountImpact = {
