@@ -15,6 +15,8 @@ import PlatformAssignments from '../../resources/js/pages/PlatformAssignments.vu
 import PlatformPlans from '../../resources/js/pages/PlatformPlans.vue';
 import PlatformSupport from '../../resources/js/pages/PlatformSupport.vue';
 import PlatformPrivacy from '../../resources/js/pages/PlatformPrivacy.vue';
+import PlatformCleanup from '../../resources/js/pages/PlatformCleanup.vue';
+import PlatformCleanupBatch from '../../resources/js/pages/PlatformCleanupBatch.vue';
 import PlatformCleanupRun from '../../resources/js/pages/PlatformCleanupRun.vue';
 import PlatformSupportGrant from '../../resources/js/pages/PlatformSupportGrant.vue';
 import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
@@ -190,7 +192,7 @@ it('flags support access that is about to end and cleanup batches with blocked r
     expect(items[0]!.get('a').attributes('href')).toBe('/admin/support-access?state=approved');
     expect(items[1]!.text()).toContain('2 cleanup batches have blocked records in the latest dry run');
     expect(items[1]!.text()).toContain('Dry runs delete nothing');
-    expect(items[1]!.get('a').attributes('href')).toBe('/admin/cleanup');
+    expect(items[1]!.get('a').attributes('href')).toBe('/admin/cleanup?view=blocked');
     // Outside the operator's capabilities the figures are null and nothing is reported.
     const hidden = render(PlatformOverview, {
         overview: { ...overview, support_expiring: null, cleanup_blocked: null },
@@ -904,9 +906,11 @@ it('labels unobserved services Unknown and shows only sanitized failure details'
     expect(services.find((row) => row.startsWith('Scheduler'))).toContain('Unknown');
     expect(services.find((row) => row.startsWith('Queue store'))).toContain('Down');
     expect(services.find((row) => row.startsWith('Queue worker'))).toContain('Unknown');
-    expect(wrapper.findAll('table')[1]!.text()).toContain('Unknown');
-    expect(wrapper.findAll('table')[2]!.text()).toContain('SendNotification');
-    expect(wrapper.findAll('table')[2]!.text()).toContain('Not classified');
+    const queue = wrapper.findAll('.rec-stats li')[1]!.text();
+    expect(queue).toContain('Unknown');
+    expect(queue).toContain('Redis did not answer');
+    expect(wrapper.findAll('table')[1]!.text()).toContain('SendNotification');
+    expect(wrapper.findAll('table')[1]!.text()).toContain('Not classified');
     expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['Refresh observations']);
 });
 
@@ -1135,6 +1139,139 @@ it('lets a workspace owner approve with a plain-language review, decline at once
     expect(pending()).toMatchObject({ title: 'End support access', tone: 'danger' });
 });
 
+function dialogs() {
+    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+        this.open = true;
+    };
+    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+        this.open = false;
+        this.dispatchEvent(new Event('close'));
+    };
+}
+const batchRow = (id: string, latest_run: Record<string, unknown> | null) => ({
+    id,
+    name: `Batch ${id}`,
+    reason: 'Browser run fixtures',
+    created_at: '2026-11-16T08:00:00+00:00',
+    created_by: 'Morgan Reyes',
+    marks: 2,
+    runs: latest_run ? 1 : 0,
+    latest_run,
+});
+const latest = (blocked: number, stale: boolean) => ({
+    id: 'run-1',
+    created_at: '2026-11-16T09:00:00+00:00',
+    eligible: 1,
+    blocked,
+    protected: 0,
+    stale,
+});
+
+it('lists cleanup batches by their latest dry run, opens the blocked view from the Overview, and creates a batch in a dialog', async () => {
+    dialogs();
+    page.value.url = '/admin/cleanup?view=blocked';
+    const wrapper = render(PlatformCleanup, {
+        batches: [
+            batchRow('a', latest(2, false)),
+            batchRow('b', latest(1, true)),
+            batchRow('c', null),
+            batchRow('d', latest(0, false)),
+        ],
+    });
+    const chips = wrapper.findAll('[aria-pressed]');
+    expect(chips.map((chip) => chip.text())).toEqual([
+        'All 4',
+        'Blocked 1',
+        'Out of date 1',
+        'No dry run 1',
+        'Nothing blocked 1',
+    ]);
+    expect(chips[1]!.attributes('aria-pressed')).toBe('true');
+    expect(wrapper.findAll('tbody tr').map((row) => row.text())).toEqual([expect.stringContaining('2 blocked')]);
+    await chips[0]!.trigger('click');
+    const states = wrapper.findAll('tbody tr').map((row) => row.text());
+    expect(states[1]).toContain('Out of date');
+    expect(states[2]).toContain('No dry run');
+    expect(states[3]).toContain('Nothing blocked');
+    // Nothing on the list deletes or executes; the only action creates a batch.
+    expect(wrapper.text()).toContain('Executing a cleanup is a separately reviewed step');
+    await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'New fixture batch')!
+        .trigger('click');
+    expect(wrapper.get('dialog').attributes('open')).toBeDefined();
+    await wrapper.get('#batch-name').setValue('Run 12');
+    await wrapper.get('#batch-reason').setValue('Seeded by run 12');
+    await wrapper.get('dialog form').trigger('submit');
+    expect(post).toHaveBeenCalledWith('/admin/cleanup', expect.objectContaining({ preserveState: true }));
+});
+
+it('marks records in a dialog and runs a dry run only once something is marked', async () => {
+    dialogs();
+    const batch = {
+        id: 'b-1',
+        name: 'Browser run 12',
+        reason: 'Seeded by run 12',
+        version: 3,
+        created_at: '2026-11-16T08:00:00+00:00',
+        created_by: 'Morgan Reyes',
+    };
+    const empty = render(PlatformCleanupBatch, { batch, marks: [], runs: [] });
+    const run = () => empty.findAll('button').find((button) => button.text() === 'Run a dry run')!;
+    expect(run().attributes('disabled')).toBeDefined();
+    expect(empty.text()).toContain('Mark at least one record before running.');
+
+    const wrapper = render(PlatformCleanupBatch, {
+        batch,
+        marks: [
+            {
+                type: 'workspace',
+                reference: 'w-1',
+                name: 'Cedar Studio',
+                email: null,
+                evidence: 'Seeded by run 12',
+                marked_at: '2026-11-16T08:30:00+00:00',
+                marked_by: 'Morgan Reyes',
+            },
+            {
+                type: 'account',
+                reference: '9',
+                name: 'Synthetic User',
+                email: 'synthetic@example.test',
+                evidence: 'Seeded by run 12',
+                marked_at: '2026-11-16T08:31:00+00:00',
+                marked_by: 'Morgan Reyes',
+            },
+        ],
+        runs: [{ ...latest(1, true), created_by: 'Morgan Reyes' }],
+    });
+    expect(wrapper.findAll('[aria-pressed]').map((chip) => chip.text())).toEqual([
+        'All 2',
+        'Workspaces 1',
+        'Accounts 1',
+    ]);
+    expect(wrapper.findAll('table')[1]!.text()).toContain('Out of date');
+    await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Mark a record')!
+        .trigger('click');
+    expect(wrapper.get('dialog').attributes('open')).toBeDefined();
+    await wrapper.get('#mark-reference').setValue('w-2');
+    await wrapper.get('#mark-evidence').setValue('Seeded by run 12');
+    await wrapper.get('dialog form').trigger('submit');
+    expect(post).toHaveBeenCalledWith('/admin/cleanup/b-1/marks', expect.objectContaining({ preserveState: true }));
+    // A successful save closes the dialog (the browser journey covers the real, still-processing form).
+    post.mock.calls[0]![1].onSuccess();
+    await nextTick();
+    expect(wrapper.get('dialog').attributes('open')).toBeUndefined();
+    await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Run a dry run')!
+        .trigger('click');
+    expect(routerPost).toHaveBeenCalledWith('/admin/cleanup/b-1/runs', { expected_version: 3 }, expect.anything());
+    expect(wrapper.text()).toContain('nothing is deleted');
+});
+
 it('presents a cleanup dry run as a preview with reasons and no way to execute it', () => {
     const wrapper = render(PlatformCleanupRun, {
         run: {
@@ -1187,8 +1324,15 @@ it('presents a cleanup dry run as a preview with reasons and no way to execute i
     expect(rows[1]).toContain('Protected');
     expect(rows[2]).toContain('Eligible');
     expect(wrapper.text()).toContain('This cleanup cannot be executed from the console');
+    // The only controls copy the reference or filter the manifest.
     expect(
-        wrapper.findAll('button').filter((button) => !button.attributes('aria-label')?.startsWith('Copy')),
+        wrapper
+            .findAll('button')
+            .filter(
+                (button) =>
+                    !button.attributes('aria-label')?.startsWith('Copy') &&
+                    button.attributes('aria-pressed') === undefined,
+            ),
     ).toHaveLength(0);
     expect(wrapper.findAll('form')).toHaveLength(0);
 });

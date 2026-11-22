@@ -265,7 +265,7 @@ for (const modules of [
         }
         // Cleanup is a preview: the landing page says so before anything is created.
         if (modules.some(([path]) => path === '/admin/cleanup'))
-            await expect(page.getByText('Preview only — no data can be deleted here', { exact: true })).toBeVisible();
+            await expect(page.getByText('Preview only: nothing can be deleted here', { exact: false })).toBeVisible();
     });
 }
 
@@ -528,14 +528,18 @@ test('cleanup: explicit marks, an exact audited dry run with reasons, and no way
 }, info) => {
     const { email, workspace } = await administrator(page, info);
     await page.goto('/admin/cleanup');
+    await page.getByRole('button', { name: 'New fixture batch', exact: true }).click();
+    await expect(page.getByLabel('Batch name', { exact: true })).toBeFocused();
     await page.getByLabel('Batch name', { exact: true }).fill(`Journey batch ${email}`);
     await page.getByLabel('Purpose', { exact: true }).fill('Administration journey fixtures');
     await page.getByRole('button', { name: 'Create batch', exact: true }).click();
     await expect(page.getByRole('heading', { name: `Journey batch ${email}`, level: 1 })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Run a dry run', exact: true })).toBeDisabled();
+    await page.getByRole('button', { name: 'Mark a record', exact: true }).click();
     await page.getByLabel('Workspace ID', { exact: true }).fill(workspace);
     await page.getByLabel('Evidence that it is synthetic', { exact: true }).fill('Seeded by the browser journey');
     await page.getByRole('button', { name: 'Mark record', exact: true }).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(page.getByRole('table', { name: 'Marked records' })).toContainText('Role test workspace');
     await clean(page);
     await page.getByRole('button', { name: 'Run a dry run', exact: true }).click();
