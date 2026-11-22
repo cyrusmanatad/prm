@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import AdminShell from '../layouts/AdminShell.vue';
-import ActionGroup from '../components/ActionGroup.vue';
-import ContentSection from '../components/ContentSection.vue';
 import CopyReference from '../components/CopyReference.vue';
 import DataTable from '../components/DataTable.vue';
-import DetailList from '../components/DetailList.vue';
 import EmptyState from '../components/EmptyState.vue';
 import FormField from '../components/FormField.vue';
 import Pagination from '../components/Pagination.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import TabNav from '../components/TabNav.vue';
 import { Button } from '../components/ui/button';
+import AdminCard from '../features/admin/AdminCard.vue';
 import BackLink from '../features/admin/BackLink.vue';
+import FactList from '../features/admin/FactList.vue';
+import FormDialog from '../features/admin/FormDialog.vue';
 import { confirmAction } from '../composables/useConfirmation';
-import { useValidationFocus } from '../composables/useValidationFocus';
-import { dateTime, supportAreas, supportStates, titleCase } from '../features/admin/format';
+import { dateOnly, dateTime, supportAreas, supportStates, titleCase } from '../features/admin/format';
 import { viewsFor, type SupportGrant } from '../features/admin/support';
 
 type Row = Record<string, string | number | null>;
@@ -48,18 +47,14 @@ function show(row: Row, key: string): string {
     if (key.endsWith('_minor')) return `${(Number(value) / 100).toFixed(2)} ${row.currency ?? ''}`.trim();
     return dates.has(key) ? dateTime(String(value)) : String(value);
 }
-const ending = ref(false);
-const root = ref<HTMLElement>();
+// Ending or withdrawing opens a dialog for the reason, then the shared Cancel-first confirmation.
+const dialog = ref<InstanceType<typeof FormDialog>>();
 const form = useForm({ expected_version: props.grant.version, reason: '' });
-useValidationFocus(
-    root,
-    () => form.errors,
-    () => !form.processing,
-);
-async function begin() {
-    ending.value = true;
-    await nextTick();
-    root.value?.querySelector<HTMLElement>('input')?.focus();
+function begin(event: Event) {
+    form.clearErrors();
+    form.reason = '';
+    form.expected_version = props.grant.version;
+    dialog.value?.open(event.currentTarget as HTMLElement);
 }
 function end(event: SubmitEvent) {
     if (form.processing) return;
@@ -68,7 +63,7 @@ function end(event: SubmitEvent) {
         active.value
             ? `End support access to ${props.grant.workspace} now? ${props.grant.operator} can no longer view its records. A new request needs a new approval from a workspace owner.`
             : `Withdraw the request for ${props.grant.workspace}? The workspace owners will no longer be able to approve it.`,
-        () => form.post(`${base.value}/end`, { preserveScroll: true, onSuccess: () => (ending.value = false) }),
+        () => form.post(`${base.value}/end`, { preserveScroll: true, onSuccess: () => dialog.value?.close() }),
         event,
         { tone: 'danger' },
     );
@@ -76,35 +71,31 @@ function end(event: SubmitEvent) {
 </script>
 
 <template>
-    <AdminShell
-        :title="grant.workspace"
-        :description="`Support access requested by ${grant.operator}`"
-        eyebrow="Support access"
-    >
+    <AdminShell :title="grant.workspace" compact>
         <template #back><BackLink href="/admin/support-access" label="All support access" /></template>
+        <template #description
+            ><span class="adm-meta"
+                ><span
+                    >Support access requested by {{ grant.operator }} · {{ dateOnly(grant.requested_at) }} ·
+                    Reference</span
+                ><CopyReference :value="grant.id" label="support reference" /></span
+        ></template>
         <template #actions>
             <StatusBadge
                 :label="supportStates[grant.state]?.label ?? grant.state"
                 :tone="supportStates[grant.state]?.tone ?? 'neutral'"
             />
         </template>
-        <p v-if="active && grant.mine" class="wd-warning adm-support-banner" role="status">
+        <p v-if="active && grant.mine" class="wd-warning rec-banner adm-support-banner" role="status">
             Support session: you are viewing {{ grant.workspace }} as {{ grant.operator }}, read-only, until
             {{ dateTime(grant.expires_at) }}. You are not signed in as a member, and every view is recorded for the
             workspace.
         </p>
-        <ContentSection title="Request">
-            <DetailList
+        <AdminCard title="Request" note="View only · approved by a workspace owner">
+            <FactList
                 :items="[
-                    { key: 'id', label: 'Reference' },
                     { key: 'workspace', label: 'Workspace' },
                     { key: 'operator', label: 'Operator', value: grant.operator },
-                    { key: 'purpose', label: 'Purpose', value: grant.purpose },
-                    {
-                        key: 'scope',
-                        label: 'Scope',
-                        value: `View only: ${grant.resources.map((area) => supportAreas[area] ?? area).join(', ')}`,
-                    },
                     { key: 'duration', label: 'Duration', value: `${grant.hours} hours after approval` },
                     { key: 'requested', label: 'Requested', value: dateTime(grant.requested_at) },
                     {
@@ -116,64 +107,54 @@ function end(event: SubmitEvent) {
                     },
                     { key: 'expires', label: 'Expires', value: dateTime(grant.expires_at, 'Not approved') },
                     {
+                        key: 'scope',
+                        label: 'Scope',
+                        value: `View only: ${grant.resources.map((area) => supportAreas[area] ?? area).join(', ')}`,
+                        wide: true,
+                    },
+                    { key: 'purpose', label: 'Purpose', value: grant.purpose, wide: true },
+                    {
                         key: 'ended',
                         label: 'Ended',
                         value: grant.ended_at
                             ? `${dateTime(grant.ended_at)}${grant.ended_by ? ` by ${grant.ended_by}` : ''}: ${grant.end_reason}`
                             : 'Not ended early',
+                        wide: true,
                     },
                 ]"
             >
-                <template #id><CopyReference :value="grant.id" label="support reference" /></template>
                 <template #workspace
                     ><Link :href="`/admin/workspaces/${grant.org_id}`" class="wd-link">{{
                         grant.workspace
                     }}</Link></template
                 >
-            </DetailList>
-            <p v-if="grant.state === 'requested'" class="wd-hint">
+            </FactList>
+            <p v-if="grant.state === 'requested'" class="rec-fine">
                 Only an owner of this workspace can approve, from Support access requests in their workspace settings.
                 Nothing can be viewed until they do.
             </p>
-            <template v-if="open">
-                <ActionGroup v-if="!ending">
-                    <Button type="button" class="wd-button wd-button-danger-outline" @click="begin">{{
-                        active ? 'End support access' : 'Withdraw request'
-                    }}</Button>
-                </ActionGroup>
-                <form v-else ref="root" @submit.prevent="end">
-                    <p v-if="form.errors.expected_version" class="wd-banner" role="alert">
-                        {{ form.errors.expected_version }}
-                        <Link :href="base" class="wd-link">Reload this request</Link>
+            <div v-if="open" class="adm-action-row">
+                <div>
+                    <h3>{{ active ? 'End support access' : 'Withdraw request' }}</h3>
+                    <p>
+                        {{
+                            active
+                                ? `${grant.operator} can no longer view the records. A new request needs a new owner approval.`
+                                : 'The workspace owners can no longer approve it.'
+                        }}
                     </p>
-                    <fieldset class="wd-fields" :disabled="form.processing">
-                        <legend class="wd-sr-only">End support access</legend>
-                        <FormField
-                            id="support-end-reason"
-                            v-model="form.reason"
-                            label="Reason"
-                            :maxlength="240"
-                            :error="form.errors.reason"
-                            hint="Recorded in the administration audit."
-                        />
-                        <ActionGroup>
-                            <Button type="submit" class="wd-button wd-button-danger">{{
-                                active ? 'End support access' : 'Withdraw request'
-                            }}</Button>
-                            <Button type="button" class="wd-button wd-button-secondary" @click="ending = false"
-                                >Cancel</Button
-                            >
-                        </ActionGroup>
-                    </fieldset>
-                </form>
-            </template>
-        </ContentSection>
-        <ContentSection
+                </div>
+                <Button type="button" class="wd-button wd-button-danger-outline" @click="begin">{{
+                    active ? 'End support access' : 'Withdraw request'
+                }}</Button>
+            </div>
+        </AdminCard>
+        <AdminCard
             v-if="active && grant.mine"
             title="Records in scope"
-            description="Read-only. Notes, template text, onboarding answers, documents and payment evidence are not shown. Opening an area is recorded."
+            note="Read-only · notes, template text, answers, documents and payment evidence are not shown · opening an area is recorded"
         >
-            <TabNav label="Record areas in this grant" :tabs="tabs" />
+            <div class="adm-panel-body"><TabNav label="Record areas in this grant" :tabs="tabs" /></div>
             <EmptyState
                 v-if="!records"
                 title="Choose an area to view"
@@ -185,6 +166,7 @@ function end(event: SubmitEvent) {
             />
             <template v-else>
                 <DataTable
+                    class="rec-table adm-no-status"
                     :caption="supportAreas[area!] ?? area!"
                     :columns="columns"
                     :rows="records.rows"
@@ -194,18 +176,49 @@ function end(event: SubmitEvent) {
                         show(row, column.key)
                     }}</template>
                 </DataTable>
-                <Pagination
-                    label="Record pages"
-                    :page="page"
-                    :per-page="25"
-                    :count="records.rows.length"
-                    :total="records.total"
-                    :href-for="(target) => `${base}?area=${area}${target > 1 ? `&page=${target}` : ''}`"
-                />
+                <div class="rec-card-foot">
+                    <Pagination
+                        label="Record pages"
+                        :page="page"
+                        :per-page="25"
+                        :count="records.rows.length"
+                        :total="records.total"
+                        numbered
+                        :href-for="(target) => `${base}?area=${area}${target > 1 ? `&page=${target}` : ''}`"
+                    />
+                </div>
             </template>
-        </ContentSection>
-        <ContentSection v-else-if="active" title="Records in scope">
-            <p>Only {{ grant.operator }}, who holds this grant, can view the records it covers.</p>
-        </ContentSection>
+        </AdminCard>
+        <AdminCard v-else-if="active" title="Records in scope">
+            <p class="rec-fine">Only {{ grant.operator }}, who holds this grant, can view the records it covers.</p>
+        </AdminCard>
+        <FormDialog
+            v-if="open"
+            id="support-end"
+            ref="dialog"
+            :title="active ? 'End support access' : 'Withdraw support request'"
+            :description="`For ${grant.workspace}.`"
+            :submit-label="active ? 'Review ending' : 'Review withdrawal'"
+            tone="danger"
+            :processing="form.processing"
+            :errors="form.errors"
+            @submit="end"
+        >
+            <p v-if="form.errors.expected_version" class="wd-banner rec-banner" role="alert">
+                {{ form.errors.expected_version }}
+                <Link :href="base" class="wd-link">Reload this request</Link>
+            </p>
+            <fieldset class="wd-fields" :disabled="form.processing">
+                <legend class="wd-sr-only">{{ active ? 'End support access' : 'Withdraw support request' }}</legend>
+                <FormField
+                    id="support-end-reason"
+                    v-model="form.reason"
+                    label="Reason"
+                    :maxlength="240"
+                    :error="form.errors.reason"
+                    hint="Recorded in the administration audit."
+                />
+            </fieldset>
+        </FormDialog>
     </AdminShell>
 </template>

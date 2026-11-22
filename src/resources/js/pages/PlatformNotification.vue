@@ -2,19 +2,19 @@
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import AdminShell from '../layouts/AdminShell.vue';
-import ContentSection from '../components/ContentSection.vue';
 import CopyReference from '../components/CopyReference.vue';
-import DetailList from '../components/DetailList.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import UnavailableNotice from '../components/UnavailableNotice.vue';
+import AdminCard from '../features/admin/AdminCard.vue';
 import BackLink from '../features/admin/BackLink.vue';
+import FactList from '../features/admin/FactList.vue';
 import ResolutionForm from '../features/platform-notifications/ResolutionForm.vue';
 import {
     deferralReasons,
     resolutionOptions as resolutions,
     type DeliveryDetail,
 } from '../features/platform-notifications/types';
-import { dateTime, notificationStates as states } from '../features/admin/format';
+import { dateTime, notificationKindLabel, notificationStates as states } from '../features/admin/format';
 import { allowed, type AdminContext } from '../features/admin/navigation';
 
 const props = defineProps<{ notice: DeliveryDetail; canResolve: boolean }>();
@@ -25,33 +25,38 @@ const open = computed(() => props.notice.state === 'uncertain' && !props.notice.
 </script>
 
 <template>
-    <AdminShell
-        :title="notice.kind"
-        :description="`Notification for ${notice.workspace ?? `the account ${notice.account?.name}`}`"
-        eyebrow="Notification"
-    >
+    <AdminShell :title="notificationKindLabel(notice.kind)" compact>
         <template #back><BackLink href="/admin/notifications" label="All notifications" /></template>
+        <template #description
+            ><span class="adm-meta"
+                ><span
+                    >Notification for {{ notice.workspace ?? `the account ${notice.account?.name}` }} · Queued
+                    {{ dateTime(notice.created_at) }} · Notification ID</span
+                ><CopyReference :value="notice.id" label="notification ID" /></span
+        ></template>
         <template #actions>
             <StatusBadge :label="state?.label ?? notice.state" :tone="state?.tone ?? 'neutral'" />
         </template>
-        <ContentSection title="Delivery state">
-            <p v-if="!open">{{ state?.meaning }}</p>
-            <p v-if="resolution" class="wd-status" role="status">
-                Recorded resolution: {{ resolution }}. No resend authorized.
-            </p>
-            <p v-else-if="open" class="wd-warning">
-                The mail transport did not confirm whether this message was sent, so it may already have reached the
-                recipient. It is never retried automatically. Check the mail provider's records for this time, then
-                record what you found.
-                {{
-                    notice.account
-                        ? 'It is not sent again: the account sees the outcome in the application.'
-                        : 'To send again, the workspace must create a new invitation or approve a fresh draft.'
-                }}
-            </p>
-            <DetailList
+        <p v-if="resolution" class="wd-status rec-banner" role="status">
+            Recorded resolution: {{ resolution }}. No resend authorized.
+        </p>
+        <p v-else-if="open" class="wd-warning rec-banner">
+            The mail transport did not confirm whether this message was sent, so it may already have reached the
+            recipient. It is never retried automatically. Check the mail provider's records for this time, then record
+            what you found.
+            {{
+                notice.account
+                    ? 'It is not sent again: the account sees the outcome in the application.'
+                    : 'To send again, the workspace must create a new invitation or approve a fresh draft.'
+            }}
+        </p>
+        <AdminCard
+            title="Delivery state"
+            note="Recipient addresses, message content, links and provider receipts are not retained"
+        >
+            <p v-if="!open" class="rec-fine">{{ state?.meaning }}</p>
+            <FactList
                 :items="[
-                    { key: 'id', label: 'Notification ID' },
                     { key: 'workspace', label: notice.account ? 'Account' : 'Workspace' },
                     { key: 'actor', label: 'Requested by', value: notice.actor?.name },
                     { key: 'created', label: 'Queued', value: dateTime(notice.created_at) },
@@ -70,7 +75,6 @@ const open = computed(() => props.notice.state === 'uncertain' && !props.notice.
                     { key: 'recipient', label: 'Recipient and provider receipt', value: 'Not available' },
                 ]"
             >
-                <template #id><CopyReference :value="notice.id" label="notification ID" /></template>
                 <template #workspace
                     ><Link
                         v-if="allowed(context, 'directory.read')"
@@ -83,17 +87,14 @@ const open = computed(() => props.notice.state === 'uncertain' && !props.notice.
                         >{{ notice.account?.name ?? notice.workspace }}</Link
                     ><template v-else>{{ notice.account?.name ?? notice.workspace }}</template></template
                 >
-            </DetailList>
-            <p class="wd-hint">
-                Recipient addresses, message content, links and provider receipts are not retained for diagnostics.
-            </p>
-        </ContentSection>
+            </FactList>
+        </AdminCard>
         <ResolutionForm v-if="open && canResolve" :notice="notice" />
-        <ContentSection v-else-if="open" title="Record a resolution">
+        <AdminCard v-else-if="open" title="Record a resolution">
             <UnavailableNotice
                 title="Recording a resolution is outside your capabilities"
                 reason="You can review this delivery. Recording its outcome needs the notification resolution capability."
             />
-        </ContentSection>
+        </AdminCard>
     </AdminShell>
 </template>
