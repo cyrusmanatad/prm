@@ -209,6 +209,7 @@ it('lists requests with status, applicant and source for reviewers', () => {
         requests: {
             total: 2,
             pending: 1,
+            facets: { all: 6, pending: 1, needs_information: 2, approved: 2, declined: 1 },
             rows: [
                 { ...request, source: 'request', applicant: 'Ana Reyes', applicant_email: 'ana@example.test' },
                 {
@@ -230,6 +231,21 @@ it('lists requests with status, applicant and source for reviewers', () => {
     expect(wrapper.text()).toContain('Awaiting decision');
     expect(wrapper.text()).toContain('Rollout approval');
     expect(wrapper.text()).toContain('No applicant: existing workspace');
+    // Status chips with counts keep the search and source.
+    const chips = wrapper.get('[aria-label="Request status"]');
+    expect(chips.get('[aria-current="true"]').text()).toContain('All');
+    expect(
+        chips
+            .findAll('a')
+            .find((link) => link.text().includes('Waiting for applicant'))!
+            .text(),
+    ).toContain('2');
+    expect(
+        chips
+            .findAll('a')
+            .find((link) => link.text().includes('Declined'))!
+            .attributes('href'),
+    ).toBe('/admin/brand-requests?status=declined');
 });
 
 it('requires feedback, labels it as visible to the applicant and confirms approval and decline with Cancel available', async () => {

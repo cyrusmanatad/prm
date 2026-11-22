@@ -331,6 +331,25 @@ class PlatformConsoleTest extends AcceptanceCase
             ->assertJsonPath('grants.facets', [...$states, 'all' => 1, 'requested' => 1]);
     }
 
+    public function test_review_queues_report_status_counts_without_private_content(): void
+    {
+        $this->verified($this->operator('{platform.owner}'));
+        $none = 'no-such-brand-'.Str::random(8);
+        // Brand status counts follow the search but not the status filter.
+        $this->getJson('/admin/brand-requests?status=approved&q='.$none)->assertOk()->assertJsonPath('requests.total', 0)
+            ->assertJsonPath('requests.facets', ['all' => 0, 'pending' => 0, 'approved' => 0, 'declined' => 0, 'needs_information' => 0]);
+        $all = $this->getJson('/admin/brand-requests')->assertOk()->json('requests');
+        $this->assertSame($all['total'], $all['facets']['all']);
+        $this->assertSame($all['pending'], $all['facets']['pending']);
+        // The privacy summary splits open requests by review and assignment; counts only.
+        $listing = $this->getJson('/admin/privacy-requests')->assertOk()->json('listing');
+        $summary = $listing['summary'];
+        $this->assertEqualsCanonicalizing(['awaiting', 'reviewed', 'cancelled', 'unassigned'], array_keys($summary));
+        $this->assertSame($listing['total'], $summary['awaiting'] + $summary['reviewed'] + $summary['cancelled']);
+        $this->assertLessThanOrEqual($summary['awaiting'] + $summary['reviewed'], $summary['unassigned']);
+        $this->assertSame($this->control->table('privacy_closure_requests')->where('state', 'cancelled')->count(), $summary['cancelled']);
+    }
+
     public function test_audit_review_lists_actions_and_denials_with_recorded_fields_only(): void
     {
         $owner = User::factory()->create();

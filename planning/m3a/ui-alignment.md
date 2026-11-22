@@ -74,6 +74,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-24):** administration Platform access follows the same pattern: an Operators card with view chips, search and 50 rows at a time; row actions in the shared row menu; and grant, change and revoke in a dialog that keeps the reason, password, fresh code and Cancel-first confirmations. Evidence: [compact Platform access](../administration/compact-platform-access-evidence.md).
 
+**Confirmed (2026-11-25):** administration Brand requests and Privacy requests follow the same pattern: Brand requests with status chips, search and a Source filter; Privacy requests with summary tiles, a compact table and a drawer per request that holds the existing handling form. Evidence: [compact Brand and Privacy requests](../administration/compact-review-queues-evidence.md).
+
 ## Table controls and partner avatars (2026-11-19)
 
 **Confirmed (2026-11-19):** controls inside tables and list toolbars use one compact size, `--wd-table-control`: **36px with a fine pointer, 44px below 600px wide or with a coarse pointer**. This covers pagination (Previous, Next, page numbers), table search fields and buttons, row action buttons, rows-per-page selects, standard filter chips and links standing alone in a cell. Use the shared `wd-table-button`, `wd-table-icon-button`, `wd-table-input` and `wd-cell-link` classes rather than per-screen sizes. Form and dialog buttons, primary page actions (such as Invite partners) and the Registered leads filter fields keep their existing sizes.

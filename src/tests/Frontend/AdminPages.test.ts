@@ -14,6 +14,7 @@ import PlatformAudit from '../../resources/js/pages/PlatformAudit.vue';
 import PlatformAssignments from '../../resources/js/pages/PlatformAssignments.vue';
 import PlatformPlans from '../../resources/js/pages/PlatformPlans.vue';
 import PlatformSupport from '../../resources/js/pages/PlatformSupport.vue';
+import PlatformPrivacy from '../../resources/js/pages/PlatformPrivacy.vue';
 import PlatformCleanupRun from '../../resources/js/pages/PlatformCleanupRun.vue';
 import PlatformSupportGrant from '../../resources/js/pages/PlatformSupportGrant.vue';
 import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
@@ -609,6 +610,52 @@ it('shows 50 operators at a time and keeps your own row and the one just changed
     wrapper.findComponent(OperatorAccessDialog).vm.$emit('saved', 70);
     await nextTick();
     expect(rows()[1]!.text()).toContain('Operator 070');
+});
+
+it('summarises privacy requests and handles one in a drawer without erasing anything', async () => {
+    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+        this.open = true;
+    };
+    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+        this.open = false;
+        this.dispatchEvent(new Event('close'));
+    };
+    const request = {
+        id: '8c1f2a7e-0000-4000-8000-000000000001',
+        scope: 'workspace',
+        subject_label: 'Harbor Studio',
+        state: 'cooling_off',
+        version: 2,
+        reason: 'Closing the studio',
+        requested_at: '2026-11-16T08:00:00+00:00',
+        not_before: '2026-12-16T08:00:00+00:00',
+        reviewed_at: null,
+        assigned_to: null,
+        requested_by: 'Ana Owner',
+        requester_email: 'ana@example.test',
+        handler: null,
+        counts: { pipeline_entries: 3 },
+    };
+    const wrapper = render(PlatformPrivacy, {
+        listing: { total: 3, summary: { awaiting: 1, reviewed: 1, cancelled: 1, unassigned: 1 }, rows: [request] },
+        page: 1,
+    });
+    const tiles = wrapper.get('[aria-label="Privacy request summary"]');
+    expect(tiles.text()).toContain('Awaiting review1');
+    expect(tiles.text()).toContain('1 unassigned');
+    const row = wrapper.get('tbody tr');
+    expect(row.text()).toContain('Workspace closure');
+    expect(row.text()).toContain('Awaiting review');
+    expect(row.text()).toContain('Unassigned');
+    await row.get('button').trigger('click');
+    await nextTick();
+    await nextTick();
+    const drawer = wrapper.get('dialog');
+    expect(drawer.attributes('aria-label')).toBe('Harbor Studio — request 8c1f2a7e');
+    expect(drawer.text()).toContain('Handle this request');
+    await drawer.get(`#privacy_reason_${request.id}`).setValue('Assign verified synthetic case');
+    await drawer.get('form').trigger('submit');
+    expect(post).toHaveBeenCalledWith(`/admin/privacy-requests/${request.id}`, expect.anything());
 });
 
 const accountImpact = {

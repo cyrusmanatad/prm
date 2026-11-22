@@ -555,3 +555,30 @@
     color: var(--wd-muted);
     font-size: 12px;
 }
+.wd-admin .adm-drawer-heading {
+    margin: 16px 0 4px;
+    font-family: var(--wd-font-display);
+    font-size: 15px;
+    font-weight: 600;
+}
+/* The console keeps 44px targets at every width (administration design handoff), including compact chips and row titles. */
+.wd-admin .wd-filter-chips.is-compact a,
+.wd-admin .wd-filter-chips.is-compact button {
+    min-height: var(--wd-table-control);
+}
+.wd-admin .rec-table .rec-row-title {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    min-width: var(--wd-table-control);
+    min-height: var(--wd-table-control);
+}
+.wd-admin .rec-card-head .wd-link,
+.wd-admin .rec-table td > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--wd-table-control);
+}
+.wd-admin .adm-drawer-heading + .rec-fine {
+    margin: 0 0 12px;
+}

@@ -162,27 +162,36 @@ test('platform owner assigns and records a metadata-only privacy review', async 
     await page.getByLabel('Password', { exact: true }).fill(password);
     await page.getByLabel('Authenticator code', { exact: true }).fill(await code());
     await page.getByRole('button', { name: 'Verify and continue', exact: true }).click();
-    const request = page.getByRole('region', {
-        name: `${data.label} — request ${data.request.slice(0, 8)}`,
-        exact: true,
-    });
-    await request.getByText('Handle this request', { exact: true }).click();
+    // Each request opens from its row in a drawer that carries the same name the card had.
+    const name = `${data.label} — request ${data.request.slice(0, 8)}`;
+    const request = page.getByRole('dialog', { name, exact: true });
+    const openRequest = async () => {
+        if (data.page !== 1) await page.goto(`/admin/privacy-requests?page=${data.page}`);
+        await page.getByRole('button', { name, exact: true }).click();
+        await expect(request).toBeVisible();
+    };
+    await openRequest();
+    await expect(request.getByRole('heading', { name: 'Handle this request' })).toBeVisible();
+    await clean(page);
     await request.getByLabel('Review reason').fill('Assign verified synthetic case');
     await request.getByLabel('Current password').fill(password);
     await request.getByLabel('Authenticator code').fill(await code());
     await request.getByRole('button', { name: 'Save request update', exact: true }).click();
-    // The mutation redirects to page 1; return to the request's original page when needed.
-    if (data.page !== 1) await page.goto(`/admin/privacy-requests?page=${data.page}`);
-    if (!(await request.getByLabel('Review reason').isVisible()))
-        await request.getByText('Handle this request', { exact: true }).click();
+    // The update redirects to page 1 and closes the drawer; reopen the request.
+    await expect(request).toBeHidden();
+    await openRequest();
+    await expect(request).not.toContainText('Unassigned');
     await request.getByRole('combobox', { name: 'Review action' }).click();
     await page.getByRole('option', { name: 'Record review' }).click();
     await request.getByLabel('Review reason').fill('Retained records reviewed; no erasure authorized');
     await request.getByLabel('Current password').fill(password);
     await request.getByLabel('Authenticator code').fill(await code());
     await request.getByRole('button', { name: 'Save request update', exact: true }).click();
+    await expect(request).toBeHidden();
     if (data.page !== 1) await page.goto(`/admin/privacy-requests?page=${data.page}`);
-    await expect(request.getByText('Review recorded', { exact: true })).toBeVisible();
+    await expect(page.getByRole('row').filter({ has: page.getByRole('button', { name, exact: true }) })).toContainText(
+        'Review recorded',
+    );
     await clean(page);
     if (process.env.CAPTURE_CLOSURE_IMAGES === '1')
         await page.screenshot({ path: info.outputPath('operator-review.png'), fullPage: true });
