@@ -17,6 +17,13 @@ if (PHP_SAPI !== 'cli' || ! $app->environment(['local', 'testing']) || config('m
     throw new RuntimeException('Synthetic local/array-mail migration-role fixture required.');
 }
 $user = User::where('email', $email)->firstOrFail();
+if (($argv[2] ?? '') === 'release') {
+    // After a test, remove only the grants it created, so the unpaginated operator list stays small on long-lived local stacks.
+    $ids = User::whereIn('email', [$email, str_replace('m1-browser-admin-', 'm1-browser-admin-peer-', $email)])->pluck('id');
+    echo json_encode(['released' => DB::table('platform_grants')->whereIn('user_id', $ids)->delete()]);
+
+    return;
+}
 $secret = 'JBSWY3DPEHPK3PXP';
 DB::table('platform_grants')->insert(['user_id' => $user->id, 'permissions' => '{platform.owner}']);
 DB::table('users')->where('id', $user->id)->update(['admin_totp_secret' => encrypt($secret), 'admin_totp_confirmed_at' => now()]);
