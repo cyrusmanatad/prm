@@ -20,8 +20,8 @@ class PlatformNotificationController extends Controller
             abort_unless(DB::selectOne("SELECT app_platform_allowed('notifications.read') AS ok")->ok, 403);
             $filters = json_encode((object) array_filter(['workspace' => $data['workspace'] ?? null, 'q' => $data['q'] ?? null, 'state' => $data['state'] ?? null]), JSON_THROW_ON_ERROR);
             $list = json_decode(DB::selectOne('SELECT app_platform_notification_list(?::jsonb,?) AS data', [$filters, $data['page'] ?? 1])->data, true, flags: JSON_THROW_ON_ERROR);
-            // `notices` keeps its original shape for JSON clients; `total` and `q` are additions.
-            $payload = ['notices' => $list['rows'], 'total' => $list['total'], 'workspace' => $data['workspace'] ?? '', 'q' => $data['q'] ?? '', 'state' => $data['state'] ?? '', 'page' => (int) ($data['page'] ?? 1),
+            // `notices` keeps its original shape for JSON clients; `total`, `facets` and `q` are additions.
+            $payload = ['notices' => $list['rows'], 'total' => $list['total'], 'facets' => $list['facets'], 'workspace' => $data['workspace'] ?? '', 'q' => $data['q'] ?? '', 'state' => $data['state'] ?? '', 'page' => (int) ($data['page'] ?? 1),
                 'canResolve' => DB::selectOne("SELECT app_platform_allowed('notifications.reconcile') AS ok")->ok,
                 'canDirectory' => DB::selectOne("SELECT app_platform_allowed('directory.read') AS ok")->ok];
 

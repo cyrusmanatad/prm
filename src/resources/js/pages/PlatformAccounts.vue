@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { CalendarDays, Search, SlidersHorizontal } from '@lucide/vue';
 import AdminShell from '../layouts/AdminShell.vue';
 import DataTable from '../components/DataTable.vue';
 import EmptyState from '../components/EmptyState.vue';
@@ -10,7 +9,8 @@ import Pagination from '../components/Pagination.vue';
 import SelectField from '../components/SelectField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { useListFilters } from '../composables/useListFilters';
-import DateRangeFields from '../features/admin/DateRangeFields.vue';
+import AppliedFilters from '../features/admin/AppliedFilters.vue';
+import ListToolbar from '../features/admin/ListToolbar.vue';
 import { dateOnly, dateTime } from '../features/admin/format';
 
 type Account = {
@@ -83,18 +83,9 @@ const chips = computed<FilterChip[]>(() => {
           ]
         : [];
 });
-const filtersOpen = ref(false);
-const datesOpen = ref(!!(props.filters.from || props.filters.to));
 const toolbarFilters = computed(
     () => [filters.value.verified, filters.value.grant, filters.value.from, filters.value.to].filter(Boolean).length,
 );
-const joinedLabel = computed(() => {
-    const { from, to } = filters.value;
-    if (from && to) return `Joined ${from} to ${to}`;
-    if (from) return `Joined from ${from}`;
-    if (to) return `Joined to ${to}`;
-    return 'Joined: any time';
-});
 
 /** One status per row: suspension outranks verification. The account page shows both. */
 const status = (row: Account) =>
@@ -133,88 +124,52 @@ const columns = [
                     :href-for="(view) => href(1, views[view] ?? views[''])"
                 />
             </div>
-            <form class="adm-toolbar" role="search" aria-label="Filter accounts" @submit.prevent="submit">
-                <div class="adm-search">
-                    <label for="account-search" class="wd-sr-only">Name, email or account ID</label>
-                    <Search :size="16" aria-hidden="true" />
-                    <input
-                        id="account-search"
-                        v-model="draft.q"
-                        name="q"
-                        type="search"
-                        maxlength="120"
-                        placeholder="Search name, email or account ID"
-                        autocomplete="off"
-                    />
-                </div>
-                <button
-                    type="button"
-                    class="wd-table-button adm-filters-toggle"
-                    aria-controls="account-filters"
-                    :aria-expanded="filtersOpen"
-                    @click="filtersOpen = !filtersOpen"
-                >
-                    <SlidersHorizontal :size="15" aria-hidden="true" />Filters<span
-                        v-if="toolbarFilters"
-                        class="rec-count"
-                        >{{ toolbarFilters }}</span
-                    >
-                </button>
-                <div id="account-filters" class="adm-filter-set" :class="{ 'is-open': filtersOpen }">
-                    <SelectField
-                        id="account-verified"
-                        v-model="draft.verified"
-                        label="Verification"
-                        :searchable="false"
-                        :options="[
-                            { value: '', label: 'Any verification' },
-                            { value: 'yes', label: 'Verified' },
-                            { value: 'no', label: 'Unverified' },
-                        ]"
-                        @change="(verified) => apply({ verified })"
-                    />
-                    <SelectField
-                        id="account-grant"
-                        v-model="draft.grant"
-                        label="Platform access"
-                        :searchable="false"
-                        :options="[
-                            { value: '', label: 'Any platform access' },
-                            { value: 'yes', label: 'Has a grant' },
-                            { value: 'no', label: 'No grant' },
-                        ]"
-                        @change="(grant) => apply({ grant })"
-                    />
-                    <button
-                        type="button"
-                        class="wd-table-button"
-                        aria-controls="account-dates"
-                        :aria-expanded="datesOpen"
-                        @click="datesOpen = !datesOpen"
-                    >
-                        <CalendarDays :size="15" aria-hidden="true" />{{ joinedLabel }}
-                    </button>
-                </div>
-                <div v-show="datesOpen" id="account-dates" class="adm-dates">
-                    <DateRangeFields
-                        v-model:from="draft.from"
-                        v-model:to="draft.to"
-                        prefix="account-joined"
-                        from-label="Joined from"
-                        to-label="Joined to (inclusive)"
-                    />
-                    <button type="submit" class="wd-table-button rec-primary" :disabled="pending">Apply dates</button>
-                </div>
-            </form>
-            <div v-if="pending || applied.length" class="adm-status">
-                <p role="status">{{ pending ? 'Updating results…' : 'Filters applied:' }}</p>
-                <ul v-if="applied.length && !pending" aria-label="Applied filters">
-                    <li v-for="item in applied" :key="item.label">{{ item.label }}: {{ item.value }}</li>
-                </ul>
-                <button v-if="applied.length" type="button" class="wd-link" :disabled="pending" @click="clear">
-                    Clear filters
-                </button>
-            </div>
+            <ListToolbar
+                id="account"
+                v-model:q="draft.q"
+                v-model:from="draft.from"
+                v-model:to="draft.to"
+                label="Filter accounts"
+                search-label="Name, email or account ID"
+                placeholder="Search name, email or account ID"
+                :pending="pending"
+                :active="toolbarFilters"
+                :dates="{
+                    noun: 'Joined',
+                    prefix: 'account-joined',
+                    fromLabel: 'Joined from',
+                    toLabel: 'Joined to (inclusive)',
+                }"
+                :applied-from="filters.from"
+                :applied-to="filters.to"
+                @submit="submit"
+            >
+                <SelectField
+                    id="account-verified"
+                    v-model="draft.verified"
+                    label="Verification"
+                    :searchable="false"
+                    :options="[
+                        { value: '', label: 'Any verification' },
+                        { value: 'yes', label: 'Verified' },
+                        { value: 'no', label: 'Unverified' },
+                    ]"
+                    @change="(verified) => apply({ verified })"
+                />
+                <SelectField
+                    id="account-grant"
+                    v-model="draft.grant"
+                    label="Platform access"
+                    :searchable="false"
+                    :options="[
+                        { value: '', label: 'Any platform access' },
+                        { value: 'yes', label: 'Has a grant' },
+                        { value: 'no', label: 'No grant' },
+                    ]"
+                    @change="(grant) => apply({ grant })"
+                />
+            </ListToolbar>
+            <AppliedFilters :applied="applied" :pending="pending" @clear="clear" />
             <EmptyState
                 v-if="!accounts.rows.length && applied.length"
                 title="No accounts match these filters"

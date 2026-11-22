@@ -285,6 +285,37 @@ class PlatformConsoleTest extends AcceptanceCase
         $this->assertNull($find($unnamed, (string) $owner->id)['target_name']);
     }
 
+    public function test_list_counts_follow_their_scope_and_audit_targets_are_named_for_directory_readers(): void
+    {
+        $prefix = 'Facet Studio '.Str::random(8);
+        $owner = User::factory()->create(['name' => 'Facet Owner Synthetic']);
+        app(Workspaces::class)->create($owner->id, $prefix.' A');
+        app(Workspaces::class)->create($owner->id, $prefix.' B');
+        $this->verified($this->operator('{directory.read,notifications.read,audit.read}'));
+        $q = '?q='.urlencode($prefix);
+        $types = ['all' => 2, 'brand' => 0, 'creator' => 2];
+        $this->getJson('/admin/workspaces'.$q)->assertOk()->assertJsonPath('workspaces.facets', $types)
+            ->assertJsonPath('workspaces.rows.0.owners.0', 'Facet Owner Synthetic')->assertJsonPath('workspaces.rows.0.members', 1);
+        // The type filter narrows rows but not the type counts; other filters narrow both.
+        $this->getJson('/admin/workspaces'.$q.'&kind=brand')->assertOk()->assertJsonPath('workspaces.total', 0)->assertJsonPath('workspaces.facets', $types);
+        $this->getJson('/admin/workspaces'.$q.'&access=suspended')->assertOk()->assertJsonPath('workspaces.facets', ['all' => 0, 'brand' => 0, 'creator' => 0]);
+        // Notification state counts follow the search; an unknown search has none.
+        $this->getJson('/admin/notifications?q='.urlencode('no-such-workspace-'.Str::random(6)))->assertOk()
+            ->assertJsonPath('facets', ['all' => 0, 'sent' => 0, 'pending' => 0, 'sending' => 0, 'captured' => 0, 'cancelled' => 0, 'uncertain' => 0]);
+        // Audit outcome counts follow the search but not the outcome filter.
+        $target = (string) $owner->id;
+        $this->control->table('platform_audit')->insert([
+            ['operator' => 'synthetic', 'event' => 'account.suspended', 'target' => $target, 'reason' => 'Synthetic', 'occurred_at' => now()],
+            ['operator' => 'synthetic', 'event' => 'request.denied', 'target' => $target, 'reason' => 'Synthetic', 'occurred_at' => now()],
+        ]);
+        $this->getJson('/admin/audit?outcome=denied&q='.$target)->assertOk()->assertJsonPath('events.total', 1)
+            ->assertJsonPath('events.facets', ['all' => 2, 'denied' => 1, 'recorded' => 1]);
+        $named = collect($this->getJson('/admin/audit?outcome=recorded&q='.$target)->assertOk()->json('events.rows'))->firstWhere('event', 'account.suspended');
+        $this->assertSame(['account', 'Facet Owner Synthetic'], [$named['target_kind'], $named['target_name']]);
+        $hidden = collect($this->verified($this->operator('{audit.read}'))->getJson('/admin/audit?outcome=recorded&q='.$target)->assertOk()->json('events.rows'))->firstWhere('event', 'account.suspended');
+        $this->assertSame(['account', null], [$hidden['target_kind'], $hidden['target_name']]);
+    }
+
     public function test_audit_review_lists_actions_and_denials_with_recorded_fields_only(): void
     {
         $owner = User::factory()->create();
