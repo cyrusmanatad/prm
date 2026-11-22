@@ -998,7 +998,9 @@ it('protects the acting owner, and reviews reductions and revocations as destruc
         candidate: null,
     });
     const rows = wrapper.findAll('tbody tr');
-    expect(rows[0]!.text()).toContain('You cannot change your own grant. You are the last usable platform owner.');
+    expect(rows[0]!.text()).toContain(
+        'This is you. You cannot change your own grant. You are the last usable platform owner.',
+    );
     expect(rows[0]!.findAll('button')).toHaveLength(0);
     expect(rows[1]!.text()).toContain('Directory, Audit review');
     expect(rows[1]!.text()).toContain('Not enrolled');
