@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { CalendarDays, Search, SlidersHorizontal } from '@lucide/vue';
 import AdminShell from '../layouts/AdminShell.vue';
-import ContentSection from '../components/ContentSection.vue';
 import DataTable from '../components/DataTable.vue';
 import EmptyState from '../components/EmptyState.vue';
-import FilterBar from '../components/FilterBar.vue';
-import FormField from '../components/FormField.vue';
+import FilterChips, { type FilterChip } from '../components/FilterChips.vue';
 import Pagination from '../components/Pagination.vue';
 import SelectField from '../components/SelectField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { useListFilters } from '../composables/useListFilters';
 import DateRangeFields from '../features/admin/DateRangeFields.vue';
-import { dateTime } from '../features/admin/format';
+import { dateOnly, dateTime } from '../features/admin/format';
 
 type Account = {
     id: number;
@@ -24,27 +23,89 @@ type Account = {
     platform_access: boolean;
     suspended: boolean;
 };
+type Facets = { all: number; active: number; suspended: number; unverified: number; granted: number };
 type Filters = { q: string; verified: string; grant: string; access: string; from: string; to: string };
-const props = defineProps<{ accounts: { total: number; rows: Account[] }; filters: Filters; page: number }>();
-const { draft, pending, submit, clear, href } = useListFilters<Filters>('/admin/accounts', () => props.filters);
+const props = defineProps<{
+    accounts: { total: number; rows: Account[]; facets?: Facets };
+    /** Older payloads may omit the access and date filters. */
+    filters: Partial<Filters>;
+    page: number;
+}>();
+const filters = computed<Filters>(() => ({
+    q: '',
+    verified: '',
+    grant: '',
+    access: '',
+    from: '',
+    to: '',
+    ...props.filters,
+}));
+const { draft, pending, submit, apply, clear, href } = useListFilters<Filters>('/admin/accounts', () => filters.value);
+
 const applied = computed(() => [
-    ...(props.filters.q ? [{ label: 'Search', value: props.filters.q }] : []),
-    ...(props.filters.verified
-        ? [{ label: 'Verification', value: props.filters.verified === 'yes' ? 'Verified' : 'Unverified' }]
+    ...(filters.value.q ? [{ label: 'Search', value: filters.value.q }] : []),
+    ...(filters.value.verified
+        ? [{ label: 'Verification', value: filters.value.verified === 'yes' ? 'Verified' : 'Unverified' }]
         : []),
-    ...(props.filters.grant
-        ? [{ label: 'Platform access', value: props.filters.grant === 'yes' ? 'Has a grant' : 'No grant' }]
+    ...(filters.value.grant
+        ? [{ label: 'Platform access', value: filters.value.grant === 'yes' ? 'Has a grant' : 'No grant' }]
         : []),
-    ...(props.filters.access
-        ? [{ label: 'Access', value: props.filters.access === 'suspended' ? 'Suspended' : 'Active' }]
+    ...(filters.value.access
+        ? [{ label: 'Access', value: filters.value.access === 'suspended' ? 'Suspended' : 'Active' }]
         : []),
-    ...(props.filters.from ? [{ label: 'Joined from', value: props.filters.from }] : []),
-    ...(props.filters.to ? [{ label: 'Joined to', value: props.filters.to }] : []),
+    ...(filters.value.from ? [{ label: 'Joined from', value: filters.value.from }] : []),
+    ...(filters.value.to ? [{ label: 'Joined to', value: filters.value.to }] : []),
 ]);
+
+/** Quick views. Each one sets a single access, verification or grant filter and keeps the search and dates. */
+const views: Record<string, Pick<Filters, 'access' | 'verified' | 'grant'>> = {
+    '': { access: '', verified: '', grant: '' },
+    active: { access: 'active', verified: '', grant: '' },
+    suspended: { access: 'suspended', verified: '', grant: '' },
+    unverified: { access: '', verified: 'no', grant: '' },
+    granted: { access: '', verified: '', grant: 'yes' },
+};
+const currentView = computed(
+    () =>
+        Object.entries(views).find(([, view]) =>
+            (['access', 'verified', 'grant'] as const).every((key) => filters.value[key] === view[key]),
+        )?.[0] ?? null,
+);
+const chips = computed<FilterChip[]>(() => {
+    const f = props.accounts.facets;
+    return f
+        ? [
+              { value: '', label: 'All', count: f.all },
+              { value: 'active', label: 'Active', count: f.active },
+              { value: 'suspended', label: 'Suspended', count: f.suspended },
+              { value: 'unverified', label: 'Unverified', count: f.unverified },
+              { value: 'granted', label: 'Platform grant', count: f.granted },
+          ]
+        : [];
+});
+const filtersOpen = ref(false);
+const datesOpen = ref(!!(props.filters.from || props.filters.to));
+const toolbarFilters = computed(
+    () => [filters.value.verified, filters.value.grant, filters.value.from, filters.value.to].filter(Boolean).length,
+);
+const joinedLabel = computed(() => {
+    const { from, to } = filters.value;
+    if (from && to) return `Joined ${from} to ${to}`;
+    if (from) return `Joined from ${from}`;
+    if (to) return `Joined to ${to}`;
+    return 'Joined: any time';
+});
+
+/** One status per row: suspension outranks verification. The account page shows both. */
+const status = (row: Account) =>
+    row.suspended
+        ? { label: 'Suspended', tone: 'danger' as const }
+        : row.email_verified_at
+          ? { label: 'Active', tone: 'success' as const }
+          : { label: 'Unverified', tone: 'warning' as const };
 const columns = [
     { key: 'name', label: 'Account' },
-    { key: 'verification', label: 'Verification' },
-    { key: 'access', label: 'Access' },
+    { key: 'status', label: 'Status' },
     { key: 'workspaces', label: 'Workspaces', numeric: true },
     { key: 'platform_access', label: 'Platform access' },
     { key: 'created_at', label: 'Joined' },
@@ -54,97 +115,159 @@ const columns = [
 <template>
     <AdminShell
         title="Accounts"
-        description="Every registered identity, with verification and membership counts. Passwords, sessions and private workspace records are never shown."
-        eyebrow="Directory"
+        description="Every registered identity. Passwords, sessions and private workspace records are never shown."
+        compact
     >
-        <ContentSection title="Find accounts">
-            <FilterBar label="Filter accounts" :applied="applied" :pending="pending" @submit="submit" @clear="clear">
-                <FormField
-                    id="account-search"
-                    v-model="draft.q"
-                    label="Name, email or account ID"
-                    :required="false"
-                    :maxlength="120"
+        <section class="rec-card" aria-labelledby="accounts-heading">
+            <header class="rec-card-head">
+                <h2 id="accounts-heading">Accounts</h2>
+                <span class="rec-count">{{ accounts.total.toLocaleString('en-GB') }}</span>
+                <p class="rec-note">A–Z by name · 25 per page · joined dates are UTC days</p>
+            </header>
+            <div v-if="chips.length" class="rec-chips">
+                <FilterChips
+                    label="Show accounts"
+                    compact
+                    :chips="chips"
+                    :current="currentView ?? 'none'"
+                    :href-for="(view) => href(1, views[view] ?? views[''])"
                 />
-                <SelectField
-                    id="account-verified"
-                    v-model="draft.verified"
-                    label="Verification"
-                    :options="[
-                        { value: '', label: 'Any' },
-                        { value: 'yes', label: 'Verified' },
-                        { value: 'no', label: 'Unverified' },
-                    ]"
-                />
-                <SelectField
-                    id="account-grant"
-                    v-model="draft.grant"
-                    label="Platform access"
-                    :options="[
-                        { value: '', label: 'Any' },
-                        { value: 'yes', label: 'Has a grant' },
-                        { value: 'no', label: 'No grant' },
-                    ]"
-                />
-                <SelectField
-                    id="account-access"
-                    v-model="draft.access"
-                    label="Access"
-                    :options="[
-                        { value: '', label: 'Any' },
-                        { value: 'active', label: 'Active' },
-                        { value: 'suspended', label: 'Suspended' },
-                    ]"
-                />
-                <DateRangeFields
-                    v-model:from="draft.from"
-                    v-model:to="draft.to"
-                    prefix="account-joined"
-                    from-label="Joined from"
-                    to-label="Joined to (inclusive)"
-                />
-            </FilterBar>
-        </ContentSection>
-        <ContentSection title="Accounts" description="Joined dates filter on calendar days in UTC.">
+            </div>
+            <form class="adm-toolbar" role="search" aria-label="Filter accounts" @submit.prevent="submit">
+                <div class="adm-search">
+                    <label for="account-search" class="wd-sr-only">Name, email or account ID</label>
+                    <Search :size="16" aria-hidden="true" />
+                    <input
+                        id="account-search"
+                        v-model="draft.q"
+                        name="q"
+                        type="search"
+                        maxlength="120"
+                        placeholder="Search name, email or account ID"
+                        autocomplete="off"
+                    />
+                </div>
+                <button
+                    type="button"
+                    class="wd-table-button adm-filters-toggle"
+                    aria-controls="account-filters"
+                    :aria-expanded="filtersOpen"
+                    @click="filtersOpen = !filtersOpen"
+                >
+                    <SlidersHorizontal :size="15" aria-hidden="true" />Filters<span
+                        v-if="toolbarFilters"
+                        class="rec-count"
+                        >{{ toolbarFilters }}</span
+                    >
+                </button>
+                <div id="account-filters" class="adm-filter-set" :class="{ 'is-open': filtersOpen }">
+                    <SelectField
+                        id="account-verified"
+                        v-model="draft.verified"
+                        label="Verification"
+                        :searchable="false"
+                        :options="[
+                            { value: '', label: 'Any verification' },
+                            { value: 'yes', label: 'Verified' },
+                            { value: 'no', label: 'Unverified' },
+                        ]"
+                        @change="(verified) => apply({ verified })"
+                    />
+                    <SelectField
+                        id="account-grant"
+                        v-model="draft.grant"
+                        label="Platform access"
+                        :searchable="false"
+                        :options="[
+                            { value: '', label: 'Any platform access' },
+                            { value: 'yes', label: 'Has a grant' },
+                            { value: 'no', label: 'No grant' },
+                        ]"
+                        @change="(grant) => apply({ grant })"
+                    />
+                    <button
+                        type="button"
+                        class="wd-table-button"
+                        aria-controls="account-dates"
+                        :aria-expanded="datesOpen"
+                        @click="datesOpen = !datesOpen"
+                    >
+                        <CalendarDays :size="15" aria-hidden="true" />{{ joinedLabel }}
+                    </button>
+                </div>
+                <div v-show="datesOpen" id="account-dates" class="adm-dates">
+                    <DateRangeFields
+                        v-model:from="draft.from"
+                        v-model:to="draft.to"
+                        prefix="account-joined"
+                        from-label="Joined from"
+                        to-label="Joined to (inclusive)"
+                    />
+                    <button type="submit" class="wd-table-button rec-primary" :disabled="pending">Apply dates</button>
+                </div>
+            </form>
+            <div v-if="pending || applied.length" class="adm-status">
+                <p role="status">{{ pending ? 'Updating results…' : 'Filters applied:' }}</p>
+                <ul v-if="applied.length && !pending" aria-label="Applied filters">
+                    <li v-for="item in applied" :key="item.label">{{ item.label }}: {{ item.value }}</li>
+                </ul>
+                <button v-if="applied.length" type="button" class="wd-link" :disabled="pending" @click="clear">
+                    Clear filters
+                </button>
+            </div>
             <EmptyState
                 v-if="!accounts.rows.length && applied.length"
                 title="No accounts match these filters"
                 description="Change or clear the filters to see other accounts."
             />
             <EmptyState v-else-if="!accounts.rows.length" title="No accounts are registered yet" />
-            <DataTable v-else caption="Accounts" :columns="columns" :rows="accounts.rows" :row-key="(row) => row.id">
+            <DataTable
+                v-else
+                class="rec-table adm-records"
+                :class="{ 'is-pending': pending }"
+                caption="Accounts"
+                :columns="columns"
+                :rows="accounts.rows"
+                :row-key="(row) => row.id"
+            >
                 <template #cell-name="{ row }"
-                    ><Link :href="`/admin/accounts/${row.id}`">{{ row.name }}</Link
-                    ><span class="wd-data-secondary">{{ row.email }}</span></template
+                    ><Link class="rec-row-title" :href="`/admin/accounts/${row.id}`">{{ row.name }}</Link
+                    ><span class="rec-row-sub" :title="row.email">{{ row.email }}</span></template
                 >
-                <template #cell-verification="{ row }"
-                    ><StatusBadge
-                        :label="row.email_verified_at ? 'Verified' : 'Unverified'"
-                        :tone="row.email_verified_at ? 'success' : 'warning'"
+                <template #cell-status="{ row }"
+                    ><StatusBadge :label="status(row).label" :tone="status(row).tone"
                 /></template>
-                <template #cell-access="{ row }"
-                    ><StatusBadge
-                        :label="row.suspended ? 'Suspended' : 'Active'"
-                        :tone="row.suspended ? 'danger' : 'success'"
-                /></template>
+                <template #cell-workspaces="{ row }"
+                    >{{ row.workspaces
+                    }}<span class="adm-phone-only"
+                        >&nbsp;{{ row.workspaces === 1 ? 'workspace' : 'workspaces' }}</span
+                    ></template
+                >
                 <template #cell-platform_access="{ row }"
                     ><StatusBadge v-if="row.platform_access" label="Platform grant" /><span
                         v-else
-                        class="wd-data-secondary"
-                        >None</span
+                        class="rec-fine adm-phone-hidden"
+                        ><span aria-hidden="true">—</span><span class="wd-sr-only">None</span></span
                     ></template
                 >
-                <template #cell-created_at="{ row }">{{ dateTime(row.created_at) }}</template>
+                <template #cell-created_at="{ row }"
+                    ><time :datetime="row.created_at" :title="dateTime(row.created_at)">{{
+                        dateOnly(row.created_at)
+                    }}</time></template
+                >
             </DataTable>
-            <Pagination
-                label="Account pages"
-                :page="page"
-                :per-page="25"
-                :count="accounts.rows.length"
-                :total="accounts.total"
-                noun="accounts"
-                :href-for="href"
-            />
-        </ContentSection>
+            <div v-if="accounts.rows.length || page > 1" class="rec-card-foot">
+                <Pagination
+                    label="Account pages"
+                    :page="page"
+                    :per-page="25"
+                    :count="accounts.rows.length"
+                    :total="accounts.total"
+                    noun="accounts"
+                    numbered
+                    :href-for="href"
+                />
+            </div>
+        </section>
     </AdminShell>
 </template>

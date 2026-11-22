@@ -2,16 +2,23 @@
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import AdminShell from '../layouts/AdminShell.vue';
-import ContentSection from '../components/ContentSection.vue';
+import { ArrowRight } from '@lucide/vue';
 import DataTable from '../components/DataTable.vue';
 import EmptyState from '../components/EmptyState.vue';
-import StatCard from '../components/StatCard.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import UnavailableNotice from '../components/UnavailableNotice.vue';
-import { age, dateTime } from '../features/admin/format';
+import { age, auditEventLabel, auditTargetLabel, dateTime, recentTime } from '../features/admin/format';
 import { allowed, type AdminContext } from '../features/admin/navigation';
 
-type Activity = { id: string; occurred_at: string; event: string; target: string; actor: string };
+type Activity = {
+    id: string;
+    occurred_at: string;
+    event: string;
+    target: string;
+    actor: string;
+    target_kind?: string | null;
+    target_name?: string | null;
+};
 const props = defineProps<{
     overview: {
         observed_at: string;
@@ -37,10 +44,16 @@ const props = defineProps<{
 }>();
 const context = computed(() => usePage<{ admin?: AdminContext }>().props.admin);
 const can = (capability: string) => allowed(context.value, capability);
-const observed = computed(() => `Observed ${dateTime(props.overview.observed_at)}`);
-const scope = (capability: string, text: string) =>
-    can(capability) ? `${text} · ${observed.value}` : 'Outside your capabilities';
-type Attention = { key: string; tone: 'warning' | 'danger'; title: string; next: string; href: string; link: string };
+type Attention = {
+    key: string;
+    tone: 'warning' | 'danger';
+    title: string;
+    next: string;
+    href: string;
+    /** Full link text, used as the accessible name; `verb` is the short visible label. */
+    link: string;
+    verb?: string;
+};
 const attention = computed(() => {
     const o = props.overview;
     const items: Attention[] = [];
@@ -152,22 +165,108 @@ const attention = computed(() => {
             href: '/admin/cleanup',
             link: 'Review cleanup batches',
         });
-    return items;
+    // Failures first, then reviews, keeping the order within each group.
+    return items
+        .map((item) => ({ ...item, verb: item.verb ?? item.link.split(' ')[0] }))
+        .sort((a, b) => Number(b.tone === 'danger') - Number(a.tone === 'danger'));
+});
+type Tile = {
+    key: string;
+    label: string;
+    value: string | null;
+    note: string;
+    alert?: string;
+    href?: string;
+    danger?: boolean;
+};
+const count = (value: number | null | undefined) =>
+    value === null || value === undefined ? null : value.toLocaleString('en-GB');
+const tiles = computed<Tile[]>(() => {
+    const o = props.overview;
+    const link = (capability: string, href: string) => (can(capability) ? href : undefined);
+    return [
+        {
+            key: 'accounts',
+            label: 'Accounts',
+            value: count(o.accounts),
+            note: 'All registered identities',
+            href: link('directory.read', '/admin/accounts'),
+        },
+        {
+            key: 'creator',
+            label: 'Creator workspaces',
+            value: count(o.creator_workspaces),
+            note: 'All creator workspaces',
+            href: link('directory.read', '/admin/workspaces?kind=creator'),
+        },
+        {
+            key: 'brand',
+            label: 'Brand workspaces',
+            value: count(o.brand_workspaces),
+            note: 'All Brand workspaces',
+            href: link('directory.read', '/admin/workspaces?kind=brand'),
+        },
+        {
+            key: 'assignments',
+            label: 'Active assignments',
+            value: count(o.active_assignments),
+            note: 'Selected assignment in effect',
+            alert: o.expired_assignments ? `${count(o.expired_assignments)} expired` : undefined,
+            href: link('plans.assign', '/admin/assignments?state=active'),
+        },
+        {
+            key: 'notices',
+            label: 'Queued notices',
+            value: count(o.pending_notices),
+            note: 'Queued, not yet sending',
+            alert: o.uncertain_sends ? `${count(o.uncertain_sends)} uncertain` : undefined,
+            href: link(
+                'notifications.read',
+                o.uncertain_sends ? '/admin/notifications?state=uncertain' : '/admin/notifications?state=pending',
+            ),
+        },
+        {
+            key: 'failed',
+            label: 'Failed jobs',
+            value: count(o.failed_jobs),
+            note: 'Last 24 hours',
+            danger: !!o.failed_jobs,
+            href: link('operations.read', '/admin/operations'),
+        },
+    ];
 });
 const columns = [
     { key: 'event', label: 'Action' },
     { key: 'actor', label: 'Actor' },
     { key: 'target', label: 'Target' },
-    { key: 'occurred_at', label: 'Occurred' },
+    { key: 'occurred_at', label: 'When' },
 ];
 </script>
 
 <template>
-    <AdminShell
-        title="Overview"
-        description="Operational counts and items that need attention. Every figure links to the list it summarises."
-    >
-        <ContentSection title="Needs attention">
+    <AdminShell title="Overview" compact>
+        <template #description
+            >Observed {{ dateTime(overview.observed_at) }} · every figure opens the list it counts</template
+        >
+        <ul class="rec-stats adm-stats" aria-label="Current counts">
+            <li v-for="tile in tiles" :key="tile.key" :class="{ 'is-alert': tile.danger }">
+                <component :is="tile.href ? Link : 'div'" v-bind="tile.href ? { href: tile.href } : {}">
+                    <span>{{ tile.label }}</span>
+                    <strong>{{ tile.value ?? 'Unavailable' }}</strong>
+                    <small v-if="tile.value === null">Outside your capabilities</small>
+                    <small v-else-if="tile.alert"
+                        ><b>{{ tile.alert }}</b></small
+                    >
+                    <small v-else>{{ tile.note }}</small>
+                </component>
+            </li>
+        </ul>
+        <section class="rec-card" aria-labelledby="attention-heading">
+            <header class="rec-card-head">
+                <h2 id="attention-heading">Needs attention</h2>
+                <span v-if="attention.length" class="rec-count">{{ attention.length }}</span>
+                <p v-if="attention.length" class="rec-note">Failures first</p>
+            </header>
             <EmptyState
                 v-if="!attention.length"
                 title="Nothing needs attention"
@@ -180,81 +279,48 @@ const columns = [
                         <h3>{{ item.title }}</h3>
                         <p>{{ item.next }}</p>
                     </div>
-                    <Link :href="item.href" class="wd-link inline-flex min-h-11 items-center">{{ item.link }}</Link>
+                    <Link :href="item.href" class="wd-link" v-bind="{ 'aria-label': item.link }"
+                        >{{ item.verb }}<ArrowRight :size="14" aria-hidden="true"
+                    /></Link>
                 </li>
             </ul>
-        </ContentSection>
-        <section aria-labelledby="overview-counts">
-            <h2 id="overview-counts" class="wd-sr-only">Current counts</h2>
-            <div class="wd-stat-grid">
-                <StatCard
-                    label="Accounts"
-                    :value="overview.accounts"
-                    :scope="scope('directory.read', 'All registered identities')"
-                    :href="can('directory.read') ? '/admin/accounts' : undefined"
-                />
-                <StatCard
-                    label="Creator workspaces"
-                    :value="overview.creator_workspaces"
-                    :scope="scope('directory.read', 'All creator workspaces')"
-                    :href="can('directory.read') ? '/admin/workspaces?kind=creator' : undefined"
-                />
-                <StatCard
-                    label="Brand workspaces"
-                    :value="overview.brand_workspaces"
-                    :scope="scope('directory.read', 'All brand workspaces')"
-                    :href="can('directory.read') ? '/admin/workspaces?kind=brand' : undefined"
-                />
-                <StatCard
-                    label="Active assignments"
-                    :value="overview.active_assignments"
-                    :scope="scope('plans.assign', 'Workspaces whose selected assignment is in effect')"
-                    :href="can('plans.assign') ? '/admin/assignments?state=active' : undefined"
-                />
-                <StatCard
-                    label="Queued notices"
-                    :value="overview.pending_notices"
-                    :scope="scope('notifications.read', 'Queued, not yet sending')"
-                    :href="can('notifications.read') ? '/admin/notifications?state=pending' : undefined"
-                />
-                <StatCard
-                    label="Uncertain sends"
-                    :value="overview.uncertain_sends"
-                    :scope="scope('notifications.read', 'Awaiting a recorded resolution')"
-                    :href="can('notifications.read') ? '/admin/notifications?state=uncertain' : undefined"
-                />
-                <StatCard
-                    label="Failed jobs"
-                    :value="overview.failed_jobs"
-                    :scope="scope('operations.read', 'Last 24 hours')"
-                    :href="can('operations.read') ? '/admin/operations' : undefined"
-                />
-            </div>
         </section>
-        <ContentSection
-            title="Recent administrative activity"
-            description="The latest recorded administration actions. Denied requests are listed in the audit."
-        >
+        <section class="rec-card" aria-labelledby="activity-heading">
+            <header class="rec-card-head">
+                <h2 id="activity-heading">Recent administrative activity</h2>
+                <p class="rec-note">
+                    <Link v-if="overview.activity?.length" href="/admin/audit" class="wd-link">View the full audit</Link
+                    ><template v-else>Denied requests are listed in the audit</template>
+                </p>
+            </header>
             <UnavailableNotice
                 v-if="overview.activity === null"
                 title="Activity is outside your capabilities"
                 reason="Reviewing the administration audit needs the audit review capability."
             />
             <EmptyState v-else-if="!overview.activity.length" title="No administrative actions recorded yet" />
-            <template v-else>
-                <DataTable
-                    caption="Recent administrative activity"
-                    :columns="columns"
-                    :rows="overview.activity"
-                    :row-key="(row) => row.id"
+            <DataTable
+                v-else
+                class="rec-table adm-records"
+                caption="Recent administrative activity"
+                :columns="columns"
+                :rows="overview.activity"
+                :row-key="(row) => row.id"
+            >
+                <template #cell-event="{ row }"
+                    ><Link class="rec-row-title" :href="`/admin/audit/platform/${row.id}`">{{
+                        auditEventLabel(row.event)
+                    }}</Link></template
                 >
-                    <template #cell-event="{ row }"
-                        ><Link :href="`/admin/audit/platform/${row.id}`">{{ row.event }}</Link></template
-                    >
-                    <template #cell-occurred_at="{ row }">{{ dateTime(row.occurred_at) }}</template>
-                </DataTable>
-                <Link href="/admin/audit" class="wd-link inline-flex min-h-11 items-center">View the full audit</Link>
-            </template>
-        </ContentSection>
+                <template #cell-target="{ row }">{{
+                    auditTargetLabel(row.target, row.target_kind, row.target_name)
+                }}</template>
+                <template #cell-occurred_at="{ row }"
+                    ><time :datetime="row.occurred_at" :title="dateTime(row.occurred_at)">{{
+                        recentTime(row.occurred_at)
+                    }}</time></template
+                >
+            </DataTable>
+        </section>
     </AdminShell>
 </template>

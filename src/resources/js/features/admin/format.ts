@@ -178,3 +178,79 @@ export const dispositions: Record<string, { label: string; tone: Tone }> = {
     blocked: { label: 'Blocked', tone: 'danger' },
     protected: { label: 'Protected', tone: 'warning' },
 };
+
+/** Plain-language names for recorded administration actions; unknown codes stay readable rather than hidden. */
+const auditEvents: Record<string, string> = {
+    'account.authenticator_reset': 'Authenticator reset',
+    'account.reactivated': 'Account reactivated',
+    'account.signed_out': 'Account signed out everywhere',
+    'account.suspended': 'Account suspended',
+    'brand_request.approved': 'Brand request approved',
+    'brand_request.declined': 'Brand request declined',
+    'brand_request.information_requested': 'More Brand information requested',
+    'cleanup.batch_created': 'Cleanup batch created',
+    'cleanup.dry_run': 'Cleanup dry run',
+    'cleanup.marked': 'Marked for cleanup',
+    'cleanup.unmarked': 'Cleanup mark removed',
+    'grant.assigned': 'Platform access granted',
+    'grant.assigned.offline': 'Platform access granted offline',
+    'grant.revoked': 'Platform access revoked',
+    'mfa.enrolled': 'Authenticator enrolled',
+    'mfa.verified': 'Authenticator verified',
+    'notification.resolved': 'Uncertain send resolved',
+    'plan.assigned': 'Plan assigned',
+    'request.denied': 'Request denied',
+    'support.approved': 'Support access approved',
+    'support.cancelled': 'Support request withdrawn',
+    'support.declined': 'Support access declined',
+    'support.ended': 'Support access ended',
+    'support.ended_by_owner': 'Support access ended by owner',
+    'support.requested': 'Support access requested',
+    'support.viewed': 'Support view opened',
+    'workspace.reactivated': 'Workspace reactivated',
+    'workspace.suspended': 'Workspace suspended',
+};
+export function auditEventLabel(event: string): string {
+    if (auditEvents[event]) return auditEvents[event];
+    const text = event.replaceAll(/[._]+/g, ' ').trim();
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+const targetKinds: Record<string, string> = {
+    account: 'Account',
+    workspace: 'Workspace',
+    support: 'Support access',
+    brand_request: 'Brand request',
+    cleanup: 'Cleanup',
+    notification: 'Notification',
+};
+/** "Workspace · Northline Living" when the name is known; otherwise the kind and a shortened reference. */
+export function auditTargetLabel(target: string, kind?: string | null, name?: string | null): string {
+    const reference = target.length > 13 ? `${target.slice(0, 8)}…` : target;
+    const label = kind ? targetKinds[kind] : undefined;
+    if (!label) return target;
+    return `${label} · ${name || reference}`;
+}
+
+/** Short time for recent lists: minutes ago, then today or yesterday with a time, then the full date. */
+export function recentTime(value: string, now: Date = new Date()): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Not recorded';
+    const minutes = Math.floor((now.getTime() - date.getTime()) / 60000);
+    if (minutes >= 0 && minutes < 1) return 'Just now';
+    if (minutes >= 0 && minutes < 60) return `${minutes} min ago`;
+    const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(date);
+    const day = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const days = Math.round((day(now) - day(date)) / 86400000);
+    if (days === 0) return `Today, ${time}`;
+    if (days === 1) return `Yesterday, ${time}`;
+    return dateTime(value);
+}
+
+/** Calendar date only, for dense directory columns; the full timestamp belongs in a title or detail page. */
+export function dateOnly(value: string | null | undefined, missing = 'Not recorded'): string {
+    if (!value) return missing;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return missing;
+    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+}

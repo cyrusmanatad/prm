@@ -1,3 +1,5 @@
+**Compact administration Overview and Accounts (2026-11-22):** [change, backend counts and names, commands, rendering findings and unverified gates](administration/compact-console-evidence.md). Local stack only; not deployed.
+
 **M3-02 PRIV-03 (2026-11-20):** [Closure verification and handoff](m3/closure-evidence.md), following export commit `64b1a6f`.
 
 **M3-02 export verification (2026-11-20):** [implementation, PostgreSQL/role/concurrency checks, archive/cleanup tests and desktop/mobile findings](m3/privacy-evidence.md), supporting the approved [privacy contract](m3/privacy-contract.md). Local disposable environments only; PRIV-03–PRIV-06 and release/deployment gates remain open.
