@@ -70,6 +70,8 @@ Exact reproduction means matching composition, dimensions, spacing, alignment, t
 
 **Confirmed (2026-11-23):** the administration Workspaces, Notifications and Audit lists follow the same approved pattern through the shared `ListToolbar` and `AppliedFilters`: chips with counts for one dimension each (workspace type, delivery state, audit outcome), dropdowns and a date panel that combine with them, plain names for notifications and audit actions, named audit targets, numbered pages and shared two-line phone records. Evidence: [compact administration lists](../administration/compact-lists-evidence.md).
 
+**Confirmed (2026-11-24):** administration Plans, Assignments and Support access follow the same pattern: Plans as a searchable compact card, Assignments with Current, state and Full history chips, and Support access with state chips and its request form kept above the list when reached from a workspace. Evidence: [compact Plans, Assignments and Support access](../administration/compact-entitlements-evidence.md).
+
 ## Table controls and partner avatars (2026-11-19)
 
 **Confirmed (2026-11-19):** controls inside tables and list toolbars use one compact size, `--wd-table-control`: **36px with a fine pointer, 44px below 600px wide or with a coarse pointer**. This covers pagination (Previous, Next, page numbers), table search fields and buttons, row action buttons, rows-per-page selects, standard filter chips and links standing alone in a cell. Use the shared `wd-table-button`, `wd-table-icon-button`, `wd-table-input` and `wd-cell-link` classes rather than per-screen sizes. Form and dialog buttons, primary page actions (such as Invite partners) and the Registered leads filter fields keep their existing sizes.

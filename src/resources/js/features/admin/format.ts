@@ -276,3 +276,17 @@ export function dateOnly(value: string | null | undefined, missing = 'Not record
     if (Number.isNaN(date.getTime())) return missing;
     return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
 }
+
+/** Date and time without the zone, for dense columns; pair it with the full `dateTime` as a tooltip. */
+export function shortDateTime(value: string | null | undefined, missing = 'Not recorded'): string {
+    if (!value) return missing;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return missing;
+    return new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(date);
+}
