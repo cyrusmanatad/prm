@@ -1,54 +1,55 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { Ban, Pencil, RotateCcw, Search } from '@lucide/vue';
+import { Ban, Pencil, RotateCcw } from '@lucide/vue';
 import AdminShell from '../layouts/AdminShell.vue';
 import DataTable from '../components/DataTable.vue';
 import EmptyState from '../components/EmptyState.vue';
 import FilterChips, { type FilterChip } from '../components/FilterChips.vue';
+import Pagination from '../components/Pagination.vue';
 import RowActionMenu, { type RowAction } from '../components/RowActionMenu.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import UnavailableNotice from '../components/UnavailableNotice.vue';
+import { useListFilters } from '../composables/useListFilters';
+import AppliedFilters from '../features/admin/AppliedFilters.vue';
+import ListToolbar from '../features/admin/ListToolbar.vue';
 import OperatorAccessDialog, { type Operator } from '../features/admin/OperatorAccessDialog.vue';
 import { capabilityNames as labels } from '../features/admin/format';
 
 type Candidate = { id: number; name: string; email: string; verified: boolean };
-const props = defineProps<{ operators: Operator[]; capabilities: string[]; candidate: Candidate | null }>();
+type Filters = { q: string; view: string };
+type Facets = Record<'all' | 'active' | 'unenrolled' | 'revoked', number>;
+const props = defineProps<{
+    operators: { total: number; rows: Operator[]; facets: Facets };
+    filters: Filters;
+    page: number;
+    /** Listed first after your own grant: the operator reached from an account page, or the one just changed. */
+    pinned?: number | string | null;
+    capabilities: string[];
+    candidate: Candidate | null;
+}>();
 const dialog = ref<InstanceType<typeof OperatorAccessDialog>>();
 
-/** The list arrives whole, so the views, search and page size apply in the browser. */
-const views: Record<string, (row: Operator) => boolean> = {
-    '': () => true,
-    active: (row) => !row.revoked_at,
-    unenrolled: (row) => !row.revoked_at && !row.mfa_ready,
-    revoked: (row) => !!row.revoked_at,
+/** Searched, filtered and paged on the server, 25 at a time. View counts follow the search but not the view. */
+const { draft, pending, submit, clear, href } = useListFilters<Filters>('/admin/operators', () => props.filters);
+const viewLabels: Record<string, string> = {
+    active: 'Active',
+    unenrolled: 'No authenticator',
+    revoked: 'Revoked',
 };
-// All first, as before: revoked grants stay visible (listed last) right after a revocation.
-const view = ref('');
-const search = ref('');
-const shown = ref(50);
-const searched = computed(() => {
-    const needle = search.value.trim().toLowerCase();
-    return needle
-        ? props.operators.filter((row) => `${row.name} ${row.email}`.toLowerCase().includes(needle))
-        : props.operators;
-});
 const chips = computed<FilterChip[]>(() => [
-    { value: '', label: 'All', count: searched.value.length },
-    { value: 'active', label: 'Active', count: searched.value.filter(views.active!).length },
-    { value: 'unenrolled', label: 'No authenticator', count: searched.value.filter(views.unenrolled!).length },
-    { value: 'revoked', label: 'Revoked', count: searched.value.filter(views.revoked!).length },
+    { value: '', label: 'All', count: props.operators.facets.all },
+    ...(['active', 'unenrolled', 'revoked'] as const).map((value) => ({
+        value,
+        label: viewLabels[value]!,
+        count: props.operators.facets[value],
+    })),
 ]);
-/** Your own row, then the operator just changed (or reached from an account page), stay at the top. */
-const pinned = ref<number | null>(props.candidate?.id ?? null);
-const rank = (row: Operator) => (row.self ? 0 : row.user_id === pinned.value ? 1 : 2);
-const matching = computed(() =>
-    searched.value.filter(views[view.value] ?? views['']!).sort((a, b) => rank(a) - rank(b)),
-);
-const rows = computed(() => matching.value.slice(0, shown.value));
-watch([view, search], () => (shown.value = 50));
+const applied = computed(() => (props.filters.q ? [{ label: 'Search', value: props.filters.q }] : []));
+const rows = computed(() => props.operators.rows);
+const pinnedId = computed(() => (props.pinned ? Number(props.pinned) : null));
 
-const existing = computed(() => props.operators.find((row) => row.user_id === props.candidate?.id));
+const existing = computed(() => rows.value.find((row) => row.user_id === props.candidate?.id));
 // Arriving from an account page: open the grant for that identity when it can receive one.
 onMounted(() => {
     if (props.candidate?.verified && (!existing.value || existing.value.revoked_at))
@@ -110,35 +111,38 @@ const columns = [
         <section class="rec-card" aria-labelledby="operators-heading">
             <header class="rec-card-head">
                 <h2 id="operators-heading">Operators</h2>
-                <span class="rec-count">{{ operators.length.toLocaleString('en-GB') }}</span>
+                <span class="rec-count">{{ operators.total.toLocaleString('en-GB') }}</span>
                 <p class="rec-note">To grant access to someone new, open their account under Accounts</p>
             </header>
             <div class="rec-chips">
-                <FilterChips label="Show operators" compact :chips="chips" :current="view" @select="view = $event" />
+                <FilterChips
+                    label="Show operators"
+                    compact
+                    :chips="chips"
+                    :current="filters.view"
+                    :href-for="(view) => href(1, { view })"
+                />
             </div>
-            <div class="adm-toolbar" role="search" aria-label="Filter operators">
-                <div class="adm-search">
-                    <label for="operator-search" class="wd-sr-only">Operator name or email</label>
-                    <Search :size="16" aria-hidden="true" />
-                    <input
-                        id="operator-search"
-                        v-model="search"
-                        type="search"
-                        maxlength="120"
-                        placeholder="Search name or email"
-                        autocomplete="off"
-                    />
-                </div>
-            </div>
-            <EmptyState v-if="!operators.length" title="No platform grants exist" />
+            <ListToolbar
+                id="operator"
+                v-model:q="draft.q"
+                label="Filter operators"
+                search-label="Operator name or email"
+                placeholder="Search name or email"
+                :pending="pending"
+                @submit="submit"
+            />
+            <AppliedFilters :applied="applied" :pending="pending" @clear="clear" />
+            <EmptyState v-if="!operators.facets.all && !applied.length" title="No platform grants exist" />
             <EmptyState
-                v-else-if="!matching.length"
+                v-else-if="!rows.length"
                 title="No operators match"
                 description="Change the search or choose another view."
             />
             <DataTable
                 v-else
                 class="rec-table"
+                :class="{ 'is-pending': pending }"
                 caption="Operators"
                 :columns="columns"
                 :rows="rows"
@@ -153,6 +157,8 @@ const columns = [
                         >You cannot change your own grant{{
                             row.last_owner ? '. You are the last usable platform owner' : ''
                         }}.</span
+                    ><span v-else-if="row.user_id === pinnedId" class="adm-row-note"
+                        >Pinned to the top of this list</span
                     ></template
                 >
                 <template #cell-status="{ row }"
@@ -172,24 +178,22 @@ const columns = [
                     ><RowActionMenu v-if="!row.self" :label="`Actions for ${row.name}`" :actions="actions(row)"
                 /></template>
             </DataTable>
-            <div v-if="matching.length" class="rec-card-foot adm-more">
-                <p role="status">
-                    Showing {{ rows.length.toLocaleString('en-GB') }} of
-                    {{ matching.length.toLocaleString('en-GB') }} operators
-                </p>
-                <button v-if="rows.length < matching.length" type="button" class="wd-table-button" @click="shown += 50">
-                    Show {{ Math.min(50, matching.length - rows.length) }} more
-                </button>
+            <div v-if="rows.length || page > 1" class="rec-card-foot">
+                <Pagination
+                    label="Operator pages"
+                    :page="page"
+                    :per-page="25"
+                    :count="rows.length"
+                    :total="operators.total"
+                    noun="operators"
+                    numbered
+                    :href-for="href"
+                />
             </div>
             <p class="rec-fine adm-panel-body">
                 The first platform owner, and recovery of a lost authenticator, are handled by the offline procedure.
             </p>
         </section>
-        <OperatorAccessDialog
-            ref="dialog"
-            :capabilities="capabilities"
-            :operators="operators"
-            @saved="pinned = $event"
-        />
+        <OperatorAccessDialog ref="dialog" :capabilities="capabilities" :operators="rows" />
     </AdminShell>
 </template>

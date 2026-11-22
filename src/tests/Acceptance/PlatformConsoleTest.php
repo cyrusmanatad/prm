@@ -19,6 +19,30 @@ class PlatformConsoleTest extends AcceptanceCase
 
     private const READS = ['/admin/accounts', '/admin/workspaces', '/admin/plans', '/admin/assignments', '/admin/notifications', '/admin/operations', '/admin/audit', '/admin/operators'];
 
+    public function test_platform_access_is_searched_counted_and_paged_on_the_server_with_a_pinned_operator(): void
+    {
+        $owner = $this->operator('{platform.owner}');
+        // Names share a unique prefix, so other grants in the shared database stay out of the search.
+        $prefix = 'Paged Operator '.Str::random(8);
+        $people = collect(range(1, 27))->map(fn (int $n) => User::factory()->create(['name' => sprintf('%s %02d', $prefix, $n)]));
+        $people->each(fn (User $user, int $index) => $this->control->table('platform_grants')->insert(['user_id' => $user->id, 'permissions' => '{directory.read}',
+            'revoked_at' => $index < 2 ? now() : null]));
+        $q = '&q='.urlencode($prefix);
+        $this->verified($owner);
+        $first = $this->getJson('/admin/operators?page=1'.$q)->assertOk()->assertJsonPath('operators.total', 27)->assertJsonCount(25, 'operators.rows')
+            ->assertJsonPath('operators.facets', ['all' => 27, 'active' => 25, 'revoked' => 2, 'unenrolled' => 25]);
+        // Active grants by name, revoked last.
+        $this->assertSame($prefix.' 03', $first->json('operators.rows.0.name'));
+        $this->getJson('/admin/operators?page=2'.$q)->assertOk()->assertJsonCount(2, 'operators.rows')->assertJsonPath('operators.rows.1.name', $prefix.' 02');
+        // The view narrows rows but not the counts.
+        $this->getJson('/admin/operators?view=revoked'.$q)->assertOk()->assertJsonPath('operators.total', 2)->assertJsonPath('operators.facets.all', 27);
+        // A pinned operator (just changed, or reached from an account page) leads the list.
+        $pinned = $people[20]->id;
+        $this->getJson('/admin/operators?pin='.$pinned.$q)->assertOk()->assertJsonPath('operators.rows.0.user_id', $pinned)->assertJsonPath('pinned', (string) $pinned);
+        $this->getJson('/admin/operators?account='.$pinned.$q)->assertOk()->assertJsonPath('operators.rows.0.user_id', $pinned);
+        $this->getJson('/admin/operators?view=owners')->assertUnprocessable();
+    }
+
     private function operator(string $permissions): User
     {
         $user = User::factory()->create(['password' => Hash::make(self::PASSWORD)]);
@@ -200,7 +224,7 @@ class PlatformConsoleTest extends AcceptanceCase
         $this->assertSame(1, $grant->version);
         $this->assertSame(0, $this->control->table('sessions')->where('user_id', $target->id)->count());
         $this->assertSame(1, $this->control->table('platform_audit')->where(['actor_id' => $owner->id, 'event' => 'grant.assigned', 'target' => (string) $target->id, 'reason' => 'Synthetic reviewer'])->count());
-        $this->getJson('/admin/operators')->assertOk()->assertJsonPath('operators.0.self', fn ($value) => is_bool($value))->assertJsonMissingPath('operators.0.admin_totp_secret');
+        $this->getJson('/admin/operators')->assertOk()->assertJsonPath('operators.rows.0.self', true)->assertJsonMissingPath('operators.rows.0.admin_totp_secret');
 
         // The new operator has no authenticator yet, so the grant is unusable until they enroll.
         $this->verified($target)->getJson('/admin/accounts')->assertForbidden();
@@ -304,15 +328,17 @@ class PlatformConsoleTest extends AcceptanceCase
             ->assertJsonPath('facets', ['all' => 0, 'sent' => 0, 'pending' => 0, 'sending' => 0, 'captured' => 0, 'cancelled' => 0, 'uncertain' => 0]);
         // Audit outcome counts follow the search but not the outcome filter.
         $target = (string) $owner->id;
+        // Searched by a unique operator name: a numeric ID also matches emails that contain the same digits.
+        $actor = 'synthetic-facets-'.Str::random(10);
         $this->control->table('platform_audit')->insert([
-            ['operator' => 'synthetic', 'event' => 'account.suspended', 'target' => $target, 'reason' => 'Synthetic', 'occurred_at' => now()],
-            ['operator' => 'synthetic', 'event' => 'request.denied', 'target' => $target, 'reason' => 'Synthetic', 'occurred_at' => now()],
+            ['operator' => $actor, 'event' => 'account.suspended', 'target' => $target, 'reason' => 'Synthetic', 'occurred_at' => now()],
+            ['operator' => $actor, 'event' => 'request.denied', 'target' => $target, 'reason' => 'Synthetic', 'occurred_at' => now()],
         ]);
-        $this->getJson('/admin/audit?outcome=denied&q='.$target)->assertOk()->assertJsonPath('events.total', 1)
+        $this->getJson('/admin/audit?outcome=denied&q='.$actor)->assertOk()->assertJsonPath('events.total', 1)
             ->assertJsonPath('events.facets', ['all' => 2, 'denied' => 1, 'recorded' => 1]);
-        $named = collect($this->getJson('/admin/audit?outcome=recorded&q='.$target)->assertOk()->json('events.rows'))->firstWhere('event', 'account.suspended');
+        $named = collect($this->getJson('/admin/audit?outcome=recorded&q='.$actor)->assertOk()->json('events.rows'))->firstWhere('event', 'account.suspended');
         $this->assertSame(['account', 'Facet Owner Synthetic'], [$named['target_kind'], $named['target_name']]);
-        $hidden = collect($this->verified($this->operator('{audit.read}'))->getJson('/admin/audit?outcome=recorded&q='.$target)->assertOk()->json('events.rows'))->firstWhere('event', 'account.suspended');
+        $hidden = collect($this->verified($this->operator('{audit.read}'))->getJson('/admin/audit?outcome=recorded&q='.$actor)->assertOk()->json('events.rows'))->firstWhere('event', 'account.suspended');
         $this->assertSame(['account', null], [$hidden['target_kind'], $hidden['target_name']]);
     }
 

@@ -21,6 +21,7 @@ import WorkspaceSupport from '../../resources/js/pages/WorkspaceSupport.vue';
 import AccessChange from '../../resources/js/features/admin/AccessChange.vue';
 import UsageTable from '../../resources/js/features/admin/UsageTable.vue';
 import OperatorAccessDialog from '../../resources/js/features/admin/OperatorAccessDialog.vue';
+import SelectField from '../../resources/js/components/SelectField.vue';
 import { confirmation, type Confirmation } from '../../resources/js/composables/useConfirmation';
 
 // Read through a function so TypeScript does not narrow the shared ref after a test clears it.
@@ -578,7 +579,7 @@ it('filters support access by state chips and keeps the request form for a chose
     expect(row.get('a').attributes('href')).toBe('/admin/support-access/g-1');
 });
 
-it('shows 50 operators at a time and keeps your own row and the one just changed at the top', async () => {
+it('pages operators on the server with view counts, and marks the pinned operator', () => {
     const operator = (id: number, extra: Record<string, unknown> = {}) => ({
         user_id: id,
         name: `Operator ${String(id).padStart(3, '0')}`,
@@ -593,23 +594,34 @@ it('shows 50 operators at a time and keeps your own row and the one just changed
         suspended: false,
         ...extra,
     });
-    const operators = [
-        ...Array.from({ length: 70 }, (_, index) => operator(index + 1)),
+    // The server sends one page: your own grant, then the pinned operator, then the rest.
+    const rows = [
         operator(99, { name: 'Zed Owner', self: true, permissions: ['platform.owner'] }),
+        operator(70),
+        ...Array.from({ length: 23 }, (_, index) => operator(index + 1)),
     ];
-    const wrapper = render(PlatformOperators, { operators, capabilities: ['directory.read'], candidate: null });
-    const rows = () => wrapper.findAll('tbody tr');
-    expect(rows()).toHaveLength(50);
-    expect(rows()[0]!.text()).toContain('Zed Owner');
-    expect(wrapper.text()).toContain('Showing 50 of 71 operators');
-    await wrapper
-        .findAll('button')
-        .find((button) => button.text() === 'Show 21 more')!
-        .trigger('click');
-    expect(rows()).toHaveLength(71);
-    wrapper.findComponent(OperatorAccessDialog).vm.$emit('saved', 70);
-    await nextTick();
-    expect(rows()[1]!.text()).toContain('Operator 070');
+    const wrapper = render(PlatformOperators, {
+        operators: { total: 71, rows, facets: { all: 71, active: 69, unenrolled: 3, revoked: 2 } },
+        filters: { q: '', view: 'active' },
+        page: 1,
+        pinned: '70',
+        capabilities: ['directory.read'],
+        candidate: null,
+    });
+    const listed = wrapper.findAll('tbody tr');
+    expect(listed).toHaveLength(25);
+    expect(listed[0]!.text()).toContain('Zed Owner');
+    expect(listed[1]!.text()).toContain('Pinned to the top of this list');
+    const chips = wrapper.get('[aria-label="Show operators"]');
+    expect(chips.findAll('a').map((chip) => chip.text())).toEqual([
+        'All 71',
+        'Active 69',
+        'No authenticator 3',
+        'Revoked 2',
+    ]);
+    expect(chips.get('[aria-current="true"]').text()).toBe('Active 69');
+    expect(chips.findAll('a')[3]!.attributes('href')).toContain('view=revoked');
+    expect(wrapper.get('[aria-label="Operator pages"]').text()).toContain('71');
 });
 
 it('summarises privacy requests and handles one in a drawer without erasing anything', async () => {
@@ -655,6 +667,18 @@ it('summarises privacy requests and handles one in a drawer without erasing anyt
     expect(drawer.text()).toContain('Handle this request');
     await drawer.get(`#privacy_reason_${request.id}`).setValue('Assign verified synthetic case');
     await drawer.get('form').trigger('submit');
+    expect(post).toHaveBeenCalledWith(`/admin/privacy-requests/${request.id}`, expect.anything());
+    expect(pending()).toBeNull();
+
+    // Cancelling a verified request on the requester's behalf is confirmed first and sends nothing until then.
+    post.mockClear();
+    wrapper.findComponent(SelectField).vm.$emit('update:modelValue', 'cancel');
+    await nextTick();
+    await drawer.get('form').trigger('submit');
+    expect(post).not.toHaveBeenCalled();
+    expect(pending()).toMatchObject({ title: 'Cancel verified closure request', tone: 'danger' });
+    expect(pending()!.description).toContain('the workspace Harbor Studio');
+    pending()!.action();
     expect(post).toHaveBeenCalledWith(`/admin/privacy-requests/${request.id}`, expect.anything());
 });
 
@@ -929,7 +953,13 @@ it('protects the acting owner, and reviews reductions and revocations as destruc
         this.open = false;
         this.dispatchEvent(new Event('close'));
     };
-    const wrapper = render(PlatformOperators, { operators, capabilities, candidate: null });
+    const wrapper = render(PlatformOperators, {
+        operators: { total: 2, rows: operators, facets: { all: 2, active: 2, unenrolled: 1, revoked: 0 } },
+        filters: { q: '', view: '' },
+        page: 1,
+        capabilities,
+        candidate: null,
+    });
     const rows = wrapper.findAll('tbody tr');
     expect(rows[0]!.text()).toContain('You cannot change your own grant. You are the last usable platform owner.');
     expect(rows[0]!.findAll('button')).toHaveLength(0);
@@ -937,17 +967,7 @@ it('protects the acting owner, and reviews reductions and revocations as destruc
     expect(rows[1]!.text()).toContain('Not enrolled');
     expect(rows[1]!.get('button').attributes('aria-label')).toBe('Actions for Ari Cruz');
     expect(wrapper.find('#operator-reason').exists()).toBe(false);
-    // Views and search filter the whole list in the browser.
-    const chips = wrapper.get('[aria-label="Show operators"]');
-    expect(chips.text()).toContain('No authenticator');
-    await chips
-        .findAll('button')
-        .find((button) => button.text().startsWith('No authenticator'))!
-        .trigger('click');
-    expect(wrapper.findAll('tbody tr')).toHaveLength(1);
-    await wrapper.get('#operator-search').setValue('nobody');
-    expect(wrapper.text()).toContain('No operators match');
-    await wrapper.get('#operator-search').setValue('');
+    expect(wrapper.get('[aria-label="Show operators"]').text()).toContain('No authenticator 1');
     // The row menu opens the dialog; it is driven directly here.
     const dialog = wrapper.findComponent(OperatorAccessDialog);
     dialog.vm.open('change', { id: 2, name: 'Ari Cruz', email: 'ari@example.test' }, operators[1] as never);
@@ -976,7 +996,9 @@ it('protects the acting owner, and reviews reductions and revocations as destruc
 
 it('refuses to start a grant for an unverified identity', () => {
     const wrapper = render(PlatformOperators, {
-        operators: [],
+        operators: { total: 0, rows: [], facets: { all: 0, active: 0, unenrolled: 0, revoked: 0 } },
+        filters: { q: '', view: '' },
+        page: 1,
         capabilities: ['directory.read'],
         candidate: { id: 9, name: 'Taylor Reed', email: 'taylor@example.test', verified: false },
     });

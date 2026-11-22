@@ -1,3 +1,5 @@
+**Administration follow-ups (2026-11-27):** [Workspaces test fix, Cancel-first confirmation for cancelling a verified closure, paged Platform access, commands and unverified gates](administration/admin-followups-evidence.md). Local stack only; not deployed.
+
 **Compact administration Brand and Privacy requests (2026-11-25):** [status chips, privacy summary and drawer, backend counts, commands, rendering findings and unverified gates](administration/compact-review-queues-evidence.md). Local stack only; not deployed.
 
 **Compact administration Platform access (2026-11-24):** [operators card, row menu, access dialog, commands, rendering findings and unverified gates](administration/compact-platform-access-evidence.md). Local stack only; not deployed.
