@@ -51,7 +51,7 @@
 | Folder | Starting points |
 | --- | --- |
 | `m0/` | [Delivery backlog](m0/backlog.md) |
-| `m1/` | [Status](m1/status.md), [manual acceptance](m1/manual-acceptance.md), [evidence](m1/evidence.md), [owner MFA contract](m1/owner-mfa-contract.md), [owner MFA evidence](m1/owner-mfa-evidence.md), [owner MFA handoff](m1/owner-mfa-handoff.md) |
+| `m1/` | [Status](m1/status.md), [manual acceptance](m1/manual-acceptance.md), [evidence](m1/evidence.md), [owner MFA contract](m1/owner-mfa-contract.md), [owner MFA evidence](m1/owner-mfa-evidence.md), [owner MFA handoff](m1/owner-mfa-handoff.md), [authenticator reset procedure (Proposal)](m1/owner-mfa-reset-procedure.md) |
 | `m2/` | [Status](m2/status.md), [pipeline](m2/pipeline-contract.md), [contacts/reminders](m2/crm-contract.md), [templates](m2/outreach-template-contract.md), [evidence](m2/evidence.md) |
 | `m3/` | [Status](m3/status.md), [onboarding/public presence](m3/onboarding-contract.md), [evidence](m3/evidence.md), [privacy contract](m3/privacy-contract.md), [PRIV-05 orphan report](m3/orphan-report-evidence.md) |
 | `m3a/` | [Status](m3a/status.md), [portal contract](m3a/portal-contract.md), [handoff](m3a/implementation-handoff.md), [UI alignment](m3a/ui-alignment.md), [evidence](m3a/evidence.md) |

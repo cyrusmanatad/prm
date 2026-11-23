@@ -20,14 +20,24 @@ function totp(secret: string, counter: number): string {
     const hash = createHmac('sha1', key).update(moving).digest();
     return ((hash.readUInt32BE(hash[19]! & 15) & 0x7fffffff) % 1000000).toString().padStart(6, '0');
 }
-/** Codes are single use: each call returns a newer step the server will still accept. */
+/**
+ * Codes for one authenticator. The server accepts step k while the clock is within one step of k, and only steps newer
+ * than the last one it accepted. Take the oldest unused step that stays valid for `margin` milliseconds, waiting only
+ * when every such step is spent. A code for the oldest accepted step can expire before the server checks it, which
+ * made this journey fail intermittently.
+ */
 function codes(page: Page, secret: () => string) {
-    let used = 0;
-    return async (offset = 0) => {
-        const wanted = Math.max(Math.floor(Date.now() / 30000) + offset, used + 1);
-        while (wanted > Math.floor(Date.now() / 30000) + 1) await page.waitForTimeout(1000);
-        used = wanted;
-        return totp(secret(), used);
+    let used = -1;
+    return async (margin = 8000) => {
+        for (;;) {
+            const now = Date.now();
+            const wanted = Math.max(used + 1, Math.ceil((now + margin) / 30000) - 2);
+            if (wanted <= Math.floor(now / 30000) + 1) {
+                used = wanted;
+                return totp(secret(), wanted);
+            }
+            await page.waitForTimeout((wanted - 1) * 30000 - now + 500);
+        }
     };
 }
 function seedOperator(email: string): { secret: string } {
@@ -85,6 +95,8 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
 
     // Sign-in stops at the authenticator page; nothing else opens until setup is complete.
     await signIn(page, email);
+    // CI's enforced run sets REQUIRE_OWNER_MFA=1, so a stack without enforcement fails there instead of skipping.
+    if (process.env.REQUIRE_OWNER_MFA === '1') await expect(page).toHaveURL(/\/account\/authenticator$/);
     test.skip(!/\/account\/authenticator$/.test(page.url()), 'This application does not enforce workspace-owner MFA.');
     await expect(page.getByRole('heading', { name: 'Set up an authenticator.', level: 1 })).toBeVisible();
     await clean(page);
@@ -113,7 +125,7 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
     await page.getByLabel('Authenticator code', { exact: true }).fill('000000');
     await page.getByRole('button', { name: 'Confirm authenticator', exact: true }).click();
     await expect(page.getByText('Enter a fresh authenticator code.')).toBeVisible();
-    await page.getByLabel('Authenticator code', { exact: true }).fill(await code(-1));
+    await page.getByLabel('Authenticator code', { exact: true }).fill(await code());
     await page.getByRole('button', { name: 'Confirm authenticator', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Save your recovery codes.', level: 1 })).toBeVisible();
     const recovery = await page.getByRole('list', { name: 'Recovery codes' }).locator('code').allTextContents();
@@ -160,7 +172,7 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
     // New recovery codes and a replacement authenticator each need confirmation.
     await page.getByRole('button', { name: 'New recovery codes', exact: true }).click();
     await page.getByLabel('Password', { exact: true }).fill(password);
-    await page.getByLabel('Authenticator code', { exact: true }).fill(await code(1));
+    await page.getByLabel('Authenticator code', { exact: true }).fill(await code());
     await confirmMutation(
         page,
         page.getByRole('button', { name: 'Create new codes', exact: true }),
@@ -185,7 +197,7 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
     expect(replacement).not.toBe(secret);
     secret = replacement;
     const replaced = codes(page, () => secret);
-    await page.getByLabel('Authenticator code', { exact: true }).fill(await replaced(-1));
+    await page.getByLabel('Authenticator code', { exact: true }).fill(await replaced());
     await page.getByRole('button', { name: 'Confirm authenticator', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Save your recovery codes.', level: 1 })).toBeVisible();
     await signOut(page);
@@ -198,7 +210,7 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
     await signIn(page, operatorEmail);
     await expect(page.getByRole('heading', { name: 'Enter your authenticator code.', level: 1 })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Use a recovery code instead' })).toHaveCount(0);
-    await page.getByLabel('Authenticator code', { exact: true }).fill(await proof(-1));
+    await page.getByLabel('Authenticator code', { exact: true }).fill(await proof());
     await page.getByRole('button', { name: 'Verify and continue', exact: true }).click();
     await expect(page).toHaveURL(/\/workspaces$/);
     await page.goto(`/admin/accounts?q=${encodeURIComponent(email)}`);
@@ -215,7 +227,7 @@ test('a workspace owner sets up, uses and recovers an authenticator, and an oper
     await capture(page, info, 'admin-reset');
     await page.getByLabel('Reason', { exact: true }).fill('Identity confirmed through the verified email address');
     await page.getByLabel('Your password', { exact: true }).fill(password);
-    await page.getByLabel('Your authenticator code', { exact: true }).fill(await proof(1));
+    await page.getByLabel('Your authenticator code', { exact: true }).fill(await proof(20000));
     await confirmMutation(
         page,
         page.getByRole('button', { name: 'Review reset', exact: true }),

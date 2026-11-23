@@ -132,6 +132,15 @@ def main():
             if args.browser_project:
                 browser_command += ['--', '--project=' + args.browser_project]
             phase('browser', browser_command, cwd=source / 'src', env=browser_env, timeout=900 if args.browser_project else 3600)
+            # The suite above runs with workspace-owner MFA off (.env.example). Restart the application with it enforced and run
+            # the MFA journey, which must not skip here. Shell variables take precedence over --env-file for Compose.
+            enforced = {**clean_environment, 'OWNER_MFA_ENFORCED': 'true'}
+            phase('mfa-app', compose+['up', '-d', '--wait', '--force-recreate', 'app'], env=enforced)
+            mfa_command = ['npx', 'playwright', 'test', 'tests/Browser/owner-mfa.spec.ts']
+            if args.browser_project:
+                mfa_command += ['--project=' + args.browser_project]
+            phase('mfa-browser', mfa_command, cwd=source / 'src',
+                  env={**browser_env, 'REQUIRE_OWNER_MFA': '1', 'PLAYWRIGHT_OUTPUT_DIR': str(logs / 'mfa-browser-results')}, timeout=900)
         finally:
             browser_results = source / 'src/test-results'
             if browser_results.exists():

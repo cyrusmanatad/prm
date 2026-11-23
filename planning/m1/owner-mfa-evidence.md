@@ -46,3 +46,15 @@ Viewports 1440×1000 and 390×1000. Axe scans report no violations and no page h
 - Staging: **Confirmed (D36)** off for now; `compose.staging.yaml` defaults `OWNER_MFA_ENFORCED` to `false`. Staging therefore does not exercise owner MFA until it is switched on.
 - The written identity-check procedure for operator resets belongs with M6-06. **Assumption / Open.**
 - Screen-reader and native Safari review were not done.
+
+## Enforced browser run and CI (2026-11-23)
+
+Branch `feat/owner-mfa-enforced-ci` from `main` at `2c4b9a6`.
+
+- **CI:** `src/scripts/check-clean-setup.py` (each clean-setup job: Chromium and Linux WebKit, desktop and mobile) now runs the normal browser suite with enforcement off as before, then restarts the application with `OWNER_MFA_ENFORCED=true` (phase `mfa-app`) and runs `owner-mfa.spec.ts` in the same browser project (phase `mfa-browser`, results kept as `mfa-browser-results`). There, `REQUIRE_OWNER_MFA=1` makes a stack without enforcement fail instead of skipping.
+- **Defect found by the first enforced run:** both projects failed with "Enter a fresh authenticator code." The test's code helper picked the oldest step the server accepts (`-1`); when a 30-second boundary passed before the server checked it, the code was two steps old. The application was correct (host and container clocks agreed; the server accepts the previous, current and next step). The helper now takes the oldest unused step that stays valid for a margin (8 seconds, or 20 before the reset dialog's confirmation steps), as `administration.spec.ts` already does.
+- **Local result:** `owner-mfa.spec.ts` with enforcement on and `REQUIRE_OWNER_MFA=1`, desktop and mobile Chromium, `--repeat-each=2`: 4 passed. This covers setup, challenge, recovery code, replacement and the operator reset through the compact Security tab's "Review reset" dialog and Cancel-first confirmation (from cyrusmanatad/prm#86), which had not run in a browser before.
+- **Local clean-setup (`check-clean-setup.py --browser-project desktop`):** the full run passed every phase up to the existing browser suite, which then reached its 900-second limit on this host at test 66 of 70 with no failures (CI runs that phase in about 9 minutes). A temporary copy with that phase cut to `foundation.spec.ts` (deleted afterwards) passed every phase, including `mfa-app` and `mfa-browser`, where the owner-MFA journey passed (1 test, not skipped) on a fresh stack.
+- **Reset procedure:** drafted as a Proposal in [owner-mfa-reset-procedure.md](owner-mfa-reset-procedure.md); its choices need the user's decision. A reset does not notify the account holder; the proposal adds a manual notice and recommends an automatic one.
+
+Still open: staging enforcement and how the shared reviewer accounts get authenticators (D36); the procedure decisions; screen-reader and native Safari review.
