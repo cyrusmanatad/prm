@@ -1,7 +1,14 @@
 name: Backend foundation
+# Pull requests run once per commit; pushes run only on main, whose merges the release evidence relies on.
+# Pushing again to a pull request cancels its superseded run; runs on main are never cancelled.
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
 jobs:
