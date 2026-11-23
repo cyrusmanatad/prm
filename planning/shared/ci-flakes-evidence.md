@@ -26,3 +26,16 @@ Each failed run's job list was read, and for the clean-setup browser jobs, the u
 
 - WebKit locally: the host lacks WebKit's system libraries. The PR's clean-setup jobs run WebKit desktop and mobile, and one green run does not prove an intermittent failure gone; repeated runs on `main` will show it.
 - The Composer retry path itself (a real 5xx) was not reproduced; the loop was exercised only on a successful first attempt.
+
+## Duplicate runs (2026-11-23)
+
+Both workflows ran on every `push` and every `pull_request`, so each commit on a pull-request branch ran twice (for example `7b36dce`: Backend foundation #307 for the push and #308 for the pull request), and each pair of backend runs held ten roughly 20-minute jobs at once. That queued later `main` runs behind them.
+
+Both workflows now:
+
+- run on `push` only for `main`, so every merge still gets a full run for the release evidence;
+- run once per pull-request commit (`pull_request`, which tests the merge with `main`);
+- can be started by hand on any branch (`workflow_dispatch`);
+- cancel a pull request's superseded run when a newer commit arrives (`concurrency`, cancelling only for `pull_request`; `main` runs are never cancelled).
+
+The formatting step already takes its base from the pull request's base or the previous `main` commit, and a manual run falls back to the merge base with `main`. Verified by parsing both files; the first pull request after this change shows one run per workflow.
