@@ -533,6 +533,8 @@ test('cleanup: explicit marks, an exact audited dry run with reasons, and no way
 }, info) => {
     const { email, workspace } = await administrator(page, info);
     await page.goto('/admin/cleanup');
+    // Storage reconciliation (PRIV-05) reports here, read-only.
+    await expect(page.getByRole('heading', { name: 'Storage reconciliation', level: 2 })).toBeVisible();
     await page.getByRole('button', { name: 'New fixture batch', exact: true }).click();
     await expect(page.getByLabel('Batch name', { exact: true })).toBeFocused();
     await page.getByLabel('Batch name', { exact: true }).fill(`Journey batch ${email}`);

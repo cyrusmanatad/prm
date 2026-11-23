@@ -13,6 +13,13 @@ DO $$ BEGIN
  END IF;
 END $$;
 
+-- PRIV-05 upload reconciliation is reachable only through its functions.
+DO $$ BEGIN
+ IF to_regclass('public.upload_reconciliation_runs') IS NOT NULL THEN
+  REVOKE ALL ON public.upload_reconciliation_runs,public.upload_reconciliation_findings FROM weavdash_app;
+ END IF;
+END $$;
+
 DO $$ BEGIN
  IF to_regclass('public.privacy_export_events') IS NOT NULL THEN
   REVOKE UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER ON public.privacy_export_events FROM weavdash_app;

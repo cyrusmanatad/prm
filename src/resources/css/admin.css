@@ -578,6 +578,7 @@
 .wd-admin .rec-table td > a {
     display: inline-flex;
     align-items: center;
+    min-width: var(--wd-table-control);
     min-height: var(--wd-table-control);
 }
 .wd-admin .adm-drawer-heading + .rec-fine {
@@ -691,4 +692,112 @@
 .wd-admin .adm-impact {
     margin: 0;
     padding-left: 18px;
+}
+/* Storage reconciliation (PRIV-05): run facts, count tiles that filter the findings, and the rule hint. */
+.wd-admin .adm-recon-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+    margin: -4px 0 0;
+    padding: 0 14px 12px;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.wd-admin .adm-recon-meta strong {
+    color: var(--wd-ink);
+    font-weight: 600;
+}
+.wd-admin .adm-recon-meta [aria-hidden='true'] {
+    color: var(--wd-line);
+}
+.wd-admin .adm-recon-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0 14px 12px;
+    list-style: none;
+}
+.wd-admin .adm-recon-tiles a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--wd-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: inherit;
+    text-decoration: none;
+}
+.wd-admin .adm-recon-tiles a:hover {
+    border-color: var(--wd-control-line);
+}
+.wd-admin .adm-recon-tiles a:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.wd-admin .adm-recon-tiles a[aria-current='true'] {
+    border-color: var(--wd-brand);
+    box-shadow: inset 0 0 0 1px var(--wd-brand);
+    background: var(--wd-paper);
+}
+.wd-admin .adm-recon-tiles span {
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+.wd-admin .adm-recon-tiles strong {
+    color: var(--wd-ink);
+    font-family: var(--wd-font-display);
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+}
+.wd-admin .adm-recon-tiles small {
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.wd-admin .adm-recon-tiles .is-danger strong {
+    color: var(--wd-danger);
+}
+.wd-admin .adm-recon-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 0 14px 4px;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.wd-admin .adm-recon-filter .wd-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--wd-table-control);
+    font-weight: 700;
+}
+.wd-admin .adm-recon-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 14px 12px;
+    border-top: 1px solid var(--wd-divider);
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.wd-admin .adm-recon-hint svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--wd-brand);
+}
+@media (max-width: 599px) {
+    .wd-admin .adm-recon-tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .wd-admin .adm-recon-tiles strong {
+        font-size: 18px;
+    }
 }

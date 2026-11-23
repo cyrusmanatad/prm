@@ -1245,6 +1245,114 @@ it('lists cleanup batches by their latest dry run, opens the blocked view from t
     expect(post).toHaveBeenCalledWith('/admin/cleanup', expect.objectContaining({ preserveState: true }));
 });
 
+it('reports storage reconciliation with a verdict, filter tiles and statuses only where eligibility applies', () => {
+    const finding = (kind: string, extra: Record<string, unknown> = {}) => ({
+        kind,
+        org_id: 'w-1',
+        workspace: 'Cedar Studio',
+        document_id: '8c1f2a7e-0000-4000-8000-000000000001',
+        size: 2048,
+        first_seen_at: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+        last_seen_at: new Date().toISOString(),
+        observations: 3,
+        eligible: false,
+        ...extra,
+    });
+    const run = {
+        id: 'run-1',
+        started_at: '2026-11-22T03:15:00+00:00',
+        status: 'completed',
+        listed: 12,
+        referenced: 10,
+        skipped_recent: 1,
+        failure: null,
+    };
+    const wrapper = render(PlatformCleanup, {
+        batches: [],
+        reconciliation: {
+            last_run: run,
+            last_completed: run.started_at,
+            total: 19,
+            counts: { all: 30, orphaned: 10, missing: 19, held: 1, unrecognised: 0, eligible: 1 },
+            findings: [
+                finding('orphaned', { eligible: true }),
+                finding('orphaned'),
+                finding('missing', { size: null }),
+                finding('held', { org_id: null, workspace: null, document_id: null }),
+            ],
+        },
+        findingFilter: 'missing',
+        findingPage: 1,
+    });
+    const card = wrapper.get('section[aria-labelledby]:has(caption)');
+    expect(card.get('.rec-card-head').text()).toContain('Needs review');
+    expect(card.get('.adm-recon-meta').text()).toContain('Report only');
+    expect(card.get('.adm-recon-meta').text()).toContain('12 files compared');
+    // Counts are the filters; unrecognised files appear only when there are some.
+    const tiles = card.findAll('.adm-recon-tiles a');
+    expect(tiles.map((tile) => tile.find('span').text())).toEqual([
+        'Files without a record',
+        'Records without a file',
+        'Held for review',
+        'Eligible for deletion',
+    ]);
+    expect(tiles[1]!.attributes('aria-current')).toBe('true');
+    expect(tiles[1]!.attributes('href')).toBe('/admin/cleanup');
+    expect(tiles[3]!.attributes('href')).toBe('/admin/cleanup?finding=eligible');
+    expect(card.get('.adm-recon-filter').text()).toContain('Showing 19 records without a file');
+    expect(card.get('.adm-recon-filter a').text()).toBe('Show all 30');
+    // Only files without a record carry a status.
+    const rows = card.findAll('tbody tr').map((row) => row.text());
+    expect(rows[0]).toContain('Eligible');
+    expect(rows[1]).toContain('Waiting · 5 days left');
+    expect(rows[2]).toContain('Not stored');
+    expect(rows[2]).not.toContain('Waiting');
+    expect(rows[3]).toContain('Not attributed');
+    expect(card.text()).not.toContain('Report only ');
+    // Read-only: no buttons at all; pages are links.
+    expect(card.findAll('button')).toHaveLength(0);
+    expect(card.get('[aria-label="Finding pages"]').text()).toContain('19');
+    expect(card.get('.adm-recon-hint').text()).toContain('Nothing is deleted from here');
+});
+
+it('says when the reconciliation has not run yet, and when the last run failed', () => {
+    const empty = render(PlatformCleanup, {
+        batches: [],
+        reconciliation: {
+            last_run: null,
+            last_completed: null,
+            total: 0,
+            counts: { all: 0, orphaned: 0, missing: 0, held: 0, unrecognised: 0, eligible: 0 },
+            findings: [],
+        },
+    });
+    expect(empty.text()).toContain('No comparison has run yet');
+    const recon = (wrapper: VueWrapper) =>
+        wrapper.findAll('section').find((section) => section.find('h2').text() === 'Storage reconciliation')!;
+    expect(recon(empty).get('.rec-card-head').text()).toContain('Not run yet');
+    const failed = render(PlatformCleanup, {
+        batches: [],
+        reconciliation: {
+            last_run: {
+                id: 'r',
+                started_at: '2026-11-22T03:15:00+00:00',
+                status: 'failed',
+                listed: 0,
+                referenced: 0,
+                skipped_recent: 0,
+                failure: 'Storage could not be listed',
+            },
+            last_completed: null,
+            total: 0,
+            counts: { all: 0, orphaned: 0, missing: 0, held: 0, unrecognised: 0, eligible: 0 },
+            findings: [],
+        },
+    });
+    expect(failed.text()).toContain('The last comparison could not finish: Storage could not be listed.');
+    expect(failed.text()).toContain('Earlier findings are unchanged');
+    expect(recon(failed).get('.rec-card-head').text()).toContain('Last run failed');
+});
+
 it('marks records in a dialog and runs a dry run only once something is marked', async () => {
     dialogs();
     const batch = {

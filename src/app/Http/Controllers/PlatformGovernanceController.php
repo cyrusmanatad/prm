@@ -139,7 +139,12 @@ class PlatformGovernanceController extends PlatformConsoleController
 
     public function cleanup(Request $request, PlatformAdministration $admin): mixed
     {
-        return $this->read($request, $admin, 'cleanup.review', 'PlatformCleanup', fn () => ['batches' => $this->json('SELECT app_cleanup_batches() AS data')]);
+        $data = $request->validate(['finding' => ['nullable', Rule::in(['orphaned', 'missing', 'held', 'unrecognised', 'eligible'])],
+            'finding_page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
+
+        return $this->read($request, $admin, 'cleanup.review', 'PlatformCleanup', fn () => ['batches' => $this->json('SELECT app_cleanup_batches() AS data'),
+            'reconciliation' => $this->json('SELECT app_upload_reconciliation(?,?) AS data', [$data['finding'] ?? null, $data['finding_page'] ?? 1]),
+            'findingFilter' => $data['finding'] ?? '', 'findingPage' => (int) ($data['finding_page'] ?? 1)]);
     }
 
     public function createBatch(Request $request, PlatformAdministration $admin): mixed
