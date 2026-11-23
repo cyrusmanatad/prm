@@ -6,7 +6,7 @@
 | --- | --- |
 | Candidate | `main` at `9a65301b8a9b0db9be4741e487641044172e8330` (merge of cyrusmanatad/prm#90, 2026-11-23 01:48:56 UTC) |
 | Contents since the last staging deployment (`c7e1f77`) | cyrusmanatad/prm#89 (CI flake fixes: test waits and Composer download retry) and cyrusmanatad/prm#90 (PRIV-05 report-only upload reconciliation: migration `2026_11_28_000001_add_upload_reconciliation`, a daily scheduled command and an admin card) |
-| Staging | Runs `c7e1f77`; this candidate is **not deployed**. Deploying it applies one migration and adds a daily 03:15 UTC job. |
+| Staging | **Deployed 2026-11-23 02:17 UTC** (from `c7e1f77`; one migration, daily 03:15 UTC job). The first reconciliation run against R2 found no findings. See the [staging log](../shared/staging-deployment.md). |
 
 ## CI runs for the candidate
 
@@ -53,5 +53,4 @@ PRIV-05 was verified locally before merging ([evidence](../m3/orphan-report-evid
 - **M6-08 drills:** load and capacity (M6-02), outage, rollback and restore drills (M6-01, M6-04).
 - **Native browsers:** macOS and iOS Safari, which Linux WebKit does not replace (M1-03).
 - **Manual reviews:** screen reader, keyboard and zoom (M1-01, M1-02).
-- **Staging for this revision:** not deployed; PRIV-05's first run against real R2 is unverified.
 - **Production:** provider, storage, privacy and pricing decisions (M3-01, M3-02, M4-01, M6-06, M6-09).

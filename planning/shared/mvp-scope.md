@@ -6,7 +6,7 @@ Launch creator pipeline and brand onboarding first, with manual payment reconcil
 
 ## Approved technical baseline
 
-Laravel/PHP with Vue 3 + TypeScript + Inertia, Tailwind/shadcn-vue, PostgreSQL RLS, Redis-backed Laravel queues and scheduler, Docker Compose, and GitHub Actions. Plan one application, with frontend assets built by Vite and private files accessed through Laravel's filesystem abstraction. AWS S3 versus OVH Object Storage is unresolved. Subsequent user instruction authorizes implementation one milestone at a time; remaining business decisions are still open.
+Laravel/PHP with Vue 3 + TypeScript + Inertia, Tailwind/shadcn-vue, PostgreSQL RLS, Redis-backed Laravel queues and scheduler, Docker Compose, and GitHub Actions. Plan one application, with frontend assets built by Vite and private files accessed through Laravel's filesystem abstraction. Cloudflare R2 is confirmed for staging and production object storage ([D41](decisions.md#d41--cloudflare-r2-for-staging-and-production)); production configuration and acceptance remain open. Subsequent user instruction authorizes implementation one milestone at a time; remaining business decisions are still open.
 
 ## Proposed included features
 

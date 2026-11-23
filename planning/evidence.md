@@ -119,4 +119,5 @@ These now sit with their owning milestone/workstream topics. Their inclusion her
 | Branding | [Favicon](shared/favicon-evidence.md) |
 | Monitoring | [M6-03 first slice](m6/monitoring-evidence.md) |
 
-- [Staging deployment and verification](shared/staging-deployment.md) — registration, persistent local test uploads, email, data-preserving staging rename, resource trial and recovery.
+- [Staging deployment and verification](shared/staging-deployment.md) — registration, private uploads, email, data-preserving staging rename, resource trial and recovery.
+- [Staging domain and email verification](shared/staging-domain-and-email-evidence.md) — canonical hostname, origin TLS, legacy redirect, corrected Brevo DNS conflict and user-confirmed password-reset email receipt (2026-11-23).

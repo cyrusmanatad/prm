@@ -14,7 +14,7 @@
 | PostgreSQL | Durable system of record, relational integrity, migrations, and RLS. No vector extension until matching has a validated dataset. |
 | Redis | Laravel queue transport and rate limits; never authoritative for money, grants, or scheduled business intent. |
 | Laravel queues + scheduler | Separate queue worker and scheduler processes from the same application image; named reminder/digest jobs with persisted intent and idempotency. |
-| Laravel filesystem | Private object storage abstraction; AWS S3 or OVH Object Storage remains open pending region, cost, and compatibility review. |
+| Laravel filesystem | Private object storage abstraction; Cloudflare R2 is confirmed for staging and production under [D41](decisions.md#d41--cloudflare-r2-for-staging-and-production). Production configuration and acceptance remain open. |
 
 No framework versions are pinned during planning. Select maintained compatible releases and lock dependencies only when implementation is authorized. React, Next.js, NestJS, Supabase, Inngest, and BullMQ are not selected application dependencies; references in the source analysis describe historical mockup content.
 
@@ -25,7 +25,7 @@ flowchart LR
   U[Vue and Inertia pages / public forms] --> P[TLS reverse proxy]
   P --> A[Laravel PHP application]
   A --> D[(PostgreSQL with RLS)]
-  A --> S[Private S3 or OVH object storage]
+  A --> S[Private Cloudflare R2 object storage]
   D --> O[Laravel outbox dispatcher]
   O --> R[(Redis queue)]
   R --> W[Laravel queue worker]

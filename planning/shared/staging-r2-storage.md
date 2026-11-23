@@ -1,6 +1,6 @@
 # Staging private R2 attachments
 
-**Confirmed — 2026-11-09:** staging-only integration deployed with image tags `20261109-r2`; local development defaults to local storage. PostgreSQL retains metadata, permissions and SHA-256 checksums. R2 stores bytes using the unchanged `onboarding/<org>/<request>/<document>` keys. No database schema change is required; existing upload warnings now refer to private staging storage. See [deployment context](staging-deployment.md) and [verification](staging-r2-evidence.md). Production provider selection and release gates remain open.
+**Confirmed — 2026-11-09:** staging-only integration deployed with image tags `20261109-r2`; local development defaults to local storage. PostgreSQL retains metadata, permissions and SHA-256 checksums. R2 stores bytes using the unchanged `onboarding/<org>/<request>/<document>` keys. No database schema change is required; existing upload warnings now refer to private staging storage. See [deployment context](staging-deployment.md) and [verification](staging-r2-evidence.md). Production provider selection is now settled by [D41](decisions.md#d41--cloudflare-r2-for-staging-and-production); production configuration and release gates remain open.
 
 ## Bucket and token
 
