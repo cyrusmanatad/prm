@@ -59,5 +59,5 @@ Claude holds UI/UX responsibility (D31). Reuse `FoundationShell`, the auth card,
 ## Open
 
 - **Assumption / Open:** the written identity-check procedure itself (who confirms, through which channel) belongs with M6-06.
-- **Confirmed (D36):** staging runs with enforcement off for now. How the shared reviewer accounts are handled when it is switched on remains **Assumption / Open**.
+- **Confirmed (D36, updated 2026-11-23):** staging enforces owner MFA. The shared reviewer accounts are enrolled, with their keys held only in the private `reviewers-mfa.json` on the staging host.
 - With enforcement off outside production, only the dedicated tests prove enforcement; the existing suites do not.
