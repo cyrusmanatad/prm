@@ -1,3 +1,5 @@
+**Release candidate `9a65301` (2026-11-23):** [CI run and job IDs, test counts and coverage for M1-05 and the CI part of M6-08](m6/candidate-evidence.md). Not deployed; drills and native Safari remain open.
+
 **PRIV-05 upload reconciliation (2026-11-23):** [report-only orphan, missing and held upload findings, daily run, admin card, tests and gates](m3/orphan-report-evidence.md). Local stack only; not deployed.
 
 **Intermittent CI failures (2026-11-23):** [causes from run evidence and the test, build and wait fixes](shared/ci-flakes-evidence.md). Local Chromium plus PR CI.
