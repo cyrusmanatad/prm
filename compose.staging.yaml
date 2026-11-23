@@ -23,7 +23,7 @@ x-backend: &backend
     APP_KEY: ${APP_KEY:?Set a fresh APP_KEY}
     APP_URL: ${APP_URL:?Set HTTPS APP_URL}
     STAGING_MODE: 'true'
-    # Workspace-owner MFA. Off on staging for now (D36); set OWNER_MFA_ENFORCED=true in staging.env to enforce it.
+    # Workspace-owner MFA. Enforced on staging since 2026-11-23 via OWNER_MFA_ENFORCED=true in staging.env (D36); the default is the fallback.
     # Production ignores this setting and always enforces.
     OWNER_MFA_ENFORCED: ${OWNER_MFA_ENFORCED:-false}
     UPLOADS_ENABLED: 'true'
