@@ -1,3 +1,5 @@
+**PRIV-05 upload reconciliation (2026-11-23):** [report-only orphan, missing and held upload findings, daily run, admin card, tests and gates](m3/orphan-report-evidence.md). Local stack only; not deployed.
+
 **Intermittent CI failures (2026-11-23):** [causes from run evidence and the test, build and wait fixes](shared/ci-flakes-evidence.md). Local Chromium plus PR CI.
 
 **Administration small fixes (2026-11-23):** [44px toast close button, Platform access own-row note, ADM register notes](administration/small-fixes-evidence.md). Local stack only; not deployed.

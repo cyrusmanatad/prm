@@ -10,6 +10,7 @@ import FormField from '../components/FormField.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { Button } from '../components/ui/button';
 import FormDialog from '../features/admin/FormDialog.vue';
+import UploadReconciliationCard, { type Reconciliation } from '../features/admin/UploadReconciliationCard.vue';
 import { batchRunState, type BatchRunState, type LatestRun } from '../features/admin/cleanup';
 import { dateTime, recentTime } from '../features/admin/format';
 
@@ -23,7 +24,12 @@ type Batch = {
     runs: number;
     latest_run?: LatestRun | null;
 };
-const props = defineProps<{ batches: Batch[] }>();
+const props = defineProps<{
+    batches: Batch[];
+    reconciliation?: Reconciliation;
+    findingFilter?: string;
+    findingPage?: number;
+}>();
 const views: { value: '' | BatchRunState; label: string }[] = [
     { value: '', label: 'All' },
     { value: 'blocked', label: 'Blocked' },
@@ -121,6 +127,12 @@ function create() {
                 always kept. Executing a cleanup is a separately reviewed step that this console does not offer.
             </p>
         </section>
+        <UploadReconciliationCard
+            v-if="reconciliation"
+            :reconciliation="reconciliation"
+            :filter="findingFilter ?? ''"
+            :page="findingPage ?? 1"
+        />
         <FormDialog
             id="new-batch"
             ref="dialog"
