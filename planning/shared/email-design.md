@@ -6,6 +6,8 @@ Status: **merged to `main` (PR #45) and deployed to staging on 2026-11-18 (`54a4
 
 **Confirmed (D30, unchanged):** the approved follow-up message stays plain text with exactly the reviewed subject and body, per the [delivery operations contract](../m5/delivery-operations-contract.md). It receives no HTML part, header or footer.
 
+**Current staging transport (2026-11-23):** `WeavDash <no-reply@weavdash.com>` sends through existing Brevo SMTP credentials; the canonical application URL is `https://app-stg.weavdash.com`. The user confirmed password-reset email receipt from that sender. This does not establish client rendering, logo loading, header authentication or reset completion; those gates remain open. See [domain/email evidence](staging-domain-and-email-evidence.md).
+
 ## Structure
 
 | Area | Location |

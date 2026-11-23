@@ -6,6 +6,8 @@ Partner lead management now lives at `/partner/leads`, with Add lead in a modal 
 
 Privacy exports are locally implemented at `/account/exports`, linked from the account menu and workspace account security. Personal and owner-authorized workspace ZIPs use current password/MFA checks, private downloads and 24-hour expiry. The scheduler runs `privacy:purge-exports` every five minutes; app and scheduler must share private export storage. See the [contract and operating limits](planning/m3/privacy-contract.md#delivered-priv-02-export-interface) and [verification/handoff](planning/m3/privacy-evidence.md). Account/workspace closure review, restriction and cancellation are now implemented locally under PRIV-03; see the [closure contract](planning/m3/privacy-contract.md#delivered-priv-03-closure-interface) and [verification](planning/m3/closure-evidence.md). Irreversible erasure remains unfinished and gated by retention/recovery policy.
 
+Current staging is [app-stg.weavdash.com](https://app-stg.weavdash.com); the previous hostname redirects there. Application email uses `WeavDash <no-reply@weavdash.com>` through Brevo. Password-reset email receipt was user-confirmed on 2026-11-23; see [staging domain and email evidence](planning/shared/staging-domain-and-email-evidence.md) for configuration and remaining verification.
+
 ## Layout
 
 ```text

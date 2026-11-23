@@ -6,14 +6,14 @@
 
 **D02 — Confirmed:** Laravel/PHP backend with Vue 3, TypeScript, Inertia.js, Tailwind CSS and shadcn-vue; PostgreSQL with tenant RLS; Redis with Laravel queues and scheduler; Docker Compose and GitHub Actions. Vite builds frontend assets. Previous NestJS/React/BullMQ proposals are superseded. This is stack approval and an instruction to update planning documents, not permission to implement code.
 
-**D04 — Direction recorded:** size the development OVH VPS to project needs. Initial planning recommendation is 2 vCPU / 4 GB RAM / approximately 80 GB SSD; consider 8 GB for shared/heavier development. Private uploads use a Laravel filesystem disk; AWS S3 or OVH Object Storage remains to be selected. No capacity guarantee or provider purchase is approved.
+**D04 — Direction recorded:** size the development OVH VPS to project needs. Initial planning recommendation is 2 vCPU / 4 GB RAM / approximately 80 GB SSD; consider 8 GB for shared/heavier development. Private uploads use a Laravel filesystem disk; the provider choice is superseded by D41 (Cloudflare R2 for staging and production). No capacity guarantee or provider purchase is approved.
 
 ## Major open questions
 
 | ID | Decision needed | Recommendation / consequence |
 |---|---|---|
 | D03 | Future sharing beyond the initial invitation scope? | D15 confirms free invited participation and explicit resource-scoped sharing. Creator contacts/notes/rates remain private; directory publication is opt-in. |
-| D04 | Final development VPS plan, storage provider/region, and production budget/region? | Start from the recorded sizing estimate; compare AWS S3 and OVH storage cost, region, and required features. Confirm OS/disk/headroom before purchase; choose production hosting after pilot measurement. |
+| D04 | Final development VPS plan, storage location, and production budget/region? | D41 confirms Cloudflare R2 as the storage provider. Finalize production storage location/configuration and budget. Confirm OS/disk/headroom before purchase; choose production hosting after pilot measurement. |
 | D05 | Repeat/lost deal lifecycle and future automatic triggers? | D20 confirms explicit Start onboarding with no automatic stage trigger. Further deal lifecycle/automatic transition rules remain open. |
 | D06 | What is paid at launch, and have 20–30 committed pilots been recruited? | Start with useful free/pilot entitlements; validate creator pricing before self-serve billing. Define “10 active brands,” grace/downgrade, and trial policy. |
 | D07 | Must MVP issue real tax invoices/e-sign contracts, or track records/drafts? | Draft/manual records first; accountant-reviewed invoice issuance and integrated signatures later. This narrows PDF Phase 1 and needs explicit approval. |
@@ -191,3 +191,12 @@ Privacy requests are handled by the founders/co-founder and any authorized super
 
 
 **Assumption / Open (2026-11-20):** the user expects the company to be registered in the Philippines; registration is tentative, not evidence of incorporation. Intended markets are the USA, Germany, Malta, UK and Philippines, with worldwide access by authorized users. Management establishments, class-specific retention obligations and processor locations remain to be verified. Export implementation can proceed under D40.
+
+
+## D41 — Cloudflare R2 for staging and production
+
+**Confirmed (2026-11-23):** the user chose to retain Cloudflare R2 for staging and use it for production object storage. This settles the provider portion of D04 and supersedes the earlier AWS S3 versus OVH Object Storage alternatives. Continue using Laravel's S3-compatible filesystem abstraction and the existing private, tenant-authorized attachment access model.
+
+Production account/bucket separation, data location, credentials, budget, retention/deletion, encryption and backup/restore configuration still require preparation and verification. The existing staging integration is not production acceptance. Privacy-export archives currently use separate private local storage; this decision does not migrate them or change their data contract. Existing privacy, scanning, recovery and release gates remain.
+
+This records the provider decision only; no production resources were provisioned, runtime configuration changed, objects migrated or deployment performed.

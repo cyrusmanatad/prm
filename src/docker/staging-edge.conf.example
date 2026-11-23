@@ -1,14 +1,14 @@
 # Insert inside the existing shared Nginx http {} block.
 server {
     listen 80;
-    server_name weavdash.cyrusmanatad.com;
+    server_name app-stg.weavdash.com;
     return 301 https://$host$request_uri;
 }
 server {
     listen 443 ssl;
-    server_name weavdash.cyrusmanatad.com;
-    ssl_certificate /etc/nginx/ssl/cloudflare-origin.cert;
-    ssl_certificate_key /etc/nginx/ssl/cloudflare-origin.key;
+    server_name app-stg.weavdash.com;
+    ssl_certificate /etc/nginx/ssl/weavdash-staging.pem;
+    ssl_certificate_key /etc/nginx/ssl/weavdash-staging.key;
     ssl_protocols TLSv1.2 TLSv1.3;
     client_max_body_size 3m;
     resolver 127.0.0.11 valid=10s ipv6=off;
