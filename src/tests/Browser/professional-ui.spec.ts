@@ -136,9 +136,9 @@ test('Professional presentation, destinations and editor cancellation', async ({
                 await page.goto(`/professional${route ? '/' + route : ''}`);
                 expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
                 if (!route) {
-                    const brand = page.locator('.pro-brand');
+                    const brand = page.locator('.wd-portal-masthead');
                     const wordmark = brand.locator('.wd-wordmark');
-                    const badge = brand.locator('.pro-experience');
+                    const badge = brand.locator('.wd-portal-experience');
                     const wordmarkBox = (await wordmark.boundingBox())!;
                     const badgeBox = (await badge.boundingBox())!;
                     expect(
@@ -156,7 +156,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
                         expect(menuBox.y).toBeLessThan(brandBox.y + brandBox.height);
                     }
                     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
-                        await page.locator('.pro-header').screenshot({
+                        await page.locator('.wd-portal-header').screenshot({
                             path: info.outputPath('professional-ui.spec-capture-6964.png'),
                         });
                     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
@@ -164,15 +164,20 @@ test('Professional presentation, destinations and editor cancellation', async ({
                             path: info.outputPath('professional-ui.spec-capture-7138.png'),
                             fullPage: true,
                         });
-                    const trigger = page.getByRole('button', {
-                        name: width < 1024 ? 'Menu' : 'Client work',
-                        exact: true,
-                    });
-                    await trigger.focus();
-                    await page.keyboard.press('Enter');
-                    await expect(page.getByRole('menuitem', { name: 'Client leads', exact: true })).toBeVisible();
-                    await page.keyboard.press('Escape');
-                    await expect(trigger).toBeFocused();
+                    if (width < 1024) {
+                        const trigger = page.getByRole('button', { name: 'Menu', exact: true });
+                        await trigger.focus();
+                        await page.keyboard.press('Enter');
+                        const drawer = page.getByRole('dialog', { name: 'Professional menu' });
+                        await expect(drawer.getByRole('link', { name: 'Client leads', exact: true })).toBeVisible();
+                        await page.keyboard.press('Escape');
+                        await expect(drawer).not.toBeVisible();
+                        await expect(trigger).toBeFocused();
+                    } else {
+                        const sidebar = page.getByRole('navigation', { name: 'Professional tools', exact: true });
+                        await expect(sidebar.getByRole('link', { name: 'Client leads', exact: true })).toBeVisible();
+                        await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Professional Hub');
+                    }
                     const account = page.getByRole('button', { name: /^Account menu:/ });
                     const accountBox = (await account.boundingBox())!;
                     expect(accountBox.x).toBeGreaterThanOrEqual(0);
@@ -194,9 +199,14 @@ test('Professional presentation, destinations and editor cancellation', async ({
     await page.goto('/professional');
     const menu = page.getByRole('button', { name: 'Menu', exact: true });
     await menu.click();
-    const nav = page.getByRole('menu', { name: 'Menu', exact: true });
-    await expect(nav.getByRole('menuitem')).toHaveCount(10);
-    await expect(nav.getByRole('menuitem', { name: 'Brand sharing', exact: true })).toBeVisible();
+    const nav = page.getByRole('dialog', { name: 'Professional menu' });
+    // Home and the ten existing tools.
+    await expect(nav.getByRole('link')).toHaveCount(11);
+    await expect(nav.getByRole('link', { name: 'Brand sharing', exact: true })).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Professional Hub', exact: true })).toHaveAttribute(
+        'aria-current',
+        'page',
+    );
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
         await page.screenshot({
@@ -207,12 +217,20 @@ test('Professional presentation, destinations and editor cancellation', async ({
     await expect(menu).toBeFocused();
     await expect(nav).not.toBeVisible();
     await page.setViewportSize({ width: 1024, height: 900 });
-    const clientWork = page.getByRole('button', { name: 'Client work', exact: true });
-    await clientWork.focus();
-    await page.keyboard.press('Enter');
-    await expect(page.getByRole('menuitem', { name: 'Client leads', exact: true })).toBeFocused();
-    await page.keyboard.press('Escape');
-    await expect(clientWork).toBeFocused();
+    const sidebar = page.getByRole('navigation', { name: 'Professional tools', exact: true });
+    const clientLeads = sidebar.getByRole('link', { name: 'Client leads', exact: true });
+    await clientLeads.focus();
+    await expect(clientLeads).toBeFocused();
+    // Collapsing keeps every destination reachable by its accessible name, and the preference persists.
+    await page.getByRole('button', { name: 'Collapse navigation', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Expand navigation', exact: true })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+    );
+    await expect(clientLeads).toBeVisible();
+    await page.reload();
+    await page.getByRole('button', { name: 'Expand navigation', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Collapse navigation', exact: true })).toBeVisible();
 });
 
 test('Professional Hub summarizes work, queues what is due and opens Add lead', async ({ page }, info) => {
@@ -314,12 +332,22 @@ test('Professional pipeline panels retain empty and populated partnerships acros
             }
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
             expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-            const menu = page.getByRole('button', { name: width < 1024 ? 'Menu' : 'Client work', exact: true });
-            await menu.focus();
-            await page.keyboard.press('Enter');
-            await expect(page.getByRole('menuitem', { name: 'Client leads', exact: true })).toBeVisible();
-            await page.keyboard.press('Escape');
-            await expect(menu).toBeFocused();
+            if (width < 1024) {
+                const menu = page.getByRole('button', { name: 'Menu', exact: true });
+                await menu.focus();
+                await page.keyboard.press('Enter');
+                await expect(
+                    page.getByRole('dialog', { name: 'Professional menu' }).getByRole('link', { name: 'Client leads' }),
+                ).toBeVisible();
+                await page.keyboard.press('Escape');
+                await expect(menu).toBeFocused();
+            } else {
+                await expect(
+                    page
+                        .getByRole('navigation', { name: 'Professional tools', exact: true })
+                        .getByRole('link', { name: 'Client leads', exact: true }),
+                ).toHaveAttribute('aria-current', 'page');
+            }
             const account = page.getByRole('button', { name: /^Account menu:/ });
             await account.focus();
             await page.keyboard.press('Enter');

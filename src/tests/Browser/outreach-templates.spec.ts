@@ -2,7 +2,7 @@ import { dismissNotifications } from './feedback';
 import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from '@playwright/test';
-import { changeRole, fixture, login } from './helpers';
+import { changeRole, fixture, login, openPortalTool } from './helpers';
 
 /** Narrow screens show one Outreach panel at a time; wide screens show all three. */
 async function showOutreachPanel(page: Page, name: 'Templates' | 'Edit' | 'Draft') {
@@ -24,8 +24,7 @@ test('private templates persist, reject stale edits, merge drafts, copy and dele
     await page.getByRole('button', { name: /Role test workspace/ }).click();
     await page.getByRole('link', { name: 'Open partner portal' }).click();
     await expect(page).toHaveURL(/\/partner/);
-    await page.getByRole('button', { name: 'Account menu' }).click();
-    await page.getByRole('menuitem', { name: 'Outreach templates', exact: true }).click();
+    await openPortalTool(page, 'Partner', 'Outreach templates');
     await page.getByLabel('Template name', { exact: true }).fill('Personal pitch');
     await page.getByLabel('Subject', { exact: true }).fill('Hello {{brand_name}}');
     await page.getByLabel('Template body', { exact: true }).fill('Hi {{contact_name}}, from {{creator_name}}.');

@@ -10,11 +10,13 @@ import { relativeTime } from '../../resources/js/features/portals/activity';
 import type { PartnerRow } from '../../resources/js/features/portals/types';
 
 const router = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), delete: vi.fn() }));
+// The portal sidebar marks the current tool from the address, as on a real visit.
+const page = vi.hoisted(() => ({ url: '/brand', props: {} }));
 vi.mock('@inertiajs/vue3', () => ({
     Head: { template: '<span />' },
     Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
     router,
-    usePage: () => ({ url: '/brand', props: {} }),
+    usePage: () => page,
     useForm: (initial: Record<string, unknown>) =>
         reactive({
             ...initial,
@@ -137,9 +139,20 @@ it('shows real roster figures, links and totals that do not depend on the page',
     expect(body[0]!.findAll('td')[0]!.text()).toBe('Unavailable');
     expect(wrapper.get('nav[aria-label="Partners pages"]').text()).toContain('Showing 1–2 of 13 matching partners');
     expect(wrapper.get('nav[aria-label="Partners pages"] a').attributes('href')).toBe('/brand?page=2');
-    const nav = wrapper.get('nav[aria-label="Main"]');
+    const nav = wrapper.get('nav[aria-label="Brand tools"]');
     expect(nav.get('a[aria-current="page"]').text()).toBe('Partner hub');
-    expect(nav.findAll('a')[1]!.attributes('href')).toBe('/brand/lead-registrations');
+    expect(nav.findAll('a').map((link) => link.attributes('href'))).toEqual([
+        '/brand/home',
+        '/brand',
+        '/brand/lead-registrations',
+    ]);
+    // Unavailable programs stay listed, never as links.
+    expect(nav.findAll('[aria-disabled="true"]').map((item) => item.text())).toEqual([
+        'Campaigns, Not available yet',
+        'Incentives, Not available yet',
+        'Enablement, Not available yet',
+        'Payouts, Not available yet',
+    ]);
 });
 
 it('ends a partnership only through its named icon button and hides it from other roles', async () => {
@@ -193,8 +206,10 @@ const registrationList = (extra: Record<string, unknown> = {}) => ({
 });
 
 it('lists registrations with links that carry the list state and states the sharing scope', () => {
+    page.url = '/brand/lead-registrations?stage=pitched&page=2';
     const wrapper = show(mount(BrandLeadRegistrations, { props: registrationList(), global: { stubs } }));
-    expect(wrapper.get('nav[aria-label="Main"] a[aria-current="page"]').text()).toBe('Lead registrations');
+    expect(wrapper.get('nav[aria-label="Brand tools"] a[aria-current="page"]').text()).toBe('Lead registrations');
+    page.url = '/brand';
     expect(wrapper.text()).toContain('Their private notes, estimates and other prospects are never shown.');
     expect(wrapper.get('#registered-leads-heading').text()).toBe('Registered leads');
     expect(wrapper.get('.rg-card-head .rg-count').text()).toBe('26');

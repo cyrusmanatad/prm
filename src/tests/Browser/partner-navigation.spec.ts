@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { fixture, login, mutate } from './helpers';
+import { fixture, login, mutate, openPortalTool, portalNavigation } from './helpers';
 
 test('partner URLs, avatar navigation, modal focus and paginated drawer history', async ({ page }, info) => {
     test.setTimeout(120_000);
@@ -22,26 +22,40 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
         ['Onboarding requests', '/partner/onboarding'],
         ['Brand sharing', '/partner/brand-sharing'],
     ];
-    // Each tool opens from the previous one: the menu offers the same items and the Partner header stays.
+    // Each tool opens from the previous one through the portal navigation, which marks it current.
     for (const [name, path] of routes) {
-        await page.getByRole('button', { name: 'Account menu' }).click();
-        await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(7);
-        await page.getByRole('menuitem', { name, exact: true }).click();
+        await openPortalTool(page, 'Partner', name!);
         await expect(page).toHaveURL(new RegExp(path + '$'));
-        const main = page.getByRole('navigation', { name: 'Main' });
-        await expect(main.getByRole('link', { name: 'My leads', exact: true })).toBeVisible();
-        await expect(main.getByRole('link', { name: 'Media kit', exact: true })).toBeVisible();
-    }
-    // Account pages outside the Partner header offer the same workspace tools.
-    for (const path of ['/workspaces', '/automation']) {
-        await page.goto(path);
+        const nav = await portalNavigation(page, 'Partner');
+        await expect(nav.getByRole('link', { name, exact: true })).toHaveAttribute('aria-current', 'page');
+        await expect(nav.locator('[aria-current="page"]')).toHaveCount(1);
+        await expect(nav.getByRole('link', { name: 'My leads', exact: true })).toBeVisible();
+        await expect(nav.getByRole('link', { name: 'Media kit', exact: true })).toBeVisible();
+        await page.keyboard.press('Escape');
+        // Inside the portal the account menu keeps account destinations and leaves workspace tools to the navigation.
         await page.getByRole('button', { name: 'Account menu' }).click();
-        await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(7);
-        await expect(page.getByRole('menuitem', { name: 'Onboarding requests', exact: true })).toBeVisible();
+        await expect(page.getByRole('menuitem', { name: 'Onboarding requests', exact: true })).toHaveCount(0);
+        await expect(page.getByRole('menuitem', { name: 'Switch workspace / account security' })).toBeVisible();
         await page.keyboard.press('Escape');
     }
+    // Workspace selection, outside the portal shell, still offers the workspace tools in the account menu.
+    await page.goto('/workspaces');
+    await page.getByRole('button', { name: 'Account menu' }).click();
+    await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(7);
+    await expect(page.getByRole('menuitem', { name: 'Onboarding requests', exact: true })).toBeVisible();
+    await page.keyboard.press('Escape');
+    // Automation keeps working inside the Partner shell, distinct from the unavailable Autopilot entry.
+    await page.goto('/automation');
+    const tools = await portalNavigation(page, 'Partner');
+    await expect(tools.getByRole('link', { name: 'Automation and approvals', exact: true })).toHaveAttribute(
+        'aria-current',
+        'page',
+    );
+    await expect(tools.getByText('Autopilot', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Autopilot', exact: true })).toHaveCount(0);
+    await page.keyboard.press('Escape');
     await page.goto('/partner/leads');
-    await page.getByRole('link', { name: 'Media kit', exact: true }).click();
+    await openPortalTool(page, 'Partner', 'Media kit');
     await expect(page).toHaveURL(/\/partner\/media-kit$/);
     for (let i = 0; i < 27; i++)
         expect(
@@ -63,8 +77,10 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
     await page.goBack();
     await expect(page.getByRole('dialog')).not.toBeVisible();
     await expect(board.getByRole('button')).toHaveCount(2);
-    await expect(page.getByRole('navigation', { name: 'Main' }).getByText('Inbox', { exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Inbox', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('navigation', { name: 'Main' }).getByText('Campaigns', { exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Campaigns', exact: true })).toHaveCount(0);
+    const nav = await portalNavigation(page, 'Partner');
+    for (const name of ['Inbox', 'Campaigns', 'Earnings', 'Autopilot']) {
+        await expect(nav.getByText(name, { exact: true })).toBeVisible();
+        await expect(page.getByRole('link', { name, exact: true })).toHaveCount(0);
+    }
+    await expect(nav.getByText('Not available yet').first()).toBeVisible();
 });

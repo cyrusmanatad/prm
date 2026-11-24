@@ -45,10 +45,11 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Presentation only: the selected workspace's kind and experience, so the account menu offers the same
-     * workspace tools on every page. Null without a current membership. Routes authorize themselves.
+     * Presentation only: the selected workspace's kind, experience, name and the account's role in it, so the portal
+     * navigation and account menu offer the same workspace tools on every page. Null without a current membership.
+     * Routes authorize themselves; the role never grants access.
      *
-     * @return array{kind: string, experience: string}|null
+     * @return array{kind: string, experience: string, name: string, role: string}|null
      */
     private function activeWorkspace(Request $request): ?array
     {
@@ -62,12 +63,13 @@ class HandleInertiaRequests extends Middleware
             $row = $this->asActor((int) $user->id, fn () => DB::table('organizations')
                 ->join('memberships', 'memberships.org_id', '=', 'organizations.id')
                 ->where('memberships.user_id', $user->id)->whereNull('memberships.revoked_at')
-                ->where('organizations.id', $orgId)->first(['organizations.kind', 'organizations.experience']));
+                ->where('organizations.id', $orgId)->first(['organizations.kind', 'organizations.experience', 'organizations.name', 'memberships.role']));
         } catch (\Throwable) {
             return null;
         }
 
-        return $row ? ['kind' => (string) $row->kind, 'experience' => (string) ($row->experience ?? 'partner')] : null;
+        return $row ? ['kind' => (string) $row->kind, 'experience' => (string) ($row->experience ?? 'partner'),
+            'name' => (string) $row->name, 'role' => (string) $row->role] : null;
     }
 
     /**
