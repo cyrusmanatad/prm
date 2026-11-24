@@ -250,7 +250,7 @@ const panel = ref<'edit' | 'preview' | 'links'>(
 <template>
     <Head :title="heading" />
     <PartnerChrome :account-name="account.name" :account-email="account.email">
-        <main id="main-content" class="wd-kit mx-auto max-w-[1280px] px-6 pt-6 pb-12">
+        <main id="main-content" class="wd-kit wd-portal-page pt-6 pb-12">
             <header class="kit-header">
                 <div>
                     <p class="kit-eyebrow">{{ workspace.name }}</p>

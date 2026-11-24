@@ -825,8 +825,6 @@ watch(
     flex-direction: column;
     gap: 14px;
     width: 100%;
-    max-width: 1280px;
-    margin-inline: auto;
     padding-bottom: 16px;
     color: var(--wd-ink);
     font-size: 14px;

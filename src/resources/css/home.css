@@ -1,14 +1,11 @@
 /* Home for Brand, Partner and Professional workspaces. Shared tokens, cards and controls stay authoritative. */
-.wd-home-main {
-    width: 100%;
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 28px clamp(16px, 3vw, 40px) 48px;
-    box-sizing: border-box;
-}
+.wd-home-main,
 .wd-professional .wd-portal-content > main.wd-home-main {
-    max-width: 1240px;
-    padding: 28px clamp(16px, 3vw, 40px) 48px;
+    width: 100%;
+    max-width: var(--wd-portal-content-max);
+    margin: 0 auto 0 0;
+    padding: 28px var(--wd-portal-gutter) 48px;
+    box-sizing: border-box;
 }
 .wd-home {
     display: flex;

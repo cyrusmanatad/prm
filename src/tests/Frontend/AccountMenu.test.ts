@@ -107,3 +107,28 @@ it("offers the selected workspace's tools on every page", async () => {
     page.props = { accountClosing: true, activeWorkspace: { kind: 'creator', experience: 'partner' } };
     expect(await open()).toEqual(['Account closure', 'Authenticator security', 'Sign out']);
 });
+
+it('shows an optional workspace label before the avatar and stays avatar-only without one', async () => {
+    const plain = mount(AccountMenu, { props: { accountName: 'Jordan Vale' }, attachTo: document.body });
+    wrappers.push(plain);
+    expect(plain.get('button').text()).toBe('Account menu: JV');
+    expect(plain.get('button').classes()).not.toContain('wd-account-trigger-labelled');
+    wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+
+    const labelled = mount(AccountMenu, {
+        props: { accountName: 'Jordan Vale', workspaceLabel: 'A very long studio workspace name', tone: 'light' },
+        attachTo: document.body,
+    });
+    wrappers.push(labelled);
+    const button = labelled.get('button');
+    expect(button.classes()).toEqual(
+        expect.arrayContaining(['wd-account-trigger', 'wd-account-trigger-light', 'wd-account-trigger-labelled']),
+    );
+    const parts = [...button.element.children].map((child) => child.className || child.textContent);
+    expect(parts).toEqual(['wd-sr-only', 'wd-account-workspace', 'wd-avatar']);
+    expect(button.get('.wd-account-workspace').attributes('title')).toBe('A very long studio workspace name');
+    await button.trigger('keydown', { key: 'Enter' });
+    await nextTick();
+    expect(document.body.querySelector('.wd-account-menu-identity')?.textContent).toContain('Jordan Vale');
+    expect(document.body.querySelector('a[href="/workspaces"]')?.getAttribute('role')).toBe('menuitem');
+});

@@ -117,13 +117,16 @@ watch(
                                         ></DialogClose
                                     >
                                 </div>
-                                <PortalNav
-                                    :experience="experience"
-                                    :owner="owner"
-                                    :fixture="fixture"
-                                    id-prefix="portal-drawer"
-                                    @navigate="drawerOpen = false"
-                                />
+                                <!-- The title and Close stay in view; only the navigation scrolls. -->
+                                <div class="wd-portal-drawer-scroll wd-portal-scroll">
+                                    <PortalNav
+                                        :experience="experience"
+                                        :owner="owner"
+                                        :fixture="fixture"
+                                        id-prefix="portal-drawer"
+                                        @navigate="drawerOpen = false"
+                                    />
+                                </div>
                             </DialogContent>
                         </DialogPortal>
                     </DialogRoot>
@@ -133,11 +136,10 @@ watch(
                         </component>
                         <p class="wd-portal-identity">
                             <span class="wd-portal-experience">{{ label }}</span>
-                            <span v-if="workspaceName" class="wd-portal-workspace" :title="workspaceName"
-                                ><span class="wd-sr-only">workspace: </span>{{ workspaceName }}</span
-                            >
                         </p>
                     </div>
+                    <!-- Page-scoped search grows from the left into the middle of the header (v2). -->
+                    <div v-if="$slots.search" class="wd-portal-search-slot"><slot name="search" /></div>
                     <div class="wd-portal-actions">
                         <slot name="actions" />
                         <AccountMenu
@@ -147,6 +149,7 @@ watch(
                             :initials="initials"
                             :fixture="fixture"
                             :tone="tone"
+                            :workspace-label="workspaceName"
                             @logout="$emit('logout')"
                         />
                     </div>
@@ -155,7 +158,7 @@ watch(
             <div class="wd-portal-body">
                 <div class="wd-portal-sidebar">
                     <div class="wd-portal-sidebar-inner">
-                        <div id="portal-sidebar" class="wd-portal-sidebar-scroll">
+                        <div id="portal-sidebar" class="wd-portal-sidebar-scroll wd-portal-scroll">
                             <PortalNav
                                 :experience="experience"
                                 :owner="owner"
