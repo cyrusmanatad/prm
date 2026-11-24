@@ -7,6 +7,10 @@
     --wd-muted: #6b5f70;
     --wd-brand: #8e1650;
     --wd-brand-hover: #5e0e35;
+    /* Accent tints: current navigation, soft badges and menu or pill highlights. See appearance.css. */
+    --wd-brand-soft: #f6e3ec;
+    --wd-brand-wash: #f6edf1;
+    --wd-brand-wash-strong: #f6eaf0;
     --wd-stage-lead: #8fa3b8;
     --wd-stage-pitched: #c9a24b;
     --wd-stage-negotiating: #d9803b;
@@ -215,8 +219,8 @@ summary:focus-visible {
     color: inherit;
 }
 .wd-account-menu [data-highlighted] {
-    background: #f6edf1;
-    color: #8e1650;
+    background: var(--wd-brand-wash);
+    color: var(--wd-brand);
 }
 /* Row and toolbar action menus share the account menu surface at table density. */
 .wd-row-menu {
@@ -551,7 +555,7 @@ summary:focus-visible {
 }
 .wd-link-pill:hover:not(:disabled) {
     border-color: var(--wd-brand);
-    background: #f6eaf0;
+    background: var(--wd-brand-wash-strong);
     color: var(--wd-brand-hover);
     transform: translateY(-1px);
 }
@@ -792,7 +796,7 @@ summary:focus-visible {
     height: 40px;
     display: grid;
     place-items: center;
-    background: #f6e3ec;
+    background: var(--wd-brand-soft);
     color: var(--wd-brand);
     border-radius: 10px;
     flex-shrink: 0;

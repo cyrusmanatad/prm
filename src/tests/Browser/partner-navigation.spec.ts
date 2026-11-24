@@ -41,7 +41,7 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
     // Workspace selection, outside the portal shell, still offers the workspace tools in the account menu.
     await page.goto('/workspaces');
     await page.getByRole('button', { name: 'Account menu' }).click();
-    await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(7);
+    await expect(page.getByRole('menuitem').locator('svg')).toHaveCount(8);
     await expect(page.getByRole('menuitem', { name: 'Onboarding requests', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');
     // Automation keeps working inside the Partner shell, distinct from the unavailable Autopilot entry.

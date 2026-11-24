@@ -24,7 +24,7 @@ class PrivacyExportData
             return $this->workspace($org);
         }
         $data = [
-            'account' => $this->read(DB::table('users')->where('id', $actor), 'id,name,email,email_verified_at,created_at'),
+            'account' => $this->read(DB::table('users')->where('id', $actor), 'id,name,email,email_verified_at,appearance,created_at'),
             'memberships' => $this->read(DB::table('memberships')->where('user_id', $actor)->whereNull('revoked_at'), 'org_id,role,created_at', ['org_id']),
             'security_events' => $this->read(DB::query()->fromRaw('app_privacy_account_events()'), 'id,event,occurred_at'),
             'brand_requests' => $this->read(DB::table('brand_requests')->where('applicant_id', $actor), 'id,brand_name,website,applicant_role,intended_use,status,version,submitted_at,updated_at,decided_at'),

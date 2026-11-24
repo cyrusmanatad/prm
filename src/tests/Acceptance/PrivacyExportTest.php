@@ -77,6 +77,8 @@ class PrivacyExportTest extends AcceptanceCase
         $id = $this->export($owner);
         $account = $this->archiveJson($id, 'data/account.json')[0];
         $this->assertSame($owner->email, $account['email']);
+        // The personal accent is the account's own profile preference.
+        $this->assertSame('burgundy', $account['appearance']);
         $this->assertArrayNotHasKey('password', $account);
         $this->assertArrayNotHasKey('admin_totp_secret', $account);
         $this->assertStringNotContainsString($foreign->email, $this->archive($id)['data/account.json']->getContent());

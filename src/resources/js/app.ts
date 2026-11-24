@@ -6,6 +6,7 @@ import 'vue3-toastify/dist/index.css';
 import '../css/toasts.css';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
 import { registerFlashToasts } from './composables/useFlashToast';
+import { syncAppearance } from './composables/useAppearance';
 
 const pages = import.meta.glob<DefineComponent>('./pages/*.vue', { import: 'default' });
 
@@ -42,6 +43,8 @@ void createInertiaApp({
             } as ToastContainerOptions)
             .mount(el);
         registerFlashToasts(props.initialPage.props);
+        syncAppearance();
     },
-    progress: { color: '#8e1650' },
+    // Follows the personal accent on the document root.
+    progress: { color: 'var(--wd-brand)' },
 });

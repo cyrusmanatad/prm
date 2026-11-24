@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Appearance;
 use App\Services\UploadSafety;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\Request;
@@ -19,6 +20,8 @@ class HandleInertiaRequests extends Middleware
             'uploadsEnabled' => (bool) config('uploads.enabled'),
             'unscannedUploadsAllowed' => UploadSafety::unscannedAllowed(),
             'account' => fn () => $request->user()?->only(['name', 'email']),
+            // Presentation only; the initial HTML sets the same allowlisted value before first paint.
+            'appearance' => fn () => Appearance::for($request)->value,
             'platformAccess' => fn () => $this->platformAccess($request),
             'activeWorkspace' => fn () => $this->activeWorkspace($request),
             'status' => fn () => $request->session()->get('status', ''),

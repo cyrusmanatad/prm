@@ -125,7 +125,7 @@
     outline-offset: -3px;
 }
 .adm-nav a[aria-current='page'] {
-    background: #f6e3ec;
+    background: var(--wd-brand-soft);
     color: var(--wd-brand);
     font-weight: 700;
 }
