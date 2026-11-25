@@ -10,6 +10,7 @@ import {
     openBrandHub,
     portalNavigation,
     smallTouchTargets,
+    settleAnimations,
 } from './helpers';
 
 const noOverflow = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
@@ -112,6 +113,7 @@ test('Professional Home sits beside the Professional Hub and keeps the drawer ac
         // Focus stays in the drawer and the page behind does not scroll.
         for (let i = 0; i < 20; i++) await page.keyboard.press('Tab');
         expect(await drawer.evaluate((element) => element.contains(document.activeElement))).toBe(true);
+        await settleAnimations(page);
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
         await page.keyboard.press('Escape');
         await expect(drawer).not.toBeVisible();
