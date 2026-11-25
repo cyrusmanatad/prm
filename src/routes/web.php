@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\AppearanceController;
 use App\Http\Controllers\Account\AuthenticatorController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -98,6 +99,8 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/account/exports/verify', [PrivacyExportController::class, 'verify'])->middleware('throttle:10,1,privacy-verify:');
         Route::post('/account/exports', [PrivacyExportController::class, 'store'])->middleware('throttle:3,60,privacy-export:');
         Route::get('/account/exports/{export}/download', [PrivacyExportController::class, 'download'])->whereUuid('export')->middleware('throttle:10,1,privacy-download:');
+        Route::get('/account/appearance', [AppearanceController::class, 'show']);
+        Route::post('/account/appearance', [AppearanceController::class, 'update'])->middleware('throttle:20,1,account-appearance:');
         Route::get('/account/authenticator', [AuthenticatorController::class, 'show']);
         Route::post('/account/authenticator/enroll', [AuthenticatorController::class, 'enroll'])->middleware('throttle:5,1,account-enroll:');
         Route::delete('/account/authenticator/enroll', [AuthenticatorController::class, 'cancel']);

@@ -8,6 +8,7 @@ import {
     ContactRound,
     FileText,
     LogOut,
+    Palette,
     Settings,
     Share2,
     ShieldCheck,
@@ -30,6 +31,8 @@ const props = withDefaults(
         initials?: string;
         fixture?: boolean;
         tone?: 'inverse' | 'light';
+        /** The selected workspace, shown before the avatar in portal headers. The menu still opens on click. */
+        workspaceLabel?: string;
         /** Design fixtures only; real pages derive workspace tools from the selected workspace. */
         links?: AccountMenuLink[];
     }>(),
@@ -87,8 +90,16 @@ function signOut(): void {
 <template>
     <DropdownMenuRoot :modal="false">
         <DropdownMenuTrigger as-child>
-            <button type="button" class="wd-account-trigger" :class="{ 'wd-account-trigger-light': tone === 'light' }">
+            <button
+                type="button"
+                class="wd-account-trigger"
+                :class="{ 'wd-account-trigger-light': tone === 'light', 'wd-account-trigger-labelled': workspaceLabel }"
+            >
                 <span class="wd-sr-only">Account menu: </span>
+                <!-- Flex items are separate words in the accessible name: "Account menu: <workspace> <initials>". -->
+                <span v-if="workspaceLabel" class="wd-account-workspace" :title="workspaceLabel">{{
+                    workspaceLabel
+                }}</span>
                 <span class="wd-avatar">{{ letters }}</span>
             </button>
         </DropdownMenuTrigger>
@@ -118,6 +129,11 @@ function signOut(): void {
                     <DropdownMenuItem v-if="!closing" as-child>
                         <Link href="/account/exports"
                             ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Privacy exports</Link
+                        >
+                    </DropdownMenuItem>
+                    <DropdownMenuItem v-if="!closing" as-child>
+                        <Link href="/account/appearance"
+                            ><Palette :size="18" aria-hidden="true" class="shrink-0" />Appearance</Link
                         >
                     </DropdownMenuItem>
                     <DropdownMenuItem v-for="link in closing ? [] : tools" :key="link.href" as-child>

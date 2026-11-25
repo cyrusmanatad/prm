@@ -71,7 +71,7 @@ const summary = computed(() => [
         :fixture="fixture"
         @invite="$emit('invite')"
     >
-        <main id="main-content" class="mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
+        <main id="main-content" class="wd-portal-page flex flex-col gap-6 pt-7 pb-12">
             <div>
                 <h1 class="font-display text-[32px] font-bold">Partner hub</h1>
                 <p class="mt-1.5 text-[15px] text-ink-soft">

@@ -1129,8 +1129,6 @@ function newReminder(title = ''): void {
 <style scoped>
 .wd-crm {
     width: 100%;
-    max-width: 1280px;
-    margin-inline: auto;
     display: flex;
     flex-direction: column;
     gap: 16px;

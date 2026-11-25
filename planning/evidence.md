@@ -1,3 +1,7 @@
+**Portal header alignment review (2026-11-24):** [source findings and correction acceptance gates](shared/portal-header-alignment-handoff.md#planning-verification). Implementation evidence: [layout, tests and header inspection across experiences and palettes](shared/portal-header-alignment-evidence.md).
+
+**Personal accent planning (2026-11-24):** [scope, inspected integration points and planned two-palette checks](shared/appearance-preference-handoff.md#planning-verification). Implementation evidence: [persistence, tokens, tests and two-palette inspection](shared/appearance-preference-evidence.md).
+
 **Portal navigation and Home planning review (2026-11-24):** [handoff, source inventory, Main desktop/mobile observations and planned acceptance gates](shared/portal-navigation-home-handoff.md#planning-verification). Implementation evidence: [shell, Home, tests and visual inspection](shared/portal-navigation-home-evidence.md).
 
 **Owner MFA enforced in CI (2026-11-23):** [enforced browser run in every clean-setup job, code-timing fix, reset procedure proposal](m1/owner-mfa-evidence.md#enforced-browser-run-and-ci-2026-11-23). Local Chromium; CI pending.

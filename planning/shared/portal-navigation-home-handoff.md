@@ -1,6 +1,6 @@
 # Portal navigation and Home — Claude handoff
 
-Date: 2026-11-24. Baseline inspected: `fff88c0`. Status: implemented locally (uncommitted) on 2026-11-24; see [implementation evidence](portal-navigation-home-evidence.md) for the menu matrix, Home data mapping, deviations, checks and open decisions (color, landing destination). This is a cross-experience workstream, not a new milestone.
+Date: 2026-11-24. Baseline inspected: `fff88c0`. Status: implemented locally (uncommitted) on 2026-11-24; see [implementation evidence](portal-navigation-home-evidence.md) for the menu matrix, Home data mapping, deviations, checks and the subsequent [personal color preference decision](appearance-preference-handoff.md) and the still-open landing destination. This is a cross-experience workstream, not a new milestone.
 
 ## Authority and scope
 
@@ -31,7 +31,7 @@ Date: 2026-11-24. Baseline inspected: `fff88c0`. Status: implemented locally (un
 
 **Observed in Chromium during the preceding review:** `Main.dc.html` rendered at 1440×900 without horizontal page overflow; header height was 64px and sidebar width approximately 241px. At 390×900, the header wrapped to 168px and the full sidebar stacked above the main content, which started at approximately y=865px. Adopt a mobile drawer rather than copying this stacking behavior. These observations cover Main only; Claude must inspect both references and all implemented experiences. Temporary screenshots were removed after inspection.
 
-**Assumption / Open — color:** the mockup defaults to purple `#641d73`, while current foundation/portal tokens use burgundy `#8e1650`. Retaining burgundy for this layout pass is the recommended default, not a user-confirmed rebranding decision. Preserve Manrope, Bricolage Grotesque, cream `#fbf7ef`, white, mint and existing semantic focus/error colors. Record any intentional reference differences.
+**Confirmed — color follow-up (2026-11-24):** the user chose per-user Burgundy (`#8e1650`) and Purple (`#641d73`) options, with Burgundy as the default, rather than replacing the accent globally. See the [personal appearance handoff](appearance-preference-handoff.md) for persistence, token coverage and acceptance. This resolves the earlier open color decision; implemented in the dependent [appearance evidence](appearance-preference-evidence.md). Preserve Manrope, Bricolage Grotesque, cream `#fbf7ef`, white, mint and semantic focus/error colors.
 
 ## Navigation inventory and route plan
 

@@ -3,9 +3,9 @@
     min-height: 100vh;
 }
 .wd-professional .pro-access {
-    max-width: 1408px;
-    margin: auto;
-    padding: 0 24px;
+    max-width: var(--wd-portal-content-max);
+    margin-inline: 0 auto;
+    padding: 0 var(--wd-portal-gutter);
 }
 .wd-professional .pro-subscription {
     display: flex;
@@ -37,10 +37,11 @@
 }
 .wd-professional .pro-main,
 .wd-professional .wd-portal-content > main {
+    box-sizing: border-box;
     width: 100%;
-    max-width: 1408px;
-    margin: auto;
-    padding: 20px 24px 48px;
+    max-width: var(--wd-portal-content-max);
+    margin-inline: 0 auto;
+    padding: 20px var(--wd-portal-gutter) 48px;
 }
 .wd-professional .wd-workspace-content {
     max-width: none;

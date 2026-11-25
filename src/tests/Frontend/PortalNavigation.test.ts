@@ -134,8 +134,9 @@ it('renders one main landmark, the workspace identity and accessible unavailable
     const wrapper = shell();
     expect(wrapper.findAll('main#main-content')).toHaveLength(1);
     expect(wrapper.get('.wd-skip-link').attributes('href')).toBe('#main-content');
-    expect(wrapper.get('.wd-portal-identity').text()).toContain('Partner');
-    expect(wrapper.get('.wd-portal-identity').text()).toContain('Bea Studio');
+    // The experience stays with the branding; the workspace name moves to the account button (v2).
+    expect(wrapper.get('.wd-portal-identity').text()).toBe('Partner');
+    expect(wrapper.get('account-menu-stub').attributes('workspacelabel')).toBe('Bea Studio');
     const nav = wrapper.get('.wd-portal-sidebar nav[aria-label="Partner tools"]');
     expect(nav.findAll('[aria-current="page"]').map((item) => item.text())).toEqual(['My leads']);
     const unavailable = nav.findAll('[aria-disabled="true"]');
@@ -242,5 +243,62 @@ it('leaves workspace tools to the sidebar inside the portal shell', async () => 
     await inside.get('button').trigger('keydown', { key: 'Enter' });
     await nextTick();
     const items = [...document.body.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent?.trim());
-    expect(items).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
+    expect(items).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
+});
+
+it('places page search between the branding and the account controls, and keeps actions on the right', () => {
+    const wrapper = mount(PortalShell, {
+        props: { experience: 'partner', accountName: 'Bea Santos', workspaceName: 'Bea Studio' },
+        slots: {
+            default: '<p>Body</p>',
+            search: '<div role="search" class="wd-portal-search"><input aria-label="Search leads" /></div>',
+            actions: '<button type="button" class="page-action">Invite</button>',
+        },
+        attachTo: document.body,
+        global: { stubs: { AccountMenu: true } },
+    });
+    wrappers.push(wrapper);
+    const row = [...wrapper.get('.wd-portal-header-inner').element.children].map((child) => child.className);
+    expect(row.slice(-3)).toEqual(['wd-portal-masthead', 'wd-portal-search-slot', 'wd-portal-actions']);
+    expect(wrapper.find('.wd-portal-search-slot [role="search"]').exists()).toBe(true);
+    expect(wrapper.get('.wd-portal-actions').find('[role="search"]').exists()).toBe(false);
+    expect(wrapper.get('.wd-portal-actions .page-action').text()).toBe('Invite');
+    expect(wrapper.find('.wd-portal-actions account-menu-stub').exists()).toBe(true);
+
+    // Without a search slot nothing reserves the middle of the header.
+    expect(shell('brand').find('.wd-portal-search-slot').exists()).toBe(false);
+});
+
+it('labels the account button with the selected workspace and follows a workspace switch', async () => {
+    page.props = { activeWorkspace: { kind: 'creator', experience: 'partner', name: 'First Studio', role: 'owner' } };
+    const wrapper = mount(PortalShell, {
+        props: { experience: 'partner', accountName: 'Bea Santos' },
+        slots: { default: '<p>Body</p>' },
+        attachTo: document.body,
+    });
+    wrappers.push(wrapper);
+    const trigger = () => wrapper.get('button.wd-account-trigger');
+    expect(trigger().classes()).toContain('wd-account-trigger-labelled');
+    expect(trigger().get('.wd-account-workspace').text()).toBe('First Studio');
+    expect(trigger().get('.wd-account-workspace').attributes('title')).toBe('First Studio');
+    expect(trigger().text()).toBe('Account menu: First StudioBS');
+
+    page.props = { activeWorkspace: { kind: 'creator', experience: 'partner', name: 'Second Studio', role: 'owner' } };
+    await nextTick();
+    expect(trigger().get('.wd-account-workspace').text()).toBe('Second Studio');
+    expect(wrapper.get('.wd-portal-drawer-workspace, .wd-portal-identity').text()).not.toContain('First Studio');
+
+    // No selected workspace: the avatar-only button returns, with no stale or sample name.
+    page.props = { activeWorkspace: null };
+    await nextTick();
+    expect(trigger().find('.wd-account-workspace').exists()).toBe(false);
+    expect(trigger().classes()).not.toContain('wd-account-trigger-labelled');
+
+    // The labelled button still opens the same account menu.
+    page.props = { activeWorkspace: { kind: 'creator', experience: 'partner', name: 'Second Studio', role: 'owner' } };
+    await nextTick();
+    await trigger().trigger('keydown', { key: 'Enter' });
+    await nextTick();
+    const items = [...document.body.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent?.trim());
+    expect(items).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
 });

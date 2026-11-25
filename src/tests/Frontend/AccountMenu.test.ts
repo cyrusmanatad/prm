@@ -25,16 +25,18 @@ async function open(props: Record<string, unknown> = {}): Promise<string[]> {
 }
 
 it('offers administration only to accounts with platform access', async () => {
-    expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
+    expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
 
     page.props = { platformAccess: true };
     expect(await open()).toEqual([
         'Switch workspace / account security',
         'Privacy exports',
+        'Appearance',
         'Platform administration',
         'Sign out',
     ]);
+    expect(document.body.querySelector('a[href="/account/appearance"]')?.getAttribute('role')).toBe('menuitem');
     const link = document.body.querySelector<HTMLAnchorElement>('a[href="/admin"]');
     expect(link?.getAttribute('role')).toBe('menuitem');
 });
@@ -65,6 +67,7 @@ it("offers the selected workspace's tools on every page", async () => {
         expect(await open()).toEqual([
             'Switch workspace / account security',
             'Privacy exports',
+            'Appearance',
             ...partnerTools,
             'Sign out',
         ]);
@@ -79,6 +82,7 @@ it("offers the selected workspace's tools on every page", async () => {
         expect(await open()).toEqual([
             'Switch workspace / account security',
             'Privacy exports',
+            'Appearance',
             'Partner hub',
             'Lead registrations',
             'Sign out',
@@ -90,11 +94,41 @@ it("offers the selected workspace's tools on every page", async () => {
     // Professional workspaces use their own navigation; no selection has no workspace tools.
     for (const activeWorkspace of [{ kind: 'creator', experience: 'professional' }, null]) {
         page.props = { activeWorkspace };
-        expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
+        expect(await open()).toEqual([
+            'Switch workspace / account security',
+            'Privacy exports',
+            'Appearance',
+            'Sign out',
+        ]);
         wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     }
 
     // A closing account still sees only closure and security navigation.
     page.props = { accountClosing: true, activeWorkspace: { kind: 'creator', experience: 'partner' } };
     expect(await open()).toEqual(['Account closure', 'Authenticator security', 'Sign out']);
+});
+
+it('shows an optional workspace label before the avatar and stays avatar-only without one', async () => {
+    const plain = mount(AccountMenu, { props: { accountName: 'Jordan Vale' }, attachTo: document.body });
+    wrappers.push(plain);
+    expect(plain.get('button').text()).toBe('Account menu: JV');
+    expect(plain.get('button').classes()).not.toContain('wd-account-trigger-labelled');
+    wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+
+    const labelled = mount(AccountMenu, {
+        props: { accountName: 'Jordan Vale', workspaceLabel: 'A very long studio workspace name', tone: 'light' },
+        attachTo: document.body,
+    });
+    wrappers.push(labelled);
+    const button = labelled.get('button');
+    expect(button.classes()).toEqual(
+        expect.arrayContaining(['wd-account-trigger', 'wd-account-trigger-light', 'wd-account-trigger-labelled']),
+    );
+    const parts = [...button.element.children].map((child) => child.className || child.textContent);
+    expect(parts).toEqual(['wd-sr-only', 'wd-account-workspace', 'wd-avatar']);
+    expect(button.get('.wd-account-workspace').attributes('title')).toBe('A very long studio workspace name');
+    await button.trigger('keydown', { key: 'Enter' });
+    await nextTick();
+    expect(document.body.querySelector('.wd-account-menu-identity')?.textContent).toContain('Jordan Vale');
+    expect(document.body.querySelector('a[href="/workspaces"]')?.getAttribute('role')).toBe('menuitem');
 });

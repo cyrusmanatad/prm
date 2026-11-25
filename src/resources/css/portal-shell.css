@@ -1,9 +1,15 @@
 /* Shared portal shell: header, sidebar and mobile drawer for Brand, Partner and Professional.
-   Uses the foundation tokens; burgundy is retained over the v2 mockup's purple for this layout pass. */
+   Uses the foundation tokens, so it follows the personal accent (appearance.css). */
 .wd-portal {
-    --wd-portal-sidebar: 240px;
+    /* Fits the longest navigation label on one line, including the bold current item. */
+    --wd-portal-sidebar: 288px;
+    /* Content starts one gutter from the sidebar on every page and grows to a shared maximum, left-aligned, so wide
+       screens add space on the right instead of around centred content. */
+    --wd-portal-gutter: 16px;
+    --wd-portal-content-max: 1600px;
     --wd-portal-sidebar-collapsed: 72px;
-    --wd-portal-active-bg: #f6e3ec;
+    /* One desktop header row; Brand's light header adds its 1px bottom border. */
+    --wd-portal-header-height: 64px;
     min-height: 100vh;
     background: var(--wd-paper);
     color: var(--wd-ink);
@@ -13,6 +19,9 @@
 .wd-portal-header {
     background: var(--wd-brand);
     color: #fff;
+}
+.wd-portal-light {
+    --wd-portal-header-height: 65px;
 }
 .wd-portal-light .wd-portal-header {
     background: var(--wd-surface);
@@ -27,12 +36,12 @@
     padding: 10px 20px;
     box-sizing: border-box;
 }
+/* Logo and experience only, so it keeps its size; the account's workspace label truncates instead. */
 .wd-portal-masthead {
     display: flex;
     align-items: center;
-    flex: 0 1 auto;
+    flex: none;
     gap: 8px;
-    min-width: 0;
 }
 .wd-portal-brand {
     display: inline-flex;
@@ -60,16 +69,8 @@
     font-weight: 700;
 }
 .wd-portal-light .wd-portal-experience {
-    background: var(--wd-portal-active-bg);
+    background: var(--wd-brand-soft);
     color: var(--wd-brand);
-}
-.wd-portal-workspace {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 600;
-    opacity: 0.92;
 }
 .wd-portal-actions {
     display: flex;
@@ -123,9 +124,34 @@
 .wd-portal-content > main {
     min-width: 0;
 }
+@media (min-width: 600px) {
+    .wd-portal {
+        --wd-portal-gutter: 24px;
+    }
+}
+@media (min-width: 1024px) {
+    .wd-portal {
+        --wd-portal-gutter: 32px;
+    }
+}
+/* Page containers inside the portal shell: shared width, alignment and side gutter. Vertical spacing stays with
+   each page. */
+.wd-portal-page,
+.wd-portal .wd-main {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--wd-portal-content-max);
+    margin-inline: 0 auto;
+    padding-inline: var(--wd-portal-gutter);
+}
 @media (min-width: 1024px) {
     .wd-portal-menu-button {
         display: none;
+    }
+    /* The sidebar column reaches the bottom of the window even on short pages. */
+    .wd-portal-body {
+        min-height: calc(100vh - var(--wd-portal-header-height));
+        min-height: calc(100dvh - var(--wd-portal-header-height));
     }
     .wd-portal-sidebar {
         display: block;
@@ -135,14 +161,23 @@
         border-right: 1px solid var(--wd-line);
         background: var(--wd-surface);
     }
-    /* The column spans the page; its contents stay in view and scroll on their own. */
+    /* The column spans the page; its contents stay in view and scroll on their own. Below the header it fits the
+       visible window, so Collapse is never under the fold; where scroll-driven animations are supported it grows to
+       the full window height as the header scrolls away. */
     .wd-portal-sidebar-inner {
         position: sticky;
         top: 0;
         display: flex;
         flex-direction: column;
-        max-height: 100vh;
-        max-height: 100dvh;
+        max-height: calc(100vh - var(--wd-portal-header-height));
+        max-height: calc(100dvh - var(--wd-portal-header-height));
+    }
+    @supports (animation-timeline: scroll()) {
+        .wd-portal-sidebar-inner {
+            animation: wd-portal-sidebar-fit linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0px var(--wd-portal-header-height);
+        }
     }
     .wd-portal.is-collapsed .wd-portal-sidebar {
         flex-basis: var(--wd-portal-sidebar-collapsed);
@@ -234,7 +269,7 @@ a.wd-portal-nav-item:hover {
     color: var(--wd-ink);
 }
 a.wd-portal-nav-item[aria-current='page'] {
-    background: var(--wd-portal-active-bg);
+    background: var(--wd-brand-soft);
     color: var(--wd-brand);
     font-weight: 700;
 }
@@ -299,9 +334,17 @@ a.wd-portal-nav-item[aria-current='page'] {
     background: var(--wd-surface);
     color: var(--wd-ink);
     box-shadow: 0 12px 32px rgb(34 26 38 / 22%);
+    overflow: hidden;
+    font-family: var(--wd-font-body);
+}
+.wd-portal-drawer-header {
+    flex: none;
+}
+.wd-portal-drawer-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    font-family: var(--wd-font-body);
 }
 .wd-portal-drawer:focus-visible {
     outline: none;
@@ -349,63 +392,185 @@ a.wd-portal-nav-item[aria-current='page'] {
     }
 }
 
-/* A page-scoped search in the header moves to its own row on narrower screens. */
+/* Page-scoped header search (v2): after the branding, growing into the middle up to 720px, on a translucent
+   surface over the accent header. It moves to its own full-width row on narrower screens. */
+.wd-portal-search-slot {
+    display: flex;
+    flex: 1 1 320px;
+    max-width: 720px;
+    min-width: 0;
+}
 .wd-portal-search {
     position: relative;
     display: flex;
     align-items: center;
-    width: 240px;
+    flex: 1;
     min-width: 0;
+    border-radius: 10px;
+    background: rgb(255 255 255 / 14%);
+    color: #fff;
 }
 .wd-portal-search-icon {
     position: absolute;
-    left: 12px;
-    color: var(--wd-muted);
+    left: 14px;
+    color: currentColor;
     pointer-events: none;
 }
 .wd-portal-search input {
-    min-height: 40px;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 14px 0 42px;
     border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    font: 500 15px var(--wd-font-body);
+}
+.wd-portal-search input::placeholder {
+    color: rgb(255 255 255 / 80%);
+    opacity: 1;
 }
 .wd-portal-search input:focus-visible {
     outline: 3px solid var(--wd-mint);
     outline-offset: 2px;
 }
+/* Brand keeps its white header (D23): a tinted field with dark text instead of white on white. */
+.wd-portal-light .wd-portal-search {
+    border: 1px solid var(--wd-line);
+    background: var(--wd-paper);
+    color: var(--wd-ink);
+}
+.wd-portal-light .wd-portal-search-icon,
+.wd-portal-light .wd-portal-search input::placeholder {
+    color: var(--wd-muted);
+}
+.wd-portal-light .wd-portal-search input:focus-visible {
+    outline-color: var(--wd-focus);
+}
 @media (max-width: 767px) {
-    .wd-portal-header-inner:has(.wd-portal-search) {
+    .wd-portal-header-inner:has(.wd-portal-search-slot) {
         flex-wrap: wrap;
     }
-    .wd-portal-actions:has(.wd-portal-search) {
-        display: contents;
-    }
-    .wd-portal-actions:has(.wd-portal-search) > .wd-account-trigger {
-        margin-left: auto;
-    }
-    .wd-portal-search {
+    .wd-portal-search-slot {
         order: 10;
         flex: 1 1 100%;
-        width: auto;
+        max-width: none;
+    }
+    /* The account keeps the first row and truncates its workspace label instead of wrapping. */
+    .wd-portal-header-inner:has(.wd-portal-search-slot) .wd-portal-actions {
+        flex: 1 1 0;
+        justify-content: flex-end;
     }
 }
 
+/* Phones: Menu and branding on the first row; search (where present) and the account, with its truncating workspace
+   label, share the second row in the desktop order. Page actions stay with the account. */
 @media (max-width: 599px) {
     .wd-portal-header-inner {
-        gap: 8px;
+        flex-wrap: wrap;
+        gap: 0 8px;
         padding: 8px 12px;
+    }
+    /* An explicit break after Menu and branding, independent of their exact widths. */
+    .wd-portal-header-inner::after {
+        content: '';
+        order: 1;
+        flex-basis: 100%;
+    }
+    .wd-portal-masthead {
+        flex: 0 1 auto;
+        min-width: 0;
     }
     .wd-portal-brand .wd-wordmark {
         font-size: 18px;
     }
-    .wd-portal-workspace {
-        display: none;
+    .wd-portal-search-slot {
+        order: 2;
+        flex: 1 1 0;
+        margin-top: 8px;
     }
-    .wd-portal-actions {
+    .wd-portal-actions,
+    .wd-portal-header-inner:has(.wd-portal-search-slot) .wd-portal-actions {
+        order: 2;
+        flex: 1 1 0;
+        justify-content: flex-end;
+        margin-top: 8px;
         gap: 8px;
     }
+    /* A tighter outlined account button leaves more room for the workspace name. */
+    .wd-portal-actions .wd-account-trigger-labelled {
+        gap: 6px;
+        min-width: 60px;
+        padding: 2px 2px 2px 10px;
+        font-size: 13px;
+    }
+    .wd-portal-actions .wd-account-trigger-labelled .wd-avatar {
+        width: 32px;
+        height: 32px;
+        border-width: 1px;
+    }
 }
-/* The narrowest phones keep the full masthead and move the account to a second row. */
-@media (max-width: 379px) {
-    .wd-portal-header-inner {
-        flex-wrap: wrap;
+
+/* Navigation scroll areas (sidebar and drawer). A thin scrollbar stays invisible until the pointer is over the list
+   or keyboard focus is inside it, and its gutter is reserved so showing it never shifts the menu. Where scroll-driven
+   animations are supported, the list fades at an edge only while more items lie beyond it; elsewhere it simply
+   scrolls. Scroll padding keeps a focused item clear of the fades. */
+@property --wd-fade-top {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+}
+@property --wd-fade-bottom {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+}
+.wd-portal-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    scrollbar-gutter: stable;
+    scroll-padding-block: 28px;
+}
+.wd-portal-scroll:hover,
+.wd-portal-scroll:focus-within {
+    scrollbar-color: var(--wd-control-line) transparent;
+}
+@keyframes wd-portal-scroll-fade {
+    0% {
+        --wd-fade-top: 0px;
+        --wd-fade-bottom: 28px;
+    }
+    8% {
+        --wd-fade-top: 28px;
+    }
+    92% {
+        --wd-fade-bottom: 28px;
+    }
+    100% {
+        --wd-fade-top: 28px;
+        --wd-fade-bottom: 0px;
+    }
+}
+@supports (animation-timeline: scroll()) {
+    .wd-portal-scroll {
+        mask-image: linear-gradient(
+            to bottom,
+            transparent,
+            #000 var(--wd-fade-top),
+            #000 calc(100% - var(--wd-fade-bottom)),
+            transparent
+        );
+        animation: wd-portal-scroll-fade linear both;
+        animation-timeline: scroll(self);
+    }
+}
+
+@keyframes wd-portal-sidebar-fit {
+    from {
+        max-height: calc(100dvh - var(--wd-portal-header-height));
+    }
+    to {
+        max-height: 100dvh;
     }
 }
