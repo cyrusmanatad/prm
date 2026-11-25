@@ -242,5 +242,5 @@ it('leaves workspace tools to the sidebar inside the portal shell', async () => 
     await inside.get('button').trigger('keydown', { key: 'Enter' });
     await nextTick();
     const items = [...document.body.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent?.trim());
-    expect(items).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
+    expect(items).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
 });

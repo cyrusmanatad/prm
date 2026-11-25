@@ -25,16 +25,18 @@ async function open(props: Record<string, unknown> = {}): Promise<string[]> {
 }
 
 it('offers administration only to accounts with platform access', async () => {
-    expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
+    expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
 
     page.props = { platformAccess: true };
     expect(await open()).toEqual([
         'Switch workspace / account security',
         'Privacy exports',
+        'Appearance',
         'Platform administration',
         'Sign out',
     ]);
+    expect(document.body.querySelector('a[href="/account/appearance"]')?.getAttribute('role')).toBe('menuitem');
     const link = document.body.querySelector<HTMLAnchorElement>('a[href="/admin"]');
     expect(link?.getAttribute('role')).toBe('menuitem');
 });
@@ -65,6 +67,7 @@ it("offers the selected workspace's tools on every page", async () => {
         expect(await open()).toEqual([
             'Switch workspace / account security',
             'Privacy exports',
+            'Appearance',
             ...partnerTools,
             'Sign out',
         ]);
@@ -79,6 +82,7 @@ it("offers the selected workspace's tools on every page", async () => {
         expect(await open()).toEqual([
             'Switch workspace / account security',
             'Privacy exports',
+            'Appearance',
             'Partner hub',
             'Lead registrations',
             'Sign out',
@@ -90,7 +94,12 @@ it("offers the selected workspace's tools on every page", async () => {
     // Professional workspaces use their own navigation; no selection has no workspace tools.
     for (const activeWorkspace of [{ kind: 'creator', experience: 'professional' }, null]) {
         page.props = { activeWorkspace };
-        expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Sign out']);
+        expect(await open()).toEqual([
+            'Switch workspace / account security',
+            'Privacy exports',
+            'Appearance',
+            'Sign out',
+        ]);
         wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     }
 

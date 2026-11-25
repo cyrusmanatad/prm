@@ -1,9 +1,8 @@
 /* Shared portal shell: header, sidebar and mobile drawer for Brand, Partner and Professional.
-   Uses the foundation tokens; burgundy is retained over the v2 mockup's purple for this layout pass. */
+   Uses the foundation tokens, so it follows the personal accent (appearance.css). */
 .wd-portal {
     --wd-portal-sidebar: 240px;
     --wd-portal-sidebar-collapsed: 72px;
-    --wd-portal-active-bg: #f6e3ec;
     min-height: 100vh;
     background: var(--wd-paper);
     color: var(--wd-ink);
@@ -60,7 +59,7 @@
     font-weight: 700;
 }
 .wd-portal-light .wd-portal-experience {
-    background: var(--wd-portal-active-bg);
+    background: var(--wd-brand-soft);
     color: var(--wd-brand);
 }
 .wd-portal-workspace {
@@ -234,7 +233,7 @@ a.wd-portal-nav-item:hover {
     color: var(--wd-ink);
 }
 a.wd-portal-nav-item[aria-current='page'] {
-    background: var(--wd-portal-active-bg);
+    background: var(--wd-brand-soft);
     color: var(--wd-brand);
     font-weight: 700;
 }

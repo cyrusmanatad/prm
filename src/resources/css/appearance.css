@@ -1,0 +1,15 @@
+/* Personal accent color. Burgundy is the default declared with each token set (foundation.css, portal-theme.css
+   and the semantic tokens in app.css). The server writes the saved choice to <html data-appearance>, so teleported
+   menus, tooltips and dialogs inherit it. Only the accent changes: surfaces, mint, focus, danger, warning, success,
+   stage and chart colors stay the same. Unlayered so it overrides the layered token defaults. */
+:root[data-appearance='purple'] {
+    --wd-brand: #641d73;
+    --wd-brand-hover: #3d1052;
+    --wd-brand-soft: #ede1f2;
+    --wd-brand-wash: #f4eef7;
+    --wd-brand-wash-strong: #f1e8f5;
+    /* Semantic shadcn token and the Tailwind portal utilities (text-brand, bg-brand, bg-blush, bg-primary/90). */
+    --primary: #641d73;
+    --color-brand: #641d73;
+    --color-blush: #ede1f2;
+}

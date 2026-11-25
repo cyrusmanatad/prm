@@ -498,7 +498,7 @@ defineExpose({
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: #f6e3ec;
+    background: var(--wd-brand-soft);
     color: var(--wd-brand-hover);
     font-size: 13px;
     font-weight: 700;
@@ -529,7 +529,7 @@ defineExpose({
     margin-right: 4px;
     padding: 0 7px;
     border-radius: 999px;
-    background: #f6e3ec;
+    background: var(--wd-brand-soft);
     color: var(--wd-brand-hover);
     font-size: 11.5px;
     font-weight: 700;

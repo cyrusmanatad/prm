@@ -8,6 +8,7 @@ import {
     ContactRound,
     FileText,
     LogOut,
+    Palette,
     Settings,
     Share2,
     ShieldCheck,
@@ -118,6 +119,11 @@ function signOut(): void {
                     <DropdownMenuItem v-if="!closing" as-child>
                         <Link href="/account/exports"
                             ><ShieldCheck :size="18" aria-hidden="true" class="shrink-0" />Privacy exports</Link
+                        >
+                    </DropdownMenuItem>
+                    <DropdownMenuItem v-if="!closing" as-child>
+                        <Link href="/account/appearance"
+                            ><Palette :size="18" aria-hidden="true" class="shrink-0" />Appearance</Link
                         >
                     </DropdownMenuItem>
                     <DropdownMenuItem v-for="link in closing ? [] : tools" :key="link.href" as-child>

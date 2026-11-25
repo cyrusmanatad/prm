@@ -64,7 +64,7 @@
 
 .Toastify__toast--info,
 .Toastify__toast--default {
-    background: #f6e3ec;
+    background: var(--wd-brand-soft);
     color: var(--wd-brand-hover);
 }
 

@@ -65,7 +65,7 @@ test('same relationship appears in both portals, private leads survive removal, 
         for (const path of ['/workspaces', '/automation']) {
             await bp.goto(path);
             await bp.getByRole('button', { name: /^Account menu/ }).click();
-            await expect(bp.getByRole('menuitem').locator('svg')).toHaveCount(5);
+            await expect(bp.getByRole('menuitem').locator('svg')).toHaveCount(6);
             await expect(bp.getByRole('menuitem', { name: 'Partner hub', exact: true })).toBeVisible();
             await expect(bp.getByRole('menuitem', { name: 'Lead registrations', exact: true })).toBeVisible();
         }
