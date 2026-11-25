@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { initials as nameInitials } from '../lib/initials';
-import { computed, type Component } from 'vue';
+import { computed, inject, type Component } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
     ClipboardCheck,
@@ -40,7 +40,8 @@ const emit = defineEmits<{ logout: [] }>();
 
 const letters = computed(() => props.initials ?? nameInitials(props.accountName, ''));
 
-// Workspace tools, offered on every page while that kind of workspace is selected. Professional workspaces reach
+// Workspace tools, offered on account, workspace selection and other pages outside the portal shell while that kind
+// of workspace is selected. Inside the portal shell the sidebar lists them, and Professional workspaces always reach
 // their tools from their own navigation.
 const partnerTools: AccountMenuLink[] = [
     { href: '/partner/contacts', label: 'Contacts and reminders', icon: ContactRound },
@@ -61,15 +62,18 @@ const page = usePage<{
 }>();
 const closing = computed(() => page.props?.accountClosing === true);
 const workspace = computed(() => page.props?.activeWorkspace);
+const insidePortal = inject<boolean>('portalShell', false);
 // `links` is only for design fixtures, which have no selected workspace.
 const tools = computed(() =>
     props.links.length
         ? props.links
-        : workspace.value?.kind === 'creator' && workspace.value.experience === 'partner'
-          ? partnerTools
-          : workspace.value?.kind === 'brand'
-            ? brandTools
-            : [],
+        : insidePortal
+          ? []
+          : workspace.value?.kind === 'creator' && workspace.value.experience === 'partner'
+            ? partnerTools
+            : workspace.value?.kind === 'brand'
+              ? brandTools
+              : [],
 );
 const showAdministration = computed(
     () => !props.fixture && page.props?.platformAccess === true && !/^\/admin(?:[/?]|$)/.test(page.url ?? ''),

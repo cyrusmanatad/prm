@@ -1,7 +1,7 @@
 import { confirmMutation } from './confirmations';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
-import { fixture, login } from './helpers';
+import { fixture, login, openPortalTool } from './helpers';
 
 /** Narrow screens show one Media kit section at a time; wide screens show all of them. */
 async function showKitSection(page: Page, name: 'Edit' | 'Preview' | 'Lead links') {
@@ -158,7 +158,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     await login(page, email);
     await page.getByRole('button', { name: /Role test workspace/ }).click();
     await page.getByRole('link', { name: 'Open partner portal' }).click();
-    await page.getByRole('link', { name: 'Media kit', exact: true }).click();
+    await openPortalTool(page, 'Partner', 'Media kit');
     await page.getByLabel('Public title', { exact: true }).fill('A public creator kit');
     const intro = page.getByLabel('Public introduction', { exact: true });
     await intro.fill('A public introduction.');
@@ -228,7 +228,7 @@ test('media kit publication and inbound lead links are explicit and revocable', 
     );
     await expect(page.getByRole('status').filter({ hasText: 'Media kit saved' })).toBeVisible();
     expect((await publicPage.goto(new URL(href!, page.url()).href))?.status()).toBe(404);
-    await page.getByRole('link', { name: 'My leads', exact: true }).click();
+    await openPortalTool(page, 'Partner', 'My leads');
     await expect(page.getByRole('button', { name: /Open Inbound Studio/ })).toBeVisible();
     await context.close();
 });

@@ -193,3 +193,27 @@ export async function writeFollowUp(page: Page, lead: string, recipient: string,
     await expect(drawer).toBeVisible();
     return drawer;
 }
+
+/**
+ * The portal tools navigation for an experience: the sidebar from 1024px, otherwise the labelled Menu drawer, which
+ * this opens. Close an open drawer with Escape when the test stays on the page.
+ */
+export async function portalNavigation(page: Page, experience: 'Brand' | 'Partner' | 'Professional'): Promise<Locator> {
+    const menu = page.getByRole('button', { name: 'Menu', exact: true });
+    if ((page.viewportSize()?.width ?? 1280) < 1024) {
+        await menu.click();
+        return page
+            .getByRole('dialog', { name: `${experience} menu` })
+            .getByRole('navigation', { name: `${experience} tools`, exact: true });
+    }
+    return page.getByRole('navigation', { name: `${experience} tools`, exact: true });
+}
+
+/** Opens a working tool from the portal navigation. */
+export async function openPortalTool(
+    page: Page,
+    experience: 'Brand' | 'Partner' | 'Professional',
+    name: string,
+): Promise<void> {
+    await (await portalNavigation(page, experience)).getByRole('link', { name, exact: true }).click();
+}

@@ -63,7 +63,6 @@ const summary = computed(() => [
 </script>
 <template>
     <BrandChrome
-        current="hub"
         :workspace-name="data.workspace.name"
         :account-name="data.account.name"
         :account-email="data.account.email"

@@ -61,7 +61,7 @@ test('same relationship appears in both portals, private leads survive removal, 
         await login(bp, brandEmail);
         await openBrandHub(bp, 'Habi Home');
         await expect(bp.getByRole('heading', { name: 'Partner hub', exact: true })).toBeVisible();
-        // The account menu offers the Brand pages everywhere, including shared pages with the plain header.
+        // Pages outside the Brand portal shell offer the Brand pages from the account menu.
         for (const path of ['/workspaces', '/automation']) {
             await bp.goto(path);
             await bp.getByRole('button', { name: /^Account menu/ }).click();

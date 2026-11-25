@@ -149,6 +149,18 @@ class LeadRegistrations
         return $query;
     }
 
+    /**
+     * The latest shared registration events visible to this Brand, newest first: a registration or a change to its
+     * shared details. Only the shared allowlist is projected.
+     */
+    public function recentActivity(string $org, int $limit): array
+    {
+        return $this->visible($org)->join('partnerships as p', 'p.id', '=', 'r.partnership_id')
+            ->orderByDesc('r.shared_updated_at')->orderByDesc('r.id')->limit($limit)
+            ->get(['r.id', 'r.display_name', 'r.stage', 'r.registered_at', 'r.shared_updated_at', 'r.partnership_id', 'p.creator_name', 'r.last_event'])
+            ->map(fn ($row) => [...$this->summaryRow($row), 'event' => $row->last_event === 'updated' ? 'updated' : 'registered'])->all();
+    }
+
     /** The shared allowlist of one visible registration, or null. */
     public function detail(string $org, string $id): ?array
     {

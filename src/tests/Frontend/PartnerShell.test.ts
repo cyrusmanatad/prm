@@ -13,15 +13,18 @@ const wrappers: VueWrapper[] = [];
 afterEach(() => wrappers.splice(0).forEach((wrapper) => wrapper.unmount()));
 
 const partner = { kind: 'creator', experience: 'partner' };
-it('keeps the Partner header on Partner tools opened from the account menu', () => {
+it('frames every Partner tool and detail in the Partner portal shell, and nothing else', () => {
     for (const [workspace, url, expected] of [
         [partner, '/partner/contacts', true],
         [partner, '/partner/contacts?entry=lead', true],
         [partner, '/partner/outreach-templates', true],
         [partner, '/partner/onboarding/request-id', true],
         [partner, '/workspaces', false],
-        [partner, '/automation', false],
-        [partner, '/finance/invoices', false],
+        [partner, '/account/exports', false],
+        [partner, '/automation', true],
+        [partner, '/finance/invoices/draft-id', true],
+        [partner, '/workspace/entitlements', true],
+        [partner, '/workspace/support-access', false],
         [partner, '/partner/contactsx', false],
         [{ kind: 'brand', experience: 'partner' }, '/partner/contacts', false],
         [null, '/partner/contacts', false],
@@ -33,10 +36,7 @@ it('keeps the Partner header on Partner tools opened from the account menu', () 
             global: {
                 provide: { workspaceExperience: ref('partner') },
                 stubs: {
-                    PartnerChrome: {
-                        props: ['current'],
-                        template: '<div class="partner-test" :data-current="current"><slot /></div>',
-                    },
+                    PartnerChrome: { template: '<div class="partner-test"><slot /></div>' },
                     AccountMenu: true,
                     WorkspaceNotice: true,
                 },
@@ -49,6 +49,5 @@ it('keeps the Partner header on Partner tools opened from the account menu', () 
         // The page body stays inside one main landmark either way.
         expect(wrapper.findAll('main#main-content')).toHaveLength(1);
         expect(wrapper.get('main#main-content').find('.page-body').exists()).toBe(true);
-        if (expected) expect(chrome.attributes('data-current')).toBe('tools');
     }
 });

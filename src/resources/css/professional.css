@@ -2,120 +2,6 @@
 .wd-professional {
     min-height: 100vh;
 }
-.wd-professional .pro-header {
-    background: var(--wd-brand);
-    color: white;
-}
-.wd-professional .pro-header-inner {
-    max-width: 1408px;
-    margin: auto;
-    padding: 16px 24px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 20px;
-}
-.wd-professional .pro-brand {
-    display: flex;
-    align-items: center;
-    flex: 0 0 auto;
-    gap: 8px;
-    white-space: nowrap;
-    color: inherit;
-    text-decoration: none;
-}
-.wd-professional .pro-experience {
-    font-size: 12px;
-    padding: 3px 8px;
-    background: rgb(255 255 255 / 12%);
-    border-radius: 9999px;
-}
-.wd-professional .pro-header-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-left: auto;
-}
-.wd-professional .pro-desktop-nav {
-    display: none;
-    align-items: center;
-    gap: 4px;
-}
-.wd-professional .pro-desktop-nav > a,
-.wd-professional .pro-nav-trigger,
-.wd-professional .pro-mobile-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 10px 12px;
-    min-height: 44px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: white;
-    text-decoration: none;
-    cursor: pointer;
-}
-.wd-professional .pro-desktop-nav > a:hover,
-.wd-professional .pro-nav-trigger:hover,
-.wd-professional .pro-mobile-trigger:hover,
-.wd-professional .pro-desktop-nav [aria-current='page'],
-.wd-professional .pro-group-active {
-    background: #ffffff20;
-}
-.wd-professional .pro-desktop-nav [aria-current='page'],
-.wd-professional .pro-group-active {
-    box-shadow: inset 0 -3px var(--wd-mint);
-}
-.wd-professional .pro-header :focus-visible {
-    outline: 3px solid var(--wd-mint);
-    outline-offset: 3px;
-}
-.pro-nav-menu {
-    z-index: 60;
-    min-width: 240px;
-    max-width: calc(100vw - 24px);
-    max-height: var(--reka-dropdown-menu-content-available-height);
-    overflow-y: auto;
-    background: var(--wd-surface);
-    color: var(--wd-ink);
-    border: 1px solid var(--wd-line);
-    border-radius: 12px;
-    padding: 8px;
-    box-shadow: 0 8px 24px #221a2614;
-}
-.pro-nav-menu a {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    text-decoration: none;
-    color: var(--wd-ink);
-}
-.pro-nav-menu a[data-highlighted],
-.pro-nav-menu a:focus-visible {
-    outline: 2px solid var(--wd-focus);
-    outline-offset: -2px;
-    background: var(--wd-paper);
-}
-.pro-nav-menu a[aria-current='page'] {
-    color: var(--wd-brand);
-    font-weight: 700;
-    background: var(--wd-danger-bg);
-}
-.pro-mobile-group + .pro-mobile-group {
-    border-top: 1px solid var(--wd-line);
-    margin-top: 4px;
-    padding-top: 4px;
-}
-.pro-mobile-label {
-    font-size: 12px;
-    color: var(--wd-muted);
-    padding: 8px 12px 0;
-}
 .wd-professional .pro-access {
     max-width: 1408px;
     margin: auto;
@@ -150,7 +36,7 @@
     padding: 4px 8px;
 }
 .wd-professional .pro-main,
-.wd-professional > main {
+.wd-professional .wd-portal-content > main {
     width: 100%;
     max-width: 1408px;
     margin: auto;
@@ -195,46 +81,10 @@
     .wd-professional .pro-automation-history {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .wd-professional .pro-header-inner {
-        gap: 12px;
-    }
-    .wd-professional .pro-desktop-nav {
-        display: flex;
-    }
-    .wd-professional .pro-mobile-trigger {
-        display: none;
-    }
-    .pro-mobile-menu {
-        display: none;
-    }
 }
 @media (max-width: 599px) {
-    .wd-professional .pro-header-inner {
-        padding: 8px 12px 8px 16px;
-        gap: 12px;
-    }
-    .wd-professional .pro-brand .wd-wordmark {
-        font-size: 18px;
-    }
-    .wd-professional .pro-header-actions {
-        gap: 4px;
-    }
-    /* One header row on phones: Menu becomes a 44px icon button; its text stays for assistive technology. */
-    .wd-professional .pro-mobile-trigger {
-        position: relative;
-        width: 44px;
-        padding: 0;
-    }
-    .wd-professional .pro-menu-label {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
-    }
     .wd-professional .pro-main,
-    .wd-professional > main {
+    .wd-professional .wd-portal-content > main {
         padding: 16px 16px 40px;
     }
     .wd-professional .pro-access {
@@ -269,10 +119,4 @@
     width: auto;
     min-height: 44px;
     font-size: 14px;
-}
-
-@media (min-width: 1024px) {
-    .wd-professional .pro-mobile-nav {
-        display: none;
-    }
 }

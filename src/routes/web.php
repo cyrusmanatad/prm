@@ -11,6 +11,7 @@ use App\Http\Controllers\BrandLeadController;
 use App\Http\Controllers\BrandRequestController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvoiceDraftController;
 use App\Http\Controllers\LeadRegistrationController;
 use App\Http\Controllers\ManualPaymentController;
@@ -151,6 +152,8 @@ Route::middleware('auth')->group(function (): void {
         Route::middleware(WorkspaceContext::class)->group(function (): void {
             Route::get('/workspace/support-access', [PlatformGovernanceController::class, 'workspaceSupport']);
             Route::post('/workspace/support-access/{grant}', [PlatformGovernanceController::class, 'decideSupport'])->whereUuid('grant')->middleware('throttle:30,1,workspace-support:');
+            // Home is a separate destination per experience; existing hubs and landing redirects are unchanged.
+            Route::get('/{experience}/home', [HomeController::class, 'index'])->whereIn('experience', ['brand', 'partner', 'professional']);
             Route::get('/professional', [ProfessionalController::class, 'index']);
             Route::get('/professional/exports/{resource}', [ProfessionalController::class, 'export'])->whereIn('resource', ['leads', 'contacts', 'reminders', 'invoices', 'payments']);
             Route::get('/professional/leads', [PortalController::class, 'index']);

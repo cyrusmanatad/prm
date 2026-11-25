@@ -1,3 +1,5 @@
+**Portal navigation and Home planning review (2026-11-24):** [handoff, source inventory, Main desktop/mobile observations and planned acceptance gates](shared/portal-navigation-home-handoff.md#planning-verification). Implementation evidence: [shell, Home, tests and visual inspection](shared/portal-navigation-home-evidence.md).
+
 **Owner MFA enforced in CI (2026-11-23):** [enforced browser run in every clean-setup job, code-timing fix, reset procedure proposal](m1/owner-mfa-evidence.md#enforced-browser-run-and-ci-2026-11-23). Local Chromium; CI pending.
 
 **Release candidate `9a65301` (2026-11-23):** [CI run and job IDs, test counts and coverage for M1-05 and the CI part of M6-08](m6/candidate-evidence.md). Not deployed; drills and native Safari remain open.

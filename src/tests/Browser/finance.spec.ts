@@ -133,8 +133,14 @@ test('manual receipt allocation, reversal, void and entitlement visibility', asy
     await expect(voidDialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
     await voidDialog.getByRole('button', { name: 'Void receipt', exact: true }).click();
     await expect(row).toContainText('Voided');
-    await page.getByRole('link', { name: 'Private invoice drafts' }).click();
-    await page.getByRole('link', { name: 'Pilot entitlements' }).click();
+    await page
+        .getByRole('navigation', { name: 'Finance', exact: true })
+        .getByRole('link', { name: 'Private invoice drafts' })
+        .click();
+    await page
+        .getByRole('navigation', { name: 'Finance', exact: true })
+        .getByRole('link', { name: 'Pilot entitlements' })
+        .click();
     await expect(page.getByText('State: unassigned-development')).toBeVisible();
     await settleNotificationAnimations(page);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);

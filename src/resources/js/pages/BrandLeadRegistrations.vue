@@ -111,12 +111,7 @@ const activeFilters = computed(
 
 <template>
     <Head title="Lead registrations" />
-    <BrandChrome
-        current="registrations"
-        :workspace-name="workspace.name"
-        :account-name="account.name"
-        :account-email="account.email"
-    >
+    <BrandChrome :workspace-name="workspace.name" :account-name="account.name" :account-email="account.email">
         <main id="main-content" class="blv-page rg mx-auto flex max-w-[1280px] flex-col gap-3.5 px-6 pt-6 pb-12">
             <header>
                 <h1>Lead registrations</h1>

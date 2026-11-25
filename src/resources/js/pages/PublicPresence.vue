@@ -249,7 +249,7 @@ const panel = ref<'edit' | 'preview' | 'links'>(
 </script>
 <template>
     <Head :title="heading" />
-    <PartnerChrome current="media-kit" :account-name="account.name" :account-email="account.email">
+    <PartnerChrome :account-name="account.name" :account-email="account.email">
         <main id="main-content" class="wd-kit mx-auto max-w-[1280px] px-6 pt-6 pb-12">
             <header class="kit-header">
                 <div>

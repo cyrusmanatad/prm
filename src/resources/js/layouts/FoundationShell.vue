@@ -3,8 +3,8 @@ import { computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import ProfessionalShell from './ProfessionalShell.vue';
 import PartnerChrome from '../features/portals/PartnerChrome.vue';
-import { useWorkspaceExperience } from '../composables/useWorkspaceExperience';
-import { isProfessionalTool } from '../features/portals/professionalNavigation';
+import { usePortalContext } from '../composables/usePortalContext';
+import { isPortalPage } from '../features/portals/portalNavigation';
 import WorkspaceNotice from '../components/WorkspaceNotice.vue';
 import AccountMenu from '../components/AccountMenu.vue';
 import BrandLogo from '../components/BrandLogo.vue';
@@ -15,17 +15,15 @@ defineProps<{
     portal?: 'brand' | 'partner' | 'professional';
 }>();
 defineEmits<{ logout: [] }>();
-const { professional } = useWorkspaceExperience();
-const page = usePage<{ activeWorkspace?: { kind: string; experience: string } | null }>();
-const showProfessional = computed(() => professional.value && isProfessionalTool(page.url));
-// Partner tools opened from the account menu keep the Partner header, like My leads, Media kit and Brand sharing.
-const showPartner = computed(
-    () =>
-        !showProfessional.value &&
-        page.props?.activeWorkspace?.kind === 'creator' &&
-        page.props.activeWorkspace.experience === 'partner' &&
-        /^\/partner\/(contacts|outreach-templates|onboarding)(?:[/?#]|$)/.test(page.url ?? ''),
+const { experience } = usePortalContext();
+const page = usePage();
+// Workspace tools and their details use the portal shell of the selected workspace; account, workspace selection,
+// public and administration pages keep this shell.
+const portalShell = computed(() =>
+    experience.value && isPortalPage(experience.value, page.url ?? '') ? experience.value : null,
 );
+const showProfessional = computed(() => portalShell.value === 'professional');
+const showPartner = computed(() => portalShell.value === 'partner');
 </script>
 
 <template>
@@ -36,11 +34,7 @@ const showPartner = computed(
         @logout="$emit('logout')"
         ><slot
     /></ProfessionalShell>
-    <PartnerChrome
-        v-else-if="showPartner && accountName"
-        :account-name="accountName"
-        :account-email="accountEmail"
-        current="tools"
+    <PartnerChrome v-else-if="showPartner && accountName" :account-name="accountName" :account-email="accountEmail"
         ><main id="main-content" class="wd-main"><slot /></main
     ></PartnerChrome>
     <div v-else class="wd-shell">

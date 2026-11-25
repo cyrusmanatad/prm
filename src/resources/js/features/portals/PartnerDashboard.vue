@@ -49,7 +49,6 @@ const summary = computed(() => [
 </script>
 <template>
     <PartnerChrome
-        current="leads"
         :account-name="data.account.name"
         :account-email="fixture ? 'bea@example.test' : data.account.email"
         :fixture="fixture"

@@ -71,15 +71,17 @@ class InertiaWorkspaceTest extends TestCase
         $own = $service->create($user->id, 'Shared menu workspace');
         $professional = $service->create($user->id, 'Shared menu consulting', experience: 'professional');
         $foreign = $service->create(User::factory()->create()->id, 'Not a member');
+        $partner = ['kind' => 'creator', 'experience' => 'partner', 'name' => 'Shared menu workspace', 'role' => 'owner'];
+        $consulting = ['kind' => 'creator', 'experience' => 'professional', 'name' => 'Shared menu consulting', 'role' => 'owner'];
         $this->actingAs($user)->withSession(['active_org_id' => $own])->get('/workspaces')
-            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'partner'])->etc());
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', $partner)->etc());
         $this->withSession(['active_org_id' => $professional])->get('/workspaces')
-            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'professional'])->etc());
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', $consulting)->etc());
         // Workspace pages render inside the workspace's own tenant context and still describe it.
         $this->withSession(['active_org_id' => $own])->get('/partner/contacts')->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'partner'])->etc());
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', $partner)->etc());
         $this->withSession(['active_org_id' => $professional])->get('/professional/contacts')->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'professional'])->etc());
+            ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', $consulting)->etc());
         // Another account's workspace is never described, even if the session names it.
         $this->withSession(['active_org_id' => $foreign])->get('/workspaces')
             ->assertInertia(fn (Assert $page) => $page->where('activeWorkspace', null)->etc());

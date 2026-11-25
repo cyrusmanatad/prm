@@ -9,6 +9,8 @@ import {
     migrationFixture,
     mutate,
     openBrandHub,
+    openPortalTool,
+    portalNavigation,
     reviewWidths,
     smallTouchTargets,
 } from './helpers';
@@ -156,8 +158,9 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         );
         await expect(bp.getByRole('heading', { name: 'Lead registrations', level: 1 })).toBeVisible();
         await expect(
-            bp.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Lead registrations' }),
+            (await portalNavigation(bp, 'Brand')).getByRole('link', { name: 'Lead registrations' }),
         ).toHaveAttribute('aria-current', 'page');
+        await bp.keyboard.press('Escape');
         const list = bp.getByRole('region', { name: 'Lead registrations table' });
         await expect(list.getByRole('row')).toHaveCount(3);
         await expect(bp.getByRole('navigation', { name: 'Lead registrations pages' })).toContainText(
@@ -174,7 +177,7 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(bp.locator('body')).not.toContainText('Private journey note 4242');
         await expect(bp.locator('body')).not.toContainText('(private)');
         // The summary card opens the same unfiltered list.
-        await bp.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Partner hub' }).click();
+        await openPortalTool(bp, 'Brand', 'Partner hub');
         await summary.getByRole('link', { name: 'View lead registrations' }).click();
         await expect(bp.getByRole('navigation', { name: 'Lead registrations pages' })).toContainText(
             'of 4 matching registrations',
