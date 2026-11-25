@@ -1,3 +1,5 @@
+**Next header correction (2026-11-24):** [Claude handoff](portal-header-alignment-handoff.md): search after branding with a translucent surface, selected workspace name beside the avatar; preserve existing search scope and both personal palettes. Implemented locally; see [evidence](portal-header-alignment-evidence.md).
+
 **Next portal UI slice (2026-11-24):** [personal accent preference handoff](appearance-preference-handoff.md): Burgundy default and optional Purple per user, building on the navigation/Home PR. Implemented locally (uncommitted); see [evidence](appearance-preference-evidence.md). No merge or deployment authorized by this planning update.
 
 **Portal UI handoff (2026-11-24):** the user assigned implementation to Claude. Start with [portal navigation and Home](portal-navigation-home-handoff.md) for the shared sidebar, new experience-specific Home destinations and preservation of unavailable menu items. Implemented locally (uncommitted); see [evidence](portal-navigation-home-evidence.md). This does not change backend milestone priorities or authorize deployment.

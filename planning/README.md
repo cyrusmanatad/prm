@@ -1,3 +1,5 @@
+**Portal header correction (2026-11-24):** [Claude handoff](shared/portal-header-alignment-handoff.md) for left-positioned translucent search and the selected workspace name beside the avatar. Builds on navigation/Home and personal appearance. Implemented locally; see [evidence](shared/portal-header-alignment-evidence.md).
+
 **Personal accent color (2026-11-24):** [Claude handoff](shared/appearance-preference-handoff.md) for account-level Burgundy/Purple selection, Burgundy default. Follows the navigation/Home work. Implemented locally and uncommitted; see [evidence](shared/appearance-preference-evidence.md).
 
 **Portal navigation and Home planning (2026-11-24):** [Claude implementation handoff](shared/portal-navigation-home-handoff.md) for shared Brand/Partner/Professional navigation, distinct Home pages and preserved disabled sidebar entries. Implemented locally and uncommitted; see [evidence](shared/portal-navigation-home-evidence.md). Color and landing destination remain open decisions.

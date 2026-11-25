@@ -181,6 +181,38 @@ summary:focus-visible {
     outline: 2px solid #fff;
     outline-offset: 4px;
 }
+/* Portal headers show the selected workspace before the avatar in one outlined button (v2). The button still opens
+   the account menu, which holds the workspace switch. */
+.wd-account-trigger.wd-account-trigger-labelled {
+    justify-content: flex-start;
+    gap: 10px;
+    flex-shrink: 1;
+    width: auto;
+    /* Never narrower than the avatar and its padding, so the avatar cannot spill out. */
+    min-width: 72px;
+    max-width: 280px;
+    height: auto;
+    min-height: 44px;
+    padding: 4px 4px 4px 14px;
+    border: 1px solid rgb(255 255 255 / 35%);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.wd-account-trigger-labelled .wd-avatar {
+    flex: none;
+    width: 34px;
+    height: 34px;
+}
+.wd-account-workspace {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.wd-account-trigger-light.wd-account-trigger-labelled {
+    border-color: var(--wd-control-line);
+}
 .wd-account-trigger-light {
     color: var(--wd-ink);
 }

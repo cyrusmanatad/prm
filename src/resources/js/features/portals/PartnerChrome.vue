@@ -58,16 +58,15 @@ function searchLeads(): void {
         :contain-main="false"
         @logout="router.post('/logout')"
     >
-        <template #actions>
+        <template #search>
             <div role="search" class="wd-portal-search wd-portal-lead-search">
                 <label for="portal-lead-search" class="wd-sr-only">Search leads</label>
-                <Search :size="16" aria-hidden="true" class="wd-portal-search-icon" />
+                <Search :size="18" aria-hidden="true" class="wd-portal-search-icon" />
                 <input
                     id="portal-lead-search"
                     v-model="search"
                     type="search"
                     placeholder="Search leads…"
-                    class="w-full min-w-0 rounded-lg bg-white py-[9px] pr-3 pl-9 text-[14px] text-ink placeholder:text-muted"
                     @keydown.enter="searchLeads"
                 />
             </div>

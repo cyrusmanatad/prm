@@ -47,7 +47,7 @@ const profile = computed<DetailItem[]>(() => [
 <template>
     <Head :title="partner.creator_name" />
     <BrandChrome :workspace-name="workspace.name" :account-name="account.name" :account-email="account.email">
-        <main id="main-content" class="blv-page mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
+        <main id="main-content" class="blv-page wd-portal-page flex flex-col gap-6 pt-7 pb-12">
             <div>
                 <BackLink href="/brand" label="Back to Partner hub" />
                 <div class="wd-partner-identity mt-2">

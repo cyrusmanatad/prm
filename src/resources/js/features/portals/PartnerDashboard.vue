@@ -54,7 +54,7 @@ const summary = computed(() => [
         :fixture="fixture"
         :search-value="data.pipeline?.filters.q ?? ''"
     >
-        <main id="main-content" class="pro-leads mx-auto flex max-w-[1408px] flex-col gap-6 px-6 pt-7 pb-12">
+        <main id="main-content" class="pro-leads wd-portal-page flex flex-col gap-6 pt-7 pb-12">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <p class="mb-1 text-[14px] text-muted">{{ fixture ? 'Saturday, 17 October' : today }}</p>
