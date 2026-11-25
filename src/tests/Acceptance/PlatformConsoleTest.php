@@ -153,7 +153,7 @@ class PlatformConsoleTest extends AcceptanceCase
         $org = app(Workspaces::class)->create($operator->id, 'Operator studio');
         $this->actingAs($operator)->withSession(['active_org_id' => $org])->get('/partner/contacts')->assertOk()
             ->assertInertia(fn ($page) => $page->where('platformAccess', true)
-                ->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'partner']));
+                ->where('activeWorkspace', ['kind' => 'creator', 'experience' => 'partner', 'name' => 'Operator studio', 'role' => 'owner']));
 
         $unverified = User::factory()->unverified()->create();
         $this->control->table('platform_grants')->insert(['user_id' => $unverified->id, 'permissions' => '{directory.read}']);
