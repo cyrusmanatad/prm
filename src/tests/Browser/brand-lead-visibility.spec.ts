@@ -13,6 +13,7 @@ import {
     portalNavigation,
     reviewWidths,
     smallTouchTargets,
+    reloadAndSettleHistory,
 } from './helpers';
 
 type Seed = { brand: string; lead: string; partners: { org: string; relationship: string; name: string }[] };
@@ -134,7 +135,8 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(
             bp.getByRole('region', { name: 'Partners', exact: true }).getByText('All 13', { exact: true }),
         ).toBeVisible();
-        await bp.reload();
+        // Back must not race Inertia's asynchronous history write for the reloaded page.
+        await reloadAndSettleHistory(bp);
         await expect(roster.getByRole('row')).toHaveCount(4);
         await bp.goBack();
         await expect(bp).toHaveURL(/\/brand$/);

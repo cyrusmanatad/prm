@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { automationTab, fixture, login, mutate, writeFollowUp } from './helpers';
+import { automationTab, fixture, login, mutate, writeFollowUp, settleAnimations } from './helpers';
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 test('explicit approved sending and MFA-protected resolution never replay uncertain email', async ({ page }, info) => {
@@ -164,6 +164,7 @@ test('directory navigation reaches delivery diagnostics with scoped read permiss
         .getByRole('link', { name: 'Notifications', exact: true });
     await expect(link).toBeVisible();
     expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await settleAnimations(page);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.DELIVERY_VISUAL_DIR?.startsWith('/tmp/')) {
         if (process.env.CAPTURE_BROWSER_IMAGES === '1')

@@ -202,9 +202,10 @@ export async function portalNavigation(page: Page, experience: 'Brand' | 'Partne
     const menu = page.getByRole('button', { name: 'Menu', exact: true });
     if ((page.viewportSize()?.width ?? 1280) < 1024) {
         await menu.click();
-        return page
-            .getByRole('dialog', { name: `${experience} menu` })
-            .getByRole('navigation', { name: `${experience} tools`, exact: true });
+        const drawer = page.getByRole('dialog', { name: `${experience} menu` });
+        await expect(drawer).toBeVisible();
+        await settleAnimations(page);
+        return drawer.getByRole('navigation', { name: `${experience} tools`, exact: true });
     }
     return page.getByRole('navigation', { name: `${experience} tools`, exact: true });
 }
@@ -216,4 +217,42 @@ export async function openPortalTool(
     name: string,
 ): Promise<void> {
     await (await portalNavigation(page, experience)).getByRole('link', { name, exact: true }).click();
+}
+
+/**
+ * Waits for finite animations, such as a drawer fading in, so accessibility scans and measurements see the settled
+ * page rather than a half-transparent frame. Scroll-driven animations never finish and are ignored.
+ */
+export async function settleAnimations(page: Page): Promise<void> {
+    await page.evaluate(() =>
+        Promise.all(
+            document
+                .getAnimations()
+                .filter((animation) => animation.timeline === document.timeline)
+                .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
+                .map((animation) => animation.finished.catch(() => undefined)),
+        ),
+    );
+}
+
+/**
+ * Reloads and waits until Inertia has written the reloaded page into browser history. Inertia encrypts the page and
+ * calls `history.replaceState` asynchronously after load; a Back pressed before that write lands has its URL
+ * overwritten with the reloaded one.
+ */
+export async function reloadAndSettleHistory(page: Page): Promise<void> {
+    await page.addInitScript(() => {
+        const marked = window as unknown as { __inertiaHistoryWrites?: number };
+        if (marked.__inertiaHistoryWrites !== undefined) return;
+        marked.__inertiaHistoryWrites = 0;
+        const replace = history.replaceState.bind(history);
+        history.replaceState = (state, unused, url) => {
+            if (state && typeof state === 'object' && 'page' in state) marked.__inertiaHistoryWrites! += 1;
+            return replace(state, unused, url);
+        };
+    });
+    await page.reload();
+    await page.waitForFunction(
+        () => ((window as unknown as { __inertiaHistoryWrites?: number }).__inertiaHistoryWrites ?? 0) > 0,
+    );
 }

@@ -12,6 +12,7 @@ import {
     openBrandHub,
     smallTouchTargets,
     writeFollowUp,
+    settleAnimations,
 } from './helpers';
 import AxeBuilder from '@axe-core/playwright';
 const routes = [
@@ -207,6 +208,8 @@ test('Professional presentation, destinations and editor cancellation', async ({
         'aria-current',
         'page',
     );
+    // The drawer fades in; scan the settled drawer, not a half-transparent frame.
+    await settleAnimations(page);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     if (process.env.CAPTURE_BROWSER_IMAGES === '1')
         await page.screenshot({
