@@ -1,4 +1,4 @@
-**Brand Partner record (2026-11-26):** [handoff](brand-partner-detail-mockup-handoff.md) → [mockup review](brand-partner-detail-mockup-review.md), approved by the user, → production redesign with record search, filter and sort on branch `feat/brand-partner-record` ([evidence](brand-partner-record-evidence.md)). Awaiting PR review; deployment remains paused.
+**Brand Partner record (2026-11-26):** [handoff](brand-partner-detail-mockup-handoff.md) → [mockup review](brand-partner-detail-mockup-review.md), approved by the user, → production redesign with record search, filter and sort merged to `main` at `54fb7ef` ([cyrusmanatad/prm#101](https://github.com/cyrusmanatad/prm/pull/101)) on 2026-11-26 ([evidence](brand-partner-record-evidence.md)). Not deployed; deployment remains paused.
 
 **Next header correction (2026-11-24):** [Claude handoff](portal-header-alignment-handoff.md): search after branding with a translucent surface, selected workspace name beside the avatar; preserve existing search scope and both personal palettes. Implemented locally; see [evidence](portal-header-alignment-evidence.md).
 

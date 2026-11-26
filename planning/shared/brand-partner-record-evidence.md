@@ -1,6 +1,6 @@
 # Brand Partner record redesign — evidence
 
-Date: 2026-11-26. Branch `feat/brand-partner-record` from `origin/main` at `5bb4976`. **Status:** implemented and locally verified; not committed, not merged, not deployed. Design: approved [mockup review](brand-partner-detail-mockup-review.md) (**Confirmed** 2026-11-26), with its open choices at the proposed defaults.
+Date: 2026-11-26. Branch `feat/brand-partner-record` from `origin/main` at `5bb4976`. **Status:** implemented, locally verified and merged to `main` at `54fb7ef` ([cyrusmanatad/prm#101](https://github.com/cyrusmanatad/prm/pull/101)) on 2026-11-26; not deployed. Design: approved [mockup review](brand-partner-detail-mockup-review.md) (**Confirmed** 2026-11-26), with its open choices at the proposed defaults.
 
 ## Scope
 

@@ -1,6 +1,6 @@
 # Brand Partner detail — mockup review
 
-Date: 2026-11-25; revised 2026-11-26 (search, filter and sort added to the leads table at the user's request). Baseline: `cce4871` plus existing local changes (untouched). Source: [handoff](brand-partner-detail-mockup-handoff.md). Status: **Confirmed (2026-11-26):** the user approved this direction, including table search, filter and sort. Open choices below default to the proposed options unless the user says otherwise. **Mockup**. Production implementation: done locally on `feat/brand-partner-record`, not committed or deployed; see [evidence](brand-partner-record-evidence.md). Production page, components, CSS, routes and data are unchanged; nothing is implemented.
+Date: 2026-11-25; revised 2026-11-26 (search, filter and sort added to the leads table at the user's request). Baseline: `cce4871` plus existing local changes (untouched). Source: [handoff](brand-partner-detail-mockup-handoff.md). Status: **Confirmed (2026-11-26):** the user approved this direction, including table search, filter and sort. Open choices below default to the proposed options unless the user says otherwise. **Mockup**. Production implementation: merged to `main` at `54fb7ef` ([cyrusmanatad/prm#101](https://github.com/cyrusmanatad/prm/pull/101)) on 2026-11-26; not deployed; see [evidence](brand-partner-record-evidence.md). Production page, components, CSS, routes and data are unchanged; nothing is implemented.
 
 ## Viewing
 
@@ -131,4 +131,4 @@ Screenshots were temporary (scratch directory outside the repository) and delete
 5. Header `In the last 30 days` figure: keep linking to Lead registrations (proposed, unchanged) or apply the in-page `Last 30 days` filter now that the record supports it.
 6. Stage filter as chips with counts (proposed, as the list) or a compact `Stage` select to save vertical space; eight chips wrap to two rows in the desktop leads column.
 
-**Confirmed (2026-11-26):** mockup approved. Implemented locally 2026-11-26; see [evidence](brand-partner-record-evidence.md).
+**Confirmed (2026-11-26):** mockup approved. Implemented and merged to `main` at `54fb7ef` ([cyrusmanatad/prm#101](https://github.com/cyrusmanatad/prm/pull/101)) on 2026-11-26; see [evidence](brand-partner-record-evidence.md).
