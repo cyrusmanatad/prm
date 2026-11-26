@@ -1536,8 +1536,9 @@ function newReminder(title = ''): void {
     }
 }
 /* Contacts table at list density. */
+/* The table sits inside the card's side padding with its own rounded border, as on other pages. */
 .crm-table {
-    border-top: 1px solid var(--wd-divider);
+    margin: 0 14px 14px;
 }
 .crm-table :deep(.wd-data-table) {
     min-width: 640px;
@@ -1630,8 +1631,7 @@ function newReminder(title = ''): void {
     margin: 0 14px 14px;
 }
 .crm-pagination {
-    padding: 8px 14px;
-    border-top: 1px solid var(--wd-divider);
+    padding: 0 14px 14px;
 }
 /* Reminders. */
 .crm-segment {

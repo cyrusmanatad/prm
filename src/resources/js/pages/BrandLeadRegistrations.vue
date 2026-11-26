@@ -244,11 +244,11 @@ function closeDrawer(): void {
     margin: 0 14px 14px;
 }
 .rg-pager {
-    padding: 8px 14px;
-    border-top: 1px solid var(--wd-divider);
+    padding: 0 14px 14px;
 }
+/* The table keeps its own bordered, rounded region inset by the card's side padding, as on other pages. */
 .rg :deep(.wd-registration-table) {
-    border-top: 1px solid var(--wd-divider);
+    margin: 0 14px 14px;
 }
 @media (max-width: 899px) {
     .rg-stats {

@@ -664,10 +664,6 @@
 .wd-admin .rec-card > .wd-empty-state {
     margin: 0 14px 14px;
 }
-.wd-admin .rec-card > .rec-table:last-child,
-.wd-admin .rec-card > .wd-data-region:last-child {
-    border-radius: 0 0 10px 10px;
-}
 @media (max-width: 599px) {
     .wd-admin .adm-stats-4 {
         grid-template-columns: repeat(2, minmax(0, 1fr));

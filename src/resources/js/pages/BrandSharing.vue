@@ -906,8 +906,9 @@ const brandShares = (brand: Brand) =>
     margin: 0;
     padding: 0 14px 12px;
 }
+/* The table sits inside the card's side padding with its own rounded border, as on other pages. */
 .bs-table {
-    border-top: 1px solid var(--wd-divider);
+    margin: 0 14px 14px;
 }
 .bs-table :deep(.wd-data-table) {
     font-size: 13px;
@@ -951,8 +952,7 @@ const brandShares = (brand: Brand) =>
     margin: 0 14px 14px;
 }
 .bs-pagination {
-    padding: 8px 14px;
-    border-top: 1px solid var(--wd-divider);
+    padding: 0 14px 14px;
 }
 .bs-brands {
     margin: 0;
