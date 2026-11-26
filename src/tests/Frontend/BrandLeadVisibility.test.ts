@@ -355,6 +355,8 @@ it('shows a partner record with an empty optional profile and never links an uns
         stages,
         registrations: [registration],
         pagination: { page: 1, perPage: 10, total: 1 },
+        filters: { q: '', stage: '', window: '', sort: '' },
+        facets: { stages: { 'repeat-client': 1 }, stageTotal: 1 },
         canManage: true,
         partner: {
             ...partner({ leads_total: 1, leads_30d: 1 }),
@@ -364,13 +366,17 @@ it('shows a partner record with an empty optional profile and never links an uns
     const wrapper = show(mount(BrandPartner, { props, global: { stubs } }));
     expect(wrapper.text()).toContain('Not shared');
     expect(wrapper.findAll('a').some((link) => link.attributes('href')?.startsWith('javascript'))).toBe(false);
-    expect(wrapper.findAll('.wd-stat-card a').map((link) => link.attributes('href'))).toEqual([
+    expect(wrapper.findAll('a.wd-stat-chip').map((link) => link.attributes('href'))).toEqual([
         '/brand/lead-registrations?partner=p1',
         '/brand/lead-registrations?partner=p1&window=30d',
     ]);
     // From a Partner record, a lead opens in the drawer over that partner's registrations.
     expect(wrapper.get('tbody th a').attributes('href')).toBe('/brand/lead-registrations?partner=p1&registration=r1');
-    expect(wrapper.get('.wd-partner-identity .wd-partner-avatar').classes()).toContain('is-48');
+    expect(wrapper.get('.bp-identity .wd-partner-avatar').classes()).toContain('is-48');
+    // One record title; the partnership status and an Email action from the shared profile sit in the header.
+    expect(wrapper.findAll('h1').map((title) => title.text())).toEqual(['Cedar Creator']);
+    expect(wrapper.get('.bp-meta').text()).toContain('Active');
+    expect(wrapper.find('.bp-actions a[href^="mailto:"]').exists()).toBe(false); // No email shared.
     expect(wrapper.find('tbody .wd-partner-avatar').exists()).toBe(false); // The record already names its partner.
     const safe = show(
         mount(BrandPartner, {
@@ -385,6 +391,19 @@ it('shows a partner record with an empty optional profile and never links an uns
         }),
     );
     expect(safe.get('a[href="https://example.test/p"]').attributes('rel')).toContain('noopener');
+    const contact = show(
+        mount(BrandPartner, {
+            props: {
+                ...props,
+                partner: {
+                    ...props.partner,
+                    profile: { ...props.partner.profile, contact_name: 'Ana Reyes', contact_email: 'ana@example.test' },
+                },
+            },
+            global: { stubs },
+        }),
+    );
+    expect(contact.get('.bp-actions a[href="mailto:ana@example.test"]').text()).toBe('Email Ana Reyes');
     const paused = show(
         mount(BrandPartner, {
             props: {
@@ -396,8 +415,74 @@ it('shows a partner record with an empty optional profile and never links an uns
         }),
     );
     expect(paused.text()).toContain('Not shown while the partnership is paused.');
-    expect(paused.find('.wd-stat-card').exists()).toBe(false);
+    expect(paused.find('.wd-stat-chip').exists()).toBe(false);
+    expect(paused.find('form[role="search"]').exists()).toBe(false);
+    expect(paused.find('.bp-actions').exists()).toBe(false);
+    expect(paused.get('.bp-meta').text()).toContain('Paused');
+    expect(paused.get('.bp-meta').text()).not.toContain('Last active');
     expect(paused.text()).not.toMatch(/suspend/i);
+});
+
+it('searches, filters and sorts a partner record within that partner only', async () => {
+    const props = {
+        account,
+        workspace,
+        stages,
+        registrations: [registration],
+        pagination: { page: 1, perPage: 10, total: 1 },
+        filters: { q: '', stage: '', window: '', sort: 'lead_asc' },
+        facets: { stages: { lead: 2, 'repeat-client': 1 }, stageTotal: 3 },
+        canManage: true,
+        partner: { ...partner({ leads_total: 3, leads_30d: 1 }), profile: null },
+    };
+    const wrapper = show(mount(BrandPartner, { props, global: { stubs } }));
+    const options = {
+        preserveScroll: true,
+        preserveState: true,
+        onStart: expect.any(Function),
+        onFinish: expect.any(Function),
+    };
+    // Stage chips carry counts and keep the other filters; no partner choice is offered on a record.
+    const chips = wrapper.findAll('.wd-filter-chips a');
+    expect(chips.map((chip) => chip.text())).toEqual(['All 3', 'Lead 2', 'Repeat Client 1', 'Lost 0']);
+    expect(chips[1]!.attributes('href')).toBe('/brand/partners/p1?stage=lead&sort=lead_asc');
+    expect(wrapper.find('#partner-leads-partner-trigger').exists()).toBe(false);
+    await wrapper.get('#partner-leads-search').setValue('liwanag');
+    await wrapper.get('form[role="search"]').trigger('submit');
+    expect(router.get).toHaveBeenLastCalledWith('/brand/partners/p1', { q: 'liwanag', sort: 'lead_asc' }, options);
+    // Column headers sort within the record and return to its first page.
+    expect(wrapper.findAll('thead th')[0]!.attributes('aria-sort')).toBe('ascending');
+    expect(wrapper.get('thead th a').attributes('href')).toBe('/brand/partners/p1?sort=lead_desc');
+    expect(wrapper.find('.wd-pagination').exists()).toBe(true);
+    // A filter that matches nothing explains itself and offers Clear filters; the header figures stay unfiltered.
+    const none = show(
+        mount(BrandPartner, {
+            props: { ...props, registrations: [], filters: { ...props.filters, q: 'zzz' } },
+            global: { stubs },
+        }),
+    );
+    expect(none.text()).toContain('No registrations match these filters');
+    expect(none.get('a.wd-stat-chip').text()).toContain('3');
+    vi.useFakeTimers();
+    router.get.mockClear();
+    await none
+        .findAll('button')
+        .find((button) => button.text() === 'Clear filters')!
+        .trigger('click');
+    expect(router.get).toHaveBeenLastCalledWith('/brand/partners/p1', { sort: 'lead_asc' }, options);
+    // Emptying the search box must not send a second, delayed visit that would cancel the next navigation.
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(router.get).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    // Before any lead is registered there is nothing to filter.
+    const empty = show(
+        mount(BrandPartner, {
+            props: { ...props, registrations: [], partner: { ...props.partner, leads_total: 0 } },
+            global: { stubs },
+        }),
+    );
+    expect(empty.find('form[role="search"]').exists()).toBe(false);
+    expect(empty.text()).toContain('No leads registered yet');
 });
 
 it('explains what a Brand will see before a partner registers a lead, and confirms a withdrawal', async () => {

@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Mockup – Brand Partner record · WeavDash</title>
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <!-- Prototype controls: not product UI. Nothing here is saved or sent anywhere. -->
+        <aside class="proto-bar" aria-labelledby="proto-title">
+            <div class="proto-bar-inner">
+                <p id="proto-title" class="proto-title">
+                    <span class="proto-tag">Mockup</span> Brand Partner record — prototype controls
+                </p>
+                <div class="proto-field">
+                    <label for="proto-state">State</label>
+                    <select id="proto-state">
+                        <option value="populated">Populated</option>
+                        <option value="empty">No registered leads</option>
+                        <option value="noprofile">No shared profile</option>
+                        <option value="paused">Paused / unavailable</option>
+                        <option value="long">Long names and content</option>
+                    </select>
+                </div>
+                <div class="proto-field">
+                    <label for="proto-palette">Personal accent</label>
+                    <select id="proto-palette">
+                        <option value="burgundy">Burgundy (default)</option>
+                        <option value="purple">Purple</option>
+                    </select>
+                </div>
+                <p id="proto-status" class="proto-status" role="status" aria-live="polite">
+                    Synthetic data. Links are demo links and never reach the app.
+                </p>
+            </div>
+        </aside>
+
+        <div class="wd-portal wd-portal-light" id="portal">
+            <a class="wd-skip-link" href="#main-content">Skip to main content</a>
+            <header class="wd-portal-header">
+                <div class="wd-portal-header-inner">
+                    <button type="button" class="wd-portal-menu-button" id="menu-open" aria-controls="drawer">
+                        <svg class="i" width="20" height="20" aria-hidden="true">
+                            <use href="#i-menu" /></svg
+                        ><span class="wd-sr-only">Menu</span>
+                    </button>
+                    <div class="wd-portal-masthead">
+                        <span class="wd-portal-brand">
+                            <svg class="wd-logo" width="36" height="34" aria-hidden="true">
+                                <use href="#i-logo" /></svg
+                            ><span class="wd-wordmark">WeavDash</span>
+                        </span>
+                        <p class="wd-portal-identity">
+                            <span class="wd-portal-experience">Brand</span>
+                        </p>
+                    </div>
+                    <div class="wd-portal-actions">
+                        <button
+                            type="button"
+                            class="wd-account-trigger"
+                            aria-haspopup="menu"
+                            data-demo="Opens the existing account menu (workspace switch, appearance, sign out). Not part of this redesign."
+                        >
+                            <span class="wd-sr-only">Account menu: </span
+                            ><span class="wd-account-workspace" data-bind="workspace"></span
+                            ><span class="wd-avatar">BS</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <div class="wd-portal-body">
+                <div class="wd-portal-sidebar">
+                    <div class="wd-portal-sidebar-inner">
+                        <div id="portal-sidebar" class="wd-portal-sidebar-scroll" data-nav="sidebar"></div>
+                        <button
+                            type="button"
+                            class="wd-portal-collapse"
+                            id="collapse"
+                            aria-controls="portal-sidebar"
+                            aria-expanded="true"
+                        >
+                            <svg class="i" width="20" height="20" aria-hidden="true">
+                                <use href="#i-panel" />
+                            </svg>
+                            <span class="collapse-label">Collapse<span class="wd-sr-only"> navigation</span></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="wd-portal-content">
+                    <main id="main-content" class="pr-page" tabindex="-1"></main>
+                </div>
+            </div>
+        </div>
+
+        <dialog id="drawer" class="wd-portal-drawer" aria-labelledby="drawer-title">
+            <div class="wd-portal-drawer-header">
+                <div>
+                    <h2 id="drawer-title" class="wd-portal-drawer-title">Brand menu</h2>
+                    <p class="wd-portal-drawer-workspace" data-bind="workspace"></p>
+                </div>
+                <button type="button" class="wd-portal-menu-button" id="menu-close">
+                    <svg class="i" width="20" height="20" aria-hidden="true">
+                        <use href="#i-x" /></svg
+                    ><span class="wd-sr-only">Close menu</span>
+                </button>
+            </div>
+            <div data-nav="drawer"></div>
+        </dialog>
+
+        <!-- Icons follow the Lucide set used by production (@lucide/vue). -->
+        <svg width="0" height="0" class="wd-sr-only" aria-hidden="true">
+            <defs>
+                <symbol id="i-logo" viewBox="0 0 128 120">
+                    <circle cx="60" cy="60" r="52" fill="#E3C79A" />
+                    <circle cx="60" cy="60" r="45" fill="#8E1650" />
+                    <g stroke="#FBF7EF" stroke-width="2.4" stroke-linecap="round">
+                        <path
+                            d="M72 60H106M71.6 63.1 104.4 71.9M70.4 66 99.8 83M68.5 68.5 92.5 92.5M66 70.4 83 99.8M63.1 71.6 71.9 104.4M60 72V106M56.9 71.6 48.1 104.4M54 70.4 37 99.8M51.5 68.5 27.5 92.5M49.6 66 20.2 83M48.4 63.1 15.6 71.9M48 60H14M48.4 56.9 15.6 48.1M49.6 54 20.2 37M51.5 51.5 27.5 27.5M54 49.6 37 20.2M56.9 48.4 48.1 15.6M60 48V14M63.1 48.4 71.9 15.6M66 49.6 83 20.2M68.5 51.5 92.5 27.5M70.4 54 99.8 37M71.6 56.9 104.4 48.1"
+                        />
+                    </g>
+                    <path
+                        d="M60 58c2-.6 4 1 3.5 3.5-.6 3-4.6 4.2-7.3 2.4-3.6-2.4-3-7.8.6-10.1 4.6-2.9 11-.5 12.4 4.6 1.6 5.8-2.5 11.5-8.4 12-6.9.6-12.6-5.2-12-12 .7-7.8 8.4-13.1 16-11.3 8.4 2 13.3 11 10.6 19.1-2.9 8.9-13.2 13.6-21.8 10.2-9.1-3.6-13.5-14.4-9.6-23.3 3.8-8.7 14.2-13 23-9.4 4.2 1.7 7.5 5 9.3 9.1"
+                        fill="none"
+                        stroke="#8FD0B8"
+                        stroke-width="5"
+                        stroke-linecap="round"
+                    />
+                    <path
+                        d="M79 53.8C88 45 100 33 121 20"
+                        fill="none"
+                        stroke="#8FD0B8"
+                        stroke-width="7"
+                        stroke-linecap="round"
+                    />
+                </symbol>
+                <symbol
+                    id="i-menu"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                >
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                </symbol>
+                <symbol
+                    id="i-x"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                </symbol>
+                <symbol
+                    id="i-panel"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M9 3v18M16 15l-3-3 3-3" />
+                </symbol>
+                <symbol
+                    id="i-house"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                    <path
+                        d="M3 10a2 2 0 0 1 .7-1.5l7-6a2 2 0 0 1 2.6 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                    />
+                </symbol>
+                <symbol
+                    id="i-users"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </symbol>
+                <symbol
+                    id="i-clipboard"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="8" y="2" width="8" height="4" rx="1" />
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                    <path d="m9 14 2 2 4-4" />
+                </symbol>
+                <symbol
+                    id="i-megaphone"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m3 11 18-5v12L3 14v-3z" />
+                    <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+                </symbol>
+                <symbol
+                    id="i-gift"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="3" y="8" width="18" height="4" rx="1" />
+                    <path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+                    <path d="M7.5 8a2.5 2.5 0 0 1 0-5C9.5 3 12 8 12 8s2.5-5 4.5-5a2.5 2.5 0 0 1 0 5" />
+                </symbol>
+                <symbol
+                    id="i-cap"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M22 10 12 5 2 10l10 5 10-5z" />
+                    <path d="M6 12v5c3 3 9 3 12 0v-5M22 10v6" />
+                </symbol>
+                <symbol
+                    id="i-wallet"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2"
+                    />
+                    <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+                </symbol>
+                <symbol
+                    id="i-check"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="m9 12 2 2 4-4" />
+                </symbol>
+                <symbol
+                    id="i-alert"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z" />
+                    <path d="M12 9v4M12 17h.01" />
+                </symbol>
+                <symbol
+                    id="i-mail"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-10 6L2 7" />
+                </symbol>
+                <symbol
+                    id="i-arrow"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </symbol>
+                <symbol
+                    id="i-external"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                </symbol>
+                <symbol
+                    id="i-chev-l"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m15 18-6-6 6-6" />
+                </symbol>
+                <symbol
+                    id="i-chev-r"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m9 18 6-6-6-6" />
+                </symbol>
+                <symbol
+                    id="i-lock"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </symbol>
+                <symbol
+                    id="i-search"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </symbol>
+                <symbol
+                    id="i-up"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m5 12 7-7 7 7M12 19V5" />
+                </symbol>
+                <symbol
+                    id="i-down"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M12 5v14M19 12l-7 7-7-7" />
+                </symbol>
+                <symbol
+                    id="i-updown"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m21 16-4 4-4-4M17 20V4M3 8l4-4 4 4M7 4v16" />
+                </symbol>
+            </defs>
+        </svg>
+        <script src="./app.js"></script>
+    </body>
+</html>

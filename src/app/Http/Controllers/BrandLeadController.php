@@ -67,13 +67,19 @@ class BrandLeadController extends Controller
             return redirect('/workspaces');
         }
         $page = (int) ($request->validate(['page' => ['nullable', 'integer', 'min:1', 'max:100000']])['page'] ?? 1);
+        // The record's own list: search, stage, window and sort only. The partner is always the route's relationship,
+        // so a partner or page-size parameter in the query is ignored rather than trusted.
+        $filters = array_intersect_key($this->filters($request, record: true), array_flip(['q', 'stage', 'window', 'sort']));
         $now = $this->leads->clock();
         abort_unless($partner = $this->leads->partner($workspace->id, $relationship, $now), 404);
-        $listing = $this->leads->listing($workspace->id, ['partner' => $relationship], $page, $now, LeadRegistrations::ROSTER_PER_PAGE);
+        $scoped = [...$filters, 'partner' => $relationship];
+        $listing = $this->leads->listing($workspace->id, $scoped, $page, $now, LeadRegistrations::ROSTER_PER_PAGE);
+        $facets = $this->leads->facets($workspace->id, $scoped, $now);
 
         return $this->respond($request, 'BrandPartner', [
             'workspace' => $workspace, 'partner' => $partner, 'registrations' => $listing['rows'], 'stages' => PipelineStage::options(),
             'pagination' => ['page' => $listing['page'], 'perPage' => $listing['perPage'], 'total' => $listing['total']],
+            'filters' => $filters, 'facets' => ['stages' => $facets['stages'], 'stageTotal' => $facets['stageTotal']],
             'canManage' => $this->leads->canManage($workspace->id),
         ]);
     }
@@ -86,14 +92,16 @@ class BrandLeadController extends Controller
     }
 
     /** Only these keys shape a registration query; none can name another workspace. */
-    private function filters(Request $request): array
+    private function filters(Request $request, bool $record = false): array
     {
-        $data = $request->validate([
+        $rules = [
             'partner' => ['nullable', 'uuid'], 'stage' => ['nullable', Rule::enum(PipelineStage::class)],
             'q' => ['nullable', 'string', 'max:160'], 'window' => ['nullable', Rule::in(['30d'])],
             'sort' => ['nullable', Rule::in(array_filter(array_keys(LeadRegistrations::SORTS)))],
             'per_page' => ['nullable', Rule::in(LeadRegistrations::PAGE_SIZES)],
-        ]);
+        ];
+        // A Partner record never validates or reads partner or page size from the query.
+        $data = $request->validate($record ? array_diff_key($rules, array_flip(['partner', 'per_page'])) : $rules);
 
         return ['partner' => $data['partner'] ?? '', 'stage' => $data['stage'] ?? '', 'q' => $data['q'] ?? '', 'window' => $data['window'] ?? '',
             'sort' => $data['sort'] ?? '', 'per_page' => (string) ($data['per_page'] ?? '')];

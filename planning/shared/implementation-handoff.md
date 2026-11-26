@@ -1,3 +1,5 @@
+**Brand Partner record (2026-11-26):** [handoff](brand-partner-detail-mockup-handoff.md) → [mockup review](brand-partner-detail-mockup-review.md), approved by the user, → production redesign with record search, filter and sort on branch `feat/brand-partner-record` ([evidence](brand-partner-record-evidence.md)). Awaiting PR review; deployment remains paused.
+
 **Next header correction (2026-11-24):** [Claude handoff](portal-header-alignment-handoff.md): search after branding with a translucent surface, selected workspace name beside the avatar; preserve existing search scope and both personal palettes. Implemented locally; see [evidence](portal-header-alignment-evidence.md).
 
 **Next portal UI slice (2026-11-24):** [personal accent preference handoff](appearance-preference-handoff.md): Burgundy default and optional Purple per user, building on the navigation/Home PR. Implemented locally (uncommitted); see [evidence](appearance-preference-evidence.md). No merge or deployment authorized by this planning update.

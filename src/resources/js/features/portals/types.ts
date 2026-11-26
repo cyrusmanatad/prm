@@ -86,6 +86,8 @@ export type RegistrationFilters = {
     /** Rows per page; empty is the server default. */
     per_page: string;
 };
+/** A Partner record's own list filters. Its partner is the record itself, and it has no page-size choice. */
+export type PartnerRecordFilters = Pick<RegistrationFilters, 'q' | 'stage' | 'window' | 'sort'>;
 /** Registration counts behind the stage and partner choices; each ignores only its own filter. */
 export interface RegistrationFacets {
     stages: Record<string, number>;
