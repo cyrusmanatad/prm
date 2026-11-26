@@ -1,6 +1,6 @@
 # Brand Partner detail — analysis and mockup handoff for Claude
 
-Date: 2026-11-25. Source baseline inspected: `cce4871`, plus existing local changes. Status: **Mockup** approved by the user on 2026-11-26 — [prototype](../../mockup/brand-partner-detail/index.html) and [design review](brand-partner-detail-mockup-review.md); production redesign implemented locally ([evidence](brand-partner-record-evidence.md)); not committed or deployed.
+Date: 2026-11-25. Source baseline inspected: `cce4871`, plus existing local changes. Status: **Mockup** approved by the user on 2026-11-26 — [prototype](../../mockup/brand-partner-detail/index.html) and [design review](brand-partner-detail-mockup-review.md); production redesign merged to `main` at `54fb7ef` ([cyrusmanatad/prm#101](https://github.com/cyrusmanatad/prm/pull/101)) on 2026-11-26 ([evidence](brand-partner-record-evidence.md)); not deployed.
 
 ## User request and authority
 
