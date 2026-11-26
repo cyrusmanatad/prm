@@ -341,9 +341,14 @@
 .wd-home-table td.is-muted {
     color: var(--wd-body);
 }
-.wd-home-table th:first-child,
-.wd-home-table td:first-child {
-    padding-left: 24px;
+/* The recent table sits inside the card's side padding with its own rounded border, as on other pages. */
+.wd-home-table-scroll {
+    margin: 0 24px 16px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+}
+.wd-home-table th {
+    background: var(--wd-paper);
 }
 .wd-home-record {
     color: var(--wd-brand);
@@ -396,9 +401,8 @@
     .wd-home-card-header {
         padding: 0 16px;
     }
-    .wd-home-table th:first-child,
-    .wd-home-table td:first-child {
-        padding-left: 16px;
+    .wd-home-table-scroll {
+        margin: 0 16px 16px;
     }
     .wd-home-recent .wd-empty-state {
         margin: 0 16px 16px;

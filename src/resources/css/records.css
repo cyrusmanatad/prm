@@ -146,10 +146,17 @@
 }
 
 /* Tables */
-.rec-table.wd-data-region {
-    border-width: 1px 0 0;
-    border-color: var(--wd-divider);
-    border-radius: 0;
+/* Tables sit inside the card's side padding with their own rounded border, as on other pages. */
+.rec-card .rec-table.wd-data-region,
+.rec-card > .wd-data-region {
+    margin: 0 14px 14px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+}
+.rec-card .rec-table.wd-data-region + .rec-card-foot,
+.rec-card > .wd-data-region + .rec-card-foot {
+    padding-top: 0;
+    border-top: 0;
 }
 .rec-table .wd-data-table {
     font-size: 13px;
@@ -907,8 +914,10 @@
         min-height: 44px;
     }
     /* Two-line records inside the card: title and status on top, details and actions below. */
-    .rec-table.wd-data-stacked {
-        border-top: 1px solid var(--wd-divider);
+    .rec-card .rec-table.wd-data-stacked {
+        border: 1px solid var(--wd-line);
+        border-radius: 12px;
+        overflow: clip;
     }
     .rec-table.wd-data-stacked .wd-data-table tbody tr {
         position: relative;

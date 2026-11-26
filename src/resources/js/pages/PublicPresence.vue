@@ -960,8 +960,9 @@ const panel = ref<'edit' | 'preview' | 'links'>(
 .kit-muted {
     color: var(--wd-muted);
 }
+/* The table sits inside the card's side padding with its own rounded border, as on other pages. */
 .kit-table {
-    border-top: 1px solid var(--wd-divider);
+    margin: 0 16px 16px;
 }
 .kit-table :deep(.wd-data-table) {
     font-size: 13px;
@@ -987,8 +988,7 @@ const panel = ref<'edit' | 'preview' | 'links'>(
     margin: 0 16px 16px;
 }
 .kit-pagination {
-    padding: 8px 16px;
-    border-top: 1px solid var(--wd-divider);
+    padding: 0 16px 16px;
 }
 @media (min-width: 600px) and (pointer: fine) {
     .kit-table,
