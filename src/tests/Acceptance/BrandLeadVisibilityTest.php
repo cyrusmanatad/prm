@@ -438,6 +438,49 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         $this->getJson('/brand/partners/'.$two.'?page=2')->assertJsonPath('pagination.total', 27)->assertJsonPath('pagination.perPage', 10)->assertJsonCount(10, 'registrations');
     }
 
+    public function test_a_partner_record_searches_filters_and_sorts_only_its_own_registrations(): void
+    {
+        [$brandUser, $brand] = $this->brand();
+        [$otherBrandUser, $otherBrand] = $this->brand('Other');
+        [$partner, $org] = $this->creator();
+        [$second, $secondOrg] = $this->creator('Second');
+        $one = $this->connect($brand, $org, 'Alpha');
+        $two = $this->connect($brand, $secondOrg, 'Beta');
+        $foreign = $this->connect($otherBrand, $org);
+        // The same names under another partner must never appear on this record.
+        foreach ([['Harbor Cafe', 'lead', 2], ['harbor books', 'pitched', 40], ['Zeta Gym', 'lead', 50], ['Acme Harbor', 'lost', 5]] as [$name, $stage, $days]) {
+            $this->registration($one, $brand, $org, $partner->id, ['display_name' => $name, 'stage' => $stage, 'registered_at' => now()->subDays($days)]);
+            $this->registration($two, $brand, $secondOrg, $second->id, ['display_name' => $name, 'stage' => $stage, 'registered_at' => now()->subDays($days)]);
+        }
+        $this->registration($foreign, $otherBrand, $org, $partner->id, ['display_name' => 'Harbor Elsewhere']);
+
+        $record = fn (string $query = '') => $this->member($brandUser, $brand)->getJson('/brand/partners/'.$one.$query)->assertOk();
+        $names = fn (string $query) => array_column($record($query)->json('registrations'), 'display_name');
+
+        $record()->assertJsonPath('filters', ['stage' => '', 'q' => '', 'window' => '', 'sort' => ''])
+            ->assertJsonPath('facets.stageTotal', 4)->assertJsonMissingPath('facets.partners');
+        // Literal, case-insensitive name search; the header figures stay unfiltered.
+        $this->assertSame(['Harbor Cafe', 'Acme Harbor', 'harbor books'], $names('?q=harbor'));
+        $record('?q=harbor')->assertJsonPath('pagination.total', 3)->assertJsonPath('partner.leads_total', 4)->assertJsonPath('filters.q', 'harbor');
+        $this->assertSame([], $names('?q=%25'));
+        // Stage facets ignore only the stage filter, so each count matches the list choosing it would show.
+        $facets = $record('?q=harbor&stage=lead')->assertJsonPath('pagination.total', 1)->json('facets');
+        $this->assertSame(['lead' => 1, 'lost' => 1, 'pitched' => 1], collect($facets['stages'])->sortKeys()->all());
+        $this->assertSame(3, $facets['stageTotal']);
+        $this->assertSame(['Harbor Cafe', 'Acme Harbor'], $names('?window=30d'));
+        $this->assertSame(['Acme Harbor', 'harbor books', 'Harbor Cafe', 'Zeta Gym'], $names('?sort=lead_asc'));
+        $this->assertSame(['Zeta Gym', 'harbor books', 'Acme Harbor', 'Harbor Cafe'], $names('?sort=registered_asc'));
+        // The record's partner comes from the route: a partner or page-size parameter is ignored, never trusted.
+        $record('?partner='.$two)->assertJsonPath('pagination.total', 4)->assertJsonPath('registrations.0.partnership_id', $one);
+        $record('?partner=not-a-uuid&per_page=50')->assertJsonPath('pagination.perPage', 10)->assertJsonMissingPath('filters.partner');
+        foreach (['?stage=won', '?window=7d', '?sort=newest', '?q='.str_repeat('x', 161)] as $invalid) {
+            $this->member($brandUser, $brand)->getJson('/brand/partners/'.$one.$invalid)->assertUnprocessable();
+        }
+        // Another Brand's partnership stays not found, filters or not.
+        $this->member($brandUser, $brand)->getJson('/brand/partners/'.$foreign.'?q=harbor')->assertNotFound();
+        $this->member($otherBrandUser, $otherBrand)->getJson('/brand/partners/'.$foreign.'?q=harbor')->assertOk()->assertJsonPath('pagination.total', 1);
+    }
+
     public function test_the_partner_roster_pages_in_a_stable_order_with_full_result_totals(): void
     {
         [$brandUser, $brand] = $this->brand();

@@ -240,16 +240,30 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         await expect(bp).toHaveURL(new RegExp(`/brand/partners/${first!.relationship}$`));
         await expect(bp.getByRole('heading', { name: first!.name, level: 1 })).toBeVisible();
         await expect(bp.getByRole('region', { name: 'Shared profile' })).toContainText('Bea Santos');
-        await expect(bp.getByRole('link', { name: 'https://example.test/roster-partner' })).toHaveAttribute(
+        await expect(bp.getByRole('link', { name: /^example\.test\/roster-partner/ })).toHaveAttribute(
             'rel',
             /noopener/,
         );
         await expect(bp.getByRole('region', { name: 'Shared profile' })).toContainText('Not shared');
         await expect(bp.locator('body')).not.toContainText(partnerEmail);
-        await expect(bp.getByRole('region', { name: 'Partnership', exact: true })).toContainText('Lead registered');
+        // The record header carries the partnership status and last activity.
+        const header = bp.getByRole('region', { name: first!.name, exact: true });
+        await expect(header).toContainText('Active');
+        await expect(header).toContainText('Lead registered');
         const related = bp.getByRole('region', { name: `Leads registered by ${first!.name} table` });
         await expect(related.getByRole('row')).toHaveCount(2);
         await review(bp, info, 'Partner record');
+        // The record's own search keeps its state in the address and explains an empty result.
+        const recordSearch = bp.getByRole('searchbox', { name: 'Lead name' });
+        await recordSearch.fill('zzz-no-match');
+        await recordSearch.press('Enter');
+        await expect(bp).toHaveURL(new RegExp(`/brand/partners/${first!.relationship}\\?q=zzz-no-match$`));
+        await expect(bp.getByRole('heading', { name: 'No registrations match these filters' })).toBeVisible();
+        await expect(header).toContainText('1'); // Header figures stay unfiltered.
+        await review(bp, info, 'Partner record filtered');
+        await bp.getByRole('button', { name: 'Clear filters' }).click();
+        await expect(bp).toHaveURL(new RegExp(`/brand/partners/${first!.relationship}$`));
+        await expect(related.getByRole('row')).toHaveCount(2);
         // From the Partner record a lead opens in the drawer over that partner's registrations.
         await related.getByRole('link', { name: 'Kanto Cafe chain', exact: true }).click();
         await expect(bp).toHaveURL(
@@ -268,7 +282,7 @@ test('a partner registers a lead and the brand follows it through the hub, list,
         );
         await bp.reload();
         await expect(related.getByRole('row', { name: /Kanto Cafe chain/ })).toContainText('Negotiating');
-        await expect(bp.getByRole('region', { name: 'Partnership', exact: true })).toContainText('Lead updated');
+        await expect(bp.getByRole('region', { name: first!.name, exact: true })).toContainText('Lead updated');
 
         // Withdrawing is confirmed and removes the Brand's access at once.
         await pp.reload();

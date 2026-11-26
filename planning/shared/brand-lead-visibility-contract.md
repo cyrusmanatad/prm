@@ -86,7 +86,7 @@ Writers always lock in the order partnership, workspace pilot lock, source lead,
 | Route | Purpose |
 | --- | --- |
 | `GET /brand` | Hub. New props: `partners` (roster page), `partnerPagination {page, perPage, total}`, `partnerFilters {q}`, `metrics {activePartners, leadsRegistered}`. Query: `q` (literal name search), `page`. |
-| `GET /brand/partners/{relationship}` | Partner record with shared profile and its registrations. Query: `page`. |
+| `GET /brand/partners/{relationship}` | Partner record with shared profile and its registrations. Query: `page`, and (2026-11-26) `q`, `stage`, `window=30d` and `sort` with the same rules as the consolidated list. The partner is always the route's relationship; `partner` and `per_page` in the query are ignored. Returns `filters` and stage-only `facets`; header figures stay unfiltered. See [Partner record evidence](brand-partner-record-evidence.md). |
 | `GET /brand/lead-registrations` | Consolidated list. Query: `partner` (partnership ID), `stage`, `q` (literal lead name search), `window=30d`, `page`. Sorted by registration time, newest first, then ID. |
 | `GET /brand/lead-registrations/{registration}` | Read-only lead detail. The list query, or `from=partner`, is carried only to build the back link. |
 | `GET /partner/brand-sharing` (and `/professional/brand-sharing`) | Partner screen. Query: `lead` (own lead to register), `page`. |
