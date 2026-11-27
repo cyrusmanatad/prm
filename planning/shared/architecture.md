@@ -34,7 +34,7 @@ flowchart LR
   W --> E[Email / AI / future provider adapters]
 ```
 
-Backend modules: identity/tenancy; creator CRM; onboarding/documents; profiles/media kits; reminders/notifications; billing/entitlements; audit/privacy. Later modules: partnerships/campaigns; attribution; commissions/payouts; PRM/incentives; integrations; AI insights. Controllers stay thin and call domain services shared by web requests, jobs, and later API endpoints.
+Backend modules: identity/tenancy; creator CRM; onboarding/documents; profiles/media kits; reminders/notifications; billing/entitlements; audit/privacy. Connected partnerships and [campaign briefs](../m7/campaign-brief-contract.md) are implemented. Later modules: advanced campaign workflows; attribution; commissions/payouts; PRM/incentives; integrations; AI insights. Controllers stay thin and call domain services shared by web requests, jobs, and later API endpoints.
 
 **Confirmed repository layout (D16):** one Laravel application rooted in `src/`, with domain code under `src/app/`, routes under `src/routes/`, Vue pages/components under `src/resources/js/`, migrations under `src/database/migrations/`, tests under `src/tests/`, and built public assets under `src/public/`. Application dependency manifests, lockfiles, environment configuration, Docker build files, and scripts also live in `src/`. Keep `docs/`, `mockup/`, `planning/`, `README.md`, `AGENTS.md`, `.github/`, and `compose.yaml` at the repository root. Paths inside the application retain normal Laravel conventions; run PHP/Node tooling from `src/`.
 

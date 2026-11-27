@@ -50,3 +50,9 @@ DO $$ BEGIN
   REVOKE ALL ON public.mail_budget_policy,public.mail_budget_attempts FROM weavdash_app;
  END IF;
 END $$;
+
+DO $$ BEGIN
+ IF to_regclass('public.campaigns') IS NOT NULL THEN
+  REVOKE UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.campaigns FROM weavdash_app;
+ END IF;
+END $$;

@@ -32,7 +32,8 @@ Use composite unique keys `(org_id, id)` and composite foreign keys for same-own
 | Onboarding | onboarding_requests, hashed invitation_tokens, versioned onboarding_submissions, collaboration_participants, documents (disk, bucket/key, checksum, scan state), document_grants |
 | MVP money records | invoices, invoice_lines, invoice_sequences, payment_records, payment_allocations; distinguish these from platform subscription invoices |
 | Automation/privacy | automation_rules, scheduled_actions, workflow_runs, approval_tasks, notifications, outbox_events, processed_events, consents, audit_logs, export_requests, deletion_requests |
-| Later campaigns | partnerships, collaborations, campaigns, campaign_partners, deliverables, approvals, contracts, immutable contract_versions, contract_signatures |
+| Campaign briefs | Brand-owned campaigns with an optional recipient partnership and forced RLS ([D42 contract](../m7/campaign-brief-contract.md)) |
+| Later campaigns | collaborations, campaign_partners, deliverables, approvals, contracts, immutable contract_versions, contract_signatures |
 | Later attribution | integration_connections/store identities, webhook_receipts, tracking_links, discount_codes, orders, order_lines, refunds, attributions, commission_rule_versions |
 | Later financial ledger | commission_entries, commission_events, payout_methods, payouts, payout_attempts, payout_items, tax_certificates |
 | Later PRM/AI | program_tiers, incentives, lead_registrations/claims, enablement_assets/events, ai_insights, ai_feedback |

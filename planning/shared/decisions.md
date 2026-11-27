@@ -200,3 +200,7 @@ Privacy requests are handled by the founders/co-founder and any authorized super
 Production account/bucket separation, data location, credentials, budget, retention/deletion, encryption and backup/restore configuration still require preparation and verification. The existing staging integration is not production acceptance. Privacy-export archives currently use separate private local storage; this decision does not migrate them or change their data contract. Existing privacy, scanning, recovery and release gates remain.
 
 This records the provider decision only; no production resources were provisioned, runtime configuration changed, objects migrated or deployment performed.
+
+## D42 — Bring campaign briefs forward
+
+**Confirmed (2026-11-28)** — start local implementation of a private Brand draft that can be shared with one selected active Partner. Other Partners cannot read the brief, and ending the relationship removes access. Broader M7 functionality retains its existing sequencing. See the [campaign brief contract](../m7/campaign-brief-contract.md).

@@ -68,7 +68,7 @@ Subsequent M2 contracts cover [contacts/reminders](../m2/crm-contract.md) and [m
 
 ### Partner page URLs (D24)
 
-Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. The old `/partner`, `/pipeline`, `/crm`, `/outreach-templates`, `/onboarding-requests` and `/public-presence` page URLs redirect with their query strings. Existing JSON clients and mutation/document endpoints remain compatible; the URL consolidation does not change authorization or storage. Inbox/Campaigns/Earnings/Autopilot URLs are reserved and not implemented. See the [partner route contract](../m3a/portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
+Partner HTML/Inertia pages now use `/partner/leads`, `/partner/contacts`, `/partner/outreach-templates`, `/partner/onboarding` and `/partner/media-kit`. The old `/partner`, `/pipeline`, `/crm`, `/outreach-templates`, `/onboarding-requests` and `/public-presence` page URLs redirect with their query strings. Existing JSON clients and mutation/document endpoints remain compatible; the URL consolidation does not change authorization or storage. Inbox/Earnings/Autopilot URLs remain reserved. D42 enables the [Brand and Partner campaign pages](../m7/campaign-brief-contract.md). See the [partner route contract](../m3a/portal-contract.md#partner-navigation-and-lead-consolidation-follow-up).
 
 ## Administration routes
 

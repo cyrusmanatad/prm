@@ -105,6 +105,11 @@ class PrivacyExportData
         $data['partner_join_links'] = $this->read(DB::table('partner_join_links')->where('brand_org_id', $org), 'id,created_at,revoked_at');
         $data['partnerships'] = $this->read(DB::table('partnerships')->where(fn ($q) => $q->where('brand_org_id', $org)->orWhere('creator_org_id', $org)), 'id,brand_org_id,creator_org_id,brand_name,creator_name,status,accepted_at,revoked_at');
         $data['lead_registrations'] = $this->read(DB::table('lead_registrations')->where(fn ($q) => $q->where('brand_org_id', $org)->orWhere('creator_org_id', $org)), 'id,partnership_id,display_name,summary,share_contact,contact_name,contact_email,stage,state,withdrawn_at,registered_at,shared_updated_at,version');
+        // RLS includes owned drafts and currently shared briefs. Preserve older archive fingerprints when empty.
+        $campaigns = $this->read(DB::table('campaigns'), 'id,title,brief,due_date,partnership_id,version,created_at');
+        if ($campaigns) {
+            $data['campaigns'] = $campaigns;
+        }
         $data['shared_partner_profiles'] = $this->read(DB::query()->fromRaw('(SELECT p.id,app_partner_shared_profile(p.id) AS profile FROM partnerships p WHERE p.brand_org_id=?::uuid) AS shared', [$org]), 'id,profile');
         foreach ($data['shared_partner_profiles'] as &$profile) {
             $profile['profile'] = $profile['profile'] === null ? null : json_decode($profile['profile'], true, flags: JSON_THROW_ON_ERROR);

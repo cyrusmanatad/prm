@@ -78,7 +78,11 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
     await expect(page.getByRole('dialog')).not.toBeVisible();
     await expect(board.getByRole('button')).toHaveCount(2);
     const nav = await portalNavigation(page, 'Partner');
-    for (const name of ['Inbox', 'Campaigns', 'Earnings', 'Autopilot']) {
+    await expect(nav.getByRole('link', { name: 'Campaigns', exact: true })).toHaveAttribute(
+        'href',
+        '/partner/campaigns',
+    );
+    for (const name of ['Inbox', 'Earnings', 'Autopilot']) {
         await expect(nav.getByText(name, { exact: true })).toBeVisible();
         await expect(page.getByRole('link', { name, exact: true })).toHaveCount(0);
     }

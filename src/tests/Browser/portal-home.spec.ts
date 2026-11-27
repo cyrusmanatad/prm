@@ -151,7 +151,8 @@ test('Brand Home shows relationships and registrations with Brand programs still
     await expect(page.getByText('Leads your partners register with you will appear here.')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Open Partner hub' })).toHaveAttribute('href', '/brand');
     const nav = await portalNavigation(page, 'Brand');
-    for (const name of ['Campaigns', 'Incentives', 'Enablement', 'Payouts']) {
+    await expect(nav.getByRole('link', { name: 'Campaigns', exact: true })).toHaveAttribute('href', '/brand/campaigns');
+    for (const name of ['Incentives', 'Enablement', 'Payouts']) {
         await expect(nav.getByText(name, { exact: true })).toBeVisible();
         await expect(page.getByRole('link', { name, exact: true })).toHaveCount(0);
     }

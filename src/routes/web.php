@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\AutomationController;
 use App\Http\Controllers\BrandLeadController;
 use App\Http\Controllers\BrandRequestController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\HomeController;
@@ -190,6 +191,9 @@ Route::middleware('auth')->group(function (): void {
             Route::patch('/finance/invoices/{invoice}', [InvoiceDraftController::class, 'mutate'])->whereUuid('invoice');
             Route::post('/finance/invoices/{invoice}/void', [InvoiceDraftController::class, 'mutate'])->whereUuid('invoice');
 
+            Route::get('/{experience}/campaigns/{campaign?}', [CampaignController::class, 'index'])->whereIn('experience', ['brand', 'partner'])->whereUuid('campaign');
+            Route::post('/brand/campaigns', [CampaignController::class, 'store'])->middleware('throttle:30,1,campaign-create:');
+            Route::patch('/brand/campaigns/{campaign}/{action}', [CampaignController::class, 'update'])->whereUuid('campaign')->whereIn('action', ['draft', 'share'])->middleware('throttle:60,1,campaign-update:');
             Route::get('/partner/leads', [PortalController::class, 'index']);
             Route::get('/partner', [PortalController::class, 'index']);
             Route::post('/join/accept', [PartnerJoinController::class, 'accept'])->middleware('throttle:6,1,join-accept:');

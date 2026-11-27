@@ -84,7 +84,7 @@ export const portalNavigation: Record<PortalExperience, PortalGroup[]> = {
         {
             label: 'Programs',
             items: [
-                unavailable('Campaigns', Megaphone),
+                { label: 'Campaigns', icon: Megaphone, href: '/brand/campaigns' },
                 unavailable('Incentives', Gift),
                 unavailable('Enablement', GraduationCap),
                 unavailable('Payouts', Wallet),
@@ -124,7 +124,7 @@ export const portalNavigation: Record<PortalExperience, PortalGroup[]> = {
                     match: ['/outreach-templates'],
                 },
                 { label: 'Automation and approvals', icon: Zap, href: '/automation' },
-                unavailable('Campaigns', Megaphone),
+                { label: 'Campaigns', icon: Megaphone, href: '/partner/campaigns' },
                 unavailable('Autopilot', Sparkles),
             ],
         },
