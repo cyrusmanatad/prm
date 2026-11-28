@@ -773,6 +773,21 @@ summary:focus-visible {
     gap: 16px;
 }
 
+/* Planned feature marker (navigation, tabs). */
+.wd-soon-pill {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--wd-brand-soft);
+    color: var(--wd-brand);
+    font-family: var(--wd-font-body);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
 .wd-workspace-content {
     max-width: 1040px;
     margin: auto;

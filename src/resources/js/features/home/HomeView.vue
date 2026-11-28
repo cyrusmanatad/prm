@@ -8,7 +8,7 @@ import EmptyState from '../../components/EmptyState.vue';
 import { money } from '../pipeline/money';
 import { changeText, activityLabels, conversationKinds } from '../pipeline/activity';
 import { relativeTime } from '../portals/activity';
-import { UNAVAILABLE_TEXT } from '../portals/portalNavigation';
+import SoonPill from '../../components/SoonPill.vue';
 import type { BrandHome, CreatorHome, HomeProps, HomeStage, Money } from './types';
 
 const props = defineProps<HomeProps & { workspaceName: string }>();
@@ -388,9 +388,7 @@ function refresh(): void {
 
         <div class="wd-home-views">
             <Tabs v-model="view" label="Home views" :tabs="tabs" id-prefix="home-views" />
-            <span class="wd-home-unavailable-tab" aria-disabled="true"
-                >Feed <span class="wd-home-unavailable-text">{{ UNAVAILABLE_TEXT }}</span></span
-            >
+            <span class="wd-home-unavailable-tab" aria-disabled="true">Feed<SoonPill /></span>
         </div>
 
         <div

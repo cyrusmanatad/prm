@@ -7,9 +7,9 @@ import {
     experienceLabel,
     isUnavailable,
     portalGroups,
-    UNAVAILABLE_TEXT,
     type PortalExperience,
 } from './portalNavigation';
+import SoonPill from '../../components/SoonPill.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -57,9 +57,7 @@ const active = computed(() => activePortalHref(props.experience, page.url ?? '')
                                 <component :is="item.icon" :size="20" aria-hidden="true" class="wd-portal-nav-icon" />
                                 <span class="wd-portal-nav-text" :class="{ 'wd-sr-only': collapsed }">
                                     <span class="wd-portal-nav-label">{{ item.label }}</span>
-                                    <span class="wd-portal-nav-status"
-                                        ><span class="wd-sr-only">, </span>{{ UNAVAILABLE_TEXT }}</span
-                                    >
+                                    <SoonPill />
                                 </span>
                             </span>
                             <component
@@ -78,10 +76,7 @@ const active = computed(() => activePortalHref(props.experience, page.url ?? '')
                         </TooltipTrigger>
                         <TooltipPortal>
                             <TooltipContent side="right" :side-offset="8" class="wd-portal-tooltip">
-                                {{ item.label
-                                }}<span v-if="isUnavailable(item)" class="wd-portal-tooltip-status">
-                                    · {{ UNAVAILABLE_TEXT }}</span
-                                >
+                                {{ item.label }}<SoonPill v-if="isUnavailable(item)" class="wd-portal-tooltip-status" />
                             </TooltipContent>
                         </TooltipPortal>
                     </TooltipRoot>

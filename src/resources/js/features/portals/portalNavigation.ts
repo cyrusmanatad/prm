@@ -55,7 +55,8 @@ export interface PortalGroup {
     items: PortalItem[];
 }
 
-export const UNAVAILABLE_TEXT = 'Not available yet';
+/** Short label for planned features, shown as a pill. */
+export const SOON_TEXT = 'Soon';
 
 export const portalHome: Record<PortalExperience, string> = {
     brand: '/brand/home',

@@ -142,9 +142,9 @@ it('renders one main landmark, the workspace identity and accessible unavailable
     expect(nav.findAll('[aria-current="page"]').map((item) => item.text())).toEqual(['My leads']);
     const unavailable = nav.findAll('[aria-disabled="true"]');
     expect(unavailable.map((item) => item.text())).toEqual([
-        'Inbox, Not available yet',
-        'Autopilot, Not available yet',
-        'Earnings, Not available yet',
+        'Inbox, coming Soon',
+        'Autopilot, coming Soon',
+        'Earnings, coming Soon',
     ]);
     // Unavailable rows are never links or navigation requests.
     for (const item of unavailable) {
@@ -171,7 +171,7 @@ it('remembers the collapsed preference and keeps labels and explanations for ass
     expect(nav.get('a[href="/partner/home"] .wd-portal-nav-label').classes()).toContain('wd-sr-only');
     const inbox = nav.findAll('[aria-disabled="true"]')[0]!;
     expect(inbox.attributes('tabindex')).toBe('0');
-    expect(inbox.text()).toBe('Inbox, Not available yet');
+    expect(inbox.text()).toBe('Inbox, coming Soon');
 
     wrappers.splice(0).forEach((item) => item.unmount());
     const restored = shell();
