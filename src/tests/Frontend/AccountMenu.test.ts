@@ -25,12 +25,12 @@ async function open(props: Record<string, unknown> = {}): Promise<string[]> {
 }
 
 it('offers administration only to accounts with platform access', async () => {
-    expect(await open()).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
+    expect(await open()).toEqual(['Workspace / Account security', 'Privacy exports', 'Appearance', 'Sign out']);
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
 
     page.props = { platformAccess: true };
     expect(await open()).toEqual([
-        'Switch workspace / account security',
+        'Workspace / Account security',
         'Privacy exports',
         'Appearance',
         'Platform administration',
@@ -65,7 +65,7 @@ it("offers the selected workspace's tools on every page", async () => {
     for (const url of ['/workspaces', '/automation', '/partner/contacts', '/account/exports']) {
         page.url = url;
         expect(await open()).toEqual([
-            'Switch workspace / account security',
+            'Workspace / Account security',
             'Privacy exports',
             'Appearance',
             ...partnerTools,
@@ -80,7 +80,7 @@ it("offers the selected workspace's tools on every page", async () => {
     for (const url of ['/brand', '/workspaces', '/automation']) {
         page.url = url;
         expect(await open()).toEqual([
-            'Switch workspace / account security',
+            'Workspace / Account security',
             'Privacy exports',
             'Appearance',
             'Partner hub',
@@ -94,12 +94,7 @@ it("offers the selected workspace's tools on every page", async () => {
     // Professional workspaces use their own navigation; no selection has no workspace tools.
     for (const activeWorkspace of [{ kind: 'creator', experience: 'professional' }, null]) {
         page.props = { activeWorkspace };
-        expect(await open()).toEqual([
-            'Switch workspace / account security',
-            'Privacy exports',
-            'Appearance',
-            'Sign out',
-        ]);
+        expect(await open()).toEqual(['Workspace / Account security', 'Privacy exports', 'Appearance', 'Sign out']);
         wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     }
 

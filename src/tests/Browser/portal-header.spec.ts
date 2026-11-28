@@ -61,7 +61,7 @@ test('Partner header: search after the branding, workspace beside the avatar, un
     // The account button opens the same account menu; it does not switch workspaces itself.
     await account.click();
     const menu = page.getByRole('menu');
-    await expect(menu.getByRole('menuitem', { name: 'Switch workspace / account security' })).toBeVisible();
+    await expect(menu.getByRole('menuitem', { name: 'Workspace / Account security' })).toBeVisible();
     await expect(menu.getByRole('menuitem', { name: 'Appearance' })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(account).toBeFocused();

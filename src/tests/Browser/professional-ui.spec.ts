@@ -185,7 +185,7 @@ test('Professional presentation, destinations and editor cancellation', async ({
                     expect(accountBox.x + accountBox.width).toBeLessThanOrEqual(width);
                     await account.focus();
                     await page.keyboard.press('Enter');
-                    const security = page.getByRole('menuitem', { name: 'Switch workspace / account security' });
+                    const security = page.getByRole('menuitem', { name: 'Workspace / Account security' });
                     await expect(security).toBeVisible();
                     const securityBox = (await security.boundingBox())!;
                     expect(securityBox.x).toBeGreaterThanOrEqual(0);
@@ -354,7 +354,7 @@ test('Professional pipeline panels retain empty and populated partnerships acros
             const account = page.getByRole('button', { name: /^Account menu:/ });
             await account.focus();
             await page.keyboard.press('Enter');
-            const security = page.getByRole('menuitem', { name: 'Switch workspace / account security' });
+            const security = page.getByRole('menuitem', { name: 'Workspace / Account security' });
             await expect(security).toBeVisible();
             const bounds = (await security.boundingBox())!;
             expect(bounds.x).toBeGreaterThanOrEqual(0);
