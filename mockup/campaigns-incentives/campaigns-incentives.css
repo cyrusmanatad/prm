@@ -1,0 +1,1040 @@
+/* Mockup only. Proposal for Campaigns (D42, D43) and Incentives (D44). Rules prefixed `ci-` are the proposal; everything
+   else comes from base.css, a copy of the production tokens, shell and shared components. */
+
+/* ---------- Partner shell: burgundy header (PortalShell tone="dark") ---------- */
+.wd-portal:not(.wd-portal-light) .wd-portal-header {
+    background: var(--wd-brand);
+    color: #fff;
+}
+.wd-portal:not(.wd-portal-light) .wd-portal-experience {
+    background: rgb(255 255 255 / 16%);
+    color: #fff;
+}
+.wd-portal:not(.wd-portal-light) .wd-portal-menu-button:hover,
+.wd-portal:not(.wd-portal-light) .wd-account-trigger:hover {
+    background: rgb(255 255 255 / 12%);
+}
+.wd-portal:not(.wd-portal-light) .wd-account-trigger,
+.wd-portal:not(.wd-portal-light) .wd-portal-menu-button {
+    border-color: rgb(255 255 255 / 35%);
+    color: #fff;
+}
+.wd-portal:not(.wd-portal-light) .wd-avatar {
+    color: var(--wd-ink);
+}
+.wd-portal:not(.wd-portal-light) .wd-portal-header :focus-visible {
+    outline-color: #fff;
+}
+
+/* ---------- Additional badge tones (StatusBadge) ---------- */
+.wd-badge-neutral {
+    background: var(--wd-divider);
+    color: var(--wd-body);
+}
+.wd-badge-brand {
+    background: var(--wd-brand-soft);
+    color: var(--wd-brand-hover);
+}
+.wd-badge-danger {
+    background: #f7e1df;
+    color: #8a2a1f;
+}
+
+/* ---------- Page frame ---------- */
+.ci-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding-block: 24px 48px;
+}
+.ci-crumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    color: var(--wd-muted);
+    font-size: 13px;
+    list-style: none;
+}
+.ci-crumb li + li::before {
+    content: '›';
+    margin-right: 6px;
+}
+.ci-crumb a {
+    font-weight: 600;
+}
+.ci-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+}
+.ci-head h1,
+.ci-record h1 {
+    font-family: var(--wd-font-display);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.ci-eyebrow {
+    color: var(--wd-brand);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.ci-head .wd-description {
+    max-width: 68ch;
+    font-size: 14px;
+}
+.ci-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.wd-button {
+    border: 0;
+    cursor: pointer;
+}
+.wd-button-secondary {
+    border: 1px solid var(--wd-control-line);
+}
+.wd-button-quiet {
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--wd-control-line);
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font-size: 13px;
+}
+.wd-button-quiet:hover {
+    background: var(--wd-divider);
+}
+.wd-button-danger {
+    background: #9b2c20;
+    color: #fff;
+}
+.wd-button-danger:hover {
+    background: #74200f;
+}
+.wd-button[disabled] {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+/* ---------- Figures: compact linked chips, as the approved Partner record header ---------- */
+.ci-figures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.ci-figure {
+    display: grid;
+    gap: 2px;
+    padding: 14px 16px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+}
+.ci-figure-value {
+    font-family: var(--wd-font-display);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+.ci-figure-label {
+    color: var(--wd-body);
+    font-size: 13px;
+    font-weight: 600;
+}
+.ci-figure-scope {
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.ci-figure.is-attention {
+    border-color: #e7c98f;
+    background: var(--wd-warning-bg);
+}
+.ci-figure.is-attention .ci-figure-value {
+    color: var(--wd-warning);
+}
+
+/* ---------- Record header (campaign / incentive) ---------- */
+.ci-record {
+    display: grid;
+    gap: 14px;
+    padding: 20px 24px;
+    border: 1px solid var(--wd-line);
+    border-radius: 16px;
+    background: var(--wd-surface);
+}
+.ci-record-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px 24px;
+}
+.ci-record-title {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+.ci-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
+    margin: 0;
+    color: var(--wd-body);
+    font-size: 14px;
+}
+.ci-meta div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.ci-meta dt {
+    color: var(--wd-muted);
+}
+.ci-meta dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* ---------- Columns ---------- */
+.ci-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+/* Partner brief: below the two-column width the incentive comes before the lead list. */
+@media (max-width: 1099px) {
+    .ci-columns.is-incentive-first > aside {
+        order: -1;
+    }
+}
+@media (min-width: 1100px) {
+    .ci-columns {
+        grid-template-columns: minmax(0, 1fr) 340px;
+    }
+    .ci-columns.is-form {
+        grid-template-columns: minmax(0, 1fr) 380px;
+    }
+    .ci-sticky {
+        position: sticky;
+        top: 88px;
+    }
+}
+.ci-stack {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    min-width: 0;
+}
+.ci-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 16px;
+    margin-bottom: 14px;
+}
+.ci-section-head h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ci-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    color: var(--wd-body);
+    font-family: var(--wd-font-body);
+    font-size: 12px;
+    font-weight: 700;
+}
+.ci-brief {
+    color: var(--wd-ink);
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.ci-note {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--wd-paper);
+    color: var(--wd-body);
+    font-size: 13px;
+    line-height: 1.55;
+}
+.ci-note .i {
+    margin-top: 2px;
+    color: var(--wd-muted);
+}
+.ci-callout {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.55;
+}
+.ci-callout.is-warning {
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+}
+.ci-callout.is-success {
+    background: var(--wd-success-bg);
+    color: var(--wd-success);
+}
+.ci-callout .i {
+    margin-top: 3px;
+}
+.ci-callout strong {
+    font-weight: 700;
+}
+.ci-muted {
+    color: var(--wd-muted);
+}
+.ci-small {
+    font-size: 13px;
+}
+
+/* ---------- Tabs (Tabs component) ---------- */
+.ci-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--wd-line);
+}
+.ci-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-bottom: 3px solid transparent;
+    color: var(--wd-body);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.ci-tabs a[aria-current='page'] {
+    border-bottom-color: var(--wd-brand);
+    color: var(--wd-brand);
+}
+.ci-tabs a:hover {
+    color: var(--wd-ink);
+}
+.ci-tab-alert {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--wd-warning-bg);
+    color: var(--wd-warning);
+    font-size: 12px;
+}
+
+/* ---------- Table cells ---------- */
+.ci-cell-title {
+    display: grid;
+    gap: 2px;
+}
+.ci-cell-title a,
+.ci-row-button {
+    color: var(--wd-brand);
+    font-weight: 700;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+.ci-cell-title a:hover,
+.ci-row-button:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+.ci-row-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+.ci-cell-sub {
+    color: var(--wd-muted);
+    font-size: 12.5px;
+    font-weight: 500;
+}
+.ci-num {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.ci-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--wd-warning);
+    font-size: 12px;
+    font-weight: 700;
+}
+.wd-data-table td,
+.wd-data-table th {
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Stage progress (D43) ---------- */
+.ci-stagebar {
+    display: flex;
+    overflow: hidden;
+    height: 10px;
+    margin: 4px 0 10px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+}
+.ci-stagebar span {
+    height: 100%;
+}
+.ci-stagebar span + span {
+    border-left: 2px solid var(--wd-surface);
+}
+.ci-stage-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 0 0 16px;
+    padding: 0;
+    color: var(--wd-body);
+    font-size: 13px;
+    list-style: none;
+}
+.ci-stage-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.ci-stage-legend strong {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Cap meter ---------- */
+.ci-meter {
+    display: grid;
+    gap: 6px;
+}
+.ci-meter-bar {
+    overflow: hidden;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+}
+.ci-meter-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--wd-brand);
+}
+.ci-meter-text {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--wd-body);
+    font-size: 13px;
+}
+
+/* ---------- Reward (offer) presentation ---------- */
+.ci-reward {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.ci-reward-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--wd-brand-soft);
+    color: var(--wd-brand);
+}
+.ci-reward-value {
+    font-family: var(--wd-font-display);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+.ci-reward-value.is-text {
+    font-family: var(--wd-font-body);
+    font-size: 16px;
+    line-height: 1.4;
+}
+.ci-reward-kind {
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.ci-rule {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+}
+.ci-rule li {
+    display: flex;
+    gap: 8px;
+}
+.ci-rule .i {
+    margin-top: 3px;
+    color: var(--wd-success);
+}
+
+/* Partner offer cards */
+.ci-offers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    gap: 16px;
+}
+.ci-offer {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+.ci-offer-from {
+    color: var(--wd-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+.ci-offer footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--wd-divider);
+}
+
+/* Linked incentive teaser on a brief */
+.ci-teaser {
+    display: grid;
+    gap: 12px;
+    border-color: #e9c6d6;
+    background: linear-gradient(180deg, var(--wd-brand-wash), var(--wd-surface) 70%);
+}
+
+/* ---------- Forms (FormField / FieldGroup / SelectField) ---------- */
+.ci-form {
+    display: grid;
+    gap: 20px;
+}
+.ci-fieldset {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+    padding: 20px;
+    border: 1px solid var(--wd-line);
+    border-radius: 16px;
+    background: var(--wd-surface);
+    min-width: 0;
+}
+.ci-fieldset legend {
+    float: left;
+    width: 100%;
+    margin-bottom: 2px;
+    padding: 0;
+    font-family: var(--wd-font-display);
+    font-size: 18px;
+    font-weight: 700;
+}
+.ci-fieldset legend + * {
+    clear: both;
+}
+.ci-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+.ci-field > label,
+.ci-field-label {
+    color: var(--wd-ink);
+    font-size: 14px;
+    font-weight: 700;
+}
+.ci-field .ci-hint {
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.ci-field input[type='text'],
+.ci-field input[type='date'],
+.ci-field input[type='number'],
+.ci-field select,
+.ci-field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    color: var(--wd-ink);
+    font: inherit;
+    font-size: 15px;
+}
+.ci-field select {
+    padding-right: 34px;
+    background: var(--wd-surface)
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b5f70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 12px center;
+    appearance: none;
+}
+.ci-field textarea {
+    min-height: 120px;
+    line-height: 1.6;
+    resize: vertical;
+}
+.ci-field [aria-invalid='true'] {
+    border-color: #9b2c20;
+}
+.ci-error {
+    color: #8a2a1f;
+    font-size: 13px;
+    font-weight: 600;
+}
+.ci-row {
+    display: grid;
+    gap: 16px;
+}
+@media (min-width: 700px) {
+    .ci-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.ci-money {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+}
+.ci-money:focus-within {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 1px;
+}
+.ci-money span {
+    padding: 0 4px 0 12px;
+    color: var(--wd-muted);
+    font-weight: 700;
+}
+.ci-field .ci-money input {
+    border: 0;
+    outline: none;
+}
+
+/* Segmented choice (radio group) */
+.ci-segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.ci-segmented label {
+    display: inline-flex;
+    flex: 1 1 140px;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+    cursor: pointer;
+}
+.ci-segmented label:has(input:checked) {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand-wash);
+    box-shadow: inset 0 0 0 1px var(--wd-brand);
+}
+.ci-segmented label:has(input:focus-visible) {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.ci-segmented input {
+    margin: 3px 0 0;
+    accent-color: var(--wd-brand);
+}
+.ci-choice-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+}
+.ci-choice-sub {
+    display: block;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+
+/* Checkbox list (audience, claim) */
+.ci-checklist {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.ci-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+    cursor: pointer;
+}
+.ci-check:has(input:checked) {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand-wash);
+}
+.ci-check:has(input:disabled) {
+    background: var(--wd-paper);
+    cursor: not-allowed;
+}
+.ci-check input {
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--wd-brand);
+}
+.ci-check-body {
+    display: grid;
+    flex: 1;
+    gap: 4px;
+    min-width: 0;
+}
+.ci-check-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+}
+.ci-check-name {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+.ci-check-reason {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.ci-check-reason.is-ok {
+    color: var(--wd-success);
+}
+.ci-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+.ci-form-actions .ci-spacer {
+    flex: 1;
+}
+
+/* "What partners see" preview */
+.ci-preview-title {
+    margin: 2px 0 12px;
+    font-size: 17px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+.ci-preview-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* ---------- Timeline (award history) ---------- */
+.ci-timeline {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.ci-timeline li {
+    display: grid;
+    grid-template-columns: 12px 1fr;
+    gap: 10px;
+    font-size: 14px;
+}
+.ci-timeline li::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: var(--wd-control-line);
+}
+.ci-timeline li.is-done::before {
+    background: var(--wd-success);
+}
+.ci-timeline time {
+    display: block;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+
+/* ---------- Dialogs (ConfirmationDialog) and side panel (drawer) ---------- */
+.ci-dialog,
+.ci-panel {
+    padding: 0;
+    border: 0;
+    color: var(--wd-ink);
+    background: var(--wd-surface);
+    box-shadow: 0 24px 60px rgb(34 26 38 / 24%);
+}
+.ci-dialog::backdrop,
+.ci-panel::backdrop {
+    background: rgb(34 26 38 / 45%);
+}
+.ci-dialog {
+    width: min(520px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    border-radius: 16px;
+}
+.ci-dialog.is-wide {
+    width: min(680px, calc(100vw - 32px));
+}
+.ci-panel {
+    width: min(520px, 100vw);
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    margin: 0 0 0 auto;
+    border-radius: 16px 0 0 16px;
+}
+.ci-dialog-inner {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    max-height: inherit;
+}
+.ci-panel .ci-dialog-inner {
+    height: 100%;
+}
+.ci-dialog header,
+.ci-dialog footer,
+.ci-panel header,
+.ci-panel footer {
+    padding: 18px 20px;
+}
+.ci-dialog header,
+.ci-panel header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--wd-divider);
+}
+.ci-dialog h2,
+.ci-panel h2 {
+    font-family: var(--wd-font-display);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+.ci-dialog-body {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    overflow-y: auto;
+    padding: 18px 20px;
+}
+.ci-dialog footer,
+.ci-panel footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--wd-divider);
+}
+.ci-close {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--wd-body);
+    cursor: pointer;
+}
+.ci-close:hover {
+    background: var(--wd-divider);
+}
+.ci-confirm-subject {
+    padding: 12px 14px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-paper);
+}
+.ci-confirm-subject strong {
+    display: block;
+    overflow-wrap: anywhere;
+}
+.ci-consequences {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding-left: 20px;
+    color: var(--wd-body);
+    font-size: 14px;
+}
+
+/* ---------- Toast (status region) ---------- */
+.ci-toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: min(420px, calc(100vw - 40px));
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--wd-ink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgb(34 26 38 / 25%);
+}
+.ci-toast[hidden] {
+    display: none;
+}
+
+/* ---------- Proposal annotations (prototype only) ---------- */
+.ci-annot {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border: 1px dashed #b78a2a;
+    border-radius: 999px;
+    background: #fff8e6;
+    color: #6a4a12;
+    font-family: var(--wd-font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    vertical-align: middle;
+}
+body.hide-annot .ci-annot {
+    display: none;
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 599px) {
+    .ci-page {
+        gap: 16px;
+        padding-top: 16px;
+    }
+    .ci-head h1,
+    .ci-record h1 {
+        font-size: 26px;
+    }
+    .ci-record {
+        padding: 16px;
+    }
+    .ci-head .ci-actions,
+    .ci-record .ci-actions {
+        display: grid;
+        width: 100%;
+    }
+    .ci-figures {
+        grid-template-columns: 1fr 1fr;
+    }
+    .ci-figure {
+        padding: 12px;
+    }
+    .ci-figure-value {
+        font-size: 22px;
+    }
+    .ci-tabs {
+        overflow-x: auto;
+    }
+    .ci-panel {
+        width: 100vw;
+        border-radius: 0;
+    }
+    .ci-form-actions {
+        display: grid;
+    }
+    .ci-form-actions .ci-spacer {
+        display: none;
+    }
+    .ci-dialog footer,
+    .ci-panel footer {
+        display: grid;
+    }
+    .ci-dialog footer .wd-button,
+    .ci-panel footer .wd-button {
+        width: 100%;
+    }
+    /* Stacked records: title and status on the first line, the rest labelled below. */
+    .wd-data-table td[data-label='Status'],
+    .wd-data-table td[data-label='Stage'] {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+    }
+    .wd-data-table td[data-label='Status']::before {
+        content: none;
+    }
+    .wd-data-table td[data-label]:not([data-label='Status'], [data-label='Stage']) {
+        grid-column: 1 / -1;
+        color: var(--wd-body);
+        font-size: 13px;
+    }
+    .ci-toast {
+        right: 16px;
+        bottom: 16px;
+        left: 16px;
+        max-width: none;
+    }
+}
