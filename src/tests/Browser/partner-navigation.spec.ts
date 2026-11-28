@@ -82,7 +82,7 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
         'href',
         '/partner/campaigns',
     );
-    for (const name of ['Inbox', 'Earnings', 'Autopilot']) {
+    for (const name of ['Inbox', 'Incentives', 'Earnings', 'Autopilot']) {
         await expect(nav.getByText(name, { exact: true })).toBeVisible();
         await expect(page.getByRole('link', { name, exact: true })).toHaveCount(0);
     }

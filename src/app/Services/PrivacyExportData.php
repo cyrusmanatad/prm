@@ -106,7 +106,7 @@ class PrivacyExportData
         $data['partnerships'] = $this->read(DB::table('partnerships')->where(fn ($q) => $q->where('brand_org_id', $org)->orWhere('creator_org_id', $org)), 'id,brand_org_id,creator_org_id,brand_name,creator_name,status,accepted_at,revoked_at');
         $data['lead_registrations'] = $this->read(DB::table('lead_registrations')->where(fn ($q) => $q->where('brand_org_id', $org)->orWhere('creator_org_id', $org)), 'id,partnership_id,display_name,summary,share_contact,contact_name,contact_email,stage,state,withdrawn_at,registered_at,shared_updated_at,version');
         // RLS includes owned drafts and currently shared briefs. Preserve older archive fingerprints when empty.
-        $campaigns = $this->read(DB::table('campaigns'), 'id,title,brief,due_date,partnership_id,version,created_at');
+        $campaigns = $this->read(DB::table('campaigns'), 'id,title,brief,due_date,partnership_id,version,created_at,shared_at');
         if ($campaigns) {
             $data['campaigns'] = $campaigns;
         }

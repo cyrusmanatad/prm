@@ -17,22 +17,42 @@ class CampaignController extends Controller
         $workspace = $this->workspace($request, $experience);
         $brand = $experience === 'brand';
         $canWrite = $brand && app(LeadRegistrations::class)->canManage($workspace->id);
+        // Partnerships are readable only while active, so a shared campaign without a readable partnership has ended.
         $query = DB::table('campaigns as c')->leftJoin('partnerships as p', 'p.id', '=', 'c.partnership_id')
-            ->select('c.id', 'c.title', 'c.due_date', 'c.partnership_id', 'p.brand_name', 'p.creator_name')
+            ->select('c.id', 'c.title', 'c.due_date', 'c.partnership_id', 'c.created_at', 'c.shared_at', 'p.brand_name', 'p.creator_name')
+            ->selectRaw("CASE WHEN c.partnership_id IS NULL THEN 'draft' WHEN p.id IS NULL THEN 'ended' ELSE 'shared' END AS status")
             ->where($brand ? 'c.org_id' : 'p.creator_org_id', $workspace->id);
         $selected = null;
         $listing = null;
         $partners = [];
+        $counts = null;
+        $filter = 'all';
         if ($campaign !== null) {
             abort_unless($selected = $query->addSelect('c.brief', 'c.version')->where('c.id', $campaign)->first(), 404);
             if ($canWrite && ! $selected->partnership_id) {
                 $partners = DB::select('SELECT * FROM app_campaign_partners()');
             }
         } else {
-            $request->validate(['page' => ['sometimes', 'integer', 'min:1', 'max:100000']]);
-            $listing = $query->orderByDesc('c.created_at')->orderBy('c.id')->paginate(25);
+            $filters = $request->validate([
+                'page' => ['sometimes', 'integer', 'min:1', 'max:100000'],
+                'status' => ['sometimes', 'string', 'in:all,draft,shared,ended'],
+            ]);
+            if ($brand) {
+                $filter = $filters['status'] ?? 'all';
+                $row = DB::query()->fromSub(clone $query, 'x')->selectRaw(
+                    "count(*) AS total, count(*) FILTER (WHERE status = 'draft') AS draft, count(*) FILTER (WHERE status = 'shared') AS shared, count(*) FILTER (WHERE status = 'ended') AS ended"
+                )->first();
+                $counts = ['all' => (int) $row->total, 'draft' => (int) $row->draft, 'shared' => (int) $row->shared, 'ended' => (int) $row->ended];
+                match ($filter) {
+                    'draft' => $query->whereNull('c.partnership_id'),
+                    'shared' => $query->whereNotNull('p.id'),
+                    'ended' => $query->whereNotNull('c.partnership_id')->whereNull('p.id'),
+                    default => null,
+                };
+            }
+            $listing = $query->orderByDesc('c.created_at')->orderBy('c.id')->paginate(25)->withQueryString();
         }
-        $data = compact('workspace', 'experience', 'canWrite', 'selected', 'listing', 'partners');
+        $data = compact('workspace', 'experience', 'canWrite', 'selected', 'listing', 'partners', 'counts', 'filter');
 
         return $request->expectsJson() && ! $request->header('X-Inertia') ? response()->json($data) : Inertia::render('Campaigns', $data);
     }

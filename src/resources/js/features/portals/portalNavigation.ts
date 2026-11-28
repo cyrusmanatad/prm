@@ -115,6 +115,14 @@ export const portalNavigation: Record<PortalExperience, PortalGroup[]> = {
             ],
         },
         {
+            // Mirrors the Brand Programs group (campaigns and incentives mockup, approved 2026-11-28).
+            label: 'Programs',
+            items: [
+                { label: 'Campaigns', icon: Megaphone, href: '/partner/campaigns' },
+                unavailable('Incentives', Gift),
+            ],
+        },
+        {
             label: 'Outreach',
             items: [
                 {
@@ -124,7 +132,6 @@ export const portalNavigation: Record<PortalExperience, PortalGroup[]> = {
                     match: ['/outreach-templates'],
                 },
                 { label: 'Automation and approvals', icon: Zap, href: '/automation' },
-                { label: 'Campaigns', icon: Megaphone, href: '/partner/campaigns' },
                 unavailable('Autopilot', Sparkles),
             ],
         },

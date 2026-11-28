@@ -17,4 +17,25 @@ A code review found that workspace closure review omitted campaigns. Migration `
 - `npm run format:check:changed`, `npm run typecheck`, `npm run build` and scoped Pint passed. Vitest passed 249 of 253 tests; the four failures expect the old account-menu wording from the separate pending change.
 - Not rerun: the Playwright campaign journey (only its expected due-date text changed) and visual inspection of the date label.
 
+## Approved UI redesign (2026-11-28)
+
+The redesign follows the [approved mockup](../shared/campaigns-incentives-mockup-review.md#implementation-campaign-briefs-pr-107). Migration `2026_11_30_000003_add_campaign_shared_at` adds `shared_at`, which `app_save_campaign` sets, with a check that it is set exactly when a Partner is. Rollback restores the earlier function.
+
+- **PostgreSQL** (fresh disposable Compose project):
+  - migrations, runtime grants and repository RLS checks passed
+  - `phpunit.pgsql.xml` passed 45 tests with 923 assertions; it now covers status values, counts, the `status` filter and its validation, `shared_at`, and the ended status after revocation
+  - rolling back and re-applying the new migration with data present passed
+  - `phpunit.acceptance.xml --filter 'PrivacyClosureTest|PrivacyExportTest'` passed 27 tests with 373 assertions
+- **Frontend gates:** `npm run format:check:changed` (17 files), `npm run typecheck`, `npm run build` and scoped Pint passed. With the separate account-menu change set aside, Vitest passed all 255 tests, including the new `CampaignFormat` test.
+- **Browser journeys** (Chromium, desktop and mobile, local stack rebuilt):
+  - `campaigns.spec.ts`, `partner-navigation.spec.ts`, `brand-lead-visibility.spec.ts` and `portal-home.spec.ts` passed: 14 tests
+  - the campaign journey covers the create dialog's initial focus, Share disabled until the draft is ready, the confirmation with Cancel focused, the shared record, axe and overflow
+- **Visual inspection** at 1280 × 720 and 390 × 664, covering:
+  - the Brand list (empty and with campaigns)
+  - the create dialog, the draft, the share confirmation and the shared record
+  - the Partner list and brief
+  - the refactored Partner record
+
+  Layout matched the mockup, and the Partner record was unchanged. Temporary images were removed.
+
 Staging, production, WebKit and native Safari were outside this local verification. Applying this revision to another environment requires the campaign migration and the usual runtime grants.

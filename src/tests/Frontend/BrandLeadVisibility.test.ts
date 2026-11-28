@@ -372,11 +372,11 @@ it('shows a partner record with an empty optional profile and never links an uns
     ]);
     // From a Partner record, a lead opens in the drawer over that partner's registrations.
     expect(wrapper.get('tbody th a').attributes('href')).toBe('/brand/lead-registrations?partner=p1&registration=r1');
-    expect(wrapper.get('.bp-identity .wd-partner-avatar').classes()).toContain('is-48');
+    expect(wrapper.get('.wd-record-identity .wd-partner-avatar').classes()).toContain('is-48');
     // One record title; the partnership status and an Email action from the shared profile sit in the header.
     expect(wrapper.findAll('h1').map((title) => title.text())).toEqual(['Cedar Creator']);
-    expect(wrapper.get('.bp-meta').text()).toContain('Active');
-    expect(wrapper.find('.bp-actions a[href^="mailto:"]').exists()).toBe(false); // No email shared.
+    expect(wrapper.get('.wd-record-meta').text()).toContain('Active');
+    expect(wrapper.find('.wd-record-actions a[href^="mailto:"]').exists()).toBe(false); // No email shared.
     expect(wrapper.find('tbody .wd-partner-avatar').exists()).toBe(false); // The record already names its partner.
     const safe = show(
         mount(BrandPartner, {
@@ -403,7 +403,7 @@ it('shows a partner record with an empty optional profile and never links an uns
             global: { stubs },
         }),
     );
-    expect(contact.get('.bp-actions a[href="mailto:ana@example.test"]').text()).toBe('Email Ana Reyes');
+    expect(contact.get('.wd-record-actions a[href="mailto:ana@example.test"]').text()).toBe('Email Ana Reyes');
     const paused = show(
         mount(BrandPartner, {
             props: {
@@ -417,9 +417,9 @@ it('shows a partner record with an empty optional profile and never links an uns
     expect(paused.text()).toContain('Not shown while the partnership is paused.');
     expect(paused.find('.wd-stat-chip').exists()).toBe(false);
     expect(paused.find('form[role="search"]').exists()).toBe(false);
-    expect(paused.find('.bp-actions').exists()).toBe(false);
-    expect(paused.get('.bp-meta').text()).toContain('Paused');
-    expect(paused.get('.bp-meta').text()).not.toContain('Last active');
+    expect(paused.find('.wd-record-actions').exists()).toBe(false);
+    expect(paused.get('.wd-record-meta').text()).toContain('Paused');
+    expect(paused.get('.wd-record-meta').text()).not.toContain('Last active');
     expect(paused.text()).not.toMatch(/suspend/i);
 });
 

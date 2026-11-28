@@ -63,8 +63,14 @@ it('defines each experience menu with Home first and every existing unavailable 
         expect(partner).toContain(tool);
     expect(partner.filter((label) => label.endsWith('(unavailable)'))).toEqual([
         'Inbox (unavailable)',
+        'Incentives (unavailable)',
         'Autopilot (unavailable)',
         'Earnings (unavailable)',
+    ]);
+    // Partner programs mirror the Brand group.
+    expect(labels('partner', true).find((group) => group.group === 'Programs')?.items).toEqual([
+        'Campaigns',
+        'Incentives (unavailable)',
     ]);
     // Owner-only finance tools are hidden from other roles; the unavailable Earnings entry stays.
     const member = labels('partner', false).flatMap((group) => group.items);
@@ -137,6 +143,7 @@ it('renders one main landmark, the workspace identity and accessible unavailable
     const unavailable = nav.findAll('[aria-disabled="true"]');
     expect(unavailable.map((item) => item.text())).toEqual([
         'Inbox, Not available yet',
+        'Incentives, Not available yet',
         'Autopilot, Not available yet',
         'Earnings, Not available yet',
     ]);

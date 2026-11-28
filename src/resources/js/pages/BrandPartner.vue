@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight, ChevronRight, ExternalLink, Lock, Mail } from '@lucide/vue';
+import { ArrowRight, ExternalLink, Lock, Mail } from '@lucide/vue';
+import Breadcrumbs from '../components/Breadcrumbs.vue';
 import ContentSection from '../components/ContentSection.vue';
 import DetailList, { type DetailItem } from '../components/DetailList.vue';
 import EmptyState from '../components/EmptyState.vue';
 import Pagination from '../components/Pagination.vue';
+import RecordHeader from '../components/RecordHeader.vue';
 import PartnerAvatar from '../components/PartnerAvatar.vue';
 import StatCard from '../components/StatCard.vue';
 import StatusBadge from '../components/StatusBadge.vue';
@@ -61,67 +63,55 @@ const profile = computed<DetailItem[]>(() => [
     <Head :title="partner.creator_name" />
     <BrandChrome :workspace-name="workspace.name" :account-name="account.name" :account-email="account.email">
         <main id="main-content" class="blv-page bp wd-portal-page flex flex-col gap-4 pt-5 pb-12">
-            <nav aria-label="Breadcrumb">
-                <ol class="bp-crumbs">
-                    <li>
-                        <Link href="/brand" class="wd-link">Partner hub</Link
-                        ><ChevronRight :size="14" aria-hidden="true" />
-                    </li>
-                    <li aria-current="page">{{ partner.creator_name }}</li>
-                </ol>
-            </nav>
+            <Breadcrumbs :items="[{ label: 'Partner hub', href: '/brand' }, { label: partner.creator_name }]" />
 
-            <section class="wd-card bp-header" aria-labelledby="partner-name">
-                <div class="bp-identity">
+            <RecordHeader eyebrow="Partner record" :title="partner.creator_name" heading-id="partner-name">
+                <template #leading>
                     <PartnerAvatar
                         :name="partner.creator_name"
                         :seed="partner.id"
                         :size="48"
                         :paused="partner.paused"
                     />
-                    <p class="bp-eyebrow">Partner record</p>
-                    <h1 id="partner-name">{{ partner.creator_name }}</h1>
-                    <dl class="bp-meta">
-                        <div>
-                            <dt class="wd-sr-only">Partnership status</dt>
-                            <dd>
-                                <StatusBadge v-if="partner.paused" label="Paused" tone="warning" />
-                                <StatusBadge v-else label="Active" tone="success" />
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>Partner since</dt>
-                            <dd>
-                                <time :datetime="partner.accepted_at" :title="dateTime(partner.accepted_at)">{{
-                                    dateOnly(partner.accepted_at)
-                                }}</time>
-                            </dd>
-                        </div>
-                        <div v-if="!partner.paused">
-                            <dt>Last active</dt>
-                            <dd>
-                                <template v-if="partner.last_active">
-                                    <time
-                                        :datetime="partner.last_active.at"
-                                        :title="dateTime(partner.last_active.at)"
-                                        >{{ relativeTime(partner.last_active.at) }}</time
-                                    >
-                                    · {{ activityKinds[partner.last_active.kind] }}
-                                </template>
-                                <template v-else>Not yet recorded</template>
-                            </dd>
-                        </div>
-                    </dl>
-                    <div v-if="!partner.paused" class="bp-actions">
-                        <a v-if="contactEmail" :href="`mailto:${contactEmail}`" class="wd-button wd-button-secondary"
-                            ><Mail :size="16" aria-hidden="true" />Email
-                            {{ partner.profile?.contact_name || 'business contact' }}</a
-                        >
-                        <Link :href="listHref()" class="wd-button wd-button-primary"
-                            >Open in Lead registrations<ArrowRight :size="16" aria-hidden="true"
-                        /></Link>
+                </template>
+                <template #meta>
+                    <div>
+                        <dt class="wd-sr-only">Partnership status</dt>
+                        <dd>
+                            <StatusBadge v-if="partner.paused" label="Paused" tone="warning" />
+                            <StatusBadge v-else label="Active" tone="success" />
+                        </dd>
                     </div>
-                </div>
+                    <div>
+                        <dt>Partner since</dt>
+                        <dd>
+                            <time :datetime="partner.accepted_at" :title="dateTime(partner.accepted_at)">{{
+                                dateOnly(partner.accepted_at)
+                            }}</time>
+                        </dd>
+                    </div>
+                    <div v-if="!partner.paused">
+                        <dt>Last active</dt>
+                        <dd>
+                            <template v-if="partner.last_active">
+                                <time :datetime="partner.last_active.at" :title="dateTime(partner.last_active.at)">{{
+                                    relativeTime(partner.last_active.at)
+                                }}</time>
+                                · {{ activityKinds[partner.last_active.kind] }}
+                            </template>
+                            <template v-else>Not yet recorded</template>
+                        </dd>
+                    </div>
+                </template>
+                <template v-if="!partner.paused" #actions>
+                    <a v-if="contactEmail" :href="`mailto:${contactEmail}`" class="wd-button wd-button-secondary"
+                        ><Mail :size="16" aria-hidden="true" />Email
+                        {{ partner.profile?.contact_name || 'business contact' }}</a
+                    >
+                    <Link :href="listHref()" class="wd-button wd-button-primary"
+                        >Open in Lead registrations<ArrowRight :size="16" aria-hidden="true"
+                    /></Link>
+                </template>
                 <p v-if="partner.paused" class="wd-warning bp-notice" role="status">
                     This partner's workspace is currently unavailable. The partnership is kept, and their shared profile
                     and registered leads will be shown again when the workspace is available.
@@ -155,9 +145,9 @@ const profile = computed<DetailItem[]>(() => [
                         {{ workspace.name }} — not sales, revenue or their private pipeline.
                     </p>
                 </div>
-            </section>
+            </RecordHeader>
 
-            <div class="bp-columns">
+            <div class="wd-record-columns">
                 <ContentSection
                     class="bp-leads"
                     title="Registered leads"
@@ -231,7 +221,7 @@ const profile = computed<DetailItem[]>(() => [
                     />
                 </ContentSection>
 
-                <div class="bp-aside">
+                <div class="wd-record-aside">
                     <ContentSection title="Shared profile" heading-id="shared-profile-heading">
                         <template #header>
                             <header>
@@ -293,119 +283,7 @@ const profile = computed<DetailItem[]>(() => [
 </template>
 
 <style scoped>
-.bp-crumbs {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-size: 14px;
-}
-.bp-crumbs li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-}
-.bp-crumbs li > svg {
-    color: var(--wd-muted);
-}
-.bp-crumbs .wd-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 0;
-    font-size: 14px;
-}
-.bp-crumbs [aria-current] {
-    color: var(--wd-body);
-    overflow-wrap: anywhere;
-}
-
-/* Record header: identity, partnership status and the two shared figures in one card. */
-.bp-header {
-    display: grid;
-    gap: 20px;
-    padding: 24px;
-}
-.bp-identity {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-        'avatar eyebrow actions'
-        'avatar name actions'
-        'avatar meta actions';
-    align-items: start;
-    gap: 2px 20px;
-}
-.bp-identity > :first-child {
-    grid-area: avatar;
-}
-.bp-eyebrow {
-    grid-area: eyebrow;
-    margin: 0;
-    color: var(--wd-muted);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-.bp-header h1 {
-    grid-area: name;
-    margin: 0;
-    font-family: var(--wd-font-display);
-    font-size: 30px;
-    font-weight: 700;
-    line-height: 1.15;
-    overflow-wrap: anywhere;
-}
-.bp-meta {
-    grid-area: meta;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 20px;
-    margin: 8px 0 0;
-    font-size: 14px;
-}
-.bp-meta > div {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0 6px;
-}
-.bp-meta dt {
-    color: var(--wd-muted);
-    white-space: nowrap;
-}
-.bp-meta dt::after {
-    content: ':';
-}
-.bp-meta dd {
-    margin: 0;
-    font-weight: 600;
-}
-.bp-meta time {
-    text-decoration: underline dotted var(--wd-control-line);
-    text-underline-offset: 4px;
-}
-.bp-actions {
-    grid-area: actions;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 10px;
-}
-.bp-actions .wd-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-decoration: none;
-    white-space: nowrap;
-}
+/* Record header, breadcrumb and columns: shared wd-record styles in portal-theme.css. */
 .bp-summary {
     display: flex;
     flex-wrap: wrap;
@@ -432,21 +310,6 @@ const profile = computed<DetailItem[]>(() => [
     margin: 0;
 }
 
-/* Registered leads first; the shared profile beside them on wide screens and below them otherwise. */
-.bp-columns {
-    display: grid;
-    gap: 16px;
-    align-items: start;
-}
-@media (min-width: 1200px) {
-    .bp-columns {
-        grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
-    }
-    /* In the narrow side column each label sits above its value. */
-    .bp-aside :deep(.wd-detail-list) {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
 .bp-leads {
     gap: 14px;
     min-width: 0;
@@ -462,11 +325,6 @@ const profile = computed<DetailItem[]>(() => [
     font-size: 13px;
     line-height: 22px;
     vertical-align: 3px;
-}
-.bp-aside {
-    display: grid;
-    gap: 16px;
-    min-width: 0;
 }
 .bp-owner {
     display: flex;
@@ -509,40 +367,7 @@ const profile = computed<DetailItem[]>(() => [
     margin-top: 6px;
 }
 
-@media (max-width: 899px) {
-    .bp-identity {
-        grid-template-columns: auto minmax(0, 1fr);
-        grid-template-areas:
-            'avatar eyebrow'
-            'avatar name'
-            'meta meta'
-            'actions actions';
-    }
-    .bp-actions {
-        justify-content: flex-start;
-        margin-top: 12px;
-    }
-}
 @media (max-width: 599px) {
-    .bp-header {
-        padding: 16px;
-    }
-    .bp-header h1 {
-        font-size: 26px;
-    }
-    .bp-identity {
-        column-gap: 14px;
-    }
-    .bp-identity > :first-child {
-        align-self: center;
-    }
-    .bp-actions {
-        display: grid;
-        justify-content: stretch;
-    }
-    .bp-actions .wd-button {
-        width: 100%;
-    }
     .bp-figures {
         display: grid;
         width: 100%;
@@ -550,7 +375,7 @@ const profile = computed<DetailItem[]>(() => [
 }
 /* Profile links keep the 44px touch target but wrap as text, so the new-tab icon follows the address. */
 @media (max-width: 599px), (pointer: coarse) {
-    .bp-aside :deep(.wd-detail-list a) {
+    .wd-record-aside :deep(.wd-detail-list a) {
         display: inline-block;
         padding-block: 11px;
     }

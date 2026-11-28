@@ -1,4 +1,4 @@
-**Campaign briefs (2026-11-28)** — [local verification of draft creation, sharing and relationship-scoped access](m7/campaign-brief-evidence.md).
+**Campaign briefs (2026-11-28)** — [local verification of draft creation, sharing and relationship-scoped access](m7/campaign-brief-evidence.md). Campaigns and Incentives **Mockup** checks: [rendering, flows and accessibility](shared/campaigns-incentives-mockup-review.md#verification).
 
 **Brand Partner detail design preparation (2026-11-25):** [source review scope and mockup-first verification plan](shared/brand-partner-detail-mockup-handoff.md#handoff-preparation-verification). **Mockup** (approved 2026-11-26) review: [inspection outcome, critique, mapping and prototype checks](shared/brand-partner-detail-mockup-review.md#verification). The live record was not inspected (login). Implementation evidence: [tests, PostgreSQL acceptance, browser journeys and visual checks](shared/brand-partner-record-evidence.md).
 
