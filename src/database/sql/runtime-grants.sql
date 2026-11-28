@@ -56,3 +56,11 @@ DO $$ BEGIN
   REVOKE UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.campaigns FROM weavdash_app;
  END IF;
 END $$;
+
+-- Brand incentives (D44) change only through their guarded functions.
+DO $$ BEGIN
+ IF to_regclass('public.incentives') IS NOT NULL THEN
+  REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.incentives, public.incentive_partners,
+   public.incentive_awards, public.incentive_award_registrations FROM weavdash_app;
+ END IF;
+END $$;

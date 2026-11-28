@@ -17,7 +17,12 @@ export interface EntryDetail extends Entry {
     /** The latest onboarding request for this lead. */
     onboarding?: { id: string; status: string; created_at: string } | null;
     /** Brands this lead is currently shared with. */
-    sharing?: { brand_name: string; paused: boolean; registered_at: string }[];
+    sharing?: {
+        brand_name: string;
+        paused: boolean;
+        registered_at: string;
+        campaign?: { id: string; title: string } | null;
+    }[];
 }
 export interface LeadForm {
     brand_name: string;

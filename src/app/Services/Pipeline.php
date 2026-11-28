@@ -75,9 +75,12 @@ class Pipeline
         $sharing = DB::table('lead_registrations AS r')->join('partnerships AS p', 'p.id', '=', 'r.partnership_id')
             ->where('r.creator_org_id', $orgId)->where('r.pipeline_entry_id', $id)->where('r.state', 'active')
             ->orderBy('r.registered_at')->orderBy('r.id')
-            ->get(['p.brand_name', 'r.registered_at', DB::raw('app_partnership_paused(p.id) AS paused')])
+            ->get(['p.brand_name', 'r.registered_at', DB::raw('app_partnership_paused(p.id) AS paused'), 'r.campaign_id',
+                DB::raw('(SELECT c.title FROM campaigns c WHERE c.id = r.campaign_id) AS campaign_title')])
+            // The source campaign is read-only here; it is changed on the registration (D43).
             ->map(fn ($row) => ['brand_name' => $row->brand_name, 'paused' => (bool) $row->paused,
-                'registered_at' => Carbon::parse($row->registered_at)->toIso8601String()])->all();
+                'registered_at' => Carbon::parse($row->registered_at)->toIso8601String(),
+                'campaign' => $row->campaign_id ? ['id' => $row->campaign_id, 'title' => $row->campaign_title] : null])->all();
 
         return [...$this->project($entry), 'notes' => $entry->notes, 'activities' => $activities,
             'updated_at' => Carbon::parse($entry->updated_at)->toIso8601String(),

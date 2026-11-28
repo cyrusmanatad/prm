@@ -8,6 +8,7 @@ import type { RegistrationFilters, StageOption } from '../portals/types';
 /** The filters this toolbar edits. The Partner record has no partner choice: its partner is the record itself. */
 export type RegistrationFilterValues = Pick<RegistrationFilters, 'q' | 'stage' | 'window' | 'sort'> & {
     partner?: string;
+    campaign?: string;
 };
 
 const props = withDefaults(
@@ -21,12 +22,14 @@ const props = withDefaults(
         stageHref: (stage: string) => string;
         /** Partner choices with counts, including "All partners"; omitted where the list belongs to one partner. */
         partners?: { value: string; label: string; count: number }[];
+        /** Source campaign choices (D43), including "Any campaign"; omitted when the Brand has shared no brief. */
+        campaigns?: { value: string; label: string }[];
         pending?: boolean;
         label: string;
         /** Prefix for control IDs, so labels stay linked when two lists could share a page. */
         idPrefix?: string;
     }>(),
-    { pending: false, idPrefix: 'registration', partners: undefined },
+    { pending: false, idPrefix: 'registration', partners: undefined, campaigns: undefined },
 );
 const emit = defineEmits<{ apply: [change: Partial<RegistrationFilterValues>] }>();
 
@@ -61,11 +64,20 @@ const sortOptions = [
     { value: 'lead_desc', label: 'Lead name Z–A' },
 ];
 const filtered = computed(
-    () => !!(props.filters.q || props.filters.partner || props.filters.stage || props.filters.window),
+    () =>
+        !!(
+            props.filters.q ||
+            props.filters.partner ||
+            props.filters.campaign ||
+            props.filters.stage ||
+            props.filters.window
+        ),
 );
 const filtersOpen = ref(false);
 const activeFilters = computed(
-    () => [props.filters.partner, props.filters.window, props.filters.sort].filter(Boolean).length,
+    () =>
+        [props.filters.partner, props.filters.campaign, props.filters.window, props.filters.sort].filter(Boolean)
+            .length,
 );
 
 // The search box filters as the user types. It keeps its own text while focused so a response
@@ -94,7 +106,13 @@ function submitSearch(): void {
 function clearFilters(): void {
     clearTimeout(typing);
     search.value = '';
-    apply({ q: '', stage: '', window: '', ...(props.partners ? { partner: '' } : {}) });
+    apply({
+        q: '',
+        stage: '',
+        window: '',
+        ...(props.partners ? { partner: '' } : {}),
+        ...(props.campaigns ? { campaign: '' } : {}),
+    });
 }
 </script>
 
@@ -158,6 +176,18 @@ function clearFilters(): void {
                     show-mark
                     show-search-icon
                     @change="(partner) => apply({ partner })"
+                />
+                <SelectField
+                    v-if="campaigns"
+                    :id="`${idPrefix}-campaign`"
+                    v-model="draft.campaign"
+                    label="Campaign"
+                    :options="campaigns"
+                    :searchable="campaigns.length > 8"
+                    search-placeholder="Search campaigns"
+                    search-label="Search campaigns"
+                    empty-text="No matching campaigns."
+                    @change="(campaign) => apply({ campaign })"
                 />
                 <SelectField
                     :id="`${idPrefix}-window`"

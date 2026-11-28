@@ -632,7 +632,8 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         } finally {
             $waiting->stop(0);
         }
-        $this->control->table('lead_registrations')->delete();
+        // Only this test's registrations: other tests' rows may be cited by incentive awards.
+        $this->control->table('lead_registrations')->where('creator_org_id', $org)->delete();
         $this->control->beginTransaction();
         $this->control->table('partnerships')->where('id', $relationship)->update(['status' => 'revoked', 'revoked_at' => now()]);
         $waiting = $this->probe2('register', $partner, $org, $relationship, $lead);
@@ -777,7 +778,8 @@ class BrandLeadVisibilityTest extends AcceptanceCase
         $shared = $this->member($partner, $org)->getJson('/pipeline?entry='.$id)->assertOk()->assertJsonCount(1, 'selected.sharing')
             ->assertJsonPath('selected.sharing.0.paused', false)->assertJsonPath('selected.onboarding', null)->json('selected.sharing.0');
         $this->assertSame($this->control->table('partnerships')->where('id', $relationship)->value('brand_name'), $shared['brand_name']);
-        $this->assertSame(['brand_name', 'paused', 'registered_at'], array_keys($shared));
+        $this->assertSame(['brand_name', 'paused', 'registered_at', 'campaign'], array_keys($shared));
+        $this->assertNull($shared['campaign']);
         $private = $this->control->table('pipeline_entries')->where('org_id', $org)->where('id', '<>', $id)->value('id');
         $this->getJson('/pipeline?entry='.$private)->assertOk()->assertJsonCount(0, 'selected.sharing');
         $this->assertSame(1, $visible());

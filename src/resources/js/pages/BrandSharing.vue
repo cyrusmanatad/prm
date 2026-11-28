@@ -46,6 +46,9 @@ const props = defineProps<{
     profile: SharedProfile & { version: number };
     stages: StageOption[];
     errors?: Record<string, string>;
+    /** Briefs each Brand shared with this workspace, keyed by partnership (D43). */
+    campaigns?: Record<string, { id: string; title: string }[]>;
+    presetCampaign?: string | null;
 }>();
 const { path } = useWorkspaceExperience();
 const self = computed(() => path('/partner/brand-sharing'));
@@ -143,13 +146,33 @@ const shareableLeads = computed<ShareableLead[]>(() => {
     const list = props.leads ?? [];
     return props.lead && !list.some((row) => row.id === props.lead!.id) ? [props.lead, ...list] : list;
 });
+// "Register a lead for this brief" arrives with the brief preselected, which also fixes the Brand.
+const presetPartnership =
+    Object.entries(props.campaigns ?? {}).find(([, list]) =>
+        list.some((item) => item.id === props.presetCampaign),
+    )?.[0] ?? '';
 const registration = useForm({
-    partnership: '',
+    partnership: presetPartnership,
     entry: props.lead?.id ?? '',
     display_name: props.lead?.brand_name ?? '',
     summary: '',
     share_contact: false,
+    campaign: presetPartnership ? (props.presetCampaign ?? '') : '',
 });
+function campaignOptions(partnership: string): { value: string; label: string }[] {
+    const list = props.campaigns?.[partnership] ?? [];
+    return list.length
+        ? [{ value: '', label: 'None' }, ...list.map((item) => ({ value: item.id, label: item.title }))]
+        : [];
+}
+const registrationCampaigns = computed(() => campaignOptions(registration.partnership));
+watch(
+    () => registration.partnership,
+    () => {
+        if (!registrationCampaigns.value.some((option) => option.value === registration.campaign))
+            registration.campaign = '';
+    },
+);
 const chosenLead = computed(() => shareableLeads.value.find((row) => row.id === registration.entry));
 const leadOptions = computed(() => [
     { value: '', label: 'Choose a lead' },
@@ -204,19 +227,21 @@ function register(): void {
             registration.reset();
             registration.entry = '';
             registration.display_name = '';
+            registration.campaign = '';
             closeShare();
         },
     });
 }
 onMounted(() => {
-    if (props.lead && canShare.value) void openShare();
+    if ((props.lead || presetPartnership) && canShare.value) void openShare();
 });
 
 // Edit shared details of one registration.
 const editing = ref<OwnRegistration | null>(null);
 const editDialog = ref<HTMLDialogElement | null>(null);
 let editTrigger: HTMLElement | null = null;
-const edit = useForm({ version: 0, display_name: '', summary: '', share_contact: false });
+const edit = useForm({ version: 0, display_name: '', summary: '', share_contact: false, campaign: '' });
+const editCampaigns = computed(() => (editing.value ? campaignOptions(editing.value.partnership_id ?? '') : []));
 function openEdit(row: OwnRegistration, event: Event): void {
     editTrigger = event.currentTarget as HTMLElement;
     edit.clearErrors();
@@ -225,6 +250,7 @@ function openEdit(row: OwnRegistration, event: Event): void {
         display_name: row.display_name,
         summary: row.summary,
         share_contact: row.share_contact,
+        campaign: row.campaign_id ?? '',
     });
     edit.reset();
     editing.value = row;
@@ -379,7 +405,11 @@ const brandShares = (brand: Brand) =>
                             >
                             <template v-else>{{ row.display_name }}</template>
                             <span class="wd-data-secondary bs-lead-meta">{{
-                                [row.share_contact ? 'Contact shared' : 'Name only', row.summary]
+                                [
+                                    row.share_contact ? 'Contact shared' : 'Name only',
+                                    row.campaign_title ? `Campaign: ${row.campaign_title}` : '',
+                                    row.summary,
+                                ]
                                     .filter(Boolean)
                                     .join(' · ')
                             }}</span>
@@ -553,6 +583,15 @@ const brandShares = (brand: Brand) =>
                             :error="registration.errors.partnership"
                         />
                     </div>
+                    <SelectField
+                        v-if="registrationCampaigns.length"
+                        id="registration-campaign"
+                        v-model="registration.campaign"
+                        label="Source campaign (optional)"
+                        hint="The brief this lead came from. The Brand sees the campaign and when you linked it."
+                        :options="registrationCampaigns"
+                        :error="registration.errors.campaign"
+                    />
                     <p v-if="chosenLead && brandOptions.length === 1" class="wd-hint" role="status">
                         {{ chosenLead.brand_name }} is already shared with every available Brand. Paused Brands cannot
                         receive leads.
@@ -670,6 +709,15 @@ const brandShares = (brand: Brand) =>
                     class="mt-1 shrink-0 accent-[var(--wd-brand)]"
                 />Share this lead's contact name and email
             </label>
+            <SelectField
+                v-if="editCampaigns.length"
+                id="edit-registration-campaign"
+                v-model="edit.campaign"
+                label="Source campaign (optional)"
+                hint="The Brand sees the campaign and when you linked it. Changing it records a new link date."
+                :options="editCampaigns"
+                :error="edit.errors.campaign"
+            />
             <p v-if="edit.errors.version" class="wd-field-error" role="alert">{{ edit.errors.version }}</p>
             <div class="wd-dialog-footer">
                 <button type="button" class="wd-button wd-button-secondary" @click="editing = null">Cancel</button>

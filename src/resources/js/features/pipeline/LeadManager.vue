@@ -773,6 +773,17 @@ function reloadSelected(): void {
                                     >{{ selected.sharing?.length ? 'Manage sharing' : 'Share with a Brand' }}</Link
                                 >
                             </div>
+                            <p
+                                v-for="item in (selected.sharing ?? []).filter((row) => row.campaign)"
+                                :key="item.campaign!.id"
+                                class="drawer-status-note"
+                            >
+                                Source campaign for {{ item.brand_name }}:
+                                <Link class="wd-link" :href="`/partner/campaigns/${item.campaign!.id}`">{{
+                                    item.campaign!.title
+                                }}</Link
+                                >. Change it in Brand sharing.
+                            </p>
                         </section>
                     </div>
                     <div

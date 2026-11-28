@@ -125,6 +125,20 @@ const contactShown = () => !!(props.registration.contact_name || props.registrat
                         >
                     </dd>
                     <dd v-else class="registration-muted">No changes since registering</dd>
+                    <template v-if="registration.campaign">
+                        <dt>Source campaign</dt>
+                        <dd>
+                            <Link class="wd-link" :href="`/brand/campaigns/${registration.campaign.id}`">{{
+                                registration.campaign.title
+                            }}</Link>
+                            · linked
+                            <time
+                                :datetime="registration.campaign.linked_at"
+                                :title="dateTime(registration.campaign.linked_at)"
+                                >{{ stamp(registration.campaign.linked_at) }}</time
+                            >
+                        </dd>
+                    </template>
                 </dl>
             </section>
             <p class="registration-note">

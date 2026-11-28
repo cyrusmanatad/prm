@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -74,6 +75,13 @@ class LeadRegistrations
             ->orderByRaw('lower(creator_name)')->orderBy('id')->get(['id', 'creator_name'])->all();
     }
 
+    /** Shared briefs for the registration campaign filter (D43). Drafts can never be a source. */
+    public function campaignOptions(string $org): array
+    {
+        return DB::table('campaigns')->where('org_id', $org)->whereNotNull('partnership_id')
+            ->orderByDesc('shared_at')->orderBy('id')->get(['id', 'title'])->all();
+    }
+
     /** Rows-per-page choices offered on the Brand registration list. */
     public const PAGE_SIZES = [10, 25, 50];
 
@@ -139,6 +147,9 @@ class LeadRegistrations
         if (! empty($filters['stage'])) {
             $query->where('r.stage', $filters['stage']);
         }
+        if (! empty($filters['campaign'])) {
+            $query->where('r.campaign_id', $filters['campaign']);
+        }
         if (isset($filters['q']) && $filters['q'] !== '') {
             $query->whereRaw('strpos(lower(r.display_name), lower(?)) > 0', [$filters['q']]);
         }
@@ -166,7 +177,7 @@ class LeadRegistrations
     {
         $row = $this->visible($org)->join('partnerships as p', 'p.id', '=', 'r.partnership_id')->where('r.id', $id)
             ->first(['r.id', 'r.display_name', 'r.stage', 'r.registered_at', 'r.shared_updated_at', 'r.partnership_id', 'p.creator_name',
-                'p.brand_name', 'r.summary', 'r.share_contact', 'r.contact_name', 'r.contact_email', 'p.accepted_at']);
+                'p.brand_name', 'r.summary', 'r.share_contact', 'r.contact_name', 'r.contact_email', 'p.accepted_at', 'r.campaign_id', 'r.campaign_linked_at']);
         if (! $row) {
             return null;
         }
@@ -175,7 +186,9 @@ class LeadRegistrations
 
         return [...$this->summaryRow($row), 'brand_name' => $row->brand_name, 'summary' => $row->summary,
             'share_contact' => (bool) $row->share_contact, 'contact_name' => $row->contact_name, 'contact_email' => $row->contact_email,
-            'partner_since' => $row->accepted_at ? Carbon::parse($row->accepted_at)->toIso8601String() : null, 'partner_leads' => $leads];
+            'partner_since' => $row->accepted_at ? Carbon::parse($row->accepted_at)->toIso8601String() : null, 'partner_leads' => $leads,
+            'campaign' => $row->campaign_id ? ['id' => $row->campaign_id, 'title' => DB::table('campaigns')->where('id', $row->campaign_id)->value('title'),
+                'linked_at' => Carbon::parse($row->campaign_linked_at)->toIso8601String()] : null];
     }
 
     private function visible(string $org)
@@ -304,12 +317,14 @@ class LeadRegistrations
         $page = $this->clamp($page, $total, self::PER_PAGE);
         $rows = $query->orderByDesc('r.registered_at')->orderByDesc('r.id')->limit(self::PER_PAGE)->offset(($page - 1) * self::PER_PAGE)
             ->get(['r.id', 'r.display_name', 'r.summary', 'r.share_contact', 'r.stage', 'r.state', 'r.withdrawn_reason', 'r.registered_at', 'r.version',
-                'r.pipeline_entry_id', 'p.brand_name', DB::raw('CASE WHEN p.id IS NULL THEN false ELSE app_partnership_paused(p.id) END AS paused')])
+                'r.pipeline_entry_id', 'p.brand_name', DB::raw('CASE WHEN p.id IS NULL THEN false ELSE app_partnership_paused(p.id) END AS paused'),
+                'r.partnership_id', 'r.campaign_id', DB::raw('(SELECT c.title FROM campaigns c WHERE c.id = r.campaign_id) AS campaign_title')])
             ->map(fn ($row) => ['id' => $row->id, 'display_name' => $row->display_name, 'summary' => $row->summary, 'share_contact' => (bool) $row->share_contact,
                 'stage' => $row->stage, 'state' => $row->state, 'withdrawn_reason' => $row->withdrawn_reason, 'version' => $row->version,
                 'registered_at' => Carbon::parse($row->registered_at)->toIso8601String(), 'entry_id' => $row->pipeline_entry_id,
                 // The name of an ended partnership's Brand is no longer shared with this workspace.
-                'brand_name' => $row->brand_name, 'paused' => (bool) $row->paused])->all();
+                'brand_name' => $row->brand_name, 'paused' => (bool) $row->paused,
+                'partnership_id' => $row->partnership_id, 'campaign_id' => $row->campaign_id, 'campaign_title' => $row->campaign_title])->all();
 
         return ['rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => self::PER_PAGE, 'counts' => $counts];
     }
@@ -322,23 +337,54 @@ class LeadRegistrations
     }
 
     /** @return array{status: string, id: string} */
-    public function register(string $partnership, string $entry, string $name, string $summary, bool $contact): array
+    public function register(string $partnership, string $entry, string $name, string $summary, bool $contact, ?string $campaign = null): array
     {
-        $result = json_decode(DB::selectOne('SELECT app_register_lead(?::uuid,?::uuid,?::uuid,?::text,?::text,?::boolean) AS data',
-            [(string) Str::uuid(), $partnership, $entry, $name, $summary, $contact ? 'true' : 'false'])->data, true, flags: JSON_THROW_ON_ERROR);
+        $result = json_decode(DB::selectOne('SELECT app_register_lead(?::uuid,?::uuid,?::uuid,?::text,?::text,?::boolean,?::uuid) AS data',
+            [(string) Str::uuid(), $partnership, $entry, $name, $summary, $contact ? 'true' : 'false', $campaign])->data, true, flags: JSON_THROW_ON_ERROR);
         abort_if($result['status'] === 'denied', 403);
         abort_if($result['status'] === 'missing', 404);
         if ($result['status'] === 'unavailable') {
             throw ValidationException::withMessages(['partnership' => 'This Brand is not available for registration. Choose a connected Brand that is not paused.']);
         }
+        $this->campaignStatus($result['status']);
 
         return $result;
     }
 
-    public function update(string $id, int $version, string $name, string $summary, bool $contact): void
+    public function update(string $id, int $version, string $name, string $summary, bool $contact, ?string $campaign = null): void
     {
-        $this->settle(DB::selectOne('SELECT app_update_lead_registration(?::uuid,?::integer,?::text,?::text,?::boolean) AS status',
-            [$id, $version, $name, $summary, $contact ? 'true' : 'false'])->status, 'registration');
+        try {
+            $status = DB::selectOne('SELECT app_update_lead_registration(?::uuid,?::integer,?::text,?::text,?::boolean,?::uuid) AS status',
+                [$id, $version, $name, $summary, $contact ? 'true' : 'false', $campaign])->status;
+        } catch (QueryException $error) {
+            // Raised when the source campaign supports an open or granted incentive award (D44).
+            if (($error->errorInfo[0] ?? '') === 'P0007') {
+                throw ValidationException::withMessages(['campaign' => 'This lead supports an incentive award for its source campaign, so the campaign cannot change.']);
+            }
+            throw $error;
+        }
+        $this->campaignStatus($status);
+        $this->settle($status, 'registration');
+    }
+
+    private function campaignStatus(string $status): void
+    {
+        if ($status === 'campaign') {
+            throw ValidationException::withMessages(['campaign' => 'Choose a brief this Brand shared with you, or leave the source campaign empty.']);
+        }
+    }
+
+    /**
+     * Briefs each connected Brand shared with this workspace, for the source campaign choice (D43).
+     *
+     * @return array<string, list<array{id: string, title: string}>> keyed by partnership
+     */
+    public function campaignChoices(string $org): array
+    {
+        return DB::table('campaigns as c')->join('partnerships as p', 'p.id', '=', 'c.partnership_id')
+            ->where('p.creator_org_id', $org)->where('p.status', 'active')
+            ->orderByDesc('c.shared_at')->orderBy('c.id')->get(['c.id', 'c.title', 'c.partnership_id'])
+            ->groupBy('partnership_id')->map(fn ($rows) => $rows->map(fn ($row) => ['id' => $row->id, 'title' => $row->title])->values()->all())->all();
     }
 
     public function withdraw(string $id, int $version): void
