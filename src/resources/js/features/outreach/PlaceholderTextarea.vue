@@ -108,8 +108,9 @@ defineExpose({ insert, focus: () => textarea.value?.focus() });
     overflow: hidden;
 }
 .wd-placeholder-box:focus-within {
-    outline: 3px solid var(--wd-focus);
-    outline-offset: 2px;
+    outline: none;
+    border-color: var(--wd-brand);
+    box-shadow: 0 0 0 3px var(--wd-brand-soft);
 }
 .wd-placeholder-box.is-invalid {
     border-color: var(--wd-danger-border);

@@ -109,6 +109,9 @@ it('summarizes the offers, shows lead progress and ties a locked Claim button to
     expect(open!.get('.ic-ready').text()).toContain('3 leads ready');
     expect(open!.get('.ic-ready').text()).toContain('Ready to claim');
     expect(open!.get('.ic-claim').attributes('disabled')).toBeUndefined();
+    // The button reads Claim; assistive technology also hears which offer.
+    expect(open!.get('.ic-claim').text()).toBe('Claim Onboarding bonus');
+    expect(open!.get('.ic-claim .wd-sr-only').text()).toBe('Onboarding bonus');
 });
 
 it('limits a claim to the leads per award and keeps ineligible leads disabled with a reason', async () => {

@@ -1198,8 +1198,6 @@ function reloadSelected(): void {
 }
 .lead-drawer :deep(.wd-select-panel) {
     max-height: none;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgb(31 26 29 / 16%);
 }
 .lead-drawer :deep(.wd-select-options) {
     max-height: 200px;

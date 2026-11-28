@@ -6,6 +6,7 @@ import Breadcrumbs from '../../components/Breadcrumbs.vue';
 import ContentSection from '../../components/ContentSection.vue';
 import FieldGroup from '../../components/FieldGroup.vue';
 import FormField from '../../components/FormField.vue';
+import MultiSelectField from '../../components/MultiSelectField.vue';
 import RecordHeader from '../../components/RecordHeader.vue';
 import SelectField from '../../components/SelectField.vue';
 import StatusBadge from '../../components/StatusBadge.vue';
@@ -13,10 +14,10 @@ import { Button } from '../../components/ui/button';
 import { confirmAction } from '../../composables/useConfirmation';
 import { calendarDate } from '../campaigns/format';
 import { today } from '../finance/amounts';
+import { currencyOptions } from '../pipeline/leadFields';
 import { fromMinor, toMinor } from '../pipeline/money';
-import { incentiveStates, rewardKinds } from './format';
-import RewardBlock from './RewardBlock.vue';
-import RuleList from './RuleList.vue';
+import { incentiveStates, previewReadiness, rewardKinds } from './format';
+import OfferCard from './OfferCard.vue';
 import type { BrandIncentive, RewardType } from './types';
 
 type CampaignChoice = { id: string; title: string; partnership_id: string; partner_name: string };
@@ -86,8 +87,18 @@ const stageOptions = computed(() =>
     })),
 );
 
+const currencies = computed(() => currencyOptions(form.currency));
+const partnerOptions = computed(() => props.partners.map((partner) => ({ value: partner.id, label: partner.name })));
+
 const amountMinor = computed(() => (form.amount.trim() ? toMinor(form.amount, form.currency || 'PHP') : null));
 const preview = computed(() => ({
+    id: props.incentive.id,
+    state: 'shared' as const,
+    brand_name: props.workspaceName,
+    campaign_id: campaign.value?.id ?? null,
+    cap_per_partner: Number(form.cap_per_partner) || null,
+    granted: 0,
+    terms: form.terms,
     title: form.title.trim() || 'Untitled incentive',
     reward_type: form.reward_type,
     amount_minor: amountMinor.value,
@@ -99,6 +110,7 @@ const preview = computed(() => ({
     ends_on: form.ends_on || null,
     campaign_title: campaign.value?.title ?? null,
 }));
+const sampleReadiness = previewReadiness('shared');
 
 const fieldErrors = computed(() => form.errors as Record<string, string | undefined>);
 // Client checks mirror the server rules so the summary can name every field at once.
@@ -106,12 +118,12 @@ const summary = ref<HTMLElement>();
 const labels: Record<string, [string, string]> = {
     title: ['incentive-title', 'Title'],
     amount_minor: ['incentive-amount', 'Amount'],
-    currency: ['incentive-currency', 'Currency'],
+    currency: ['incentive-currency-trigger', 'Currency'],
     reward_text: ['incentive-reward', 'Reward'],
     terms: ['incentive-terms', 'Terms'],
     leads_per_award: ['incentive-leads', 'Leads per award'],
     campaign_id: ['incentive-campaign-trigger', 'Source campaign'],
-    audience: ['incentive-audience', 'Partners'],
+    audience: ['incentive-audience-trigger', 'Partners'],
     starts_on: ['incentive-start', 'Starts'],
     ends_on: ['incentive-end', 'Ends'],
     cap_per_partner: ['incentive-cap-partner', 'Awards per Partner'],
@@ -260,12 +272,16 @@ function share(event: Event): void {
                         hint="Recorded as owed when you approve an award. WeavDash does not send money."
                         :error="fieldErrors.amount_minor"
                     />
-                    <FormField
+                    <SelectField
                         id="incentive-currency"
                         v-model="form.currency"
                         label="Currency"
-                        :maxlength="3"
-                        hint="Three-letter code, for example PHP."
+                        :options="currencies"
+                        empty-text="No matches"
+                        search-placeholder="Search code or name"
+                        search-label="Search currencies"
+                        show-mark
+                        show-search-icon
                         :error="fieldErrors.currency"
                     />
                 </div>
@@ -328,41 +344,33 @@ function share(event: Event): void {
                     :options="campaignOptions"
                     :error="fieldErrors.campaign_id"
                 />
-                <fieldset
+                <MultiSelectField
+                    v-if="partners.length"
                     id="incentive-audience"
-                    class="ic-audience"
-                    tabindex="-1"
-                    :aria-describedby="`incentive-audience-hint${fieldErrors.audience ? ' incentive-audience-error' : ''}`"
-                >
-                    <legend class="ic-legend">Partners</legend>
-                    <p id="incentive-audience-hint" class="wd-hint">
-                        {{
-                            campaign
-                                ? `Set by the campaign: it is shared with ${campaign.partner_name} only.`
-                                : 'Active Partners only. Each sees the offer and only their own awards.'
-                        }}
-                    </p>
-                    <ul v-if="partners.length" class="ic-checklist">
-                        <li v-for="partner in partners" :key="partner.id">
-                            <label class="ic-check">
-                                <input
-                                    v-model="form.audience"
-                                    type="checkbox"
-                                    :value="partner.id"
-                                    :disabled="!!campaign"
-                                />
-                                <span class="ic-check-name">{{ partner.name }}</span>
-                            </label>
-                        </li>
-                    </ul>
-                    <p v-else class="wd-hint">
+                    v-model="form.audience"
+                    label="Partners"
+                    noun="Partner"
+                    placeholder="Choose Partners…"
+                    :options="partnerOptions"
+                    :locked="!!campaign"
+                    :hint="
+                        campaign
+                            ? `Set by the source campaign: it is shared with ${campaign.partner_name} only.`
+                            : 'Active Partners only. Each sees the offer and only their own awards.'
+                    "
+                    empty-text="No Partners match."
+                    search-placeholder="Search Partners"
+                    search-label="Search Partners"
+                    :error="fieldErrors.audience"
+                />
+                <div v-else id="incentive-audience-trigger" class="wd-field" tabindex="-1">
+                    <span class="ic-legend">Partners</span>
+                    <p class="wd-hint">
                         No active Partners yet.
                         <Link href="/brand" class="wd-link">Invite one from the Partner hub</Link>.
                     </p>
-                    <p v-if="fieldErrors.audience" id="incentive-audience-error" class="wd-field-error">
-                        {{ fieldErrors.audience }}
-                    </p>
-                </fieldset>
+                    <p v-if="fieldErrors.audience" class="wd-field-error">{{ fieldErrors.audience }}</p>
+                </div>
             </ContentSection>
 
             <ContentSection title="Dates and limits" heading-id="limits-heading">
@@ -427,11 +435,13 @@ function share(event: Event): void {
                     </p>
                 </template>
                 <div class="ic-preview" aria-live="polite">
-                    <p class="ic-offer-from">From {{ workspaceName }}</p>
-                    <p class="ic-card-title">{{ preview.title }}</p>
-                    <RewardBlock :terms="preview" />
-                    <RuleList :terms="preview" :stage-label="stageLabel" />
-                    <p v-if="form.terms.trim()" class="ic-small ic-terms">{{ form.terms }}</p>
+                    <OfferCard
+                        :offer="preview"
+                        :readiness="sampleReadiness"
+                        preview
+                        terms-placeholder="No terms yet. Partners see how and when you deliver the reward here."
+                        :stage-label="stageLabel"
+                    />
                 </div>
             </ContentSection>
         </aside>

@@ -6,6 +6,7 @@ import { ChevronRight, Copy, CopyPlus, Mail, Pencil, Plus, Search, X } from '@lu
 import { computed, nextTick, ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
+import SelectField from '../components/SelectField.vue';
 import EmptyState from '../components/EmptyState.vue';
 import { Button } from '../components/ui/button';
 import PlaceholderTextarea from '../features/outreach/PlaceholderTextarea.vue';
@@ -152,6 +153,17 @@ async function insertPlaceholder(token: string): Promise<void> {
 // Draft: a live merge of the current editor text, never saved.
 const values = ref<MergeValues>({ brand_name: '', contact_name: '', creator_name: props.account.name });
 const leadId = ref('');
+const leadOptions = computed(() => [
+    { value: '', label: 'Choose a lead' },
+    ...(props.leads ?? []).map((row) => ({
+        value: row.id,
+        label: row.contact_name ? `${row.brand_name} · ${row.contact_name}` : row.brand_name,
+    })),
+]);
+const templateOptions = computed(() => [
+    { value: '', label: selected.value ? 'New template' : 'Choose a template' },
+    ...props.templates.map((row) => ({ value: row.id, label: row.name })),
+]);
 const lead = computed(() => props.leads?.find((row) => row.id === leadId.value));
 watch(leadId, () => {
     if (!lead.value) return;
@@ -482,31 +494,30 @@ const panel = ref<'list' | 'edit' | 'draft'>('edit');
                         <span class="wd-hint">Not saved</span>
                     </header>
                     <div class="out-fields">
-                        <div v-if="templates.length" class="wd-field out-small-only">
-                            <label for="draft-template">Template</label>
-                            <select
-                                id="draft-template"
-                                class="wd-table-input"
-                                :value="selected ?? ''"
-                                @change="
-                                    choose(
-                                        templates.find((row) => row.id === ($event.target as HTMLSelectElement).value),
-                                    )
-                                "
-                            >
-                                <option value="">{{ selected ? 'New template' : 'Choose a template' }}</option>
-                                <option v-for="row in templates" :key="row.id" :value="row.id">{{ row.name }}</option>
-                            </select>
-                        </div>
-                        <div v-if="leads?.length" class="wd-field">
-                            <label for="draft-lead">Fill from a lead <span class="out-optional">Optional</span></label>
-                            <select id="draft-lead" v-model="leadId" class="wd-table-input">
-                                <option value="">Choose a lead</option>
-                                <option v-for="row in leads" :key="row.id" :value="row.id">
-                                    {{ row.brand_name }}{{ row.contact_name ? ` · ${row.contact_name}` : '' }}
-                                </option>
-                            </select>
-                        </div>
+                        <SelectField
+                            v-if="templates.length"
+                            id="draft-template"
+                            class="out-small-only"
+                            :model-value="selected ?? ''"
+                            label="Template"
+                            :options="templateOptions"
+                            :searchable="templates.length > 8"
+                            search-placeholder="Search templates"
+                            empty-text="No matching templates."
+                            show-mark
+                            @change="(id) => choose(templates.find((row) => row.id === id))"
+                        />
+                        <SelectField
+                            v-if="leads?.length"
+                            id="draft-lead"
+                            v-model="leadId"
+                            label="Fill from a lead (optional)"
+                            :options="leadOptions"
+                            :searchable="leads.length > 8"
+                            search-placeholder="Search leads"
+                            empty-text="No matching leads."
+                            show-mark
+                        />
                         <div class="out-pair">
                             <FormField
                                 id="merge-brand"
@@ -880,11 +891,6 @@ const panel = ref<'list' | 'edit' | 'draft'>('edit');
 }
 .out-viewer {
     flex-basis: 100%;
-}
-.out-optional {
-    float: right;
-    color: var(--wd-muted);
-    font-weight: 500;
 }
 .out-draft select {
     width: 100%;

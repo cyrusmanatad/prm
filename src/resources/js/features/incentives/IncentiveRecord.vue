@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { Lock } from '@lucide/vue';
+import { Eye, Lock } from '@lucide/vue';
 import Breadcrumbs from '../../components/Breadcrumbs.vue';
 import ContentSection from '../../components/ContentSection.vue';
 import EmptyState from '../../components/EmptyState.vue';
@@ -13,14 +14,21 @@ import { dateOnly, dateTime, query } from '../admin/format';
 import { calendarDate } from '../campaigns/format';
 import AwardsTable from './AwardsTable.vue';
 import CapMeter from './CapMeter.vue';
-import { incentiveStates } from './format';
-import RewardBlock from './RewardBlock.vue';
-import RuleList from './RuleList.vue';
+import { incentiveStates, previewReadiness } from './format';
+import OfferCard from './OfferCard.vue';
 import type { Award, BrandIncentive } from './types';
 
-const props = defineProps<{ incentive: BrandIncentive; canManage: boolean; stageLabel: (stage: string) => string }>();
+const props = defineProps<{
+    incentive: BrandIncentive;
+    canManage: boolean;
+    workspaceName: string;
+    stageLabel: (stage: string) => string;
+}>();
 const path = `/brand/incentives/${props.incentive.id}`;
 const awardHref = (award: Award) => path + query({ award: award.id });
+// The offer as Partners see it. Their own counts and ready leads differ, so the card shows an example.
+const offer = computed(() => ({ ...props.incentive, brand_name: props.workspaceName, granted: 0 }));
+const sampleReadiness = computed(() => previewReadiness(props.incentive.state));
 
 const ending = useForm({ version: props.incentive.version });
 function end(event: Event): void {
@@ -112,10 +120,25 @@ function end(event: Event): void {
             </ContentSection>
         </div>
         <aside class="wd-record-aside" aria-label="Offer summary">
-            <ContentSection title="Offer" heading-id="offer-heading">
-                <RewardBlock :terms="incentive" />
-                <RuleList :terms="incentive" :stage-label="stageLabel" />
-                <CapMeter :used="incentive.granted" :cap="incentive.cap_total" label="All awards approved" />
+            <ContentSection title="What Partners see" heading-id="offer-heading">
+                <template #header>
+                    <p id="offer-heading" class="ic-preview-label">
+                        <Eye :size="14" aria-hidden="true" />What Partners see
+                    </p>
+                </template>
+                <div class="ic-preview">
+                    <OfferCard :offer="offer" :readiness="sampleReadiness" preview :stage-label="stageLabel" />
+                    <CapMeter
+                        v-if="incentive.cap_total"
+                        :used="incentive.granted"
+                        :cap="incentive.cap_total"
+                        label="Awards approved across all Partners"
+                    />
+                    <p v-else class="ic-small ic-muted">
+                        Across all Partners: {{ incentive.granted }}
+                        {{ incentive.granted === 1 ? 'award' : 'awards' }} approved · no total limit
+                    </p>
+                </div>
             </ContentSection>
             <ContentSection title="Audience" heading-id="audience-heading">
                 <ul class="ic-checklist">

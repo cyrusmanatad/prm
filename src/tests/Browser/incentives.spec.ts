@@ -42,7 +42,13 @@ test('a Brand shares an incentive, the Partner claims it and the Brand approves 
     await page.getByRole('textbox', { name: 'Amount per award' }).fill('2000');
     await page.getByRole('textbox', { name: 'Terms' }).fill('Paid by bank transfer within 30 days of approval.');
     await page.getByLabel('Ends', { exact: true }).fill('2027-12-31');
-    await page.getByRole('checkbox', { name: partnerName }).check();
+    // Partners: a searchable multi-select; chosen Partners show as chips.
+    await page.getByRole('button', { name: /^Partners/ }).click();
+    await page.getByRole('combobox', { name: 'Search Partners' }).fill(partnerName.slice(0, 6));
+    await page.getByRole('option', { name: partnerName }).click();
+    await expect(page.getByRole('option', { name: partnerName })).toHaveAttribute('aria-selected', 'true');
+    await page.getByRole('button', { name: 'Done' }).click();
+    await expect(page.getByRole('button', { name: `Remove ${partnerName}` })).toBeVisible();
     await expect(page.locator('.ic-preview')).toContainText('Holiday onboarding bonus');
     await checkPage(page);
     await capture(page, info.outputPath('incentive-form.png'));
@@ -72,7 +78,7 @@ test('a Brand shares an incentive, the Partner claims it and the Brand approves 
     await openPortalTool(page, 'Partner', 'Incentives');
     const card = page.locator('.ic-offer', { hasText: 'Holiday onboarding bonus' });
     await expect(card).toContainText('1 lead ready');
-    await card.getByRole('button', { name: 'Claim award…' }).click();
+    await card.getByRole('button', { name: 'Claim Holiday onboarding bonus' }).click();
     const claim = page.getByRole('dialog', { name: 'Claim award' });
     await claim.getByRole('checkbox', { name: /Kanto Cafe linens/ }).check();
     await expect(claim.locator('#claim-count')).toHaveText('1 of 1 selected');

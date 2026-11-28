@@ -6,6 +6,7 @@ import { ChevronRight, Copy, Download, Plus, RefreshCw, Search, X } from '@lucid
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import FoundationShell from '../layouts/FoundationShell.vue';
 import FormField from '../components/FormField.vue';
+import SelectField from '../components/SelectField.vue';
 import OnboardingEmailFields from '../components/OnboardingEmailFields.vue';
 import OnboardingSubmissionNotice from '../components/OnboardingSubmissionNotice.vue';
 import FilterChips, { type FilterChip } from '../components/FilterChips.vue';
@@ -263,6 +264,7 @@ watch(
 // New request dialog.
 const newDialog = ref<HTMLDialogElement>();
 const newLead = ref('');
+const leadOptions = computed(() => (props.leads ?? []).map((lead) => ({ value: lead.id, label: lead.brand_name })));
 const newLabel = ref('');
 const newSend = ref(false);
 const newRecipient = ref('');
@@ -279,7 +281,7 @@ watch(newLead, (id, previous) => {
 function openNew(): void {
     newOpen.value = true;
     newDialog.value?.showModal();
-    void nextTick(() => document.getElementById('new-request-lead')?.focus());
+    void nextTick(() => document.getElementById('new-request-lead-trigger')?.focus());
 }
 function closeNew(): void {
     newDialog.value?.close();
@@ -777,21 +779,19 @@ watch(
                     <DialogClose label="Close new request" :disabled="busy" @click="closeNew" />
                 </div>
                 <form v-if="newOpen" ref="newForm" class="wd-fields" :aria-busy="busy" @submit.prevent="createRequest">
-                    <div class="wd-field">
-                        <label for="new-request-lead">Lead</label>
-                        <select
-                            id="new-request-lead"
-                            v-model="newLead"
-                            required
-                            :aria-invalid="errors?.pipeline_entry_id ? 'true' : undefined"
-                        >
-                            <option value="" disabled>Choose a lead</option>
-                            <option v-for="lead in leads" :key="lead.id" :value="lead.id">{{ lead.brand_name }}</option>
-                        </select>
-                        <p v-if="errors?.pipeline_entry_id" class="wd-field-error" role="alert">
-                            {{ errors.pipeline_entry_id }}
-                        </p>
-                    </div>
+                    <SelectField
+                        id="new-request-lead"
+                        v-model="newLead"
+                        label="Lead"
+                        placeholder="Choose a lead"
+                        required
+                        :options="leadOptions"
+                        :searchable="leadOptions.length > 8"
+                        search-placeholder="Search leads"
+                        empty-text="No matching leads."
+                        show-mark
+                        :error="errors?.pipeline_entry_id"
+                    />
                     <FormField
                         id="new-request-label"
                         v-model="newLabel"

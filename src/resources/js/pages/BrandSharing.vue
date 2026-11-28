@@ -89,8 +89,12 @@ watch(
     },
 );
 onBeforeUnmount(() => clearTimeout(typing));
-function filterBrand(event: Event): void {
-    router.get(listHref({ brand: (event.target as HTMLSelectElement).value }), {}, { preserveScroll: true });
+const brandFilterOptions = computed(() => [
+    { value: '', label: 'All Brands' },
+    ...props.brands.map((brand) => ({ value: brand.id, label: brand.brand_name })),
+]);
+function filterBrand(brand: string): void {
+    router.get(listHref({ brand }), {}, { preserveScroll: true });
 }
 const filtered = computed(() => !!(filters.value.brand || filters.value.q || filters.value.state !== 'all'));
 
@@ -362,15 +366,21 @@ const brandShares = (brand: Brand) =>
                             :href-for="(value) => listHref({ state: value })"
                             compact
                         />
-                        <label v-if="brands.length > 1" class="bs-inline-field">
-                            <span class="wd-sr-only">Brand</span>
-                            <select class="wd-table-input" :value="filters.brand" @change="filterBrand">
-                                <option value="">All Brands</option>
-                                <option v-for="brand in brands" :key="brand.id" :value="brand.id">
-                                    {{ brand.brand_name }}
-                                </option>
-                            </select>
-                        </label>
+                        <SelectField
+                            v-if="brands.length > 1"
+                            id="shared-brand-filter"
+                            class="bs-inline-field"
+                            :model-value="filters.brand"
+                            label="Brand"
+                            label-placement="hidden"
+                            compact
+                            :options="brandFilterOptions"
+                            :searchable="brands.length > 8"
+                            search-placeholder="Search Brands"
+                            empty-text="No matching Brands."
+                            show-mark
+                            @change="filterBrand"
+                        />
                         <form class="bs-search" role="search" aria-label="Search shared leads" @submit.prevent>
                             <label for="registration-search" class="wd-sr-only">Search leads or Brands</label>
                             <Search :size="15" aria-hidden="true" />
@@ -928,10 +938,8 @@ const brandShares = (brand: Brand) =>
     gap: 8px;
     padding: 0 14px 10px;
 }
-.bs-inline-field select {
-    min-width: 150px;
-    font-size: 13px;
-    font-weight: 600;
+.bs-inline-field {
+    min-width: 170px;
 }
 .bs-search {
     position: relative;

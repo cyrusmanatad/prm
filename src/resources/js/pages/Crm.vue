@@ -32,6 +32,7 @@ import { Button } from '../components/ui/button';
 import DialogClose from '../components/DialogClose.vue';
 import { containDialogFocus } from '../composables/useDialogFocus';
 import { useValidationFocus } from '../composables/useValidationFocus';
+import SelectField from '../components/SelectField.vue';
 import { crmPanel } from '../features/crm/panel';
 import { dueLabel, reminderTone, snoozePresets, type ReminderTone } from '../features/crm/snooze';
 
@@ -151,7 +152,7 @@ const linkedOptions = [
     { value: 'linked', label: 'Linked to a lead' },
     { value: 'unlinked', label: 'Not linked' },
 ];
-const pageSizes = ['10', '25', '50'];
+const pageSizes = ['10', '25', '50'].map((size) => ({ value: size, label: size }));
 const contactsFiltered = computed(() => !!(props.filters.q || props.filters.linked));
 const reminderFilters = [
     { value: 'pending', label: 'Pending' },
@@ -627,32 +628,30 @@ function newReminder(title = ''): void {
                                 <X :size="14" aria-hidden="true" />
                             </button>
                         </div>
-                        <label class="crm-inline-field">
-                            <span>Sort</span>
-                            <select
-                                class="wd-table-input"
-                                :value="filters.sort"
-                                :disabled="busy"
-                                @change="filterContacts({ sort: ($event.target as HTMLSelectElement).value })"
-                            >
-                                <option v-for="option in sortOptions" :key="option.value" :value="option.value">
-                                    {{ option.label }}
-                                </option>
-                            </select>
-                        </label>
-                        <label class="crm-inline-field">
-                            <span>Lead links</span>
-                            <select
-                                class="wd-table-input"
-                                :value="filters.linked"
-                                :disabled="busy"
-                                @change="filterContacts({ linked: ($event.target as HTMLSelectElement).value })"
-                            >
-                                <option v-for="option in linkedOptions" :key="option.value" :value="option.value">
-                                    {{ option.label }}
-                                </option>
-                            </select>
-                        </label>
+                        <SelectField
+                            id="crm-sort"
+                            class="crm-inline-field"
+                            :model-value="filters.sort"
+                            label="Sort"
+                            label-placement="inline"
+                            compact
+                            :options="sortOptions"
+                            :searchable="false"
+                            :disabled="busy"
+                            @change="(sort) => filterContacts({ sort })"
+                        />
+                        <SelectField
+                            id="crm-linked"
+                            class="crm-inline-field"
+                            :model-value="filters.linked"
+                            label="Lead links"
+                            label-placement="inline"
+                            compact
+                            :options="linkedOptions"
+                            :searchable="false"
+                            :disabled="busy"
+                            @change="(linked) => filterContacts({ linked })"
+                        />
                     </form>
                     <section v-if="entry" class="crm-linked" aria-labelledby="linked-title">
                         <h3 id="linked-title">Linked to {{ entry.brand_name }}</h3>
@@ -827,17 +826,18 @@ function newReminder(title = ''): void {
                         :total="contacts.total"
                         :href-for="pageHref('contacts')"
                     >
-                        <div class="wd-page-size">
-                            <label for="crm-per-page">Rows per page</label>
-                            <select
-                                id="crm-per-page"
-                                :value="String(contacts.perPage)"
-                                :disabled="busy"
-                                @change="filterContacts({ per_page: ($event.target as HTMLSelectElement).value })"
-                            >
-                                <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
-                            </select>
-                        </div>
+                        <SelectField
+                            id="crm-per-page"
+                            class="wd-page-size"
+                            :model-value="String(contacts.perPage)"
+                            label="Rows per page"
+                            label-placement="inline"
+                            compact
+                            :options="pageSizes"
+                            :searchable="false"
+                            :disabled="busy"
+                            @change="(size) => filterContacts({ per_page: size })"
+                        />
                     </Pagination>
                 </section>
                 <section
@@ -1409,19 +1409,10 @@ function newReminder(title = ''): void {
     background: var(--wd-divider);
     color: var(--wd-ink);
 }
-.crm-inline-field {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--wd-muted);
-    font-size: 12px;
-    font-weight: 600;
-}
-.crm-inline-field select {
-    padding-inline: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--wd-ink);
+/* About as wide as the native selects they replaced, so Sort and Lead links stay beside the search box. */
+.crm-inline-field :deep(.wd-select-anchor) {
+    flex: none;
+    width: 150px;
 }
 .crm-linked {
     display: flex;

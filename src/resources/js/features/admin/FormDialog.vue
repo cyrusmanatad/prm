@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// The dialog owns its layout styles, so it renders correctly on every page, not only where records.css was loaded.
+import '../../../css/records.css';
 import { nextTick, ref } from 'vue';
 import DialogClose from '../../components/DialogClose.vue';
 import { Button } from '../../components/ui/button';

@@ -148,6 +148,8 @@ function clearFilters(): void {
                 v-model="draft.stage"
                 class="rf-stage-select"
                 label="Stage"
+                compact
+                label-placement="hidden"
                 :options="stageOptions"
                 :searchable="false"
                 @change="(stage) => apply({ stage })"
@@ -169,6 +171,8 @@ function clearFilters(): void {
                     :id="`${idPrefix}-partner`"
                     v-model="draft.partner"
                     label="Partner"
+                    compact
+                    label-placement="hidden"
                     :options="partners"
                     search-placeholder="Search partners"
                     search-label="Search partners"
@@ -182,6 +186,8 @@ function clearFilters(): void {
                     :id="`${idPrefix}-campaign`"
                     v-model="draft.campaign"
                     label="Campaign"
+                    compact
+                    label-placement="hidden"
                     :options="campaigns"
                     :searchable="campaigns.length > 8"
                     search-placeholder="Search campaigns"
@@ -193,6 +199,8 @@ function clearFilters(): void {
                     :id="`${idPrefix}-window`"
                     v-model="draft.window"
                     label="Registered"
+                    compact
+                    label-placement="hidden"
                     :options="windowOptions"
                     :searchable="false"
                     @change="(window) => apply({ window })"
@@ -202,6 +210,8 @@ function clearFilters(): void {
                     v-model="draft.sort"
                     class="rf-sort"
                     label="Sort by"
+                    compact
+                    label-placement="hidden"
                     :options="sortOptions"
                     :searchable="false"
                     @change="(sort) => apply({ sort })"
@@ -249,8 +259,12 @@ function clearFilters(): void {
     color: var(--wd-muted);
 }
 .rf-search:focus-within {
-    outline: 3px solid var(--wd-focus);
-    outline-offset: 1px;
+    outline: none;
+    border-color: var(--wd-brand);
+    box-shadow: 0 0 0 3px var(--wd-brand-soft);
+}
+.rf-search input:focus-visible {
+    outline: none;
 }
 /* The input itself is the touch target: 44px on phones and touch screens, compact with a fine pointer. */
 .rf-search input {
@@ -267,30 +281,17 @@ function clearFilters(): void {
     flex-wrap: wrap;
     gap: 8px;
 }
-/* Inline filters keep their labels for assistive technology; the selected value says what each one does. */
-.rf-toolbar :deep(.wd-select > label) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-}
+/* Inline filters keep their labels for assistive technology; the selected value says what each one does. Wide enough
+   that a Partner name and its count fit on one line in the open list. */
 .rf-filters > *,
 .rf-stage-select {
     position: relative;
-    min-width: 170px;
+    min-width: 230px;
 }
 .rf-sort,
 .rf-stage-select,
 .rf-filters-toggle {
     display: none !important;
-}
-/* Dropdowns in the toolbar match the search box: compact with a fine pointer, 44px on phones. */
-.rf-toolbar :deep(.wd-select-trigger) {
-    min-height: var(--wd-table-control);
-    padding-block: 0;
-    font-size: 13px;
 }
 .rf-status {
     display: flex;
