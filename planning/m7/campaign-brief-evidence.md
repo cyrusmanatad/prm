@@ -19,7 +19,7 @@ A code review found that workspace closure review omitted campaigns. Migration `
 
 ## Approved UI redesign (2026-11-28)
 
-The redesign follows the [approved mockup](../shared/campaigns-incentives-mockup-review.md#implementation-campaign-briefs-pr-106). Migration `2026_11_30_000003_add_campaign_shared_at` adds `shared_at`, which `app_save_campaign` sets, with a check that it is set exactly when a Partner is. Rollback restores the earlier function.
+The redesign follows the [approved mockup](../shared/campaigns-incentives-mockup-review.md#implementation-campaign-briefs-pr-107). Migration `2026_11_30_000003_add_campaign_shared_at` adds `shared_at`, which `app_save_campaign` sets, with a check that it is set exactly when a Partner is. Rollback restores the earlier function.
 
 - **PostgreSQL** (fresh disposable Compose project):
   - migrations, runtime grants and repository RLS checks passed

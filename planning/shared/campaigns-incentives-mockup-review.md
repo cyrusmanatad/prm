@@ -114,7 +114,7 @@ The proposal keeps the WeavDash shell, cards, badges, stage chips, tables, filte
 Items 1–6 are **Confirmed (2026-11-28)** as part of the mockup approval. Items 7 and 8 were not confirmed by it.
 
 1. **Confirmed:** the Partner **Programs** group for Campaigns and Incentives (item 2).
-2. **Confirmed:** the campaign redesign replaces the PR #106 screens: the list table, figures and chips, the create dialog, the draft checklist, the share confirmation and the shared detail with leads. **Confirmed:** it lands in PR #106; see Implementation below.
+2. **Confirmed:** the campaign redesign replaces the PR #106 screens: the list table, figures and chips, the create dialog, the draft checklist, the share confirmation and the shared detail with leads. **Confirmed:** it was intended for PR #106. That PR merged first, so it lands in the follow-up [cyrusmanatad/prm#107](https://github.com/cyrusmanatad/prm/pull/107); see Implementation below.
 3. **Confirmed:** award review in a side panel, rather than its own page, so a Brand can work through a queue without losing their place.
 4. **Confirmed:** an explicit **Leads per award** rule field. D44 says one or more registrations, and this fixes the number per offer.
 5. **Confirmed:** the late-link flag threshold of 7 days.
@@ -148,9 +148,9 @@ All checks used Chromium at 1440×900 and 390×844, against a local static serve
 - **Screenshots:** temporary only, kept outside the repository and deleted after inspection.
 - **Not verified:** WebKit and Safari, the live app, and screen-reader passes beyond axe.
 
-## Implementation (campaign briefs, PR #106)
+## Implementation (campaign briefs, PR #107)
 
-Implemented 2026-11-28 on `feat/campaign-briefs`. The [verification record](../m7/campaign-brief-evidence.md) has the checks.
+Implemented 2026-11-28 on `feat/campaign-briefs`, in [cyrusmanatad/prm#107](https://github.com/cyrusmanatad/prm/pull/107). Not merged or deployed. The [verification record](../m7/campaign-brief-evidence.md) has the checks.
 
 - **Built:** items 2–5 for D42 only:
   - the Brand list with status chips and a table
