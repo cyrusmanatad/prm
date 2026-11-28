@@ -204,3 +204,9 @@ This records the provider decision only; no production resources were provisione
 ## D42 — Bring campaign briefs forward
 
 **Confirmed (2026-11-28)** — start local implementation of a private Brand draft that can be shared with one selected active Partner. Other Partners cannot read the brief, and ending the relationship removes access. Broader M7 functionality retains its existing sequencing. See the [campaign brief contract](../m7/campaign-brief-contract.md).
+
+## D43 — Source campaign on lead registrations
+
+**Confirmed (2026-11-28) — approved; not implemented.** A Partner owner or admin can give a lead registration one optional source campaign, chosen from briefs shared with that Partner on the same partnership. The Partner can set it when registering, change it or clear it later, including after the brief's due date. Each change records the link time and is audited. The Brand sees linked active registrations on the campaign, with stage progress and link dates, and can filter registrations by campaign. The Partner sees the source campaign read-only on their private lead. Private leads are never linked or exposed, and existing withdrawal, relationship and workspace visibility rules apply unchanged.
+
+The Brand cannot set or confirm links in this scope. Brand accept/reject is required in the same release that makes incentives, lead protection or commissions depend on a source campaign. Crediting several campaigns per registration remains later work. Implementation waits for pilot demand under the M7 sequencing. Column, function and audit-event names in the [campaign lead link proposal](../m7/campaign-lead-link-proposal.md) are **Proposal / implementation defaults**, not additional confirmed decisions.
