@@ -88,16 +88,32 @@ it('explains why an offer cannot be claimed and never hides the total cap reason
         offer({ id: 'c', granted: 1, pending: 1 }),
     ]);
     const footers = wrapper.findAll('.ic-offer footer').map((footer) => footer.text());
-    expect(footers[0]).toContain('Needs 1 qualifying lead; 0 ready');
+    expect(footers[0]).toContain('Needs 1 qualifying lead');
+    expect(footers[0]).toContain('0 of 1 ready');
     expect(footers[1]).toContain('No awards left on this offer');
     expect(footers[2]).toContain('Your award limit is reached');
-    wrapper.findAll('.ic-offer footer button').forEach((button) => expect(button.attributes('disabled')).toBeDefined());
+    wrapper.findAll('.ic-offer .ic-claim').forEach((button) => expect(button.attributes('disabled')).toBeDefined());
     expect(wrapper.text()).not.toContain('cap_total');
+});
+
+it('summarizes the offers, shows lead progress and ties a locked Claim button to its reason', () => {
+    const wrapper = show([offer({ id: 'a', ready: 1, leads_per_award: 2 }), offer({ id: 'b', ready: 3 })]);
+    expect(wrapper.get('.ic-offers-head').text()).toContain('2 incentives from');
+    const [locked, open] = wrapper.findAll('.ic-offer');
+    const bar = locked!.get('.ic-ready-bar');
+    expect([bar.attributes('aria-valuenow'), bar.attributes('aria-valuemax')]).toEqual(['1', '2']);
+    expect(locked!.get('.ic-ready').text()).toContain('1 of 2 ready');
+    const button = locked!.get('.ic-claim');
+    expect(button.attributes('disabled')).toBeDefined();
+    expect(wrapper.get(`#${button.attributes('aria-describedby')}`).text()).toContain('Needs 2 qualifying leads');
+    expect(open!.get('.ic-ready').text()).toContain('3 leads ready');
+    expect(open!.get('.ic-ready').text()).toContain('Ready to claim');
+    expect(open!.get('.ic-claim').attributes('disabled')).toBeUndefined();
 });
 
 it('limits a claim to the leads per award and keeps ineligible leads disabled with a reason', async () => {
     const wrapper = show([offer()]);
-    await wrapper.get('.ic-offer footer button').trigger('click');
+    await wrapper.get('.ic-offer .ic-claim').trigger('click');
     await flushPromises();
     const boxes = () => wrapper.findAll<HTMLInputElement>('.ic-claim-leads input[type="checkbox"]');
     expect(wrapper.get('.ic-claim-leads').text()).toContain('Stage does not meet the rule yet');

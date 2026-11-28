@@ -1023,20 +1023,26 @@
 }
 .ic-offers-section {
     display: grid;
-    gap: 12px;
+    gap: 16px;
 }
-.ic-offers-section > h2 {
+.ic-offers-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+}
+.ic-offers-head h2 {
     margin: 0;
     font-family: var(--wd-font-display);
-    font-size: 20px;
+    font-size: 24px;
 }
-/* Offer cards keep a one-third width, even when a Partner has one or two offers. */
+/* Offer cards keep a one-third width on wide screens, even when a Partner has one or two offers. */
 .ic-offers {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 20px;
 }
-@media (max-width: 1199px) {
+@media (max-width: 1359px) {
     .ic-offers {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1047,32 +1053,158 @@
     }
 }
 .ic-offer {
-    display: grid;
-    align-content: start;
-    gap: 14px;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: 22px;
+    border-color: color-mix(in srgb, var(--wd-brand) 14%, var(--wd-line));
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--wd-brand-wash) 0%, var(--wd-surface) 45%);
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--wd-brand) 10%, transparent);
+}
+.ic-offer-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.ic-offer-head > div {
+    flex: 1 1 150px;
     min-width: 0;
 }
 .ic-offer-from {
-    margin: 0 0 2px;
+    margin: 0 0 4px;
     color: var(--wd-muted);
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.ic-offer-from .wd-link {
+    text-transform: none;
+    letter-spacing: 0;
+}
+.ic-offer .ic-card-title {
+    overflow-wrap: break-word;
+    font-family: var(--wd-font-display);
+    font-size: 19px;
+    line-height: 1.25;
+}
+.ic-claim.wd-button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--wd-brand), var(--wd-brand-hover));
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--wd-brand) 28%, transparent);
+}
+.ic-claim.wd-button:disabled {
+    border-color: color-mix(in srgb, var(--wd-brand) 18%, var(--wd-line));
+    background: var(--wd-brand-wash-strong);
+    box-shadow: none;
+    color: var(--wd-muted);
+    opacity: 1;
+}
+.ic-offer .ic-reward {
+    padding: 16px;
+    border: 1px solid color-mix(in srgb, var(--wd-brand) 18%, transparent);
+    border-radius: 16px;
+    background: linear-gradient(120deg, var(--wd-brand-soft), color-mix(in srgb, var(--wd-brand-soft) 70%, #f7d9e8));
+}
+.ic-offer .ic-reward-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--wd-brand), var(--wd-brand-hover));
+    box-shadow: 0 6px 14px color-mix(in srgb, var(--wd-brand) 25%, transparent);
+    color: #fff;
+}
+.ic-offer .ic-reward-value,
+.ic-offer .ic-reward-value.is-text {
+    font-family: var(--wd-font-display);
+    font-size: 28px;
+    line-height: 1.15;
+    color: var(--wd-ink);
+}
+@container (max-width: 340px) {
+    .ic-offer .ic-reward-value,
+    .ic-offer .ic-reward-value.is-text {
+        font-size: 22px;
+    }
+    .ic-offer .ic-reward-icon {
+        width: 44px;
+        height: 44px;
+    }
+}
+.ic-offer .ic-rule {
+    gap: 10px;
+    font-size: 15px;
+    color: var(--wd-body);
+}
+.ic-offer .ic-rule li {
+    align-items: flex-start;
+    gap: 10px;
+}
+/* A filled check badge in place of the plain tick. */
+.ic-offer .ic-rule svg {
+    width: 20px;
+    height: 20px;
+    margin-top: 0;
+    padding: 4px;
+    border-radius: 50%;
+    background: var(--wd-brand);
+    color: #fff;
+    stroke-width: 3;
+}
+.ic-offer .ic-cap-note {
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--wd-brand-soft);
+    color: var(--wd-body);
     font-weight: 600;
 }
-.ic-offer footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
+.ic-offer .ic-terms {
+    padding: 12px 14px;
+    border: 1px dashed color-mix(in srgb, var(--wd-brand) 30%, var(--wd-line));
+    border-radius: 12px;
+    background: var(--wd-brand-wash);
+    color: var(--wd-body);
+    font-size: 14px;
+}
+.ic-ready {
+    display: grid;
     gap: 10px;
-    padding-top: 14px;
+    margin-top: auto;
+    padding-top: 16px;
     border-top: 1px solid var(--wd-divider);
 }
-.ic-offer footer .ic-small {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+.ic-ready-text {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 0;
+    font-size: 14px;
 }
-.ic-offer footer .wd-button,
+.ic-ready-text span {
+    font-size: 13px;
+}
+.ic-ready-bar {
+    overflow: hidden;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--wd-brand-soft);
+}
+.ic-ready-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--wd-brand), color-mix(in srgb, var(--wd-brand) 45%, #e0569a));
+}
 .ic-card-title + .ic-reward {
     display: inline-flex;
     align-items: center;

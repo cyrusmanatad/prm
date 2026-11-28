@@ -17,6 +17,7 @@ interface Props extends PrimitiveProps {
     form?: string;
     ariaLabel?: string;
     'aria-pressed'?: HTMLAttributes['aria-pressed'];
+    ariaDescribedby?: string;
 }
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>();
@@ -30,6 +31,7 @@ const nativeProps = computed(() => ({
     'data-slot': 'button',
     'aria-label': props.ariaLabel,
     'aria-pressed': props['aria-pressed'],
+    'aria-describedby': props.ariaDescribedby,
     'data-variant': props.variant,
     'data-size': props.size,
     type: props.type,

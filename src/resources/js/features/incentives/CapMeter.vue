@@ -21,5 +21,7 @@ const width = () => `${Math.min(100, (props.used / (props.cap || 1)) * 100)}%`;
             <span :style="{ width: width() }"></span>
         </div>
     </div>
-    <p v-else class="ic-small ic-muted">{{ used }} {{ used === 1 ? 'award' : 'awards' }} approved · no limit</p>
+    <p v-else class="ic-small ic-muted ic-cap-note">
+        {{ used }} {{ used === 1 ? 'award' : 'awards' }} approved · no limit
+    </p>
 </template>
