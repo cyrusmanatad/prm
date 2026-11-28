@@ -24,6 +24,12 @@ const props = withDefaults(
         searchLabel?: string;
         showMark?: boolean;
         showSearchIcon?: boolean;
+        /** Shown on the trigger while nothing is chosen. */
+        placeholder?: string;
+        /** Table-toolbar size: the compact control height, 44px on touch screens. */
+        compact?: boolean;
+        /** `inline` puts the label before the trigger; `hidden` keeps it for assistive technology only. */
+        labelPlacement?: 'top' | 'inline' | 'hidden';
     }>(),
     {
         required: false,
@@ -33,6 +39,9 @@ const props = withDefaults(
         searchPlaceholder: 'Search',
         showMark: false,
         showSearchIcon: false,
+        placeholder: 'Choose an option',
+        compact: false,
+        labelPlacement: 'top',
     },
 );
 
@@ -159,8 +168,14 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
 </script>
 
 <template>
-    <div ref="root" class="wd-field wd-select">
-        <label :id="`${id}-label`" :for="triggerId">{{ label }}</label>
+    <div
+        ref="root"
+        class="wd-field wd-select"
+        :class="{ 'is-compact': compact, 'is-inline': labelPlacement === 'inline' }"
+    >
+        <label :id="`${id}-label`" :for="triggerId" :class="{ 'wd-sr-only': labelPlacement === 'hidden' }">{{
+            label
+        }}</label>
         <select
             :id="id"
             class="wd-select-native"
@@ -176,103 +191,106 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
                 {{ option.label }}
             </option>
         </select>
-        <button
-            :id="triggerId"
-            ref="trigger"
-            type="button"
-            class="wd-select-trigger"
-            role="combobox"
-            :aria-labelledby="`${id}-label`"
-            :aria-controls="listId"
-            :aria-expanded="open ? 'true' : 'false'"
-            :aria-autocomplete="searchable ? 'list' : 'none'"
-            :aria-activedescendant="open ? activeId : undefined"
-            :aria-invalid="error ? 'true' : undefined"
-            :aria-describedby="describedby"
-            :aria-required="required ? 'true' : undefined"
-            :disabled="disabled"
-            @click="toggle"
-            @keydown="onTriggerKey"
-        >
-            <span>{{ selected?.label || 'Choose an option' }}</span>
-            <span class="wd-select-chevron" aria-hidden="true"></span>
-        </button>
-        <div v-if="open" class="wd-select-panel" @keydown="onPanelKey">
-            <div v-if="searchable" class="wd-select-search-wrap">
-                <svg
-                    v-if="showSearchIcon"
-                    class="wd-select-search-icon"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                >
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="M20 20l-3.5-3.5" />
-                </svg>
-                <input
-                    :id="searchId"
-                    ref="search"
-                    class="wd-select-search"
-                    :class="{ 'has-icon': showSearchIcon }"
-                    type="search"
-                    role="combobox"
-                    :aria-label="searchAria"
-                    :aria-controls="listId"
-                    aria-expanded="true"
-                    aria-autocomplete="list"
-                    :aria-activedescendant="activeId"
-                    autocomplete="off"
-                    :placeholder="searchPlaceholder"
-                    v-model="query"
-                />
-            </div>
-            <ul :id="listId" ref="list" class="wd-select-options" role="listbox" :aria-labelledby="`${id}-label`">
-                <li v-if="!filtered.length" class="wd-select-empty" role="status">{{ emptyText }}</li>
-                <li v-for="(option, index) in filtered" :key="optionId(option.value)" role="presentation">
-                    <button
-                        :id="optionId(option.value)"
-                        type="button"
-                        class="wd-select-option"
-                        :class="{
-                            'is-active': index === active,
-                            'is-rich': showMark || option.hint || option.count != null,
-                        }"
-                        role="option"
-                        :aria-selected="option.value === value ? 'true' : 'false'"
-                        @mouseenter="active = index"
-                        @focus="active = index"
-                        @click="choose(option)"
+        <!-- The list opens directly under the trigger, not under the hint or error below it. -->
+        <div class="wd-select-anchor">
+            <button
+                :id="triggerId"
+                ref="trigger"
+                type="button"
+                class="wd-select-trigger"
+                role="combobox"
+                :aria-labelledby="`${id}-label`"
+                :aria-controls="listId"
+                :aria-expanded="open ? 'true' : 'false'"
+                :aria-autocomplete="searchable ? 'list' : 'none'"
+                :aria-activedescendant="open ? activeId : undefined"
+                :aria-invalid="error ? 'true' : undefined"
+                :aria-describedby="describedby"
+                :aria-required="required ? 'true' : undefined"
+                :disabled="disabled"
+                @click="toggle"
+                @keydown="onTriggerKey"
+            >
+                <span :class="{ 'wd-select-placeholder': !selected?.label }">{{ selected?.label || placeholder }}</span>
+                <span class="wd-select-chevron" aria-hidden="true"></span>
+            </button>
+            <div v-if="open" class="wd-select-panel" @keydown="onPanelKey">
+                <div v-if="searchable" class="wd-select-search-wrap">
+                    <svg
+                        v-if="showSearchIcon"
+                        class="wd-select-search-icon"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
                     >
-                        <span class="wd-select-option-copy">
-                            <span>{{ option.label }}</span>
-                            <span v-if="option.hint" class="wd-select-option-hint">{{ option.hint }}</span>
-                        </span>
-                        <span v-if="option.count != null" class="wd-select-option-count">{{ option.count }}</span>
-                        <svg
-                            v-if="showMark"
-                            class="wd-select-mark"
-                            :class="{ 'is-hidden': option.value !== value }"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            aria-hidden="true"
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="M20 20l-3.5-3.5" />
+                    </svg>
+                    <input
+                        :id="searchId"
+                        ref="search"
+                        class="wd-select-search"
+                        :class="{ 'has-icon': showSearchIcon }"
+                        type="search"
+                        role="combobox"
+                        :aria-label="searchAria"
+                        :aria-controls="listId"
+                        aria-expanded="true"
+                        aria-autocomplete="list"
+                        :aria-activedescendant="activeId"
+                        autocomplete="off"
+                        :placeholder="searchPlaceholder"
+                        v-model="query"
+                    />
+                </div>
+                <ul :id="listId" ref="list" class="wd-select-options" role="listbox" :aria-labelledby="`${id}-label`">
+                    <li v-if="!filtered.length" class="wd-select-empty" role="status">{{ emptyText }}</li>
+                    <li v-for="(option, index) in filtered" :key="optionId(option.value)" role="presentation">
+                        <button
+                            :id="optionId(option.value)"
+                            type="button"
+                            class="wd-select-option"
+                            :class="{
+                                'is-active': index === active,
+                                'is-rich': showMark || option.hint || option.count != null,
+                            }"
+                            role="option"
+                            :aria-selected="option.value === value ? 'true' : 'false'"
+                            @mouseenter="active = index"
+                            @focus="active = index"
+                            @click="choose(option)"
                         >
-                            <path d="M5 12l5 5 9-10" />
-                        </svg>
-                    </button>
-                </li>
-            </ul>
+                            <span class="wd-select-option-copy">
+                                <span>{{ option.label }}</span>
+                                <span v-if="option.hint" class="wd-select-option-hint">{{ option.hint }}</span>
+                            </span>
+                            <span v-if="option.count != null" class="wd-select-option-count">{{ option.count }}</span>
+                            <svg
+                                v-if="showMark"
+                                class="wd-select-mark"
+                                :class="{ 'is-hidden': option.value !== value }"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="M5 12l5 5 9-10" />
+                            </svg>
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
         <p v-if="hint" :id="`${id}-hint`" class="wd-hint">{{ hint }}</p>
         <p v-if="error" :id="`${id}-error`" class="wd-field-error" role="alert">{{ error }}</p>

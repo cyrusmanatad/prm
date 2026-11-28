@@ -1179,11 +1179,239 @@ summary:focus-visible {
 .wd-select-option.is-active {
     background: var(--wd-divider);
 }
+/* Open: the trigger and its list join into one control with a soft accent glow and no gap between them. The list
+   is anchored to the trigger, not to the field, so a hint or error below the field never pushes it down. */
+.wd-select-anchor {
+    position: relative;
+}
+.wd-select-trigger[aria-expanded='true'],
+.wd-multiselect-control.is-open {
+    border-color: var(--wd-brand);
+    border-bottom-color: var(--wd-divider);
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 0 0 3px var(--wd-brand-soft);
+}
+.wd-select-anchor > .wd-select-panel {
+    top: 100%;
+    border-color: var(--wd-brand);
+    border-top-width: 0;
+    border-radius: 0 0 10px 10px;
+    box-shadow:
+        0 0 0 3px var(--wd-brand-soft),
+        0 16px 36px rgb(34 26 38 / 0.14);
+    /* Hide the glow above the list, where it joins the trigger. */
+    clip-path: inset(0 -48px -64px -48px);
+}
 .wd-select-empty {
     margin: 0;
     padding: 12px;
     color: var(--wd-muted);
     font-size: 14px;
+}
+/* Single select variants: a placeholder, a compact toolbar size and an inline label. */
+.wd-select-placeholder {
+    color: var(--wd-muted);
+}
+.wd-select.is-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.wd-select.is-inline > label {
+    flex: none;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.wd-select.is-inline > .wd-select-anchor {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.wd-select.is-compact .wd-select-trigger {
+    min-height: var(--wd-table-control);
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.wd-select.is-compact .wd-select-search {
+    min-height: max(36px, var(--wd-table-control));
+    padding: 7px 10px;
+    font-size: 14px;
+}
+.wd-select.is-compact .wd-select-option {
+    min-height: max(36px, var(--wd-table-control));
+    padding: 8px 10px;
+    font-size: 14px;
+}
+/* Multi-select: same trigger, panel and options as the single select, with chips for the chosen values. */
+.wd-multiselect-control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 5px 8px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 10px;
+    background: var(--wd-surface);
+    cursor: pointer;
+}
+
+.wd-multiselect-control.is-invalid {
+    border-color: var(--wd-danger-border);
+}
+.wd-multiselect-control.is-locked {
+    background: var(--wd-paper);
+    cursor: default;
+}
+.wd-multiselect-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    max-width: 100%;
+    min-height: 30px;
+    padding: 2px 4px 2px 10px;
+    border-radius: 999px;
+    background: var(--wd-brand-soft);
+    color: var(--wd-ink);
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    cursor: default;
+}
+.is-locked .wd-multiselect-chip {
+    padding-right: 10px;
+}
+.wd-multiselect-remove {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--wd-brand);
+    cursor: pointer;
+}
+.wd-multiselect-remove:hover {
+    background: color-mix(in srgb, var(--wd-brand) 14%, transparent);
+}
+.wd-multiselect-remove:focus-visible {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 1px;
+}
+.wd-multiselect-trigger {
+    display: flex;
+    flex: 1 1 120px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 32px;
+    padding: 0 6px 0 4px;
+    border: 0;
+    background: none;
+    color: var(--wd-ink);
+    font: inherit;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+}
+.wd-multiselect-trigger:focus-visible {
+    outline: none;
+}
+.wd-multiselect-trigger:disabled {
+    cursor: default;
+}
+.wd-multiselect-placeholder {
+    color: var(--wd-muted);
+}
+.wd-multiselect-trigger .wd-select-chevron {
+    margin-left: auto;
+}
+.wd-multiselect-panel {
+    max-height: min(420px, 60vh);
+}
+.wd-multiselect-panel .wd-select-search-wrap {
+    position: relative;
+    flex: none;
+}
+.wd-multiselect-panel .wd-select-search-icon {
+    position: absolute;
+    top: 14px;
+    left: 12px;
+    color: var(--wd-muted);
+    pointer-events: none;
+}
+.wd-multiselect-panel .wd-select-search.has-icon {
+    padding-left: 36px;
+}
+.wd-multiselect-bulk {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 0 4px;
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.wd-multiselect-action {
+    min-height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--wd-brand);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+.wd-multiselect-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+.wd-select-option.wd-multiselect-option[aria-selected='true']:not(.is-active) {
+    background: none;
+}
+.wd-multiselect-box {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--wd-control-line);
+    border-radius: 5px;
+    background: var(--wd-surface);
+    color: #fff;
+}
+.wd-multiselect-box svg {
+    visibility: hidden;
+}
+[aria-selected='true'] > .wd-multiselect-box {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand);
+}
+[aria-selected='true'] > .wd-multiselect-box svg {
+    visibility: visible;
+}
+.wd-multiselect-hint {
+    margin-left: auto;
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.wd-multiselect-foot {
+    display: flex;
+    flex: none;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid var(--wd-divider);
+}
+.wd-multiselect-foot .wd-button {
+    min-height: 40px;
 }
 .wd-pipeline-history {
     padding-left: 24px;

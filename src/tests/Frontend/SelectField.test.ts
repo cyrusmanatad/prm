@@ -93,4 +93,34 @@ describe('SelectField', () => {
         await wrapper.get('#currency-search').trigger('keydown', { key: 'Enter' });
         expect(wrapper.emitted('update:modelValue')).toEqual([['USD']]);
     });
+
+    it('shows a placeholder until a value is chosen, and offers compact, inline and hidden-label variants', async () => {
+        const empty = mount(SelectField, {
+            props: { id: 'lead', label: 'Lead', options, modelValue: '', placeholder: 'Choose a lead' },
+            attachTo: document.body,
+        });
+        wrappers.push(empty);
+        expect(empty.get('.wd-select-placeholder').text()).toBe('Choose a lead');
+
+        const inline = mount(SelectField, {
+            props: { id: 'sort', label: 'Sort', options, modelValue: 'brand', compact: true, labelPlacement: 'inline' },
+            attachTo: document.body,
+        });
+        wrappers.push(inline);
+        expect(inline.classes()).toEqual(expect.arrayContaining(['is-compact', 'is-inline']));
+        expect(inline.find('.wd-select-placeholder').exists()).toBe(false);
+        expect(inline.get('label').classes()).not.toContain('wd-sr-only');
+
+        const hidden = mount(SelectField, {
+            props: { id: 'brand', label: 'Brand', options, modelValue: 'brand', labelPlacement: 'hidden' },
+            attachTo: document.body,
+        });
+        wrappers.push(hidden);
+        // The label is kept for assistive technology and still names the trigger.
+        expect(hidden.get('label').classes()).toContain('wd-sr-only');
+        expect(hidden.get('#brand-trigger').attributes('aria-labelledby')).toBe('brand-label');
+        // The list opens under the trigger, not under a hint below the field.
+        await hidden.get('#brand-trigger').trigger('click');
+        expect(hidden.find('.wd-select-anchor > .wd-select-panel').exists()).toBe(true);
+    });
 });

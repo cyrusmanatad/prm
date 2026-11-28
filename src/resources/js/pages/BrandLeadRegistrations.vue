@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { Info } from '@lucide/vue';
 import EmptyState from '../components/EmptyState.vue';
 import Pagination from '../components/Pagination.vue';
+import SelectField from '../components/SelectField.vue';
 import { useListFilters } from '../composables/useListFilters';
 import { query } from '../features/admin/format';
 import RegistrationDrawer from '../features/brand-leads/RegistrationDrawer.vue';
@@ -51,7 +52,7 @@ const campaignOptions = computed(() =>
         ? [{ value: '', label: 'Any campaign' }, ...props.campaigns.map((row) => ({ value: row.id, label: row.title }))]
         : undefined,
 );
-const pageSizes = ['10', '25', '50'];
+const pageSizes = ['10', '25', '50'].map((size) => ({ value: size, label: size }));
 const perPage = computed(() => props.filters.per_page || String(props.pagination.perPage));
 const filtered = computed(
     () =>
@@ -150,16 +151,17 @@ function closeDrawer(): void {
                     :total="pagination.total"
                     :href-for="href"
                 >
-                    <div class="wd-page-size">
-                        <label for="registration-per-page">Rows per page</label>
-                        <select
-                            id="registration-per-page"
-                            :value="perPage"
-                            @change="apply({ per_page: ($event.target as HTMLSelectElement).value })"
-                        >
-                            <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
-                        </select>
-                    </div>
+                    <SelectField
+                        id="registration-per-page"
+                        class="wd-page-size"
+                        :model-value="String(perPage)"
+                        label="Rows per page"
+                        label-placement="inline"
+                        compact
+                        :options="pageSizes"
+                        :searchable="false"
+                        @change="(size) => apply({ per_page: size })"
+                    />
                 </Pagination>
             </section>
         </main>

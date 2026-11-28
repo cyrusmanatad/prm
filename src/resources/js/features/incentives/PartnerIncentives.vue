@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
-import { Award as AwardIcon, Check, Info, Lock } from '@lucide/vue';
+import { useForm } from '@inertiajs/vue3';
+import { Check, Info } from '@lucide/vue';
 import ContentSection from '../../components/ContentSection.vue';
 import DataTable, { type DataColumn } from '../../components/DataTable.vue';
 import EmptyState from '../../components/EmptyState.vue';
 import FieldGroup from '../../components/FieldGroup.vue';
 import FigureList, { type Figure } from '../../components/FigureList.vue';
 import StatusBadge from '../../components/StatusBadge.vue';
-import { Button } from '../../components/ui/button';
 import { dateOnly } from '../admin/format';
 import FormDialog from '../admin/FormDialog.vue';
 import StageBadge from '../brand-leads/StageBadge.vue';
 import { calendarDate } from '../campaigns/format';
-import CapMeter from './CapMeter.vue';
-import { awardStates, cancelReasons, candidateReasons, rewardValue } from './format';
+import { awardStates, cancelReasons, candidateReasons, offerReadiness, rewardValue } from './format';
+import OfferCard from './OfferCard.vue';
 import RewardBlock from './RewardBlock.vue';
-import RuleList from './RuleList.vue';
 import type { PartnerAward, PartnerOffer } from './types';
 
 const props = defineProps<{
@@ -34,38 +32,7 @@ const figureList = computed<Figure[]>(() => [
     { label: 'Received', value: props.figures.received, scope: 'Marked fulfilled by the Brand' },
 ]);
 
-type Readiness = { ok: boolean; title: string; detail: string; progress: number | null };
 const plural = (count: number, one: string) => `${count} ${count === 1 ? one : `${one}s`}`;
-function readiness(offer: PartnerOffer): Readiness {
-    const need = offer.leads_per_award;
-    const ready = Math.min(offer.ready, need);
-    if (offer.state === 'ended')
-        return { ok: false, title: 'This offer has ended', detail: 'Awards stay below', progress: null };
-    if (!offer.open)
-        return {
-            ok: false,
-            title: `Claims open ${calendarDate(offer.starts_on)}`,
-            detail: 'Not open yet',
-            progress: null,
-        };
-    if (!offer.has_room)
-        return { ok: false, title: 'No awards left on this offer', detail: 'Offer limit reached', progress: null };
-    if (offer.cap_per_partner !== null && offer.granted + offer.pending >= offer.cap_per_partner)
-        return {
-            ok: false,
-            title: 'Your award limit is reached',
-            detail: `${offer.granted + offer.pending} of ${offer.cap_per_partner} used`,
-            progress: null,
-        };
-    if (offer.ready < need)
-        return {
-            ok: false,
-            title: `Needs ${plural(need, 'qualifying lead')}`,
-            detail: `${offer.ready} of ${need} ready`,
-            progress: ready / need,
-        };
-    return { ok: true, title: `${plural(offer.ready, 'lead')} ready`, detail: 'Ready to claim', progress: 1 };
-}
 const offerSummary = computed(() => {
     const brands = [...new Set(props.offers.map((offer) => offer.brand_name))];
     const from = brands.length === 1 ? brands[0] : `${brands.length} Brands`;
@@ -141,65 +108,15 @@ function detail(award: PartnerAward): string {
                 <p v-if="offers.length" class="ic-small ic-muted">{{ offerSummary }}</p>
             </header>
             <div v-if="offers.length" class="ic-offers">
-                <article
+                <OfferCard
                     v-for="offer in offers"
-                    :id="`offer-${offer.id}`"
                     :key="offer.id"
-                    class="wd-card ic-offer"
-                    :aria-labelledby="`offer-title-${offer.id}`"
-                >
-                    <header class="ic-offer-head">
-                        <div>
-                            <p class="ic-offer-from">
-                                From {{ offer.brand_name }}
-                                <template v-if="offer.campaign_id">
-                                    ·
-                                    <Link class="wd-link" :href="`/partner/campaigns/${offer.campaign_id}`">{{
-                                        offer.campaign_title
-                                    }}</Link>
-                                </template>
-                            </p>
-                            <h3 :id="`offer-title-${offer.id}`" class="ic-card-title">
-                                {{ offer.title }}
-                                <StatusBadge v-if="offer.state === 'ended'" label="Ended" tone="neutral" />
-                            </h3>
-                        </div>
-                        <Button
-                            v-if="canWrite && offer.state === 'shared'"
-                            type="button"
-                            class="wd-button wd-button-primary ic-claim"
-                            :disabled="!readiness(offer).ok"
-                            :ariaDescribedby="`offer-ready-${offer.id}`"
-                            @click="openClaim(offer, $event)"
-                            ><component
-                                :is="readiness(offer).ok ? AwardIcon : Lock"
-                                :size="16"
-                                aria-hidden="true"
-                            />Claim award…</Button
-                        >
-                    </header>
-                    <RewardBlock :terms="offer" />
-                    <RuleList :terms="offer" :stage-label="stageLabel" />
-                    <CapMeter :used="offer.granted" :cap="offer.cap_per_partner" label="Your awards approved" />
-                    <p v-if="offer.terms" class="ic-small ic-terms">{{ offer.terms }}</p>
-                    <footer class="ic-ready" :class="{ 'is-ok': readiness(offer).ok }">
-                        <p :id="`offer-ready-${offer.id}`" class="ic-ready-text">
-                            <strong>{{ readiness(offer).title }}</strong
-                            ><span class="ic-muted">{{ readiness(offer).detail }}</span>
-                        </p>
-                        <div
-                            v-if="readiness(offer).progress !== null"
-                            class="ic-ready-bar"
-                            role="progressbar"
-                            :aria-label="`Qualifying leads ready for ${offer.title}`"
-                            aria-valuemin="0"
-                            :aria-valuemax="offer.leads_per_award"
-                            :aria-valuenow="Math.min(offer.ready, offer.leads_per_award)"
-                        >
-                            <span :style="{ width: `${readiness(offer).progress! * 100}%` }"></span>
-                        </div>
-                    </footer>
-                </article>
+                    :offer="offer"
+                    :readiness="offerReadiness(offer)"
+                    :can-claim="canWrite"
+                    :stage-label="stageLabel"
+                    @claim="openClaim(offer, $event)"
+                />
             </div>
             <div v-else class="wd-card">
                 <EmptyState title="No current offers" description="Ended offers keep their awards below." />

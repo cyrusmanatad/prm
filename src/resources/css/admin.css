@@ -390,8 +390,12 @@
     color: var(--wd-muted);
 }
 .wd-admin .adm-search:focus-within {
-    outline: 3px solid var(--wd-focus);
-    outline-offset: 1px;
+    outline: none;
+    border-color: var(--wd-brand);
+    box-shadow: 0 0 0 3px var(--wd-brand-soft);
+}
+.wd-admin .adm-search input:focus-visible {
+    outline: none;
 }
 .wd-admin .adm-search input {
     flex: 1;

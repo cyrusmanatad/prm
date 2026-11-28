@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Mockup – Incentive form and dialog · WeavDash</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap"
+        />
+        <style>
+            :root {
+                --wd-paper: #fbf7ef;
+                --wd-surface: #fff;
+                --wd-ink: #221a26;
+                --wd-body: #4a3f4f;
+                --wd-muted: #6b5f70;
+                --wd-brand: #8e1650;
+                --wd-brand-hover: #5e0e35;
+                --wd-brand-soft: #f6e3ec;
+                --wd-brand-wash: #f6edf1;
+                --wd-brand-wash-strong: #f6eaf0;
+                --wd-line: #eadfcb;
+                --wd-control-line: #d9cbb3;
+                --wd-divider: #f3ece0;
+                --wd-focus: #2f7f69;
+                --wd-danger: #912238;
+                --wd-font-body: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+                --wd-font-display: 'Bricolage Grotesque', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+            }
+            :root[data-appearance='purple'] {
+                --wd-brand: #641d73;
+                --wd-brand-hover: #3d1052;
+                --wd-brand-soft: #ede1f2;
+                --wd-brand-wash: #f4eef7;
+                --wd-brand-wash-strong: #f1e8f5;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: var(--wd-paper);
+                color: var(--wd-ink);
+                font: 400 14px/1.5 var(--wd-font-body);
+            }
+            h1,
+            h2,
+            h3,
+            p {
+                margin: 0;
+            }
+            button,
+            input,
+            select,
+            textarea {
+                font: inherit;
+                color: inherit;
+            }
+            :focus-visible {
+                outline: 3px solid var(--wd-focus);
+                outline-offset: 2px;
+            }
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
+            }
+
+            /* Prototype bar: not product UI. */
+            .proto {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px 16px;
+                padding: 10px 16px;
+                background: #221a26;
+                color: #fff;
+                font-size: 13px;
+            }
+            .proto b {
+                padding: 2px 8px;
+                border-radius: 999px;
+                background: #f8d76b;
+                color: #221a26;
+                font-size: 11px;
+            }
+            .proto label {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .proto select {
+                padding: 4px 6px;
+                border-radius: 6px;
+                border: 0;
+                color: #221a26;
+            }
+            .note {
+                display: flex;
+                gap: 8px;
+                margin: 0 0 16px;
+                padding: 10px 12px;
+                border: 1px dashed #c9a24b;
+                border-radius: 10px;
+                background: #fffaf0;
+                color: #7a4b12;
+                font-size: 12.5px;
+            }
+            .note::before {
+                content: 'Design note';
+                flex: none;
+                font-weight: 700;
+            }
+            body.hide-notes .note {
+                display: none;
+            }
+
+            .page {
+                max-width: 1280px;
+                padding: 28px 32px 64px;
+            }
+            .crumbs {
+                margin-bottom: 14px;
+                color: var(--wd-muted);
+                font-size: 13px;
+            }
+            .crumbs a {
+                color: var(--wd-brand);
+                font-weight: 600;
+            }
+            .card {
+                padding: 20px;
+                border: 1px solid var(--wd-line);
+                border-radius: 16px;
+                background: var(--wd-surface);
+            }
+            .record-head {
+                margin-bottom: 16px;
+            }
+            .eyebrow {
+                color: var(--wd-muted);
+                font-size: 11.5px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+            .record-head h1 {
+                margin: 4px 0 8px;
+                font: 700 28px/1.15 var(--wd-font-display);
+            }
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 2px 10px;
+                border-radius: 999px;
+                background: var(--wd-divider);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .columns {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 360px;
+                gap: 16px;
+                align-items: start;
+            }
+            .stack {
+                display: grid;
+                gap: 16px;
+            }
+            .section h2 {
+                margin-bottom: 16px;
+                font: 700 17px var(--wd-font-display);
+            }
+            .grid2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            .field {
+                display: grid;
+                gap: 6px;
+                margin-bottom: 16px;
+            }
+            .field > label,
+            .label {
+                font-size: 13px;
+                font-weight: 700;
+            }
+            .hint {
+                color: var(--wd-muted);
+                font-size: 12.5px;
+            }
+            .control {
+                width: 100%;
+                min-height: 44px;
+                padding: 9px 12px;
+                border: 1px solid var(--wd-control-line);
+                border-radius: 10px;
+                background: var(--wd-surface);
+            }
+            .button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                min-height: 44px;
+                padding: 0 18px;
+                border: 1px solid transparent;
+                border-radius: 10px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .button-primary {
+                background: var(--wd-brand);
+                color: #fff;
+            }
+            .button-secondary {
+                border-color: var(--wd-control-line);
+                background: var(--wd-surface);
+            }
+            .actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            /* ---------- Multi-select (new shared component) ---------- */
+            .ms {
+                position: relative;
+            }
+            .ms-trigger {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 6px;
+                width: 100%;
+                min-height: 44px;
+                padding: 6px 40px 6px 8px;
+                border: 1px solid var(--wd-control-line);
+                border-radius: 10px;
+                background: var(--wd-surface);
+                text-align: left;
+                cursor: pointer;
+            }
+            .ms[data-open] .ms-trigger {
+                border-color: var(--wd-brand);
+                box-shadow: 0 0 0 3px var(--wd-brand-soft);
+            }
+            .ms-chevron {
+                position: absolute;
+                top: 13px;
+                right: 14px;
+                pointer-events: none;
+                transition: transform 0.15s;
+            }
+            .ms[data-open] .ms-chevron {
+                transform: rotate(180deg);
+            }
+            .ms-placeholder {
+                padding: 0 4px;
+                color: var(--wd-muted);
+            }
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 3px 4px 3px 10px;
+                border-radius: 999px;
+                background: var(--wd-brand-soft);
+                color: var(--wd-ink);
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .chip button {
+                display: grid;
+                place-items: center;
+                width: 22px;
+                height: 22px;
+                padding: 0;
+                border: 0;
+                border-radius: 50%;
+                background: transparent;
+                color: var(--wd-brand);
+                cursor: pointer;
+            }
+            .chip button:hover {
+                background: color-mix(in srgb, var(--wd-brand) 14%, transparent);
+            }
+            .chip.is-locked {
+                padding-right: 10px;
+            }
+            .ms-panel {
+                position: absolute;
+                z-index: 20;
+                top: calc(100% + 6px);
+                left: 0;
+                right: 0;
+                display: none;
+                border: 1px solid var(--wd-line);
+                border-radius: 12px;
+                background: var(--wd-surface);
+                box-shadow: 0 16px 36px rgb(34 26 38 / 0.14);
+            }
+            .ms[data-open] .ms-panel {
+                display: block;
+            }
+            .ms-search {
+                padding: 10px;
+                border-bottom: 1px solid var(--wd-divider);
+            }
+            .ms-search input {
+                width: 100%;
+                min-height: 40px;
+                padding: 8px 12px 8px 34px;
+                border: 1px solid var(--wd-control-line);
+                border-radius: 8px;
+                background: var(--wd-surface)
+                    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236b5f70' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")
+                    no-repeat 11px center;
+            }
+            .ms-bulk {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 14px;
+                color: var(--wd-muted);
+                font-size: 12.5px;
+            }
+            .ms-bulk button {
+                padding: 0;
+                border: 0;
+                background: none;
+                color: var(--wd-brand);
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .ms-list {
+                max-height: 264px;
+                margin: 0;
+                padding: 4px 6px 8px;
+                overflow-y: auto;
+                list-style: none;
+            }
+            .ms-option {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 40px;
+                padding: 6px 8px;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+            .ms-option:hover,
+            .ms-option.is-active {
+                background: var(--wd-brand-soft);
+            }
+            .ms-box {
+                display: grid;
+                place-items: center;
+                width: 18px;
+                height: 18px;
+                flex: none;
+                border: 1.5px solid var(--wd-control-line);
+                border-radius: 5px;
+                background: var(--wd-surface);
+                color: #fff;
+            }
+            .ms-option[aria-selected='true'] .ms-box {
+                border-color: var(--wd-brand);
+                background: var(--wd-brand);
+            }
+            .ms-option[aria-selected='false'] .ms-box svg {
+                visibility: hidden;
+            }
+            .ms-empty {
+                padding: 14px;
+                color: var(--wd-muted);
+                text-align: center;
+            }
+            .ms-foot {
+                display: flex;
+                justify-content: flex-end;
+                padding: 8px 10px;
+                border-top: 1px solid var(--wd-divider);
+                background: var(--wd-paper);
+                border-radius: 0 0 12px 12px;
+            }
+            .ms-foot .button {
+                min-height: 36px;
+                padding: 0 14px;
+            }
+
+            .ss-trigger {
+                padding-left: 12px;
+            }
+            .ss-code {
+                font-weight: 700;
+            }
+            .ss-name {
+                margin-left: 8px;
+                color: var(--wd-muted);
+            }
+            .ss-option {
+                justify-content: space-between;
+            }
+            .ss-option .ss-mark {
+                color: var(--wd-brand);
+                visibility: hidden;
+            }
+            .ss-option[aria-selected='true'] .ss-mark {
+                visibility: visible;
+            }
+
+            /* ---------- Offer card (same as the Partner page) ---------- */
+            .preview-label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-bottom: 10px;
+                color: var(--wd-muted);
+                font-size: 11.5px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+            .offer {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding: 22px;
+                border: 1px solid color-mix(in srgb, var(--wd-brand) 14%, var(--wd-line));
+                border-radius: 20px;
+                background: linear-gradient(180deg, var(--wd-brand-wash) 0%, var(--wd-surface) 45%);
+                box-shadow: 0 10px 28px color-mix(in srgb, var(--wd-brand) 10%, transparent);
+            }
+            .offer-head {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 12px;
+            }
+            .offer-head > div {
+                flex: 1 1 150px;
+                min-width: 0;
+            }
+            .offer-from {
+                margin-bottom: 4px;
+                color: var(--wd-muted);
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+            .offer-title {
+                font: 700 19px/1.25 var(--wd-font-display);
+            }
+            .claim {
+                flex: none;
+                background: linear-gradient(135deg, var(--wd-brand), var(--wd-brand-hover));
+                color: #fff;
+                box-shadow: 0 6px 16px color-mix(in srgb, var(--wd-brand) 28%, transparent);
+                cursor: default;
+            }
+            .reward {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 16px;
+                border: 1px solid color-mix(in srgb, var(--wd-brand) 18%, transparent);
+                border-radius: 16px;
+                background: linear-gradient(120deg, var(--wd-brand-soft), color-mix(in srgb, var(--wd-brand-soft) 70%, #f7d9e8));
+            }
+            .reward-icon {
+                display: grid;
+                place-items: center;
+                width: 48px;
+                height: 48px;
+                flex: none;
+                border-radius: 14px;
+                background: linear-gradient(135deg, var(--wd-brand), var(--wd-brand-hover));
+                color: #fff;
+            }
+            .reward-value {
+                font: 700 24px/1.15 var(--wd-font-display);
+            }
+            .reward-kind {
+                color: var(--wd-muted);
+                font-size: 13px;
+            }
+            .rules {
+                display: grid;
+                gap: 10px;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                color: var(--wd-body);
+                font-size: 14px;
+            }
+            .rules li {
+                display: flex;
+                gap: 10px;
+            }
+            .tick {
+                display: grid;
+                place-items: center;
+                width: 20px;
+                height: 20px;
+                flex: none;
+                border-radius: 50%;
+                background: var(--wd-brand);
+                color: #fff;
+            }
+            .pill {
+                align-self: flex-start;
+                padding: 4px 12px;
+                border-radius: 999px;
+                background: var(--wd-brand-soft);
+                color: var(--wd-body);
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .terms {
+                padding: 12px 14px;
+                border: 1px dashed color-mix(in srgb, var(--wd-brand) 30%, var(--wd-line));
+                border-radius: 12px;
+                background: var(--wd-brand-wash);
+                color: var(--wd-body);
+                font-size: 14px;
+            }
+            .terms.is-empty {
+                color: var(--wd-muted);
+                font-style: italic;
+            }
+            .ready {
+                display: grid;
+                gap: 10px;
+                padding-top: 16px;
+                border-top: 1px solid var(--wd-divider);
+            }
+            .ready-text {
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                font-size: 14px;
+            }
+            .ready-text span {
+                color: var(--wd-muted);
+                font-size: 13px;
+            }
+            .bar {
+                height: 8px;
+                border-radius: 999px;
+                background: var(--wd-brand-soft);
+            }
+            .bar span {
+                display: block;
+                width: 60%;
+                height: 100%;
+                border-radius: inherit;
+                background: linear-gradient(90deg, var(--wd-brand), color-mix(in srgb, var(--wd-brand) 45%, #e0569a));
+            }
+            .sticky {
+                position: sticky;
+                top: 64px;
+            }
+
+            /* ---------- Dialog (intended FormDialog layout) ---------- */
+            .backdrop {
+                display: grid;
+                place-items: center;
+                min-height: 480px;
+                padding: 32px 16px;
+                border-radius: 16px;
+                background: rgb(34 26 38 / 0.45);
+            }
+            .dialog {
+                display: flex;
+                flex-direction: column;
+                width: min(520px, 100%);
+                overflow: hidden;
+                border: 1px solid var(--wd-line);
+                border-radius: 16px;
+                background: var(--wd-surface);
+                box-shadow: 0 24px 60px rgb(34 26 38 / 0.25);
+            }
+            .dialog-head {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 16px 20px 12px;
+                border-bottom: 1px solid var(--wd-divider);
+            }
+            .dialog-head h2 {
+                font: 700 20px/1.25 var(--wd-font-display);
+            }
+            .dialog-sub {
+                margin-top: 4px;
+                color: var(--wd-muted);
+                font-size: 12.5px;
+            }
+            .close {
+                display: grid;
+                place-items: center;
+                width: 44px;
+                height: 44px;
+                flex: none;
+                margin: -6px -10px 0 0;
+                border: 0;
+                border-radius: 10px;
+                background: transparent;
+                cursor: pointer;
+            }
+            .close:hover {
+                background: var(--wd-paper);
+                color: var(--wd-brand);
+            }
+            .dialog-body {
+                padding: 16px 20px;
+            }
+            .dialog-body .field {
+                margin: 0;
+            }
+            .dialog-foot {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                gap: 10px;
+                padding: 12px 20px;
+                border-top: 1px solid var(--wd-divider);
+                background: var(--wd-paper);
+            }
+
+            .view[hidden] {
+                display: none;
+            }
+            @media (max-width: 899px) {
+                .columns {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+                .sticky {
+                    position: static;
+                }
+                .preview-aside {
+                    order: -1;
+                }
+            }
+            @media (max-width: 599px) {
+                .page {
+                    padding: 20px 16px 48px;
+                }
+                .grid2 {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+                .dialog-foot .button {
+                    flex: 1 1 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Prototype controls: not product UI. Nothing here is saved or sent. -->
+        <div class="proto" role="region" aria-label="Mockup controls">
+            <b>Mockup</b>
+            <label
+                >Screen
+                <select id="screen">
+                    <option value="form">Incentive form (draft)</option>
+                    <option value="dialog">New incentive dialog</option>
+                </select></label
+            >
+            <label
+                >Accent
+                <select id="accent">
+                    <option value="burgundy">Burgundy (default)</option>
+                    <option value="purple">Purple</option>
+                </select></label
+            >
+            <label
+                >Notes
+                <select id="notes">
+                    <option value="show">Show design notes</option>
+                    <option value="hide">Hide design notes</option>
+                </select></label
+            >
+        </div>
+
+        <!-- ======================= Incentive form ======================= -->
+        <main class="page view" id="view-form">
+            <p class="crumbs"><a href="#">Incentives</a> › First Incentive Offer</p>
+            <header class="card record-head">
+                <p class="eyebrow">Incentive</p>
+                <h1>First Incentive Offer</h1>
+                <span class="badge">○ Private draft</span>
+                <span class="hint">&nbsp; Visible to: <strong>Your workspace only</strong></span>
+            </header>
+
+            <div class="columns">
+                <div class="stack">
+                    <section class="card section" aria-labelledby="offer-h">
+                        <h2 id="offer-h">Offer</h2>
+                        <p class="note">
+                            Currency becomes the searchable dropdown already used in the Add lead form (same list, PHP first;
+                            search by code or name). A saved code outside the list stays selectable. The Partners field below
+                            is the same component in a multiple-choice mode, so both dropdowns look and behave alike.
+                        </p>
+                        <div class="field">
+                            <label for="title">Title</label>
+                            <input id="title" class="control" value="First Incentive Offer" />
+                        </div>
+                        <div class="grid2">
+                            <div class="field">
+                                <label for="amount">Amount per award</label>
+                                <input id="amount" class="control" value="1500" inputmode="decimal" />
+                            </div>
+                            <div class="field">
+                                <span class="label" id="currency-label">Currency</span>
+                                <div class="ms ss" id="ss">
+                                    <button
+                                        type="button"
+                                        class="ms-trigger ss-trigger"
+                                        id="ss-trigger"
+                                        aria-haspopup="listbox"
+                                        aria-expanded="false"
+                                        aria-controls="ss-panel"
+                                        aria-labelledby="currency-label ss-value"
+                                    >
+                                        <span id="ss-value"></span>
+                                    </button>
+                                    <svg class="ms-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                                    <div class="ms-panel" id="ss-panel">
+                                        <div class="ms-search">
+                                            <label class="sr-only" for="ss-search">Search currencies</label>
+                                            <input id="ss-search" type="search" placeholder="Search code or name" autocomplete="off" role="combobox" aria-controls="ss-list" aria-expanded="true" aria-autocomplete="list" />
+                                        </div>
+                                        <ul class="ms-list" id="ss-list" role="listbox" aria-label="Currencies"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="terms">Terms</label>
+                            <textarea id="terms" class="control" rows="3">
+Paid by bank transfer within 30 days of approval.</textarea
+                            >
+                        </div>
+                    </section>
+
+                    <section class="card section" aria-labelledby="who-h">
+                        <h2 id="who-h">Who qualifies</h2>
+                        <div class="grid2">
+                            <div class="field">
+                                <label for="stage">Lead reaches</label>
+                                <select id="stage" class="control">
+                                    <option>Pitched or later</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="per">Leads per award</label>
+                                <input id="per" class="control" value="1" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="campaign">Source campaign (optional)</label>
+                            <select id="campaign" class="control">
+                                <option value="">Any registered lead</option>
+                                <option value="c1">Holiday collection brief · Maya Chen Studio</option>
+                            </select>
+                            <p class="hint">Limit the offer to leads registered with this brief as their source campaign.</p>
+                        </div>
+
+                        <div class="field">
+                            <span class="label" id="partners-label">Partners</span>
+                            <div class="ms" id="ms">
+                                <button
+                                    type="button"
+                                    class="ms-trigger"
+                                    id="ms-trigger"
+                                    aria-haspopup="listbox"
+                                    aria-expanded="false"
+                                    aria-controls="ms-panel"
+                                    aria-labelledby="partners-label ms-summary"
+                                    aria-describedby="partners-hint"
+                                ></button>
+                                <svg class="ms-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                                <div class="ms-panel" id="ms-panel">
+                                    <div class="ms-search">
+                                        <label class="sr-only" for="ms-search">Search Partners</label>
+                                        <input id="ms-search" type="search" placeholder="Search Partners" autocomplete="off" role="combobox" aria-controls="ms-list" aria-expanded="true" aria-autocomplete="list" />
+                                    </div>
+                                    <div class="ms-bulk">
+                                        <span id="ms-count" aria-live="polite"></span>
+                                        <span><button type="button" id="ms-all">Select all</button> · <button type="button" id="ms-clear">Clear</button></span>
+                                    </div>
+                                    <ul class="ms-list" id="ms-list" role="listbox" aria-multiselectable="true" aria-label="Partners"></ul>
+                                    <div class="ms-foot"><button type="button" class="button button-secondary" id="ms-done">Done</button></div>
+                                </div>
+                            </div>
+                            <p class="hint" id="partners-hint">Active Partners only. Each sees the offer and only their own awards.</p>
+                            <span class="sr-only" id="ms-summary"></span>
+                        </div>
+                        <p class="note">
+                            Chips show who is chosen; each chip has its own remove button. The list opens below the field
+                            with search, Select all and Clear, and stays open while ticking several Partners. Keyboard:
+                            Enter or Space opens; type to search; Up/Down to move; Space ticks; Escape or Done closes and
+                            returns focus. When a source campaign is chosen, its Partner is set and locked (try the Source
+                            campaign select). With no active Partners, the field is replaced by the existing empty hint.
+                        </p>
+                    </section>
+
+                    <section class="card section" aria-labelledby="dates-h">
+                        <h2 id="dates-h">Dates and limits</h2>
+                        <div class="grid2">
+                            <div class="field"><label for="starts">Starts</label><input id="starts" class="control" type="date" value="2026-11-28" /></div>
+                            <div class="field"><label for="ends">Ends</label><input id="ends" class="control" type="date" value="2026-11-30" /></div>
+                        </div>
+                    </section>
+                    <div class="actions">
+                        <button type="button" class="button button-secondary">Cancel</button>
+                        <button type="button" class="button button-secondary">Save draft</button>
+                        <button type="button" class="button button-primary">Share incentive…</button>
+                    </div>
+                </div>
+
+                <aside class="preview-aside" aria-label="Partner preview">
+                    <div class="card sticky">
+                        <p class="preview-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+                            What Partners see
+                        </p>
+                        <article class="offer" aria-live="polite" aria-label="Offer preview">
+                            <header class="offer-head">
+                                <div>
+                                    <p class="offer-from">From Northline Living</p>
+                                    <h3 class="offer-title" id="pv-title">First Incentive Offer</h3>
+                                </div>
+                                <span class="button claim" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6" /><path d="M15.5 13 17 22l-5-3-5 3 1.5-9" /></svg>
+                                    Claim award…
+                                </span>
+                            </header>
+                            <div class="reward">
+                                <span class="reward-icon" aria-hidden="true"
+                                    ><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg
+                                ></span>
+                                <div>
+                                    <p class="reward-value" id="pv-amount">USD 1,500.00</p>
+                                    <p class="reward-kind">Cash per award · paid outside WeavDash</p>
+                                </div>
+                            </div>
+                            <ul class="rules" aria-label="What qualifies">
+                                <li><span class="tick" aria-hidden="true">✓</span>Each registered lead that reaches Pitched or later</li>
+                                <li><span class="tick" aria-hidden="true">✓</span><span id="pv-campaign">Any registered lead counts</span></li>
+                                <li><span class="tick" aria-hidden="true">✓</span>Claims from 28 Nov 2026 to 30 Nov 2026</li>
+                                <li><span class="tick" aria-hidden="true">✓</span>The Brand approves every award</li>
+                            </ul>
+                            <span class="pill">0 awards approved · no limit</span>
+                            <p class="terms" id="pv-terms">Paid by bank transfer within 30 days of approval.</p>
+                            <footer class="ready">
+                                <p class="ready-text"><strong>3 of 5 leads ready</strong><span>Example for a Partner</span></p>
+                                <div class="bar" aria-hidden="true"><span></span></div>
+                            </footer>
+                        </article>
+                        <p class="note" style="margin-top: 14px">
+                            The preview reuses the Partner offer card exactly. The Claim button is shown but inert (hidden
+                            from assistive technology), and the footer shows a sample readiness line because each Partner
+                            sees their own lead count. Title, amount, rule, campaign, dates, cap and terms update live. On
+                            tablets and phones the preview moves above the form.
+                        </p>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <!-- ======================= Dialog ======================= -->
+        <main class="page view" id="view-dialog" hidden>
+            <p class="note">
+                Cause of the broken layout: the shared form dialog's styles live in records.css, which only the
+                administration, finance and automation pages load. On Incentives, Campaigns and the Partner claim dialog
+                the header, close button and footer fall back to plain stacking. Fix: the dialog component loads its own
+                styles, so every page gets this layout. No visual redesign beyond that.
+            </p>
+            <div class="backdrop">
+                <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+                    <header class="dialog-head">
+                        <div>
+                            <h2 id="dlg-title">New incentive</h2>
+                            <p class="dialog-sub">It starts as a private draft. Add the reward, rule and Partners next, then share it.</p>
+                        </div>
+                        <button type="button" class="close" aria-label="Close new incentive">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                        </button>
+                    </header>
+                    <div class="dialog-body">
+                        <div class="field">
+                            <label for="dlg-name">Incentive name</label>
+                            <input id="dlg-name" class="control" maxlength="160" />
+                        </div>
+                    </div>
+                    <footer class="dialog-foot">
+                        <button type="button" class="button button-secondary">Cancel</button>
+                        <button type="button" class="button button-primary">Create draft</button>
+                    </footer>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            const partners = ['Aiko Slow Home', 'Amara Everyday', 'Atelier Ines', 'Bennett Living Studio', 'Casa Silva Creative', 'Desert Light Collective', 'Elena Casa', 'Maya Chen Studio', 'Murphy Field Notes', 'North House Stories', 'Reed & Room', 'Seoul Space Agency', 'Spaceship', 'Studio Sofia Rossi'];
+            let chosen = new Set(['Maya Chen Studio', 'Atelier Ines']);
+            let locked = null;
+            let active = 0;
+            const ms = document.getElementById('ms');
+            const trigger = document.getElementById('ms-trigger');
+            const search = document.getElementById('ms-search');
+            const list = document.getElementById('ms-list');
+            const check = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>';
+            const x = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+            const visible = () => partners.filter((p) => p.toLowerCase().includes(search.value.trim().toLowerCase()));
+
+            function renderTrigger() {
+                trigger.innerHTML = '';
+                if (!chosen.size) trigger.innerHTML = '<span class="ms-placeholder">Choose Partners…</span>';
+                [...chosen].sort().forEach((name) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'chip' + (locked ? ' is-locked' : '');
+                    chip.textContent = name;
+                    if (!locked) {
+                        const remove = document.createElement('button');
+                        remove.type = 'button';
+                        remove.innerHTML = x;
+                        remove.setAttribute('aria-label', `Remove ${name}`);
+                        remove.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            chosen.delete(name);
+                            render();
+                            trigger.focus();
+                        });
+                        chip.append(remove);
+                    }
+                    trigger.append(chip);
+                });
+                document.getElementById('ms-summary').textContent = locked
+                    ? `${locked}, set by the source campaign`
+                    : `${chosen.size} of ${partners.length} selected`;
+                trigger.disabled = !!locked;
+                trigger.style.cursor = locked ? 'default' : 'pointer';
+                document.getElementById('partners-hint').textContent = locked
+                    ? 'Set by the source campaign: a brief is shared with one Partner.'
+                    : 'Active Partners only. Each sees the offer and only their own awards.';
+            }
+            function renderList() {
+                const items = visible();
+                active = Math.min(active, Math.max(items.length - 1, 0));
+                list.innerHTML = items.length ? '' : '<li class="ms-empty">No Partners match “' + search.value + '”.</li>';
+                items.forEach((name, index) => {
+                    const li = document.createElement('li');
+                    li.id = 'opt-' + index;
+                    li.className = 'ms-option' + (index === active ? ' is-active' : '');
+                    li.setAttribute('role', 'option');
+                    li.setAttribute('aria-selected', chosen.has(name) ? 'true' : 'false');
+                    li.innerHTML = `<span class="ms-box" aria-hidden="true">${check}</span><span>${name}</span>`;
+                    li.addEventListener('mousedown', (event) => event.preventDefault());
+                    li.addEventListener('click', () => toggle(name));
+                    list.append(li);
+                });
+                search.setAttribute('aria-activedescendant', items.length ? 'opt-' + active : '');
+                document.getElementById('ms-count').textContent = `${chosen.size} of ${partners.length} selected`;
+            }
+            function render() {
+                renderTrigger();
+                renderList();
+            }
+            function toggle(name) {
+                chosen.has(name) ? chosen.delete(name) : chosen.add(name);
+                render();
+            }
+            function open() {
+                if (locked) return;
+                ms.dataset.open = '';
+                trigger.setAttribute('aria-expanded', 'true');
+                search.value = '';
+                active = 0;
+                renderList();
+                search.focus();
+            }
+            function close() {
+                delete ms.dataset.open;
+                trigger.setAttribute('aria-expanded', 'false');
+                trigger.focus();
+            }
+            trigger.addEventListener('click', () => ('open' in ms.dataset ? close() : open()));
+            search.addEventListener('input', () => {
+                active = 0;
+                renderList();
+            });
+            search.addEventListener('keydown', (event) => {
+                const items = visible();
+                if (event.key === 'ArrowDown') active = Math.min(active + 1, items.length - 1);
+                else if (event.key === 'ArrowUp') active = Math.max(active - 1, 0);
+                else if ((event.key === ' ' && !search.value) || event.key === 'Enter') items[active] && toggle(items[active]);
+                else if (event.key === 'Escape') return close();
+                else return;
+                event.preventDefault();
+                renderList();
+                document.getElementById('opt-' + active)?.scrollIntoView({ block: 'nearest' });
+            });
+            document.getElementById('ms-all').addEventListener('click', () => {
+                visible().forEach((p) => chosen.add(p));
+                render();
+            });
+            document.getElementById('ms-clear').addEventListener('click', () => {
+                chosen.clear();
+                render();
+            });
+            document.getElementById('ms-done').addEventListener('click', close);
+            document.addEventListener('mousedown', (event) => {
+                if ('open' in ms.dataset && !ms.contains(event.target)) close();
+            });
+            document.getElementById('campaign').addEventListener('change', (event) => {
+                locked = event.target.value ? 'Maya Chen Studio' : null;
+                if (locked) chosen = new Set([locked]);
+                document.getElementById('pv-campaign').textContent = locked
+                    ? 'Registered with the brief “Holiday collection brief”'
+                    : 'Any registered lead counts';
+                render();
+            });
+            const currencies = ['PHP', 'USD', 'JPY', 'EUR', 'GBP', 'SGD', 'AUD', 'CAD', 'HKD', 'CNY', 'KRW', 'THB', 'MYR', 'IDR', 'VND', 'INR', 'AED'];
+            const currencyName = new Intl.DisplayNames(['en'], { type: 'currency' });
+            let currency = 'USD';
+            let ssActive = 0;
+            const ss = document.getElementById('ss');
+            const ssTrigger = document.getElementById('ss-trigger');
+            const ssSearch = document.getElementById('ss-search');
+            const ssList = document.getElementById('ss-list');
+            const ssVisible = () => currencies.filter((c) => `${c} ${currencyName.of(c)}`.toLowerCase().includes(ssSearch.value.trim().toLowerCase()));
+            function ssRender() {
+                document.getElementById('ss-value').innerHTML = `<span class="ss-code">${currency}</span><span class="ss-name">${currencyName.of(currency)}</span>`;
+                const items = ssVisible();
+                ssActive = Math.min(ssActive, Math.max(items.length - 1, 0));
+                ssList.innerHTML = items.length ? '' : '<li class="ms-empty">No matches</li>';
+                items.forEach((code, index) => {
+                    const li = document.createElement('li');
+                    li.id = 'cur-' + index;
+                    li.className = 'ms-option ss-option' + (index === ssActive ? ' is-active' : '');
+                    li.setAttribute('role', 'option');
+                    li.setAttribute('aria-selected', code === currency ? 'true' : 'false');
+                    li.innerHTML = `<span><span class="ss-code">${code}</span><span class="ss-name">${currencyName.of(code)}</span></span><span class="ss-mark" aria-hidden="true">${check.replace('currentColor', 'currentColor')}</span>`;
+                    li.addEventListener('mousedown', (event) => event.preventDefault());
+                    li.addEventListener('click', () => ssPick(code));
+                    ssList.append(li);
+                });
+                ssSearch.setAttribute('aria-activedescendant', items.length ? 'cur-' + ssActive : '');
+            }
+            function ssPick(code) {
+                currency = code;
+                ssClose();
+                sync();
+            }
+            function ssOpen() {
+                ss.dataset.open = '';
+                ssTrigger.setAttribute('aria-expanded', 'true');
+                ssSearch.value = '';
+                ssActive = Math.max(currencies.indexOf(currency), 0);
+                ssRender();
+                ssSearch.focus();
+                document.getElementById('cur-' + ssActive)?.scrollIntoView({ block: 'nearest' });
+            }
+            function ssClose() {
+                delete ss.dataset.open;
+                ssTrigger.setAttribute('aria-expanded', 'false');
+                ssRender();
+                ssTrigger.focus();
+            }
+            ssTrigger.addEventListener('click', () => ('open' in ss.dataset ? ssClose() : ssOpen()));
+            ssSearch.addEventListener('input', () => {
+                ssActive = 0;
+                ssRender();
+            });
+            ssSearch.addEventListener('keydown', (event) => {
+                const items = ssVisible();
+                if (event.key === 'ArrowDown') ssActive = Math.min(ssActive + 1, items.length - 1);
+                else if (event.key === 'ArrowUp') ssActive = Math.max(ssActive - 1, 0);
+                else if (event.key === 'Enter') return items[ssActive] && (event.preventDefault(), ssPick(items[ssActive]));
+                else if (event.key === 'Escape') return ssClose();
+                else return;
+                event.preventDefault();
+                ssRender();
+                document.getElementById('cur-' + ssActive)?.scrollIntoView({ block: 'nearest' });
+            });
+            document.addEventListener('mousedown', (event) => {
+                if ('open' in ss.dataset && !ss.contains(event.target)) ssClose();
+            });
+            const fmt = (v) => {
+                const n = Number(String(v).replace(/,/g, ''));
+                return Number.isFinite(n) && n > 0 ? n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+            };
+            const sync = () => {
+                document.getElementById('pv-title').textContent = document.getElementById('title').value || 'Untitled incentive';
+                document.getElementById('pv-amount').textContent = `${currency} ${fmt(document.getElementById('amount').value)}`;
+                const terms = document.getElementById('terms').value.trim();
+                const el = document.getElementById('pv-terms');
+                el.textContent = terms || 'No terms yet. Partners see how and when you deliver the reward here.';
+                el.classList.toggle('is-empty', !terms);
+            };
+            ['title', 'amount', 'terms'].forEach((id) => document.getElementById(id).addEventListener('input', sync));
+            document.getElementById('screen').addEventListener('change', (event) => {
+                document.getElementById('view-form').hidden = event.target.value !== 'form';
+                document.getElementById('view-dialog').hidden = event.target.value !== 'dialog';
+            });
+            document.getElementById('accent').addEventListener('change', (event) => (document.documentElement.dataset.appearance = event.target.value));
+            document.getElementById('notes').addEventListener('change', (event) => document.body.classList.toggle('hide-notes', event.target.value === 'hide'));
+            render();
+            ssRender();
+            sync();
+        </script>
+    </body>
+</html>

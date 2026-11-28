@@ -36,6 +36,34 @@
     outline: 3px solid #2f7f69;
     outline-offset: 3px;
 }
+/* Select search boxes take focus as soon as a list opens; a thin border in the personal accent marks them
+   instead of the focus ring. Unlayered and after the rule above, so it applies on every page. */
+.wd-select-search:focus-visible {
+    outline: none;
+    border-color: var(--wd-brand);
+}
+/* Text fields, selects and closed select triggers: an accent border with a soft accent glow instead of the focus
+   ring, following the personal accent. Buttons, links and checkboxes keep the ring. */
+.wd-field
+    :is(
+        input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color'], .wd-select-search),
+        textarea,
+        select
+    ):focus-visible,
+.wd-select .wd-select-trigger:focus-visible,
+.wd-table-input:focus-visible,
+.wd-multiselect-control:has(.wd-multiselect-trigger:focus-visible) {
+    outline: none;
+    border-color: var(--wd-brand);
+    box-shadow: 0 0 0 3px var(--wd-brand-soft);
+}
+/* A field with an error keeps its red border while focused. */
+.wd-field :is(input, textarea, select)[aria-invalid='true']:focus-visible,
+.wd-select .wd-select-trigger[aria-invalid='true']:focus-visible,
+.wd-multiselect-control.is-invalid:has(.wd-multiselect-trigger:focus-visible) {
+    border-color: var(--wd-danger-border);
+    box-shadow: 0 0 0 3px var(--wd-danger-bg);
+}
 /* The foundation's semantic muted token is a background. Portal text uses the
    reference foreground token without changing foundation component semantics. */
 .portal-ui {
@@ -242,17 +270,6 @@
     gap: 10px;
     color: var(--wd-body);
     font-size: 13px;
-}
-.wd-page-size select {
-    min-height: var(--wd-table-control);
-    padding: 0 10px;
-    border: 1px solid var(--wd-control-line);
-    border-radius: 10px;
-    background: var(--wd-surface);
-    color: var(--wd-ink);
-    font: inherit;
-    font-size: 13px;
-    font-weight: 600;
 }
 
 /* Brand hub invitations: pending first, five rows before "Show all". */
@@ -1174,6 +1191,19 @@
     background: var(--wd-brand-wash);
     color: var(--wd-body);
     font-size: 14px;
+}
+.ic-panel-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+}
+.ic-offer .ic-terms.is-empty {
+    color: var(--wd-muted);
+    font-style: italic;
 }
 .ic-ready {
     display: grid;

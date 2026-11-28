@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, router, useForm } from '@inertiajs/vue3';
 import { Clock, Gift, Lock, Plus } from '@lucide/vue';
 import Breadcrumbs from '../../components/Breadcrumbs.vue';
 import ContentSection from '../../components/ContentSection.vue';
@@ -14,10 +14,15 @@ import { dateOnly, dateTime } from '../admin/format';
 import FormDialog from '../admin/FormDialog.vue';
 import StageBadge from '../brand-leads/StageBadge.vue';
 import StageSummary from '../brand-leads/StageSummary.vue';
-import CapMeter from '../incentives/CapMeter.vue';
-import { awardStates, daysBetween, incentiveStates, LATE_LINK_DAYS } from '../incentives/format';
-import RewardBlock from '../incentives/RewardBlock.vue';
-import RuleList from '../incentives/RuleList.vue';
+import {
+    awardStates,
+    daysBetween,
+    incentiveStates,
+    LATE_LINK_DAYS,
+    offerReadiness,
+    previewReadiness,
+} from '../incentives/format';
+import OfferCard from '../incentives/OfferCard.vue';
 import type { AwardState, Offer, PartnerOffer } from '../incentives/types';
 import { stageLabel } from '../portals/activity';
 import type { StageOption } from '../portals/types';
@@ -52,6 +57,14 @@ const late = (lead: CampaignLead) => daysBetween(lead.registered_at, lead.linked
 // The Brand's offer card or the Partner's own view of it.
 const brandOffer = computed(() => (props.brand ? (props.incentive as Offer | null) : null));
 const partnerOffer = computed(() => (props.brand ? null : (props.incentive as PartnerOffer | null)));
+// The Brand sees the card its Partner sees; per-Partner counts belong to the Partner, so they start at zero.
+const brandCard = computed(() =>
+    brandOffer.value ? { ...brandOffer.value, brand_name: props.campaign.brand_name ?? '', granted: 0 } : null,
+);
+// Claims are made on the Incentives page, where the claim dialog lists the qualifying leads.
+function claim(): void {
+    if (partnerOffer.value) router.visit(`/partner/incentives#offer-${partnerOffer.value.id}`);
+}
 
 // "Add incentive" creates a draft offer already tied to this brief and its Partner.
 const dialog = ref<InstanceType<typeof FormDialog>>();
@@ -221,20 +234,26 @@ function submit(): void {
 
         <aside v-if="brand && campaign.status !== 'draft'" class="wd-record-aside" aria-label="Incentive">
             <ContentSection title="Incentive" heading-id="incentive-heading">
-                <template v-if="brandOffer">
-                    <p class="ic-card-title">
-                        <Link class="wd-link" :href="`/brand/incentives/${brandOffer.id}`">{{ brandOffer.title }}</Link>
+                <div v-if="brandOffer && brandCard" class="ic-preview">
+                    <p class="ic-panel-meta">
                         <StatusBadge
                             :label="incentiveStates[brandOffer.state].label"
                             :tone="incentiveStates[brandOffer.state].tone"
                         />
+                        <Link class="wd-link" :href="`/brand/incentives/${brandOffer.id}`">Open incentive</Link>
                     </p>
-                    <RewardBlock :terms="brandOffer" />
-                    <CapMeter :used="brandOffer.granted" :cap="brandOffer.cap_total" label="Awards approved" />
+                    <OfferCard
+                        :offer="brandCard"
+                        :readiness="previewReadiness(brandOffer.state)"
+                        preview
+                        terms-placeholder="No terms yet."
+                        :stage-label="label"
+                    />
                     <p class="ic-small ic-muted">
-                        {{ brandOffer.pending ? `${brandOffer.pending} pending` : 'No claims waiting' }}
+                        {{ brandOffer.granted }} {{ brandOffer.granted === 1 ? 'award' : 'awards' }} approved ·
+                        {{ brandOffer.pending ? `${brandOffer.pending} pending` : 'no claims waiting' }}
                     </p>
-                </template>
+                </div>
                 <EmptyState
                     v-else
                     title="No incentive on this brief"
@@ -252,20 +271,13 @@ function submit(): void {
         </aside>
         <aside v-else-if="partnerOffer" class="wd-record-aside" aria-label="Incentive">
             <ContentSection title="Incentive on this brief" heading-id="incentive-heading">
-                <p class="ic-card-title">{{ partnerOffer.title }}</p>
-                <RewardBlock :terms="partnerOffer" />
-                <RuleList :terms="partnerOffer" :stage-label="label" />
-                <CapMeter
-                    :used="partnerOffer.granted"
-                    :cap="partnerOffer.cap_per_partner"
-                    label="Your awards approved"
+                <OfferCard
+                    :offer="partnerOffer"
+                    :readiness="offerReadiness(partnerOffer)"
+                    :can-claim="canManage"
+                    :stage-label="label"
+                    @claim="claim"
                 />
-                <p class="ic-small ic-muted">
-                    {{ partnerOffer.ready ? `${partnerOffer.ready} ready to claim` : 'No leads qualify yet' }} ·
-                    <Link class="wd-link" :href="`/partner/incentives#offer-${partnerOffer.id}`"
-                        >Claim in Incentives</Link
-                    >
-                </p>
             </ContentSection>
         </aside>
     </div>

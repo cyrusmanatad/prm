@@ -216,8 +216,17 @@ const valueDescribedBy = computed(() =>
     border: 0;
 }
 .entry-currency :deep(.wd-select-panel) {
+    top: calc(100% + 4px);
     right: auto;
     width: min(320px, calc(100vw - 48px));
+    border-top-width: 1px;
+    border-radius: 10px;
+    clip-path: none;
+}
+/* The list is wider than this small trigger, so it opens as a separate card below it. */
+.entry-currency :deep(.wd-select-trigger[aria-expanded='true']) {
+    border-bottom-color: var(--wd-brand);
+    border-radius: 10px;
 }
 .entry-amount {
     flex: 1;

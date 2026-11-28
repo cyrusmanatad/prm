@@ -78,7 +78,13 @@ function closeAward(): void {
                     :workspace-name="workspace.name"
                     :stage-label="label"
                 />
-                <IncentiveRecord v-else :incentive="selected" :can-manage="canWrite" :stage-label="label" />
+                <IncentiveRecord
+                    v-else
+                    :incentive="selected"
+                    :can-manage="canWrite"
+                    :workspace-name="workspace.name"
+                    :stage-label="label"
+                />
             </template>
             <IncentiveList
                 v-else

@@ -1,7 +1,7 @@
 import type { BadgeTone } from '../../components/StatusBadge.vue';
 import { formatMoney } from '../finance/amounts';
 import { calendarDate } from '../campaigns/format';
-import type { AwardState, IncentiveState, IncentiveTerms, MoneyTotal } from './types';
+import type { AwardState, IncentiveState, IncentiveTerms, MoneyTotal, PartnerOffer } from './types';
 
 export const rewardKinds = { cash: 'Cash', non_cash: 'Non-cash', percent: 'Percentage bonus' } as const;
 
@@ -79,3 +79,52 @@ export function daysBetween(from: string, to: string): number {
 
 /** A link set more than this many days after registering is flagged (mockup decision 5). */
 export const LATE_LINK_DAYS = 7;
+
+/** Whether a Partner can claim now, and why not; `progress` counts qualifying leads toward one award. */
+export type OfferReadiness = {
+    ok: boolean;
+    title: string;
+    detail: string;
+    progress: { value: number; max: number } | null;
+};
+/** The Brand's preview of the Partner card: each Partner sees their own ready leads, so it shows an example. */
+export function previewReadiness(state: IncentiveState): OfferReadiness {
+    return state === 'ended'
+        ? { ok: false, title: 'This offer has ended', detail: 'Awards stay listed', progress: null }
+        : { ok: false, title: '3 of 5 leads ready', detail: 'Example for a Partner', progress: { value: 3, max: 5 } };
+}
+const plural = (count: number, one: string) => `${count} ${count === 1 ? one : `${one}s`}`;
+export function offerReadiness(offer: PartnerOffer): OfferReadiness {
+    const need = offer.leads_per_award;
+    if (offer.state === 'ended')
+        return { ok: false, title: 'This offer has ended', detail: 'Awards stay below', progress: null };
+    if (!offer.open)
+        return {
+            ok: false,
+            title: `Claims open ${calendarDate(offer.starts_on)}`,
+            detail: 'Not open yet',
+            progress: null,
+        };
+    if (!offer.has_room)
+        return { ok: false, title: 'No awards left on this offer', detail: 'Offer limit reached', progress: null };
+    if (offer.cap_per_partner !== null && offer.granted + offer.pending >= offer.cap_per_partner)
+        return {
+            ok: false,
+            title: 'Your award limit is reached',
+            detail: `${offer.granted + offer.pending} of ${offer.cap_per_partner} used`,
+            progress: null,
+        };
+    if (offer.ready < need)
+        return {
+            ok: false,
+            title: `Needs ${plural(need, 'qualifying lead')}`,
+            detail: `${offer.ready} of ${need} ready`,
+            progress: { value: offer.ready, max: need },
+        };
+    return {
+        ok: true,
+        title: `${plural(offer.ready, 'lead')} ready`,
+        detail: 'Ready to claim',
+        progress: { value: need, max: need },
+    };
+}
