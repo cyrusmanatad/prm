@@ -162,15 +162,15 @@
         background: var(--wd-surface);
     }
     /* The column spans the page; its contents stay in view and scroll on their own. Below the header it fits the
-       visible window, so Collapse is never under the fold; where scroll-driven animations are supported it grows to
+       visible window, so Collapse stays at its bottom even when the list is short and is never under the fold; where scroll-driven animations are supported it grows to
        the full window height as the header scrolls away. */
     .wd-portal-sidebar-inner {
         position: sticky;
         top: 0;
         display: flex;
         flex-direction: column;
-        max-height: calc(100vh - var(--wd-portal-header-height));
-        max-height: calc(100dvh - var(--wd-portal-header-height));
+        height: calc(100vh - var(--wd-portal-header-height));
+        height: calc(100dvh - var(--wd-portal-header-height));
     }
     @supports (animation-timeline: scroll()) {
         .wd-portal-sidebar-inner {
@@ -264,8 +264,9 @@
     line-height: 1.25;
     text-decoration: none;
 }
+/* Hover uses the saved accent color (appearance preference), like the current page. */
 a.wd-portal-nav-item:hover {
-    background: var(--wd-divider);
+    background: var(--wd-brand-soft);
     color: var(--wd-ink);
 }
 a.wd-portal-nav-item[aria-current='page'] {
@@ -286,12 +287,11 @@ a.wd-portal-nav-item[aria-current='page'] {
 }
 .wd-portal-nav-text {
     display: flex;
-    flex-direction: column;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     min-width: 0;
-}
-.wd-portal-nav-status {
-    font-size: 12px;
-    font-weight: 600;
 }
 .wd-portal-nav.is-collapsed .wd-portal-nav-item {
     justify-content: center;
@@ -312,9 +312,10 @@ a.wd-portal-nav-item[aria-current='page'] {
     font: 600 13px var(--wd-font-body);
     box-shadow: 0 6px 18px rgb(34 26 38 / 18%);
 }
-.wd-portal-tooltip-status {
-    font-weight: 500;
-    opacity: 0.85;
+.wd-portal-tooltip .wd-soon-pill {
+    margin-left: 8px;
+    background: rgb(255 255 255 / 0.18);
+    color: #fff;
 }
 
 /* Mobile drawer */
@@ -568,9 +569,9 @@ a.wd-portal-nav-item[aria-current='page'] {
 
 @keyframes wd-portal-sidebar-fit {
     from {
-        max-height: calc(100dvh - var(--wd-portal-header-height));
+        height: calc(100dvh - var(--wd-portal-header-height));
     }
     to {
-        max-height: 100dvh;
+        height: 100dvh;
     }
 }

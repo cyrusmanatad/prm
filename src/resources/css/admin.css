@@ -118,7 +118,7 @@
     text-decoration: none;
 }
 .adm-nav a:hover {
-    background: var(--wd-divider);
+    background: var(--wd-brand-soft);
 }
 .adm-nav a:focus-visible {
     outline: 3px solid var(--wd-focus);

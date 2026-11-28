@@ -90,5 +90,5 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
         await expect(nav.getByText(name, { exact: true })).toBeVisible();
         await expect(page.getByRole('link', { name, exact: true })).toHaveCount(0);
     }
-    await expect(nav.getByText('Not available yet').first()).toBeVisible();
+    await expect(nav.locator('.wd-soon-pill').first()).toBeVisible();
 });

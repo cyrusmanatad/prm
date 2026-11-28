@@ -150,8 +150,8 @@ it('shows real roster figures, links and totals that do not depend on the page',
     ]);
     // Unavailable programs stay listed, never as links.
     expect(nav.findAll('[aria-disabled="true"]').map((item) => item.text())).toEqual([
-        'Enablement, Not available yet',
-        'Payouts, Not available yet',
+        'Enablement, coming Soon',
+        'Payouts, coming Soon',
     ]);
 });
 

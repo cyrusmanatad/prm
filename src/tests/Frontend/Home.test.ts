@@ -135,7 +135,7 @@ it('switches between implemented views with the keyboard and keeps Feed explicit
     const tabs = wrapper.findAll('[role="tab"]');
     expect(tabs.map((tab) => tab.text())).toEqual(['Analytics', 'Activity']);
     expect(wrapper.get('.wd-home-unavailable-tab').attributes('aria-disabled')).toBe('true');
-    expect(wrapper.get('.wd-home-unavailable-tab').text()).toBe('Feed Not available yet');
+    expect(wrapper.get('.wd-home-unavailable-tab').text()).toBe('Feed, coming Soon');
     await tabs[0]!.trigger('keydown', { key: 'ArrowRight' });
     await nextTick();
     expect(tabs[1]!.attributes('aria-selected')).toBe('true');
