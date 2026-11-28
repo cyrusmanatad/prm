@@ -35,7 +35,7 @@ test('partner URLs, avatar navigation, modal focus and paginated drawer history'
         // Inside the portal the account menu keeps account destinations and leaves workspace tools to the navigation.
         await page.getByRole('button', { name: 'Account menu' }).click();
         await expect(page.getByRole('menuitem', { name: 'Onboarding requests', exact: true })).toHaveCount(0);
-        await expect(page.getByRole('menuitem', { name: 'Switch workspace / account security' })).toBeVisible();
+        await expect(page.getByRole('menuitem', { name: 'Workspace / Account security' })).toBeVisible();
         await page.keyboard.press('Escape');
     }
     // Workspace selection, outside the portal shell, still offers the workspace tools in the account menu.
