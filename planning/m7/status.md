@@ -4,4 +4,4 @@
 
 **Confirmed (2026-11-28)** — D43 approves a [source campaign on lead registrations](campaign-lead-link-proposal.md). Not implemented; it waits for pilot Brands to ask which leads came from a brief.
 
-**Confirmed (2026-11-28)** — the [Campaigns and Incentives mockup](../shared/campaigns-incentives-mockup-review.md) is approved. It redesigns the campaign brief screens and sets the UI for D43. Whether the redesign lands in PR #106 or in a separate UI pass is open.
+**Confirmed (2026-11-28)** — the [Campaigns and Incentives mockup](../shared/campaigns-incentives-mockup-review.md) is approved. It redesigns the campaign brief screens and sets the UI for D43. The campaign brief parts are implemented in PR #106. The D43 and D44 parts wait for those decisions to be built.

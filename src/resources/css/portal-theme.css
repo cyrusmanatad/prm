@@ -441,3 +441,330 @@
         right: 10px;
     }
 }
+
+/* Record pages (Partner record, campaigns): breadcrumb, header card and a primary column beside a narrow aside. */
+.wd-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+}
+.wd-crumbs li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.wd-crumbs li > svg {
+    color: var(--wd-muted);
+}
+.wd-crumbs .wd-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    font-size: 14px;
+}
+.wd-crumbs [aria-current] {
+    color: var(--wd-body);
+    overflow-wrap: anywhere;
+}
+.wd-record {
+    display: grid;
+    gap: 20px;
+    padding: 24px;
+}
+.wd-record-identity {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        'eyebrow actions'
+        'name actions'
+        'meta actions';
+    align-items: start;
+    gap: 2px 20px;
+}
+.wd-record-identity.has-leading {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        'leading eyebrow actions'
+        'leading name actions'
+        'leading meta actions';
+}
+.wd-record-leading {
+    grid-area: leading;
+}
+.wd-record-eyebrow {
+    grid-area: eyebrow;
+    margin: 0;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.wd-record h1 {
+    grid-area: name;
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.wd-record-meta {
+    grid-area: meta;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 20px;
+    margin: 8px 0 0;
+    font-size: 14px;
+}
+.wd-record-meta > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 6px;
+}
+.wd-record-meta dt {
+    color: var(--wd-muted);
+    white-space: nowrap;
+}
+.wd-record-meta dt::after {
+    content: ':';
+}
+.wd-record-meta dd {
+    margin: 0;
+    font-weight: 600;
+}
+.wd-record-meta time {
+    text-decoration: underline dotted var(--wd-control-line);
+    text-underline-offset: 4px;
+}
+.wd-record-actions {
+    grid-area: actions;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.wd-record-actions .wd-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.wd-record-columns {
+    display: grid;
+    gap: 16px;
+    align-items: start;
+}
+.wd-record-main,
+.wd-record-aside {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+}
+@media (min-width: 1200px) {
+    .wd-record-columns {
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+    }
+    /* In the narrow side column each label sits above its value. */
+    .wd-record-aside .wd-detail-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media (max-width: 899px) {
+    .wd-record-identity {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'eyebrow'
+            'name'
+            'meta'
+            'actions';
+    }
+    .wd-record-identity.has-leading {
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-areas:
+            'leading eyebrow'
+            'leading name'
+            'meta meta'
+            'actions actions';
+    }
+    .wd-record-actions {
+        justify-content: flex-start;
+        margin-top: 12px;
+    }
+}
+@media (max-width: 599px) {
+    .wd-record {
+        padding: 16px;
+    }
+    .wd-record h1 {
+        font-size: 26px;
+    }
+    .wd-record-identity.has-leading {
+        column-gap: 14px;
+    }
+    .wd-record-leading {
+        align-self: center;
+    }
+    .wd-record-actions {
+        display: grid;
+        justify-content: stretch;
+    }
+    .wd-record-actions .wd-button {
+        width: 100%;
+    }
+}
+
+/* Campaigns (D42): list, draft editor and read-only brief. Record parts use the shared wd-record styles. */
+.cp-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+}
+.cp-head h1 {
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+}
+.cp-head .wd-description {
+    max-width: 68ch;
+}
+.cp-head .wd-button,
+.cp-empty-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.cp-empty-action {
+    margin-top: 14px;
+}
+.cp-count {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+    color: var(--wd-body);
+    font-family: var(--wd-font-body);
+    font-size: 13px;
+    line-height: 22px;
+    vertical-align: 3px;
+}
+.cp-title {
+    display: grid;
+    gap: 2px;
+}
+.cp-title .wd-link {
+    overflow-wrap: anywhere;
+}
+.cp-sub {
+    display: block;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+    font-weight: 500;
+}
+.cp-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+}
+.cp-owner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+.cp-brief {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.cp-notice {
+    margin: 0;
+}
+.cp-meta-hint {
+    color: var(--wd-muted);
+    font-weight: 500;
+}
+.cp-date {
+    max-width: 240px;
+}
+.cp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+}
+.cp-actions .wd-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.cp-checklist {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+}
+.cp-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--wd-muted);
+}
+.cp-checklist li.is-done {
+    color: var(--wd-success);
+    font-weight: 600;
+}
+.cp-note {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--wd-paper);
+    color: var(--wd-body);
+    font-size: 13px;
+    line-height: 1.55;
+}
+.cp-note svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--wd-muted);
+}
+@media (min-width: 1200px) {
+    .cp-sticky {
+        position: sticky;
+        top: calc(var(--wd-portal-header-height, 64px) + 16px);
+    }
+}
+@media (max-width: 599px) {
+    .cp-head .wd-button,
+    .cp-actions .wd-button {
+        width: 100%;
+        justify-content: center;
+    }
+}

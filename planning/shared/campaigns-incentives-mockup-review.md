@@ -114,7 +114,7 @@ The proposal keeps the WeavDash shell, cards, badges, stage chips, tables, filte
 Items 1–6 are **Confirmed (2026-11-28)** as part of the mockup approval. Items 7 and 8 were not confirmed by it.
 
 1. **Confirmed:** the Partner **Programs** group for Campaigns and Incentives (item 2).
-2. **Confirmed:** the campaign redesign replaces the PR #106 screens: the list table, figures and chips, the create dialog, the draft checklist, the share confirmation and the shared detail with leads. **Open:** whether it lands in PR #106 before merge or in a separate UI pass.
+2. **Confirmed:** the campaign redesign replaces the PR #106 screens: the list table, figures and chips, the create dialog, the draft checklist, the share confirmation and the shared detail with leads. **Confirmed:** it lands in PR #106; see Implementation below.
 3. **Confirmed:** award review in a side panel, rather than its own page, so a Brand can work through a queue without losing their place.
 4. **Confirmed:** an explicit **Leads per award** rule field. D44 says one or more registrations, and this fixes the number per offer.
 5. **Confirmed:** the late-link flag threshold of 7 days.
@@ -147,3 +147,26 @@ All checks used Chromium at 1440×900 and 390×844, against a local static serve
 - **Formatting:** Prettier using `src/.prettierrc.json` passes for all mockup files.
 - **Screenshots:** temporary only, kept outside the repository and deleted after inspection.
 - **Not verified:** WebKit and Safari, the live app, and screen-reader passes beyond axe.
+
+## Implementation (campaign briefs, PR #106)
+
+Implemented 2026-11-28 on `feat/campaign-briefs`. The [verification record](../m7/campaign-brief-evidence.md) has the checks.
+
+- **Built:** items 2–5 for D42 only:
+  - the Brand list with status chips and a table
+  - the **New campaign** dialog (the existing `FormDialog`)
+  - the draft with a readiness checklist and the share confirmation (`confirmAction` and the shared `ConfirmationDialog`)
+  - the read-only record for Brand and Partner, with an ended-relationship notice
+  - the Partner list of shared briefs
+  - the Partner **Programs** group (decision 1), with Incentives unavailable
+- **Deliberately left out until D43 and D44 are built:**
+  - the Leads and Incentive columns and figures
+  - Registered leads on the campaign
+  - the Incentive card
+  - **Register a lead for this brief**
+
+  Without them, the figures row would only repeat the chip counts, and the Details aside would only repeat the header. Both return with the D43 and D44 cards.
+- **Reuse:**
+  - The Partner record's breadcrumb, record header and column styles are now the shared `Breadcrumbs` and `RecordHeader` components and `wd-record-*` styles in `portal-theme.css`. The Partner record uses them too; its rendering and tests are unchanged.
+  - Due dates use a time-zone-safe `calendarDate` (for example 3 Feb 2027), matching the portal's `dateOnly` format.
+- **Wording:** the brief field is labelled "What should the Partner do?", because a field and its section were both named "Brief".

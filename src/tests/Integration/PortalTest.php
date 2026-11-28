@@ -78,6 +78,10 @@ class PortalTest extends TestCase
         $partnerPath = '/partner/campaigns/'.$id;
         $data = ['version' => 1, 'brief' => 'Photograph the winter collection', 'due_date' => '2027-01-15'];
         $this->patchJson($brandPath.'/draft', $data + ['partner' => null])->assertOk();
+        $this->getJson('/brand/campaigns')->assertJsonPath('listing.data.0.status', 'draft')->assertJsonPath('listing.data.0.shared_at', null)
+            ->assertJsonPath('counts', ['all' => 1, 'draft' => 1, 'shared' => 0, 'ended' => 0]);
+        $this->getJson('/brand/campaigns?status=shared')->assertJsonCount(0, 'listing.data')->assertJsonPath('filter', 'shared');
+        $this->getJson('/brand/campaigns?status=unknown')->assertJsonValidationErrors('status');
         $this->select($partner, $po)->getJson($partnerPath)->assertNotFound();
         $this->getJson('/partner/campaigns')->assertJsonCount(0, 'listing.data');
         $this->patchJson($brandPath.'/share', $data + ['partner' => $relationship])->assertNotFound();
@@ -88,6 +92,10 @@ class PortalTest extends TestCase
         $this->patchJson($brandPath.'/share', ['version' => 2, 'partner' => $relationship])->assertJsonValidationErrors(['brief', 'due_date']);
         $this->patchJson($brandPath.'/share', $data + ['partner' => (string) Str::uuid()])->assertJsonValidationErrors('partner');
         $this->patchJson($brandPath.'/share', $data + ['partner' => $relationship])->assertOk();
+        $shared = $this->getJson($brandPath)->assertJsonPath('selected.status', 'shared')->json('selected');
+        $this->assertNotNull($shared['shared_at']);
+        $this->assertNotNull($shared['creator_name']);
+        $this->getJson('/brand/campaigns?status=shared')->assertJsonPath('listing.data.0.id', $id)->assertJsonPath('counts.shared', 1);
         $this->select($partner, $po)->getJson('/partner/campaigns')->assertJsonPath('listing.data.0.id', $id);
         $this->getJson($partnerPath)->assertJsonPath('selected.brief', $data['brief'])->assertJsonPath('selected.due_date', $data['due_date'])->assertJsonPath('canWrite', false);
         $visibleExport = fn () => app(TenantContext::class)->run($partner->id, $po, fn () => app(PrivacyExportData::class)->collect($partner->id, $po));
@@ -95,6 +103,8 @@ class PortalTest extends TestCase
         $this->select($otherPartner, $other)->getJson($partnerPath)->assertNotFound();
         app(TenantContext::class)->run($otherPartner->id, $other, fn () => $this->assertFalse(DB::table('campaigns')->where('id', $id)->exists()));
         $this->select($brand, $bo)->deleteJson('/partnerships/'.$relationship)->assertOk();
+        $this->getJson('/brand/campaigns?status=ended')->assertJsonPath('listing.data.0.id', $id)->assertJsonPath('listing.data.0.status', 'ended')
+            ->assertJsonPath('counts', ['all' => 1, 'draft' => 0, 'shared' => 0, 'ended' => 1]);
         $this->select($partner, $po)->getJson($partnerPath)->assertNotFound();
         $this->getJson('/partner/campaigns')->assertJsonCount(0, 'listing.data');
         app(TenantContext::class)->run($partner->id, $po, fn () => $this->assertFalse(DB::table('campaigns')->where('id', $id)->exists()));
