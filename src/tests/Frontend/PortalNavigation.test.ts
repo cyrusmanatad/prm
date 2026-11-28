@@ -42,17 +42,13 @@ it('defines each experience menu with Home first and every existing unavailable 
         { group: 'Partners', items: ['Partner hub', 'Lead registrations'] },
         {
             group: 'Programs',
-            items: [
-                'Campaigns (unavailable)',
-                'Incentives (unavailable)',
-                'Enablement (unavailable)',
-                'Payouts (unavailable)',
-            ],
+            items: ['Campaigns', 'Incentives (unavailable)', 'Enablement (unavailable)', 'Payouts (unavailable)'],
         },
     ]);
     const partner = labels('partner', true).flatMap((group) => group.items);
     expect(partner[0]).toBe('Home');
     for (const tool of [
+        'Campaigns',
         'My leads',
         'Contacts and reminders',
         'Onboarding requests',
@@ -67,7 +63,6 @@ it('defines each experience menu with Home first and every existing unavailable 
         expect(partner).toContain(tool);
     expect(partner.filter((label) => label.endsWith('(unavailable)'))).toEqual([
         'Inbox (unavailable)',
-        'Campaigns (unavailable)',
         'Autopilot (unavailable)',
         'Earnings (unavailable)',
     ]);
@@ -142,7 +137,6 @@ it('renders one main landmark, the workspace identity and accessible unavailable
     const unavailable = nav.findAll('[aria-disabled="true"]');
     expect(unavailable.map((item) => item.text())).toEqual([
         'Inbox, Not available yet',
-        'Campaigns, Not available yet',
         'Autopilot, Not available yet',
         'Earnings, Not available yet',
     ]);
@@ -206,7 +200,7 @@ it('opens the mobile drawer as a labelled modal dialog, closes on Escape and res
     expect(dialog!.textContent).toContain('Brand menu');
     expect(dialog!.textContent).toContain('Bea Studio');
     expect(dialog!.querySelector('[aria-current="page"]')?.textContent).toBe('Lead registrations');
-    expect([...dialog!.querySelectorAll('[aria-disabled="true"]')].map((item) => item.textContent)).toHaveLength(4);
+    expect([...dialog!.querySelectorAll('[aria-disabled="true"]')].map((item) => item.textContent)).toHaveLength(3);
     expect(dialog!.contains(document.activeElement)).toBe(true);
     dialog!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await flushPromises();

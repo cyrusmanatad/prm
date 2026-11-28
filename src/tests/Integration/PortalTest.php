@@ -4,6 +4,7 @@ namespace Tests\Integration;
 
 use App\Jobs\Middleware\TenantJobContext;
 use App\Models\User;
+use App\Services\PrivacyExportData;
 use App\Services\Workspaces;
 use App\Tenancy\TenantContext;
 use Illuminate\Database\QueryException;
@@ -58,7 +59,50 @@ class PortalTest extends TestCase
         $this->getJson('/partner/leads?entry='.$foreign)->assertNotFound();
         $this->getJson('/partner/leads?cursor='.$foreign)->assertNotFound();
         $this->get('/partner/inbox')->assertNotFound();
-        $this->get('/partner/campaigns')->assertNotFound();
+        $this->get('/partner/campaigns')->assertOk();
+    }
+
+    public function test_campaign_drafts_are_private_and_one_active_partner_can_read_the_shared_brief(): void
+    {
+        [$brand, $bo] = $this->workspace('brand');
+        [$otherBrand, $foreign] = $this->workspace('brand');
+        [$partner, $po] = $this->workspace('creator');
+        [$otherPartner, $other] = $this->workspace('creator');
+        foreach ([[$partner, $po], [$otherPartner, $other]] as [$user, $org]) {
+            $invite = $this->invite($brand, $bo, $user->email);
+            $this->accept($user, $org, $invite)->assertOk();
+        }
+        $relationship = $this->select($partner, $po)->getJson('/partner')->json('relationships.0.id');
+        $id = $this->select($brand, $bo)->postJson('/brand/campaigns', ['title' => 'Winter launch', 'partner' => $relationship])->assertCreated()->json('id');
+        $brandPath = '/brand/campaigns/'.$id;
+        $partnerPath = '/partner/campaigns/'.$id;
+        $data = ['version' => 1, 'brief' => 'Photograph the winter collection', 'due_date' => '2027-01-15'];
+        $this->patchJson($brandPath.'/draft', $data + ['partner' => null])->assertOk();
+        $this->select($partner, $po)->getJson($partnerPath)->assertNotFound();
+        $this->getJson('/partner/campaigns')->assertJsonCount(0, 'listing.data');
+        $this->patchJson($brandPath.'/share', $data + ['partner' => $relationship])->assertNotFound();
+        $this->select($otherBrand, $foreign)->getJson($brandPath)->assertNotFound();
+        $this->patchJson($brandPath.'/draft', $data)->assertNotFound();
+        $this->select($brand, $bo)->patchJson($brandPath.'/share', $data + ['partner' => $relationship])->assertJsonValidationErrors('version');
+        $data['version'] = 2;
+        $this->patchJson($brandPath.'/share', ['version' => 2, 'partner' => $relationship])->assertJsonValidationErrors(['brief', 'due_date']);
+        $this->patchJson($brandPath.'/share', $data + ['partner' => (string) Str::uuid()])->assertJsonValidationErrors('partner');
+        $this->patchJson($brandPath.'/share', $data + ['partner' => $relationship])->assertOk();
+        $this->select($partner, $po)->getJson('/partner/campaigns')->assertJsonPath('listing.data.0.id', $id);
+        $this->getJson($partnerPath)->assertJsonPath('selected.brief', $data['brief'])->assertJsonPath('selected.due_date', $data['due_date'])->assertJsonPath('canWrite', false);
+        $visibleExport = fn () => app(TenantContext::class)->run($partner->id, $po, fn () => app(PrivacyExportData::class)->collect($partner->id, $po));
+        $this->assertSame([$id], array_column($visibleExport()['campaigns'], 'id'));
+        $this->select($otherPartner, $other)->getJson($partnerPath)->assertNotFound();
+        app(TenantContext::class)->run($otherPartner->id, $other, fn () => $this->assertFalse(DB::table('campaigns')->where('id', $id)->exists()));
+        $this->select($brand, $bo)->deleteJson('/partnerships/'.$relationship)->assertOk();
+        $this->select($partner, $po)->getJson($partnerPath)->assertNotFound();
+        $this->getJson('/partner/campaigns')->assertJsonCount(0, 'listing.data');
+        app(TenantContext::class)->run($partner->id, $po, fn () => $this->assertFalse(DB::table('campaigns')->where('id', $id)->exists()));
+        $this->assertArrayNotHasKey('campaigns', $visibleExport());
+        $replacement = $this->invite($brand, $bo, $partner->email);
+        $this->accept($partner, $po, $replacement)->assertOk();
+        $this->getJson($partnerPath)->assertNotFound();
+        $this->select($brand, $bo)->getJson($brandPath)->assertJsonPath('selected.brief', $data['brief']);
     }
 
     public function test_shared_identity_projection_privacy_and_replay_revocation(): void

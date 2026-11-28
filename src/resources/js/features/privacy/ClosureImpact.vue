@@ -14,6 +14,7 @@ const labels: Record<string, string> = {
     onboarding_submissions: 'Submission history',
     partnerships: 'Partner relationships',
     lead_registrations: 'Shared lead registrations',
+    campaigns: 'Campaign briefs',
     media_kits: 'Media kits',
     lead_links: 'Lead links',
     partner_join_links: 'Sign-up links',

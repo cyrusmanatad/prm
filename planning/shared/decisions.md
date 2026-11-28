@@ -200,3 +200,17 @@ Privacy requests are handled by the founders/co-founder and any authorized super
 Production account/bucket separation, data location, credentials, budget, retention/deletion, encryption and backup/restore configuration still require preparation and verification. The existing staging integration is not production acceptance. Privacy-export archives currently use separate private local storage; this decision does not migrate them or change their data contract. Existing privacy, scanning, recovery and release gates remain.
 
 This records the provider decision only; no production resources were provisioned, runtime configuration changed, objects migrated or deployment performed.
+
+## D42 — Bring campaign briefs forward
+
+**Confirmed (2026-11-28)** — start local implementation of a private Brand draft that can be shared with one selected active Partner. Other Partners cannot read the brief, and ending the relationship removes access. Broader M7 functionality retains its existing sequencing. See the [campaign brief contract](../m7/campaign-brief-contract.md).
+
+## D43 — Source campaign on lead registrations
+
+**Confirmed (2026-11-28) — approved; not implemented.** A Partner owner or admin can give a lead registration one optional source campaign, chosen from briefs shared with that Partner on the same partnership. The Partner can set it when registering, change it or clear it later, including after the brief's due date. Each change records the link time and is audited. The Brand sees linked active registrations on the campaign, with stage progress and link dates, and can filter registrations by campaign. The Partner sees the source campaign read-only on their private lead. Private leads are never linked or exposed, and existing withdrawal, relationship and workspace visibility rules apply unchanged.
+
+The Brand cannot set or confirm links in this scope. Brand accept/reject is required in the same release that makes incentives, lead protection or commissions depend on a source campaign. Crediting several campaigns per registration remains later work. Implementation waits for pilot demand under the M7 sequencing. Column, function and audit-event names in the [campaign lead link proposal](../m7/campaign-lead-link-proposal.md) are **Proposal / implementation defaults**, not additional confirmed decisions.
+
+## D44 — Bring Brand incentives forward
+
+**Confirmed (2026-11-28) — approved; not implemented.** Bring the first part of M8-02 incentives forward as two records: an incentive (the Brand's offer, optionally linked to a campaign) and an incentive award (what one Partner earned through cited lead registrations). Partners earn rewards. Registrations are the evidence, and rewards to leads or customers are out of scope. Phase 1 lets a Brand share offers with selected active Partners. Phase 2 lets Partners claim awards and requires Brand approval for every award, which also confirms the D43 source campaign. Awards are recorded and marked fulfilled outside the platform. Payouts, withholding, Form 2307, tiers and automatic awards stay deferred under M8. Implementation waits for pilot Brands to confirm they run reward programs. Whether to build both phases together, whether to allow cash rewards, cap visibility and further reward types are still open. Table, function and audit names in the [incentives proposal](../m8/incentives-proposal.md) are **Proposal / implementation defaults**.

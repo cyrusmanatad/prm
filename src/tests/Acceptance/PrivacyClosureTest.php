@@ -136,6 +136,23 @@ class PrivacyClosureTest extends AcceptanceCase
         $this->assertSame('revoked', $this->control->table('onboarding_requests')->where('id', $request)->value('status'));
     }
 
+    public function test_workspace_closure_review_counts_campaigns_and_a_changed_brief_makes_the_review_stale(): void
+    {
+        $owner = $this->person();
+        $org = app(Workspaces::class)->create($owner->id, 'Campaign workspace');
+        $other = app(Workspaces::class)->create($owner->id, 'Unaffected workspace');
+        $campaign = (string) Str::uuid();
+        $this->control->table('campaigns')->insert(['id' => $campaign, 'org_id' => $org, 'title' => 'Private draft']);
+        $this->control->table('campaigns')->insert(['id' => (string) Str::uuid(), 'org_id' => $other, 'title' => 'Other draft']);
+        $preview = $this->preview($owner, $org);
+        $this->assertSame(1, $preview['counts']['campaigns']);
+        $this->control->table('campaigns')->where('id', $campaign)->update(['brief' => 'Changed after review', 'version' => 2]);
+        $this->postJson('/account/closure', [...$this->credentials($owner), 'scope' => 'workspace', 'org_id' => $org, 'manifest_hash' => $preview['hash'], 'reason' => 'Stale preview'])
+            ->assertConflict()->assertJsonValidationErrors('version');
+        $this->close($owner, $org);
+        $this->assertSame('Changed after review', $this->control->table('campaigns')->where('id', $campaign)->value('brief'));
+    }
+
     public function test_sole_workspace_owner_and_platform_operators_are_protected_and_other_roles_cannot_close_a_workspace(): void
     {
         $owner = $this->person();
