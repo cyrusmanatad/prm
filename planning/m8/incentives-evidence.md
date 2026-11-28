@@ -32,7 +32,7 @@ Chromium at 1440×900 and 390×844, captured to temporary files outside the repo
 
 - Fixed during review: four figures stacked one per row on phones (now two per row); the Currency field stretched beside an Amount field showing an error.
 - Fixed during review: the Brand offer filter prop was named `status` and replaced flash messages with "all"; it is now `offerStatus`.
-- Follow-up (2026-11-28): Partner offer cards keep a one-third width at 1200px and wider (two per row below, one on phones), checked at 1280×720.
+- Follow-up (2026-11-28): Partner offer cards keep a one-third width at 1360px and wider (two per row below, one on phones). The card was restyled to the approved reference: the Claim button sits beside the title, with a lock icon while disabled and linked to its reason; the reward has a tinted panel; rules use filled check badges; the cap and terms are a pill and a dashed box; the footer shows lead readiness with a progress bar. Checked at 1280×720, 1440×900 and 390×844; the incentives journey passes on desktop and mobile.
 - Follow-up (2026-11-28): My Leads **Rewards earned** sits beside **Open pipeline** and replaces **Reply rate**; covered by `tests/Frontend/PartnerRewardsCard.test.ts` and the `pipeline.rewards` assertion in `IncentiveTest`.
 - Observation, not changed: after the award panel closes on a phone, flash toasts can extend past the right edge while they animate. This comes from the shared toast container, not this change.
 
