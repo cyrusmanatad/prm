@@ -47,4 +47,6 @@ export interface PipelineWorkspace {
     filters: { q: string; stage: string; due: boolean };
     /** Connected Brands a new lead can optionally be registered with. Absent for older callers. */
     registration?: { canRegister: boolean; brands: { id: string; brand_name: string; paused: boolean }[] };
+    /** Incentive rewards (D44); absent for legacy JSON clients. */
+    rewards?: { earned: { currency: string; minor: string }[]; nonCash: number; awaiting: number };
 }

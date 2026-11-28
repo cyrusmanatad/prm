@@ -1030,10 +1030,21 @@
     font-family: var(--wd-font-display);
     font-size: 20px;
 }
+/* Offer cards keep a one-third width, even when a Partner has one or two offers. */
 .ic-offers {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
+}
+@media (max-width: 1199px) {
+    .ic-offers {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 599px) {
+    .ic-offers {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 .ic-offer {
     display: grid;

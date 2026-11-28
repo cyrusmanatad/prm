@@ -47,6 +47,8 @@
 
 Brand **Programs › Incentives** (`/brand/incentives`): Offers and Awards tabs, status chips, the incentive record with awards, terms, offer and audience, the new/draft form with a live preview, and the award review side panel. Partner **Programs › Incentives** (`/partner/incentives`): offer cards with readiness and **Claim award**, the claim dialog, and **Your awards**. Campaign screens gain the Leads and Incentive columns and the incentive card.
 
+**Confirmed (2026-11-28):** the Partner **My Leads** summary shows **Rewards earned** beside **Open pipeline** and drops the unmeasured **Reply rate** card. Rewards earned sums fulfilled cash awards per currency, counts fulfilled non-cash rewards (never summed), notes approved awards awaiting delivery, and links to Incentives. Like the Incentives page, it covers only awards from currently shared partnerships. **Expected this month** and **Commissions earned** stay unavailable; incentive awards are not commissions, which wait for the M7-01 commission ledger. **Assumption / Open:** reply rate needs outreach send and reply tracking, which no milestone yet owns.
+
 ## Verification gates
 
 Follow the gates in both proposals: real PostgreSQL RLS isolation, viewer write denial, stale versions, caps under concurrent approval, one award per registration per incentive, withdrawal and relationship end, replacement partnerships, export and closure coverage, desktop and mobile browser journeys with axe, and the formatting, type-check, build and existing suites.

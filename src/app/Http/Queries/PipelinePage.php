@@ -3,6 +3,7 @@
 namespace App\Http\Queries;
 
 use App\Enums\PipelineStage;
+use App\Services\Incentives;
 use App\Services\LeadRegistrations;
 use App\Services\Pipeline;
 use Illuminate\Http\Request;
@@ -27,6 +28,8 @@ class PipelinePage
             'selected' => empty($filters['entry']) ? null : $pipeline->detail($orgId, $filters['entry']),
             // Connected Brands a new lead can optionally be registered with (D38). Owners and admins only.
             'registration' => ['canRegister' => ($leads = app(LeadRegistrations::class))->canManage($orgId), 'brands' => $leads->brands($orgId)],
+            // Incentive rewards the Brands have delivered or approved (D44), for the summary row.
+            'rewards' => app(Incentives::class)->partnerRewards($orgId),
         ];
 
         return $payload;

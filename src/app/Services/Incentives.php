@@ -196,6 +196,22 @@ class Incentives
             'received' => count(array_filter($awards, fn ($award) => $award['state'] === 'fulfilled'))];
     }
 
+    /**
+     * My Leads "Rewards earned": fulfilled cash summed per currency, plus counts of fulfilled non-cash rewards and
+     * approved awards awaiting delivery. Only awards from currently shared partnerships are visible (RLS).
+     */
+    public function partnerRewards(string $org): array
+    {
+        $awards = DB::table('incentive_awards as a')->join('incentives as i', 'i.id', '=', 'a.incentive_id')->where('a.creator_org_id', $org);
+        $earned = (clone $awards)->where('a.state', 'fulfilled')->whereNotNull('a.amount_minor')->groupBy('i.currency')->orderBy('i.currency')
+            ->get([DB::raw('i.currency'), DB::raw('sum(a.amount_minor)::text AS total')])
+            ->map(fn ($row) => ['currency' => $row->currency, 'minor' => $row->total])->all();
+
+        return ['earned' => $earned,
+            'nonCash' => (int) (clone $awards)->where('a.state', 'fulfilled')->whereNull('a.amount_minor')->count(),
+            'awaiting' => (int) (clone $awards)->where('a.state', 'approved')->count()];
+    }
+
     /** The workspace's own awards, newest first, with the leads each cites. */
     public function partnerAwards(string $org): array
     {

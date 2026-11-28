@@ -251,6 +251,9 @@ class IncentiveTest extends AcceptanceCase
         $this->patchJson("$decide/fulfil", ['version' => 4, 'fulfilled_on' => now()->toDateString(), 'reference' => 'BDO 1234'])->assertOk();
         $this->as($partner, $po)->getJson('/partner/incentives')->assertJsonPath('awards.0.state', 'fulfilled')
             ->assertJsonPath('awards.0.fulfilment_reference', 'BDO 1234')->assertJsonPath('figures.received', 1);
+        // My Leads "Rewards earned" sums delivered cash per currency (re-approval restored the offer amount).
+        $rewards = $this->getJson('/partner')->assertOk()->json('pipeline.rewards');
+        $this->assertSame(['earned' => [['currency' => $fields['currency'], 'minor' => '200000']], 'nonCash' => 0, 'awaiting' => 0], $rewards);
 
         // The Partner's own cap counts open and granted claims; a rejected claim frees its lead.
         $this->postJson($claims, ['partnership' => $relationship, 'registrations' => [$second]])->assertCreated();
