@@ -28,6 +28,7 @@ const props = defineProps<{
     pagination: PageMeta;
     filters: RegistrationFilters;
     partners: { id: string; creator_name: string }[];
+    campaigns?: { id: string; title: string }[];
     stages: StageOption[];
     facets: RegistrationFacets;
     summary?: RegistrationSummary;
@@ -44,10 +45,23 @@ const partnerOptions = computed(() => [
         count: props.facets.partners[row.id] ?? 0,
     })),
 ]);
+// Shared briefs a registration can name as its source (D43).
+const campaignOptions = computed(() =>
+    props.campaigns?.length
+        ? [{ value: '', label: 'Any campaign' }, ...props.campaigns.map((row) => ({ value: row.id, label: row.title }))]
+        : undefined,
+);
 const pageSizes = ['10', '25', '50'];
 const perPage = computed(() => props.filters.per_page || String(props.pagination.perPage));
 const filtered = computed(
-    () => !!(props.filters.q || props.filters.partner || props.filters.stage || props.filters.window),
+    () =>
+        !!(
+            props.filters.q ||
+            props.filters.partner ||
+            props.filters.campaign ||
+            props.filters.stage ||
+            props.filters.window
+        ),
 );
 
 // A registration opens in a drawer over the list; the address keeps the list state and the open registration.
@@ -100,6 +114,7 @@ function closeDrawer(): void {
                     :stage-total="facets.stageTotal"
                     :stage-href="(stage) => href(1, { stage })"
                     :partners="partnerOptions"
+                    :campaigns="campaignOptions"
                     :pending="pending"
                     @apply="apply"
                 />

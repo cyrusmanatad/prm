@@ -5,6 +5,7 @@ import { Plus } from '@lucide/vue';
 import ContentSection from '../../components/ContentSection.vue';
 import DataTable, { type DataColumn } from '../../components/DataTable.vue';
 import EmptyState from '../../components/EmptyState.vue';
+import FigureList, { type Figure } from '../../components/FigureList.vue';
 import FilterChips from '../../components/FilterChips.vue';
 import FormField from '../../components/FormField.vue';
 import Pagination from '../../components/Pagination.vue';
@@ -34,10 +35,14 @@ const columns = computed<DataColumn[]>(() =>
               { key: 'partner', label: 'Partner' },
               { key: 'status', label: 'Status' },
               { key: 'due', label: 'Due' },
+              { key: 'leads', label: 'Leads' },
+              { key: 'incentive', label: 'Incentive' },
           ]
         : [
               { key: 'title', label: 'Brief' },
               { key: 'due', label: 'Due' },
+              { key: 'leads', label: 'Your leads' },
+              { key: 'incentive', label: 'Incentive' },
           ],
 );
 // Status chips appear only when they hold campaigns, apart from All and the current choice.
@@ -52,6 +57,25 @@ const chips = computed(() =>
               .filter((chip) => chip.value === 'all' || chip.count || chip.value === props.filter)
         : [],
 );
+// Brand figures over every campaign, not the current filter.
+const figures = computed<Figure[]>(() => {
+    const counts = props.counts;
+    if (!counts) return [];
+    const review = counts.awards ?? 0;
+    return [
+        { label: 'Shared briefs', value: counts.shared, scope: 'With an active Partner' },
+        { label: 'Private drafts', value: counts.draft, scope: 'Only your workspace sees them' },
+        { label: 'Leads from campaigns', value: counts.leads ?? 0, scope: 'Registered with a source campaign' },
+        {
+            label: 'Awards to review',
+            value: review,
+            attention: review > 0,
+            ...(review
+                ? { href: '/brand/incentives?tab=awards', linkLabel: 'Review in Incentives' }
+                : { scope: 'Nothing waiting' }),
+        },
+    ];
+});
 const empty = computed(() => (props.counts ? props.counts.all === 0 : props.listing.total === 0));
 
 const dialog = ref<InstanceType<typeof FormDialog>>();
@@ -83,6 +107,8 @@ function submit(): void {
             ><Plus :size="16" aria-hidden="true" />New campaign</Button
         >
     </header>
+
+    <FigureList v-if="brand && !empty" label="Campaign summary" :figures="figures" />
 
     <ContentSection v-if="empty" :title="brand ? 'All campaigns' : 'Shared briefs'" heading-id="list-heading">
         <EmptyState
@@ -146,6 +172,19 @@ function submit(): void {
                 <time v-if="row.due_date" :datetime="row.due_date">{{ calendarDate(row.due_date) }}</time>
                 <span v-else class="wd-hint">Not set</span>
                 <span v-if="row.due_date && row.status === 'shared'" class="cp-sub">{{ dueHint(row.due_date) }}</span>
+            </template>
+            <template #cell-leads="{ row }">
+                <span v-if="row.status === 'draft'" class="wd-hint">—</span>
+                <template v-else>{{ row.leads.toLocaleString('en') }}</template>
+            </template>
+            <template #cell-incentive="{ row }">
+                <Link
+                    v-if="row.incentive"
+                    class="wd-link"
+                    :href="`${brand ? '/brand/incentives/' + row.incentive.id : '/partner/incentives'}`"
+                    >{{ row.incentive.title }}</Link
+                >
+                <span v-else class="wd-hint">None</span>
             </template>
         </DataTable>
         <EmptyState v-else title="No campaigns with this status" description="Choose another status to see them." />

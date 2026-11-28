@@ -119,8 +119,8 @@ Items 1–6 are **Confirmed (2026-11-28)** as part of the mockup approval. Items
 4. **Confirmed:** an explicit **Leads per award** rule field. D44 says one or more registrations, and this fixes the number per offer.
 5. **Confirmed:** the late-link flag threshold of 7 days.
 6. **Confirmed:** an optional note from Partner to Brand on a claim, and the fulfilment reference shown to the Partner.
-7. **Assumption / Open:** the mockup answers the open D44 questions as recommended: both phases together, cash rewards allowed and labelled "paid outside WeavDash", Partners see only their own cap, and three reward types. They remain open in [D44](decisions.md#d44--bring-brand-incentives-forward).
-8. **Assumption / Open:** a registration may support awards for different incentives. Stacking is allowed, but the same incentive can't use it twice.
+7. **Confirmed (2026-11-28):** the mockup's answers to the open D44 questions: both phases together, cash rewards allowed and labelled "paid outside WeavDash", Partners see only their own cap, and three reward types. See [D44](decisions.md#d44--bring-brand-incentives-forward).
+8. **Confirmed (2026-11-28):** a registration may support awards for different incentives, but the same incentive can't use it twice.
 
 ## Verification
 
@@ -170,3 +170,7 @@ Implemented 2026-11-28 on `feat/campaign-briefs`, in [cyrusmanatad/prm#107](http
   - The Partner record's breadcrumb, record header and column styles are now the shared `Breadcrumbs` and `RecordHeader` components and `wd-record-*` styles in `portal-theme.css`. The Partner record uses them too; its rendering and tests are unchanged.
   - Due dates use a time-zone-safe `calendarDate` (for example 3 Feb 2027), matching the portal's `dateOnly` format.
 - **Wording:** the brief field is labelled "What should the Partner do?", because a field and its section were both named "Brief".
+
+## Implementation (D43 and D44)
+
+Implemented 2026-11-28 on `feat/incentives` under the [incentives contract](../m8/incentives-contract.md); not merged. [Verification](../m8/incentives-evidence.md). Built: items 1–13 above except the Partner **Register a lead for this brief** dialog, which links to the existing Brand sharing form with the brief preselected instead of duplicating it. New shared pieces: `FigureList`, `StageSummary`, the `wd-side-panel` styles, and a `date` type on `FormField`.

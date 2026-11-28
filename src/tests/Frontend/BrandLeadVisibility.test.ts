@@ -146,10 +146,10 @@ it('shows real roster figures, links and totals that do not depend on the page',
         '/brand',
         '/brand/lead-registrations',
         '/brand/campaigns',
+        '/brand/incentives',
     ]);
     // Unavailable programs stay listed, never as links.
     expect(nav.findAll('[aria-disabled="true"]').map((item) => item.text())).toEqual([
-        'Incentives, Not available yet',
         'Enablement, Not available yet',
         'Payouts, Not available yet',
     ]);

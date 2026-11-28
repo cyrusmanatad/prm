@@ -37,6 +37,7 @@ class BrandLeadController extends Controller
             'workspace' => $workspace, 'registrations' => $listing['rows'],
             'pagination' => ['page' => $listing['page'], 'perPage' => $listing['perPage'], 'total' => $listing['total']],
             'filters' => $filters, 'partners' => $this->leads->partnerOptions($workspace->id), 'stages' => PipelineStage::options(),
+            'campaigns' => $this->leads->campaignOptions($workspace->id),
             'facets' => $this->leads->facets($workspace->id, $filters, $now), 'summary' => $this->leads->summary($workspace->id, $now),
             'selected' => $selected,
         ]);
@@ -55,7 +56,7 @@ class BrandLeadController extends Controller
             return response()->json(['workspace' => $workspace, 'registration' => $detail, 'stages' => PipelineStage::options()]);
         }
         // Pages open a registration in the drawer over the list; from a Partner record, the list shows that partner's leads.
-        $list = array_filter([...$filters, 'partner' => ($from['from'] ?? null) === 'partner' ? $detail['partnership_id'] : $filters['partner'],
+        $list = array_filter([...$filters, 'campaign' => ($from['from'] ?? null) === 'partner' ? null : $filters['campaign'], 'partner' => ($from['from'] ?? null) === 'partner' ? $detail['partnership_id'] : $filters['partner'],
             'page' => ($from['from'] ?? null) === 'partner' ? null : ($from['page'] ?? null), 'registration' => $registration], fn ($value) => $value !== null && $value !== '');
 
         return redirect('/brand/lead-registrations?'.http_build_query($list));
@@ -95,15 +96,15 @@ class BrandLeadController extends Controller
     private function filters(Request $request, bool $record = false): array
     {
         $rules = [
-            'partner' => ['nullable', 'uuid'], 'stage' => ['nullable', Rule::enum(PipelineStage::class)],
+            'partner' => ['nullable', 'uuid'], 'campaign' => ['nullable', 'uuid'], 'stage' => ['nullable', Rule::enum(PipelineStage::class)],
             'q' => ['nullable', 'string', 'max:160'], 'window' => ['nullable', Rule::in(['30d'])],
             'sort' => ['nullable', Rule::in(array_filter(array_keys(LeadRegistrations::SORTS)))],
             'per_page' => ['nullable', Rule::in(LeadRegistrations::PAGE_SIZES)],
         ];
         // A Partner record never validates or reads partner or page size from the query.
-        $data = $request->validate($record ? array_diff_key($rules, array_flip(['partner', 'per_page'])) : $rules);
+        $data = $request->validate($record ? array_diff_key($rules, array_flip(['partner', 'campaign', 'per_page'])) : $rules);
 
-        return ['partner' => $data['partner'] ?? '', 'stage' => $data['stage'] ?? '', 'q' => $data['q'] ?? '', 'window' => $data['window'] ?? '',
+        return ['partner' => $data['partner'] ?? '', 'campaign' => $data['campaign'] ?? '', 'stage' => $data['stage'] ?? '', 'q' => $data['q'] ?? '', 'window' => $data['window'] ?? '',
             'sort' => $data['sort'] ?? '', 'per_page' => (string) ($data['per_page'] ?? '')];
     }
 

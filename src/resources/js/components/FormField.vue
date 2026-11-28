@@ -3,7 +3,7 @@ withDefaults(
     defineProps<{
         id: string;
         label: string;
-        type?: 'text' | 'email' | 'password' | 'datetime-local';
+        type?: 'text' | 'email' | 'password' | 'datetime-local' | 'date';
         inputmode?: 'text' | 'decimal' | 'numeric';
         autocomplete?: string;
         error?: string;

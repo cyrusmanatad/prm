@@ -68,6 +68,8 @@ export interface RegistrationDetail extends RegistrationRow {
     partner_since?: string | null;
     /** Registrations from this partner that the Brand can see. */
     partner_leads?: number;
+    /** Source campaign the partner linked (D43), and when. */
+    campaign?: { id: string; title: string; linked_at: string } | null;
 }
 /** Figures for the registration list header, over every visible registration. */
 export interface RegistrationSummary {
@@ -78,6 +80,8 @@ export interface RegistrationSummary {
 }
 export type RegistrationFilters = {
     partner: string;
+    /** Source campaign (D43); empty is any. */
+    campaign?: string;
     stage: string;
     q: string;
     window: string;
@@ -114,6 +118,10 @@ export interface OwnRegistration {
     entry_id: string | null;
     brand_name: string | null;
     paused: boolean;
+    partnership_id?: string;
+    /** Source campaign (D43); kept on withdrawn registrations as history. */
+    campaign_id?: string | null;
+    campaign_title?: string | null;
 }
 export interface PortalData {
     account: { name: string; email: string };

@@ -85,7 +85,7 @@ export const portalNavigation: Record<PortalExperience, PortalGroup[]> = {
             label: 'Programs',
             items: [
                 { label: 'Campaigns', icon: Megaphone, href: '/brand/campaigns' },
-                unavailable('Incentives', Gift),
+                { label: 'Incentives', icon: Gift, href: '/brand/incentives' },
                 unavailable('Enablement', GraduationCap),
                 unavailable('Payouts', Wallet),
             ],
@@ -119,7 +119,7 @@ export const portalNavigation: Record<PortalExperience, PortalGroup[]> = {
             label: 'Programs',
             items: [
                 { label: 'Campaigns', icon: Megaphone, href: '/partner/campaigns' },
-                unavailable('Incentives', Gift),
+                { label: 'Incentives', icon: Gift, href: '/partner/incentives' },
             ],
         },
         {

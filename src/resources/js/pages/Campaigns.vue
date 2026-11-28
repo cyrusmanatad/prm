@@ -7,9 +7,12 @@ import type {
     CampaignCounts,
     CampaignDetail,
     CampaignFilter,
+    CampaignLead,
     CampaignListing,
     CampaignPartner,
 } from '../features/campaigns/types';
+import type { AwardState, Offer, PartnerOffer } from '../features/incentives/types';
+import type { StageOption } from '../features/portals/types';
 import BrandChrome from '../features/portals/BrandChrome.vue';
 import PartnerChrome from '../features/portals/PartnerChrome.vue';
 
@@ -18,6 +21,10 @@ defineProps<{
     workspace: { name: string };
     account: { name: string; email: string };
     canWrite: boolean;
+    canManage: boolean;
+    leads: (CampaignLead & { award?: AwardState | null })[];
+    incentive: Offer | PartnerOffer | null;
+    stages: StageOption[];
     selected: CampaignDetail | null;
     listing: CampaignListing | null;
     partners: CampaignPartner[];
@@ -42,7 +49,15 @@ defineProps<{
                     :campaign="selected"
                     :partners="partners"
                 />
-                <CampaignRecord v-else :campaign="selected" :brand="experience === 'brand'" />
+                <CampaignRecord
+                    v-else
+                    :campaign="selected"
+                    :brand="experience === 'brand'"
+                    :can-manage="canManage"
+                    :leads="leads"
+                    :incentive="incentive"
+                    :stages="stages"
+                />
             </template>
             <CampaignList
                 v-else-if="listing"

@@ -7,6 +7,7 @@ import LeadManager from '../pipeline/LeadManager.vue';
 import PipelineBoard from '../pipeline/PipelineBoard.vue';
 import PartnerChrome from './PartnerChrome.vue';
 import StatusBadge from '../../components/StatusBadge.vue';
+import { formatMoney } from '../finance/amounts';
 import { money } from '../pipeline/money';
 import type { PortalData } from './types';
 const props = defineProps<{ data: PortalData; fixture?: boolean }>();
@@ -32,7 +33,26 @@ onUnmounted(() => clearInterval(clock));
 function open(path: string): void {
     if (!fixture) router.get(path);
 }
-const summary = computed(() => [
+// Incentive awards (D44): delivered cash per currency; non-cash rewards are counted, never summed.
+const rewardsCard = computed(() => {
+    const rewards = props.data.pipeline?.rewards ?? { earned: [], nonCash: 0, awaiting: 0 };
+    const nonCash = `${rewards.nonCash} non-cash ${rewards.nonCash === 1 ? 'reward' : 'rewards'}`;
+    const hint = [
+        rewards.earned.length && rewards.nonCash ? `+ ${nonCash}` : '',
+        rewards.awaiting ? `${rewards.awaiting} approved, awaiting delivery` : '',
+    ].filter(Boolean);
+    return {
+        label: 'Rewards earned',
+        value: rewards.earned.length
+            ? rewards.earned.map((total) => formatMoney(total.minor, total.currency)).join(' · ')
+            : rewards.nonCash
+              ? nonCash
+              : 'None yet',
+        hint: hint.length ? hint.join(' · ') : 'Incentive rewards your Brands have delivered',
+        href: path('/partner/incentives'),
+    };
+});
+const summary = computed<{ label: string; value: string; hint: string; href?: string }[]>(() => [
     {
         label: 'Open pipeline',
         value:
@@ -40,11 +60,16 @@ const summary = computed(() => [
             'No non-lost value',
         hint: 'Matching non-lost estimates, separated by currency',
     },
-    ...(professional.value ? [] : ['Expected this month', 'Commissions earned', 'Reply rate']).map((label) => ({
-        label,
-        value: 'Unavailable',
-        hint: 'Not yet measured',
-    })),
+    ...(professional.value
+        ? []
+        : [
+              rewardsCard.value,
+              ...['Expected this month', 'Commissions earned'].map((label) => ({
+                  label,
+                  value: 'Unavailable',
+                  hint: 'Not yet measured',
+              })),
+          ]),
 ]);
 </script>
 <template>
@@ -138,6 +163,12 @@ const summary = computed(() => [
                         <div class="text-[13px] font-semibold text-muted">{{ card.label }}</div>
                         <div class="mt-1.5 font-display text-[28px] font-bold">{{ card.value }}</div>
                         <div class="mt-1 text-[13px] text-muted">{{ card.hint }}</div>
+                        <Link
+                            v-if="card.href"
+                            :href="card.href"
+                            class="mt-2 inline-block text-[13px] font-bold underline"
+                            >View incentives →</Link
+                        >
                     </div></template
                 >
             </section>

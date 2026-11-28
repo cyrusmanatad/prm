@@ -17,7 +17,12 @@ export interface EntryDetail extends Entry {
     /** The latest onboarding request for this lead. */
     onboarding?: { id: string; status: string; created_at: string } | null;
     /** Brands this lead is currently shared with. */
-    sharing?: { brand_name: string; paused: boolean; registered_at: string }[];
+    sharing?: {
+        brand_name: string;
+        paused: boolean;
+        registered_at: string;
+        campaign?: { id: string; title: string } | null;
+    }[];
 }
 export interface LeadForm {
     brand_name: string;
@@ -42,4 +47,6 @@ export interface PipelineWorkspace {
     filters: { q: string; stage: string; due: boolean };
     /** Connected Brands a new lead can optionally be registered with. Absent for older callers. */
     registration?: { canRegister: boolean; brands: { id: string; brand_name: string; paused: boolean }[] };
+    /** Incentive rewards (D44); absent for legacy JSON clients. */
+    rewards?: { earned: { currency: string; minor: string }[]; nonCash: number; awaiting: number };
 }

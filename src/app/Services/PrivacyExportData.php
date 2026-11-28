@@ -104,11 +104,23 @@ class PrivacyExportData
         $data['partner_invitations'] = $this->read(DB::table('partner_invitations')->where('brand_org_id', $org), 'id,recipient_email,status,expires_at,created_at');
         $data['partner_join_links'] = $this->read(DB::table('partner_join_links')->where('brand_org_id', $org), 'id,created_at,revoked_at');
         $data['partnerships'] = $this->read(DB::table('partnerships')->where(fn ($q) => $q->where('brand_org_id', $org)->orWhere('creator_org_id', $org)), 'id,brand_org_id,creator_org_id,brand_name,creator_name,status,accepted_at,revoked_at');
-        $data['lead_registrations'] = $this->read(DB::table('lead_registrations')->where(fn ($q) => $q->where('brand_org_id', $org)->orWhere('creator_org_id', $org)), 'id,partnership_id,display_name,summary,share_contact,contact_name,contact_email,stage,state,withdrawn_at,registered_at,shared_updated_at,version');
+        $data['lead_registrations'] = $this->read(DB::table('lead_registrations')->where(fn ($q) => $q->where('brand_org_id', $org)->orWhere('creator_org_id', $org)), 'id,partnership_id,display_name,summary,share_contact,contact_name,contact_email,stage,state,withdrawn_at,registered_at,shared_updated_at,version,campaign_id,campaign_linked_at,campaign_confirmed_at');
         // RLS includes owned drafts and currently shared briefs. Preserve older archive fingerprints when empty.
         $campaigns = $this->read(DB::table('campaigns'), 'id,title,brief,due_date,partnership_id,version,created_at,shared_at');
         if ($campaigns) {
             $data['campaigns'] = $campaigns;
+        }
+        // Incentives (D44), as row policies show them to this workspace. Added only when present, like campaigns.
+        foreach ([
+            'incentives' => 'id,title,terms,reward_type,amount_minor,currency,reward_text,rule_stage,leads_per_award,campaign_id,starts_on,ends_on,cap_per_partner,cap_total,state,shared_at,ended_at,version,created_at',
+            'incentive_partners' => ['incentive_id,partnership_id', ['incentive_id', 'partnership_id']],
+            'incentive_awards' => 'id,incentive_id,partnership_id,state,amount_minor,amount_reason,note,decision_reason,cancel_reason,claimed_at,decided_at,fulfilled_on,fulfilment_reference,version',
+            'incentive_award_registrations' => ['award_id,incentive_id,registration_id,lead_name,stage_at_claim,released', ['award_id', 'registration_id']],
+        ] as $table => $spec) {
+            [$columns, $order] = is_array($spec) ? $spec : [$spec, ['id']];
+            if ($rows = $this->read(DB::table($table), $columns, $order)) {
+                $data[$table] = $rows;
+            }
         }
         $data['shared_partner_profiles'] = $this->read(DB::query()->fromRaw('(SELECT p.id,app_partner_shared_profile(p.id) AS profile FROM partnerships p WHERE p.brand_org_id=?::uuid) AS shared', [$org]), 'id,profile');
         foreach ($data['shared_partner_profiles'] as &$profile) {

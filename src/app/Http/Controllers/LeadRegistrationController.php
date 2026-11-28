@@ -27,7 +27,7 @@ class LeadRegistrationController extends Controller
         if ($workspace->experience === 'professional' && ! $request->is('professional/*') && $browser) {
             return redirect('/professional/brand-sharing'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
-        $query = $request->validate(['lead' => ['nullable', 'uuid'], 'page' => ['nullable', 'integer', 'min:1', 'max:100000'],
+        $query = $request->validate(['lead' => ['nullable', 'uuid'], 'campaign' => ['nullable', 'uuid'], 'page' => ['nullable', 'integer', 'min:1', 'max:100000'],
             'state' => ['nullable', 'in:'.implode(',', LeadRegistrations::OWN_STATES)], 'brand' => ['nullable', 'uuid'], 'q' => ['nullable', 'string', 'max:160']]);
         $lead = empty($query['lead']) ? null : $this->leads->source($org, $query['lead']);
         abort_if(! empty($query['lead']) && ! $lead, 404);
@@ -43,6 +43,8 @@ class LeadRegistrationController extends Controller
             'summary' => ['brands' => count($brands), 'shared' => $everything['shared'], 'notShared' => $everything['not_shared']],
             'leads' => $canManage ? $this->leads->shareable($org) : [],
             'profile' => $this->leads->profile($org), 'stages' => PipelineStage::options(),
+            // Briefs each Brand shared with this workspace, and an optional brief to preselect (D43).
+            'campaigns' => $this->leads->campaignChoices($org), 'presetCampaign' => $query['campaign'] ?? null,
         ];
 
         return $browser ? Inertia::render('BrandSharing', $data) : response()->json($data);
@@ -51,7 +53,7 @@ class LeadRegistrationController extends Controller
     public function store(Request $request): JsonResponse|RedirectResponse
     {
         $data = $request->validate(['partnership' => ['required', 'uuid'], 'entry' => ['required', 'uuid'], ...$this->shared()]);
-        $result = $this->leads->register($data['partnership'], $data['entry'], $data['display_name'], $data['summary'] ?? '', (bool) ($data['share_contact'] ?? false));
+        $result = $this->leads->register($data['partnership'], $data['entry'], $data['display_name'], $data['summary'] ?? '', (bool) ($data['share_contact'] ?? false), $data['campaign'] ?? null);
         $message = ['created' => 'Lead registered with the Brand', 'existing' => 'This lead is already registered with the Brand', 'reshared' => 'Lead shared with the Brand again'][$result['status']];
 
         return $this->completed($request, ['id' => $result['id'], 'status' => $result['status'], 'message' => $message], '/partner/brand-sharing', $result['status'] === 'created' ? 201 : 200);
@@ -60,7 +62,10 @@ class LeadRegistrationController extends Controller
     public function update(Request $request, string $registration): JsonResponse|RedirectResponse
     {
         $data = $request->validate(['version' => ['required', 'integer', 'min:1', 'max:2147483646'], ...$this->shared()]);
-        $this->leads->update($registration, (int) $data['version'], $data['display_name'], $data['summary'] ?? '', (bool) ($data['share_contact'] ?? false));
+        // A request without a campaign field keeps the current source campaign; an empty value clears it.
+        $campaign = $request->exists('campaign') ? ($data['campaign'] ?? null)
+            : DB::table('lead_registrations')->where('id', $registration)->where('creator_org_id', $request->session()->get('active_org_id'))->value('campaign_id');
+        $this->leads->update($registration, (int) $data['version'], $data['display_name'], $data['summary'] ?? '', (bool) ($data['share_contact'] ?? false), $campaign);
 
         return $this->completed($request, ['message' => 'Shared details saved'], '/partner/brand-sharing');
     }
@@ -89,6 +94,6 @@ class LeadRegistrationController extends Controller
 
     private function shared(): array
     {
-        return ['display_name' => ['required', 'string', 'max:160'], 'summary' => ['nullable', 'string', 'max:1000'], 'share_contact' => ['sometimes', 'boolean']];
+        return ['display_name' => ['required', 'string', 'max:160'], 'summary' => ['nullable', 'string', 'max:1000'], 'share_contact' => ['sometimes', 'boolean'], 'campaign' => ['nullable', 'uuid']];
     }
 }

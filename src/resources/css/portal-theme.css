@@ -768,3 +768,532 @@
         justify-content: center;
     }
 }
+
+/* Figure row: a small set of headline numbers above a list (campaigns, incentives). */
+.wd-figures {
+    display: grid;
+    /* Two per row on phones, up to four on wide screens. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.wd-figure {
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+}
+.wd-figure-value {
+    font-family: var(--wd-font-display);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+.wd-figure-label {
+    color: var(--wd-body);
+    font-size: 13px;
+    font-weight: 600;
+}
+.wd-figure-scope {
+    color: var(--wd-muted);
+    font-size: 12px;
+}
+.wd-figure.is-attention {
+    border-color: var(--wd-warning);
+    background: var(--wd-warning-bg);
+}
+.wd-figure.is-attention .wd-figure-value {
+    color: var(--wd-warning);
+}
+
+/* Stage progress of a set of registered leads (D43). */
+.wd-stage-bar {
+    display: flex;
+    overflow: hidden;
+    height: 10px;
+    margin: 4px 0 10px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+}
+.wd-stage-bar span + span {
+    border-left: 2px solid var(--wd-surface);
+}
+.wd-stage-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 0 0 12px;
+    padding: 0;
+    color: var(--wd-body);
+    font-size: 13px;
+    list-style: none;
+}
+.wd-stage-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.wd-stage-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Side panel: a full-height dialog on the right for reviewing one record without leaving a list. */
+.wd-side-panel[open] {
+    inset: 0 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: min(520px, 100dvw);
+    max-width: 100dvw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border-width: 0 0 0 1px;
+    border-radius: 0;
+}
+.wd-side-panel-head {
+    display: flex;
+    flex: none;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--wd-divider);
+}
+.wd-side-panel-head h2 {
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 20px;
+    line-height: 26px;
+    overflow-wrap: anywhere;
+}
+.wd-side-panel-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 4px 0 0;
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.wd-side-panel-body {
+    display: grid;
+    flex: 1;
+    align-content: start;
+    gap: 18px;
+    overflow-y: auto;
+    padding: 18px 20px;
+}
+.wd-side-panel-foot {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--wd-divider);
+}
+@media (max-width: 640px) {
+    .wd-side-panel[open] {
+        inset: 0 auto 0 0;
+        width: 100dvw;
+        border-left: 0;
+    }
+}
+
+/* Incentives (D44). */
+.ic-small {
+    margin: 0;
+    font-size: 13px;
+}
+.ic-muted {
+    color: var(--wd-muted);
+}
+.ic-terms {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.ic-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--wd-warning);
+    font-size: 12px;
+    font-weight: 700;
+}
+.wd-data-table .ic-flag {
+    display: flex;
+    margin-top: 2px;
+}
+.ic-card-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+.ic-reward {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.ic-reward p {
+    margin: 0;
+}
+.ic-reward-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--wd-brand-soft);
+    color: var(--wd-brand);
+}
+.ic-reward-value {
+    font-family: var(--wd-font-display);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+.ic-reward-value.is-text {
+    font-family: var(--wd-font-body);
+    font-size: 16px;
+    line-height: 1.4;
+}
+.ic-reward-kind {
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.ic-rule {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    list-style: none;
+}
+.ic-rule li {
+    display: flex;
+    gap: 8px;
+}
+.ic-rule svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--wd-success);
+}
+.ic-meter {
+    display: grid;
+    gap: 6px;
+}
+.ic-meter-text {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--wd-body);
+    font-size: 13px;
+}
+.ic-meter-bar {
+    overflow: hidden;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--wd-divider);
+}
+.ic-meter-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--wd-brand);
+}
+.ic-offers-section {
+    display: grid;
+    gap: 12px;
+}
+.ic-offers-section > h2 {
+    margin: 0;
+    font-family: var(--wd-font-display);
+    font-size: 20px;
+}
+/* Offer cards keep a one-third width, even when a Partner has one or two offers. */
+.ic-offers {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+@media (max-width: 1199px) {
+    .ic-offers {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 599px) {
+    .ic-offers {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+.ic-offer {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    min-width: 0;
+}
+.ic-offer-from {
+    margin: 0 0 2px;
+    color: var(--wd-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+.ic-offer footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--wd-divider);
+}
+.ic-offer footer .ic-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.ic-offer footer .wd-button,
+.ic-card-title + .ic-reward {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.ic-legend {
+    margin-bottom: 6px;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+.ic-segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.ic-segmented .ic-legend {
+    flex-basis: 100%;
+}
+.ic-segmented label {
+    display: inline-flex;
+    flex: 1 1 140px;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--wd-control-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+    cursor: pointer;
+}
+.ic-segmented label:has(input:checked) {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand-wash);
+    box-shadow: inset 0 0 0 1px var(--wd-brand);
+}
+.ic-segmented label:has(input:focus-visible) {
+    outline: 3px solid var(--wd-focus);
+    outline-offset: 2px;
+}
+.ic-segmented input {
+    margin: 3px 0 0;
+    accent-color: var(--wd-brand);
+}
+.ic-choice-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+}
+.ic-choice-sub {
+    display: block;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.ic-pair {
+    display: grid;
+    align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 12px 16px;
+}
+.ic-audience,
+.ic-claim-leads {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.ic-checklist {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.ic-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--wd-line);
+    border-radius: 12px;
+    background: var(--wd-surface);
+    cursor: pointer;
+}
+.ic-check.is-static {
+    cursor: default;
+}
+.ic-check:has(input:checked) {
+    border-color: var(--wd-brand);
+    background: var(--wd-brand-wash);
+}
+.ic-check:has(input:disabled) {
+    background: var(--wd-paper);
+    cursor: not-allowed;
+}
+.ic-check input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--wd-brand);
+}
+.ic-check-body {
+    display: grid;
+    flex: 1;
+    gap: 4px;
+    min-width: 0;
+}
+.ic-check-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+}
+.ic-check-name {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+.ic-check-reason {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--wd-muted);
+    font-size: 13px;
+}
+.ic-check-reason.is-ok {
+    color: var(--wd-success);
+}
+.ic-preview-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.ic-preview {
+    display: grid;
+    gap: 12px;
+}
+.ic-error-summary {
+    display: flex;
+    gap: 10px;
+}
+.ic-error-summary ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+}
+.ic-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 0;
+}
+.ic-facts dt {
+    color: var(--wd-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+.ic-facts dd {
+    margin: 0;
+    font-weight: 700;
+}
+.ic-panel-section {
+    display: grid;
+    gap: 8px;
+}
+.ic-panel-section h3 {
+    margin: 0;
+    font-size: 15px;
+}
+.ic-panel-form {
+    display: grid;
+    gap: 14px;
+}
+.ic-timeline {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.ic-timeline li {
+    display: grid;
+    grid-template-columns: 12px 1fr;
+    gap: 10px;
+    font-size: 14px;
+}
+.ic-timeline li::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: var(--wd-success);
+}
+.ic-timeline time {
+    display: block;
+    color: var(--wd-muted);
+    font-size: 12.5px;
+}
+.ic-danger-link {
+    margin-right: auto;
+    color: var(--wd-danger);
+}
+@media (max-width: 1199px) {
+    /* On phones and tablets the Partner's incentive card comes before the lead list. */
+    .cp-incentive-first > .wd-record-aside {
+        order: -1;
+    }
+}
+/* Content sections indent plain lists; these lists are laid out on their own. */
+.wd-content-section :is(.ic-rule, .ic-checklist, .ic-timeline, .wd-stage-legend) {
+    padding-left: 0;
+}
