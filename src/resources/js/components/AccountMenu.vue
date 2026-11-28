@@ -112,7 +112,7 @@ function signOut(): void {
                     </div>
                     <DropdownMenuItem v-if="!closing" as-child>
                         <Link href="/workspaces"
-                            ><Settings :size="18" aria-hidden="true" class="shrink-0" />Switch workspace / account
+                            ><Settings :size="18" aria-hidden="true" class="shrink-0" />Workspace / Account
                             security</Link
                         >
                     </DropdownMenuItem>

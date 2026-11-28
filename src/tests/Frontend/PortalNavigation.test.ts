@@ -244,7 +244,7 @@ it('leaves workspace tools to the sidebar inside the portal shell', async () => 
     await inside.get('button').trigger('keydown', { key: 'Enter' });
     await nextTick();
     const items = [...document.body.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent?.trim());
-    expect(items).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
+    expect(items).toEqual(['Workspace / Account security', 'Privacy exports', 'Appearance', 'Sign out']);
 });
 
 it('places page search between the branding and the account controls, and keeps actions on the right', () => {
@@ -301,5 +301,5 @@ it('labels the account button with the selected workspace and follows a workspac
     await trigger().trigger('keydown', { key: 'Enter' });
     await nextTick();
     const items = [...document.body.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent?.trim());
-    expect(items).toEqual(['Switch workspace / account security', 'Privacy exports', 'Appearance', 'Sign out']);
+    expect(items).toEqual(['Workspace / Account security', 'Privacy exports', 'Appearance', 'Sign out']);
 });
